@@ -26,9 +26,42 @@ namespace Roku.Compiler
             return use_load(src);
         }
 
+        public static List<INamespace> AllNamespaces(SourceCodeBody src)
+        {
+            var readed = new HashSet<INamespace>();
+
+            List<INamespace> use_load(INamespace source)
+            {
+                var xs = new List<INamespace>();
+                if (!readed.Contains(source))
+                {
+                    xs.Add(source);
+                    readed.Add(source);
+                }
+                if (source is SourceCodeBody body) xs.AddRange(body.Uses.Map(xs => use_load(xs)).Flatten());
+                return xs;
+            }
+            return use_load(src);
+        }
+
         public static IEnumerable<(FunctionBody Body, SourceCodeBody Source)> AllFunctionBodies(List<SourceCodeBody> srcs)
         {
-            return srcs.Map(x => x.Functions.By<FunctionBody>().Zip(Lists.Repeat(x))).Flatten();
+            return srcs.Map(x => AllFunctionBodies(x).Zip(Lists.Repeat(x))).Flatten();
+        }
+
+        public static IEnumerable<FunctionBody> AllFunctionBodies(SourceCodeBody src)
+        {
+            return src.Functions.By<FunctionBody>();
+        }
+
+        public static IEnumerable<ExternFunction> AllExternFunctions(List<INamespace> srcs)
+        {
+            return srcs.Map(AllExternFunctions).Flatten();
+        }
+
+        public static IEnumerable<ExternFunction> AllExternFunctions(INamespace src)
+        {
+            return src.Functions.By<ExternFunction>();
         }
 
         public static IFunction? FindFunction(SourceCodeBody src, string name, List<ITypedValue> args)
