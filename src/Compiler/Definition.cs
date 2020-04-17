@@ -29,7 +29,9 @@ namespace Roku.Compiler
 
         public static NamespaceManager MakeNamespace(RootNamespace root, ProgramNode pgm)
         {
-            return pgm.FileName.Split(".").FoldLeft((ns, name) => MakeNamespace(ns, name), (NamespaceManager)root);
+            return System.IO.Path.Combine(System.IO.Path.GetDirectoryName(pgm.FileName)!, System.IO.Path.GetFileNameWithoutExtension(pgm.FileName)!)
+                .Split(new char[] { '.', System.IO.Path.DirectorySeparatorChar })
+                .FoldLeft((ns, name) => MakeNamespace(ns, name), (NamespaceManager)root);
         }
 
         public static NamespaceManager MakeNamespace(NamespaceManager parent, string name)

@@ -10,7 +10,7 @@ namespace Roku
         public static void Main(string[] args)
         {
 
-            var pgm = new ProgramNode() { FileName = "Sample" };
+            var pgm = new ProgramNode() { FileName = "Sample.rk" };
             var v = new VariableNode() { Name = "print" };
             var a = new StringNode() { Value = "hello world" };
             var call = new FunctionCallNode(v);
@@ -26,6 +26,7 @@ namespace Roku
             var src = Definition.LoadProgram(root, pgm);
             src.Uses.Add(root);
             Typing.TypeInference(src);
+            CodeGenerator.Emit(src, "a.exe");
 
             _ = Console.ReadKey();
         }
