@@ -46,7 +46,7 @@ namespace Extensions
 
         public static T? FirstOrNull<T>(this IEnumerable<T> self) where T : class => Enumerable.FirstOrDefault(self);
 
-        public static T? FirstOrNullValue<T>(this IEnumerable<T> self) where T : struct => self.IsNull() ? null : (T?)self.First();
+        public static T? FirstOrNullValue<T>(this IEnumerable<T> self) where T : struct => self.IsNull() ? null : self.First().Cast<T?>();
 
         public static IEnumerable<T> Next<T>(this IEnumerable<T> self) => !self.IsNull() ? self.Drop(1) : throw new IndexOutOfRangeException();
 

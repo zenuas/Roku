@@ -16,7 +16,7 @@ namespace Roku.Compiler
 
         public static System.Reflection.Assembly GetAssembly(ExternFunction e)
         {
-            return ((RkCILFunction)e.Function).MethodInfo.GetType().Assembly;
+            return e.Function.Cast<RkCILFunction>().MethodInfo.GetType().Assembly;
         }
     }
 }

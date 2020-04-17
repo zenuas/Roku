@@ -35,7 +35,7 @@ namespace Command
         {
             var map = GetCommands<T>()
                 .Where(x => x.Attribute is ShortOptionAttribute || x.Attribute is LongOptionAttribute)
-                .ToDictionary(x => x.Attribute is ShortOptionAttribute s ? s.Command.ToString() : ((LongOptionAttribute)x.Attribute).Command);
+                .ToDictionary(x => x.Attribute is ShortOptionAttribute s ? s.Command.ToString() : x.Attribute.Cast<LongOptionAttribute>().Command);
 
             var xargs = new List<string>();
             var methods = new List<(MethodInfo, string[])>();

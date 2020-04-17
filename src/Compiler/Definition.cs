@@ -31,7 +31,7 @@ namespace Roku.Compiler
         {
             return System.IO.Path.Combine(System.IO.Path.GetDirectoryName(pgm.FileName)!, System.IO.Path.GetFileNameWithoutExtension(pgm.FileName)!)
                 .Split(new char[] { '.', System.IO.Path.DirectorySeparatorChar })
-                .FoldLeft((ns, name) => MakeNamespace(ns, name), (NamespaceManager)root);
+                .FoldLeft((ns, name) => MakeNamespace(ns, name), root.Cast<NamespaceManager>());
         }
 
         public static NamespaceManager MakeNamespace(NamespaceManager parent, string name)
@@ -67,7 +67,7 @@ namespace Roku.Compiler
                             }
                             else
                             {
-                                x = new Call(((VariableNode)call.Expression).Name);
+                                x = new Call(call.Expression.Cast<VariableNode>().Name);
                             }
                             call.Arguments.Each(arg => x.Arguments.Add(ToTypedValue(root, pgm, arg)));
                             body.Body.Add(x);

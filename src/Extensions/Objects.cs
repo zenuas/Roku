@@ -15,5 +15,7 @@ namespace Extensions
             f(self);
             return self;
         }
+
+        public static T Cast<T>(this object self) => (T)self;
     }
 }
