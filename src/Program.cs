@@ -26,7 +26,7 @@ namespace Roku
             var src = Definition.LoadProgram(root, pgm);
             src.Uses.Add(root);
             Typing.TypeInference(src);
-            CodeGenerator.Emit(src, "a.exe");
+            CodeGenerator.Emit(src, "a.il");
 
             _ = Console.ReadKey();
         }
