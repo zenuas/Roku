@@ -180,6 +180,10 @@ namespace Extensions
 
         public static T[] ToArray<T>(this IEnumerable<T> self) => Enumerable.ToArray(self);
 
+        public static string Join(this IEnumerable<string> self, char separator) => string.Join(separator, self);
+
+        public static string Join(this IEnumerable<string> self, string separator = "") => string.Join(separator, self);
+
         public static Dictionary<K, T> ToDictionary<T, K>(this IEnumerable<T> self, Func<T, K> fkey) where K : notnull => Enumerable.ToDictionary(self, fkey);
 
         public static Dictionary<K, V> ToDictionary<T, K, V>(this IEnumerable<T> self, Func<T, K> fkey, Func<T, V> fvalue) where K : notnull => Enumerable.ToDictionary(self, fkey, fvalue);
