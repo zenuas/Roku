@@ -1,6 +1,5 @@
-﻿using System;
+﻿using Extensions;
 using NUnit.Framework;
-using Extensions;
 
 namespace Roku.Tests
 {

@@ -2,6 +2,7 @@
 using Roku.IntermediateCode;
 using Roku.Manager;
 using Roku.TypeSystem;
+using System;
 using System.Collections.Generic;
 
 namespace Roku.Compiler
@@ -86,6 +87,29 @@ namespace Roku.Compiler
         public static bool TypeEquals(IType source, ITypedValue arg)
         {
             return true;
+        }
+
+        public static IType LoadStruct(INamespace ns, string name)
+        {
+            var xs = LoadStructs(ns, name);
+            if (!xs.IsNull()) return xs.First();
+
+            if (ns is SourceCodeBody body)
+            {
+                return body.Uses.Map(x => LoadStructOrNull(x, name)).FindFirst(x => x is { })!;
+            }
+
+            throw new Exception();
+        }
+
+        public static IType? LoadStructOrNull(INamespace ns, string name)
+        {
+            return LoadStructs(ns, name).FirstOrNull();
+        }
+
+        public static IEnumerable<IType> LoadStructs(INamespace ns, string name)
+        {
+            return ns.Structs.Map(x => x.Struct).Where(x => x.Name == name);
         }
 
         public static IEnumerable<ITypedValue> AllValues(Operand op)

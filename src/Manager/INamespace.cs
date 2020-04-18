@@ -4,7 +4,7 @@ namespace Roku.Manager
 {
     public interface INamespace
     {
-        public INamespace Current { get; }
         public List<IFunctionBody> Functions { get; }
+        public List<StructBody> Structs { get; }
     }
 }

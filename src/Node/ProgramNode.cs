@@ -4,8 +4,9 @@ namespace Roku.Node
 {
     public class ProgramNode
     {
-        public List<string> Uses { get; } = new List<string>();
+        public List<VariableNode> Uses { get; } = new List<VariableNode>();
         public string FileName { get; set; } = "";
         public List<IStatementNode> Statements { get; } = new List<IStatementNode>();
+        public List<FunctionNode> Functions { get; } = new List<FunctionNode>();
     }
 }

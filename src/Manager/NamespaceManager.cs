@@ -9,7 +9,6 @@ namespace Roku.Manager
         public List<NamespaceManager> SubNamaspaces { get; } = new List<NamespaceManager>();
         public List<IFunctionBody> Functions { get; } = new List<IFunctionBody>();
         public List<StructBody> Structs { get; } = new List<StructBody>();
-        public INamespace Current { get => this; }
 
         public NamespaceManager(string name)
         {

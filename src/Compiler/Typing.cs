@@ -13,7 +13,11 @@ namespace Roku.Compiler
 
         public static bool FunctionBodyInference(FunctionBody body, SourceCodeBody src)
         {
-            return body.Body.FoldLeft((r, x) => OperandTypeInference(body, x, src) || r, false);
+            var resolved = false;
+            body.Arguments.Each(x => resolved = ValueInferenceWithEffect(x.Type, x.Type.Name, src) || resolved);
+            body.Arguments.Each(x => resolved = ValueInferenceWithEffect(x.Name, x.Type.Name, src) || resolved);
+            body.Body.Each(x => resolved = OperandTypeInference(body, x, src) || resolved);
+            return resolved;
         }
 
         public static bool OperandTypeInference(FunctionBody body, Operand op, SourceCodeBody src)
@@ -37,6 +41,13 @@ namespace Roku.Compiler
                 call.Function = Lookup.FindFunction(src, call.Name, call.Arguments);
             }
             return false;
+        }
+
+        public static bool ValueInferenceWithEffect(ITypedValue v, string type_name, SourceCodeBody src)
+        {
+            if (v.Type is { }) return false;
+            v.Type = Lookup.LoadStruct(src, type_name);
+            return true;
         }
 
         public static bool ValueInferenceWithEffect(FunctionBody body, ITypedValue v, SourceCodeBody src)

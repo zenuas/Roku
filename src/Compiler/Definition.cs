@@ -10,111 +10,93 @@ namespace Roku.Compiler
 {
     public static class Definition
     {
-        public static void NamespaceDefinition(RootNamespace root, ProgramNode pgm)
-        {
-            _ = MakeNamespace(root, pgm);
-        }
-
         public static SourceCodeBody LoadProgram(RootNamespace root, ProgramNode pgm)
         {
-            var src = new SourceCodeBody(MakeNamespace(root, pgm));
-            TypeDefinition(root, src, pgm);
-            FunctionDefinition(root, src, pgm);
+            var src = new SourceCodeBody();
+            src.Uses.Add(root);
+            TypeDefinition(src, pgm);
+            FunctionDefinition(src, pgm);
             return src;
         }
 
-        public static void TypeDefinition(RootNamespace root, SourceCodeBody src, ProgramNode pgm)
+        public static void TypeDefinition(SourceCodeBody src, ProgramNode pgm)
         {
         }
 
-        public static NamespaceManager MakeNamespace(RootNamespace root, ProgramNode pgm)
-        {
-            return System.IO.Path.Combine(System.IO.Path.GetDirectoryName(pgm.FileName)!, System.IO.Path.GetFileNameWithoutExtension(pgm.FileName)!)
-                .Split(new char[] { '.', System.IO.Path.DirectorySeparatorChar })
-                .FoldLeft((ns, name) => MakeNamespace(ns, name), root.Cast<NamespaceManager>());
-        }
-
-        public static NamespaceManager MakeNamespace(NamespaceManager parent, string name)
-        {
-            var ns = parent.SubNamaspaces.FindFirstOrNull(x => x.Name == name);
-            if (ns is { }) return ns;
-
-            var n = new NamespaceManager(name);
-            parent.SubNamaspaces.Add(n);
-            return n;
-        }
-
-        public static void FunctionDefinition(RootNamespace root, SourceCodeBody src, ProgramNode pgm)
+        public static void FunctionDefinition(SourceCodeBody src, ProgramNode pgm)
         {
             if (pgm.Statements.Count > 0)
             {
-                var f = MakeEntrypoint(src.Current);
-                FunctionBodyDefinition(root, pgm, f, pgm.Statements);
+                FunctionBodyDefinition(MakeFunction(src, "main"), pgm.Statements);
             }
-        }
-
-        public static void FunctionBodyDefinition(RootNamespace root, ProgramNode pgm, FunctionBody body, List<IStatementNode> stmts)
-        {
-            stmts.Each(stmt =>
+            pgm.Functions.Each(f =>
                 {
-                    switch (stmt)
-                    {
-                        case FunctionCallNode call:
-                            Call x;
-                            if (call.Expression is PropertyNode prop)
-                            {
-                                x = new Call(prop.Right.Name) { FirstLookup = ToTypedValue(root, pgm, prop.Left) };
-                            }
-                            else
-                            {
-                                x = new Call(call.Expression.Cast<VariableNode>().Name);
-                            }
-                            call.Arguments.Each(arg => x.Arguments.Add(ToTypedValue(root, pgm, arg)));
-                            body.Body.Add(x);
-                            break;
+                    var body = MakeFunction(src, f.Name.Name);
+                    var fn = body.Function.Cast<RkFunction>();
+                    f.Arguments.Each(x =>
+                        {
+                            var t = Lookup.LoadStruct(src, x.Type.Name);
+                            body.Arguments.Add((new VariableValue(x.Name.Name, body), new VariableValue(x.Type.Name, body)));
+                            body.Scope.Add(x.Name.Name, t);
+                            fn.NamedArguments.Add((x.Name.Name, t));
+                        });
 
-                        default:
-                            throw new Exception();
-                    }
+                    FunctionBodyDefinition(body, f.Statements);
                 });
         }
 
-        public static IType LoadStruct(RootNamespace root, ProgramNode pgm, string name)
+        public static void FunctionBodyDefinition(IScope scope, List<IStatementNode> stmts)
         {
-            var current = MakeNamespace(root, pgm);
-            var xs = LoadStructs(current, name);
-            if (!xs.IsNull()) return xs.First();
-
-            //pgm.Uses
-
-            xs = LoadStructs(root, name);
-            if (!xs.IsNull()) return xs.First();
-
-            throw new Exception();
-        }
-
-        public static IEnumerable<IType> LoadStructs(NamespaceManager ns, string name)
-        {
-            return ns.Structs.Map(x => x.Struct).Where(x => x.Name == name);
-        }
-
-        public static ITypedValue ToTypedValue(RootNamespace root, ProgramNode pgm, IEvaluableNode e)
-        {
-            return e switch
+            stmts.Each(stmt =>
             {
-                StringNode x => new StringValue(x.Value) { Type = LoadStruct(root, pgm, "String") },
-                _ => throw new Exception(),
-            };
+                switch (stmt)
+                {
+                    case FunctionCallNode call:
+                        Call x;
+                        if (call.Expression is PropertyNode prop)
+                        {
+                            x = new Call(prop.Right.Name) { FirstLookup = ToTypedValue(scope, prop.Left) };
+                        }
+                        else
+                        {
+                            x = new Call(call.Expression.Cast<VariableNode>().Name);
+                        }
+                        call.Arguments.Each(arg => x.Arguments.Add(ToTypedValue(scope, arg)));
+                        scope.Body.Add(x);
+                        break;
+
+                    default:
+                        throw new Exception();
+                }
+            });
         }
 
-        public static FunctionBody MakeEntrypoint(INamespace root)
+        public static ITypedValue ToTypedValue(IScope scope, IEvaluableNode e)
         {
-            var entry = root.Functions.FindFirstOrNull(x => x.Function.Name == "main");
-            if (entry is FunctionBody main) return main;
+            switch (e)
+            {
+                case StringNode x:
+                    return new StringValue(x.Value) { Type = Lookup.LoadStruct(scope.Namespace, "String") };
 
-            var f = new RkFunction("main");
-            var body = new FunctionBody(f);
-            root.Functions.Add(body);
+                case VariableNode x:
+                    var st = FindScopeValue(scope, x.Name);
+                    return new VariableValue(x.Name, st.Scope) { Type = st.Type };
+
+                default:
+                    throw new Exception();
+            }
+        }
+
+        public static (IScope Scope, IType? Type) FindScopeValue(IScope scope, string name)
+        {
+            return scope.Scope.ContainsKey(name) ? (scope, scope.Scope[name]) : FindScopeValue(scope.Parent!, name);
+        }
+
+        public static FunctionBody MakeFunction(INamespace ns, string name)
+        {
+            var f = new RkFunction(name);
+            var body = new FunctionBody(ns, f);
+            ns.Functions.Add(body);
             return body;
         }
     }

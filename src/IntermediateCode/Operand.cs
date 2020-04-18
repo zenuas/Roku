@@ -1,6 +1,4 @@
-﻿using Roku.Node;
-
-namespace Roku.IntermediateCode
+﻿namespace Roku.IntermediateCode
 {
     public class Operand
     {

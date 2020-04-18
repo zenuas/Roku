@@ -50,9 +50,9 @@ namespace Roku.Compiler
         {
             fss.Each(x =>
             {
-                il.WriteLine($".method public static void {x.Function.Name}() cil managed");
+                il.WriteLine($".method public static void {x.Function.Name}({x.Arguments.Map(a => GetTypeName(a.Type.Type)).Join(", ")}) cil managed");
                 il.WriteLine("{");
-                il.WriteLine("\t.entrypoint");
+                if (x.Function.Name == "main") il.WriteLine("\t.entrypoint");
                 il.WriteLine("\t.maxstack 8");
                 x.Body.Each(x => AssemblyOperandEmit(il, x));
                 il.WriteLine("\tret");
@@ -78,6 +78,9 @@ namespace Roku.Compiler
             {
                 case StringValue x:
                     return $"ldstr \"{x.Value}\"";
+
+                case VariableValue x:
+                    return $"ldarg.0";
             }
             throw new Exception();
         }
@@ -88,6 +91,9 @@ namespace Roku.Compiler
             {
                 case RkCILFunction x:
                     return $"[mscorlib]{x.MethodInfo.DeclaringType!.FullName}::{x.MethodInfo.Name}";
+
+                case RkFunction x:
+                    return $"{x.Name}";
             }
             throw new Exception();
         }
