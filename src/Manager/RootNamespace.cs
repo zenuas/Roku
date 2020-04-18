@@ -36,6 +36,16 @@ namespace Roku.Manager
             return t;
         }
 
+        public static RkCILStruct? LoadTypeWithoutVoid(RootNamespace root, Type t)
+        {
+            return LoadTypeWithoutVoid(root, t.GetTypeInfo());
+        }
+
+        public static RkCILStruct? LoadTypeWithoutVoid(RootNamespace root, TypeInfo ti)
+        {
+            return ti == typeof(void) ? null : LoadType(root, ti.Name, ti);
+        }
+
         public static RkCILFunction LoadFunction(RootNamespace root, MethodInfo method)
         {
             return LoadFunction(root, method.Name, method);
@@ -44,7 +54,8 @@ namespace Roku.Manager
         public static RkCILFunction LoadFunction(RootNamespace root, string name, MethodInfo method)
         {
             var f = new RkCILFunction(name, method);
-            method.GetParameters().Each(x => f.Arguments.Add(LoadType(root, x.ParameterType.GetTypeInfo())));
+            f.Return = LoadTypeWithoutVoid(root, method.ReturnType);
+            method.GetParameters().Each(x => f.Arguments.Add(LoadType(root, x.ParameterType)));
             return f;
         }
     }

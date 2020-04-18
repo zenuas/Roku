@@ -65,8 +65,9 @@ namespace Roku.Compiler
             switch (op)
             {
                 case Call x:
+                    var f = x.Function!;
                     il.WriteLine(x.Arguments.Map(LoadValue).Join('\n'));
-                    il.WriteLine($"call void {GetFunctionName(x.Function!)}(string)");
+                    il.WriteLine($"call {GetTypeName(f.Return)} {GetFunctionName(f)}({x.Arguments.Map(a => GetTypeName(a.Type)).Join(", ")})");
                     break;
             }
         }
@@ -91,8 +92,13 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static string GetTypeName(ITypedValue v)
+        public static string GetTypeName(IType? t)
         {
+            switch (t)
+            {
+                case null: return "void";
+                case RkCILStruct x when x.TypeInfo == typeof(string): return "string";
+            }
             throw new Exception();
         }
     }

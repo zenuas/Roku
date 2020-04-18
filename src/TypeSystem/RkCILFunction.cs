@@ -7,6 +7,7 @@ namespace Roku.TypeSystem
     {
         public string Name { get; }
         public MethodInfo MethodInfo { get; }
+        public IType? Return { get; set; } = null;
         public List<IType> Arguments { get; } = new List<IType>();
 
         public RkCILFunction(string name, MethodInfo method)
