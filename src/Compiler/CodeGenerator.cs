@@ -34,11 +34,7 @@ namespace Roku.Compiler
 
         public static void AssemblyExternEmit(StreamWriter il, Assembly[] extern_asms)
         {
-            extern_asms.Each(x =>
-            {
-                il.WriteLine($"//.assembly extern {x.GetName().FullName}");
-            });
-            il.WriteLine(".assembly extern mscorlib {}");
+            extern_asms.Each(x => il.WriteLine($".assembly extern {x.GetName().Name} {{}}"));
         }
 
         public static void AssemblyNameEmit(StreamWriter il, string path)
@@ -90,7 +86,7 @@ namespace Roku.Compiler
             switch (f)
             {
                 case RkCILFunction x:
-                    return $"[mscorlib]{x.MethodInfo.DeclaringType!.FullName}::{x.MethodInfo.Name}";
+                    return $"[{x.MethodInfo.DeclaringType!.FullName}]{x.MethodInfo.DeclaringType!.FullName}::{x.MethodInfo.Name}";
 
                 case RkFunction x:
                     return $"{x.Name}";
