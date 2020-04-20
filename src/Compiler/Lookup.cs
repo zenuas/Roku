@@ -45,25 +45,13 @@ namespace Roku.Compiler
             return use_load(src);
         }
 
-        public static IEnumerable<(FunctionBody Body, SourceCodeBody Source)> AllFunctionBodies(List<SourceCodeBody> srcs)
-        {
-            return srcs.Map(x => AllFunctionBodies(x).Zip(Lists.Repeat(x))).Flatten();
-        }
+        public static IEnumerable<(FunctionBody Body, SourceCodeBody Source)> AllFunctionBodies(List<SourceCodeBody> srcs) => srcs.Map(x => AllFunctionBodies(x).Zip(Lists.Repeat(x))).Flatten();
 
-        public static IEnumerable<FunctionBody> AllFunctionBodies(SourceCodeBody src)
-        {
-            return src.Functions.By<FunctionBody>();
-        }
+        public static IEnumerable<FunctionBody> AllFunctionBodies(SourceCodeBody src) => src.Functions.By<FunctionBody>();
 
-        public static IEnumerable<ExternFunction> AllExternFunctions(List<INamespace> srcs)
-        {
-            return srcs.Map(AllExternFunctions).Flatten();
-        }
+        public static IEnumerable<ExternFunction> AllExternFunctions(List<INamespace> srcs) => srcs.Map(AllExternFunctions).Flatten();
 
-        public static IEnumerable<ExternFunction> AllExternFunctions(INamespace src)
-        {
-            return src.Functions.By<ExternFunction>();
-        }
+        public static IEnumerable<ExternFunction> AllExternFunctions(INamespace src) => src.Functions.By<ExternFunction>();
 
         public static IFunction? FindFunction(SourceCodeBody src, string name, List<ITypedValue> args)
         {
@@ -73,16 +61,9 @@ namespace Roku.Compiler
             return src.Uses.Map(x => FindFunction(x, name, args)).By<IFunction>().FirstOrNull();
         }
 
-        public static IFunction? FindFunction(INamespace ns, string name, List<ITypedValue> args)
-        {
-            return ns.Functions.FindFirstOrNull(x => x.Function.Name == name && FunctionArgumentsEquals(x.Function.Arguments, args))?.Function;
-        }
+        public static IFunction? FindFunction(INamespace ns, string name, List<ITypedValue> args) => ns.Functions.FindFirstOrNull(x => x.Function.Name == name && FunctionArgumentsEquals(x.Function.Arguments, args))?.Function;
 
-        public static bool FunctionArgumentsEquals(List<IType> source, List<ITypedValue> args)
-        {
-            if (source.Count != args.Count) return false;
-            return source.Zip(args).And(x => TypeEquals(x.First, x.Second));
-        }
+        public static bool FunctionArgumentsEquals(List<IType> source, List<ITypedValue> args) => source.Count != args.Count ? false : source.Zip(args).And(x => TypeEquals(x.First, x.Second));
 
         public static bool TypeEquals(IType source, ITypedValue arg)
         {
@@ -102,15 +83,9 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static IType? LoadStructOrNull(INamespace ns, string name)
-        {
-            return LoadStructs(ns, name).FirstOrNull();
-        }
+        public static IType? LoadStructOrNull(INamespace ns, string name) => LoadStructs(ns, name).FirstOrNull();
 
-        public static IEnumerable<IType> LoadStructs(INamespace ns, string name)
-        {
-            return ns.Structs.Map(x => x.Struct).Where(x => x.Name == name);
-        }
+        public static IEnumerable<IType> LoadStructs(INamespace ns, string name) => ns.Structs.Map(x => x.Struct).Where(x => x.Name == name);
 
         public static IEnumerable<ITypedValue> AllValues(Operand op)
         {
