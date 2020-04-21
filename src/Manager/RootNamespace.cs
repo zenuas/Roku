@@ -1,15 +1,15 @@
 ﻿using Extensions;
 using Roku.TypeSystem;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Roku.Manager
 {
-    public class RootNamespace : NamespaceManager
+    public class RootNamespace : INamespace
     {
-        public RootNamespace() : base("")
-        {
-        }
+        public List<IFunctionBody> Functions { get; } = new List<IFunctionBody>();
+        public List<StructBody> Structs { get; } = new List<StructBody>();
 
         public static RkCILStruct LoadType(RootNamespace root, Type t)
         {
