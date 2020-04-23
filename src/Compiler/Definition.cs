@@ -36,8 +36,9 @@ namespace Roku.Compiler
                     f.Arguments.Each(x =>
                         {
                             var t = Lookup.LoadStruct(src, x.Type.Name);
-                            body.Arguments.Add((new VariableValue(x.Name.Name, body), new VariableValue(x.Type.Name, body)));
-                            body.LexicalScope.Add(x.Name.Name, t);
+                            var name = new VariableValue(x.Name.Name, body);
+                            body.Arguments.Add((name, new VariableValue(x.Type.Name, body)));
+                            body.LexicalScope.Add(x.Name.Name, name);
                             fn.NamedArguments.Add((x.Name.Name, t));
                         });
 
@@ -79,17 +80,16 @@ namespace Roku.Compiler
                     return new StringValue(x.Value) { Type = Lookup.LoadStruct(scope.Namespace, "String") };
 
                 case VariableNode x:
-                    var st = FindScopeValue(scope, x.Name);
-                    return new VariableValue(x.Name, st.Scope) { Type = st.Type };
+                    return FindScopeValue(scope, x.Name);
 
                 default:
                     throw new Exception();
             }
         }
 
-        public static (ILexicalScope Scope, IType? Type) FindScopeValue(ILexicalScope scope, string name)
+        public static ITypedValue FindScopeValue(ILexicalScope scope, string name)
         {
-            return scope.LexicalScope.ContainsKey(name) ? (scope, scope.LexicalScope[name]) : FindScopeValue(scope.Parent!, name);
+            return scope.LexicalScope.ContainsKey(name) ? scope.LexicalScope[name] : FindScopeValue(scope.Parent!, name);
         }
 
         public static FunctionBody MakeFunction(INamespace ns, string name)

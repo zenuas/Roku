@@ -12,7 +12,7 @@ namespace Roku.Manager
         public List<Operand> Body { get; } = new List<Operand>();
         public INamespace Namespace { get; }
         public ILexicalScope? Parent { get; } = null;
-        public Dictionary<string, IType?> LexicalScope { get; } = new Dictionary<string, IType?>();
+        public Dictionary<string, ITypedValue> LexicalScope { get; } = new Dictionary<string, ITypedValue>();
 
         public FunctionBody(INamespace ns, IFunction f)
         {
