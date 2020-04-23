@@ -7,9 +7,9 @@ namespace Roku.IntermediateCode
     {
         public string Name { get; set; }
         public IType? Type { get; set; }
-        public IScope Scope { get; }
+        public ILexicalScope Scope { get; }
 
-        public VariableValue(string name, IScope scope)
+        public VariableValue(string name, ILexicalScope scope)
         {
             Name = name;
             Scope = scope;

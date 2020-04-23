@@ -37,7 +37,7 @@ namespace Roku.Compiler
                         {
                             var t = Lookup.LoadStruct(src, x.Type.Name);
                             body.Arguments.Add((new VariableValue(x.Name.Name, body), new VariableValue(x.Type.Name, body)));
-                            body.Scope.Add(x.Name.Name, t);
+                            body.LexicalScope.Add(x.Name.Name, t);
                             fn.NamedArguments.Add((x.Name.Name, t));
                         });
 
@@ -45,7 +45,7 @@ namespace Roku.Compiler
                 });
         }
 
-        public static void FunctionBodyDefinition(IScope scope, List<IStatementNode> stmts)
+        public static void FunctionBodyDefinition(FunctionBody body, List<IStatementNode> stmts)
         {
             stmts.Each(stmt =>
             {
@@ -55,14 +55,14 @@ namespace Roku.Compiler
                         Call x;
                         if (call.Expression is PropertyNode prop)
                         {
-                            x = new Call(prop.Right.Name) { FirstLookup = ToTypedValue(scope, prop.Left) };
+                            x = new Call(prop.Right.Name) { FirstLookup = ToTypedValue(body, prop.Left) };
                         }
                         else
                         {
                             x = new Call(call.Expression.Cast<VariableNode>().Name);
                         }
-                        call.Arguments.Each(arg => x.Arguments.Add(ToTypedValue(scope, arg)));
-                        scope.Body.Add(x);
+                        call.Arguments.Each(arg => x.Arguments.Add(ToTypedValue(body, arg)));
+                        body.Body.Add(x);
                         break;
 
                     default:
@@ -71,7 +71,7 @@ namespace Roku.Compiler
             });
         }
 
-        public static ITypedValue ToTypedValue(IScope scope, IEvaluableNode e)
+        public static ITypedValue ToTypedValue(ILexicalScope scope, IEvaluableNode e)
         {
             switch (e)
             {
@@ -87,9 +87,9 @@ namespace Roku.Compiler
             }
         }
 
-        public static (IScope Scope, IType? Type) FindScopeValue(IScope scope, string name)
+        public static (ILexicalScope Scope, IType? Type) FindScopeValue(ILexicalScope scope, string name)
         {
-            return scope.Scope.ContainsKey(name) ? (scope, scope.Scope[name]) : FindScopeValue(scope.Parent!, name);
+            return scope.LexicalScope.ContainsKey(name) ? (scope, scope.LexicalScope[name]) : FindScopeValue(scope.Parent!, name);
         }
 
         public static FunctionBody MakeFunction(INamespace ns, string name)

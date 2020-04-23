@@ -4,11 +4,10 @@ using System.Collections.Generic;
 
 namespace Roku.Manager
 {
-    public interface IScope
+    public interface ILexicalScope
     {
         public INamespace Namespace { get; }
-        public IScope? Parent { get; }
-        public Dictionary<string, IType?> Scope { get; }
-        public List<Operand> Body { get; }
+        public ILexicalScope? Parent { get; }
+        public Dictionary<string, IType?> LexicalScope { get; }
     }
 }
