@@ -45,7 +45,7 @@ namespace Roku.Compiler
                 });
         }
 
-        public static void FunctionBodyDefinition(FunctionBody body, List<IStatementNode> stmts)
+        public static void FunctionBodyDefinition(ILexicalScope scope, List<IStatementNode> stmts)
         {
             stmts.Each(stmt =>
             {
@@ -55,14 +55,14 @@ namespace Roku.Compiler
                         Call x;
                         if (call.Expression is PropertyNode prop)
                         {
-                            x = new Call(prop.Right.Name) { FirstLookup = ToTypedValue(body, prop.Left) };
+                            x = new Call(prop.Right.Name) { FirstLookup = ToTypedValue(scope, prop.Left) };
                         }
                         else
                         {
                             x = new Call(call.Expression.Cast<VariableNode>().Name);
                         }
-                        call.Arguments.Each(arg => x.Arguments.Add(ToTypedValue(body, arg)));
-                        body.Body.Add(x);
+                        call.Arguments.Each(arg => x.Arguments.Add(ToTypedValue(scope, arg)));
+                        scope.Body.Add(x);
                         break;
 
                     default:
