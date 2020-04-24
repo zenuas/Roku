@@ -53,17 +53,20 @@ namespace Roku.Compiler
 
         public static IEnumerable<ExternFunction> AllExternFunctions(INamespace src) => src.Functions.By<ExternFunction>();
 
-        public static IFunction? FindFunction(SourceCodeBody src, string name, List<ITypedValue> args)
+        public static IFunctionBody? FindFunction(SourceCodeBody src, string name, List<ITypedValue> args)
         {
-            var f = src.Functions.FindFirstOrNull(x => x.Function.Name == name && FunctionArgumentsEquals(x.Function.Arguments, args));
-            if (f is { }) return f.Function;
+            var f = src.Functions.FindFirstOrNull(x => x.Name == name && FunctionArgumentsEquals(x, args));
+            if (f is { }) return f;
 
-            return src.Uses.Map(x => FindFunction(x, name, args)).By<IFunction>().FirstOrNull();
+            return src.Uses.Map(x => FindFunction(x, name, args)).By<IFunctionBody>().FirstOrNull();
         }
 
-        public static IFunction? FindFunction(INamespace ns, string name, List<ITypedValue> args) => ns.Functions.FindFirstOrNull(x => x.Function.Name == name && FunctionArgumentsEquals(x.Function.Arguments, args))?.Function;
+        public static IFunctionBody? FindFunction(INamespace ns, string name, List<ITypedValue> args) => ns.Functions.FindFirstOrNull(x => x.Name == name && FunctionArgumentsEquals(x, args));
 
-        public static bool FunctionArgumentsEquals(List<IType> source, List<ITypedValue> args) => source.Count != args.Count ? false : source.Zip(args).And(x => TypeEquals(x.First, x.Second));
+        public static bool FunctionArgumentsEquals(IFunctionBody source, List<ITypedValue> args)
+        {
+            return true;
+        }
 
         public static bool TypeEquals(IType source, ITypedValue arg)
         {
@@ -97,5 +100,35 @@ namespace Roku.Compiler
                     break;
             }
         }
+
+        //public static RkCILStruct LoadType(RootNamespace root, Type t) => LoadType(root, t.Name, t);
+
+        //public static RkCILStruct LoadType(RootNamespace root, string name, Type t) => LoadType(root, name, t.GetTypeInfo());
+
+        //public static RkCILStruct LoadType(RootNamespace root, TypeInfo ti) => LoadType(root, ti.Name, ti);
+
+        //public static RkCILStruct LoadType(RootNamespace root, string name, TypeInfo ti)
+        //{
+        //    var st = root.Structs.Where(x => x.Struct is RkCILStruct && x.Struct.Name == name).FirstOrNull();
+        //    if (st is { }) return (RkCILStruct)st.Struct;
+
+        //    var t = new RkCILStruct(name, ti);
+        //    root.Structs.Add(new StructBody(t));
+        //    return t;
+        //}
+
+        //public static RkCILStruct? LoadTypeWithoutVoid(RootNamespace root, Type t) => LoadTypeWithoutVoid(root, t.GetTypeInfo());
+
+        //public static RkCILStruct? LoadTypeWithoutVoid(RootNamespace root, TypeInfo ti) => ti == typeof(void) ? null : LoadType(root, ti.Name, ti);
+
+        //public static RkCILFunction LoadFunction(RootNamespace root, MethodInfo method) => LoadFunction(root, method.Name, method);
+
+        //public static RkCILFunction LoadFunction(RootNamespace root, string name, MethodInfo method)
+        //{
+        //    var f = new RkCILFunction(name, method);
+        //    f.Return = LoadTypeWithoutVoid(root, method.ReturnType);
+        //    method.GetParameters().Each(x => f.Arguments.Add(LoadType(root, x.ParameterType)));
+        //    return f;
+        //}
     }
 }

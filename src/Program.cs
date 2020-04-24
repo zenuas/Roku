@@ -1,7 +1,10 @@
-﻿using Roku.Compiler;
+﻿using Extensions;
+using Roku.Compiler;
+using Roku.IntermediateCode;
 using Roku.Manager;
 using Roku.Node;
 using System;
+using System.Collections.Generic;
 
 namespace Roku
 {
@@ -22,14 +25,14 @@ namespace Roku
             pgm.Functions.Add(fn);
 
             var root = new RootNamespace();
-            RootNamespace.LoadType(root, typeof(string));
-            var print = RootNamespace.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) })!);
-            root.Functions.Add(new ExternFunction(print));
+            //Lookup.LoadType(root, typeof(string));
+            root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) })!));
 
             var src = Definition.LoadProgram(root, pgm);
+            var entrypoint = Lookup.FindFunction(src, "main", new List<ITypedValue>())!.Cast<FunctionBody>();
             src.Uses.Add(root);
-            Typing.TypeInference(src);
-            CodeGenerator.Emit(src, "a.il");
+            var m = Typing.TypeInference(entrypoint);
+            CodeGenerator.Emit(entrypoint, m, "a.il");
         }
     }
 }

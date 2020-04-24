@@ -1,13 +1,15 @@
-﻿using Roku.TypeSystem;
+﻿using System.Reflection;
 
 namespace Roku.Manager
 {
     public class ExternFunction : IFunctionBody
     {
-        public IFunction Function { get; set; }
+        public string Name { get; }
+        public MethodInfo Function { get; }
 
-        public ExternFunction(IFunction f)
+        public ExternFunction(string name, MethodInfo f)
         {
+            Name = name;
             Function = f;
         }
     }

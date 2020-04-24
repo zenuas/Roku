@@ -1,7 +1,6 @@
 ﻿using Extensions;
 using Roku.IntermediateCode;
 using Roku.Manager;
-using Roku.TypeSystem;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,25 +10,25 @@ namespace Roku.Compiler
 {
     public static class CodeGenerator
     {
-        public static void Emit(SourceCodeBody body, string path)
+        public static void Emit(IFunctionBody body, TypeMapper m, string path)
         {
-            var pgms = Lookup.AllPrograms(body);
-            var nss = Lookup.AllNamespaces(body);
-            var fss = Lookup.AllFunctionBodies(pgms).UnZip().First;
-            var externs = Lookup.AllExternFunctions(nss);
-            var extern_asms = externs.Map(GetAssembly).ToArray();
+            //var pgms = Lookup.AllPrograms(body);
+            //var nss = Lookup.AllNamespaces(body);
+            //var fss = Lookup.AllFunctionBodies(pgms).UnZip().First;
+            //var externs = Lookup.AllExternFunctions(nss);
+            //var extern_asms = externs.Map(GetAssembly).ToArray();
 
-            using (var il = new StreamWriter(path))
-            {
-                AssemblyExternEmit(il, extern_asms);
-                AssemblyNameEmit(il, path);
-                AssemblyFunctionEmit(il, fss);
-            }
+            //using (var il = new StreamWriter(path))
+            //{
+            //    AssemblyExternEmit(il, extern_asms);
+            //    AssemblyNameEmit(il, path);
+            //    AssemblyFunctionEmit(il, fss);
+            //}
         }
 
         public static Assembly GetAssembly(ExternFunction e)
         {
-            return e.Function.Cast<RkCILFunction>().MethodInfo.DeclaringType!.Assembly;
+            return e.Function.DeclaringType!.Assembly;
         }
 
         public static void AssemblyExternEmit(StreamWriter il, Assembly[] extern_asms)
@@ -46,9 +45,9 @@ namespace Roku.Compiler
         {
             fss.Each(x =>
             {
-                il.WriteLine($".method public static void {x.Function.Name}({x.Arguments.Map(a => GetTypeName(a.Type.Type)).Join(", ")}) cil managed");
+                //il.WriteLine($".method public static void {x.Name}({x.Arguments.Map(a => GetTypeName(a.Type.Type)).Join(", ")}) cil managed");
                 il.WriteLine("{");
-                if (x.Function.Name == "main") il.WriteLine("\t.entrypoint");
+                if (x.Name == "main") il.WriteLine("\t.entrypoint");
                 il.WriteLine("\t.maxstack 8");
                 x.Body.Each(x => AssemblyOperandEmit(il, x));
                 il.WriteLine("\tret");
@@ -63,7 +62,7 @@ namespace Roku.Compiler
                 case Call x:
                     var f = x.Function!;
                     il.WriteLine(x.Arguments.Map(LoadValue).Join('\n'));
-                    il.WriteLine($"call {GetTypeName(f.Return)} {GetFunctionName(f)}({x.Arguments.Map(a => GetTypeName(a.Type)).Join(", ")})");
+                    //il.WriteLine($"call {GetTypeName(f.Return)} {GetFunctionName(f)}({x.Arguments.Map(a => GetTypeName(a.Type)).Join(", ")})");
                     break;
             }
         }
@@ -81,27 +80,27 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static string GetFunctionName(IFunction f)
-        {
-            switch (f)
-            {
-                case RkCILFunction x:
-                    return $"[{x.MethodInfo.DeclaringType!.FullName}]{x.MethodInfo.DeclaringType!.FullName}::{x.MethodInfo.Name}";
+        //public static string GetFunctionName(IFunction f)
+        //{
+        //    switch (f)
+        //    {
+        //        case RkCILFunction x:
+        //            return $"[{x.MethodInfo.DeclaringType!.FullName}]{x.MethodInfo.DeclaringType!.FullName}::{x.MethodInfo.Name}";
 
-                case RkFunction x:
-                    return $"{x.Name}";
-            }
-            throw new Exception();
-        }
+        //        case RkFunction x:
+        //            return $"{x.Name}";
+        //    }
+        //    throw new Exception();
+        //}
 
-        public static string GetTypeName(IType? t)
-        {
-            switch (t)
-            {
-                case null: return "void";
-                case RkCILStruct x when x.TypeInfo == typeof(string): return "string";
-            }
-            throw new Exception();
-        }
+        //public static string GetTypeName(IType? t)
+        //{
+        //    switch (t)
+        //    {
+        //        case null: return "void";
+        //        case RkCILStruct x when x.TypeInfo == typeof(string): return "string";
+        //    }
+        //    throw new Exception();
+        //}
     }
 }

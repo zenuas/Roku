@@ -1,59 +1,83 @@
 ﻿using Extensions;
 using Roku.IntermediateCode;
 using Roku.Manager;
+using Roku.TypeSystem;
+using System;
 
 namespace Roku.Compiler
 {
     public static class Typing
     {
-        public static void TypeInference(SourceCodeBody src)
+        public static TypeMapper TypeInference(FunctionBody body)
         {
-            while (Lookup.AllFunctionBodies(Lookup.AllPrograms(src)).FoldLeft((r, x) => FunctionBodyInference(x.Body, x.Source) || r, false)) ;
+            var m = new TypeMapper();
+            while (FunctionBodyInference(body, m)) ;
+            return m;
         }
 
-        public static bool FunctionBodyInference(FunctionBody body, SourceCodeBody src)
+        public static bool FunctionBodyInference(FunctionBody body, TypeMapper m)
         {
             var resolved = false;
-            body.Arguments.Each(x => resolved = ValueInferenceWithEffect(x.Type, x.Type.Name, src) || resolved);
-            body.Arguments.Each(x => resolved = ValueInferenceWithEffect(x.Name, x.Type.Name, src) || resolved);
-            body.Body.Each(x => resolved = OperandTypeInference(body, x, src) || resolved);
+            body.Arguments.Each(x => resolved = ValueInferenceWithEffect(body.Namespace, m, x.Name, x.Type.Name) || resolved);
+            body.Body.Each(x => resolved = OperandTypeInference(body.Namespace, m, x) || resolved);
             return resolved;
         }
 
-        public static bool OperandTypeInference(FunctionBody body, Operand op, SourceCodeBody src)
+        public static bool OperandTypeInference(INamespace ns, TypeMapper m, Operand op)
         {
-            var resolved = false;
-            Lookup.AllValues(op).Each(x => resolved = ValueInferenceWithEffect(body, x, src) || resolved);
-
             switch (op)
             {
                 case Call x:
-                    resolved = ResolveFunctionWithEffect(x, src) || resolved;
-                    break;
+                    return ResolveFunctionWithEffect(ns, m, x);
+
+                default:
+                    throw new Exception();
             }
-            return false;
         }
 
-        public static bool ResolveFunctionWithEffect(Call call, SourceCodeBody src)
+        public static bool ResolveFunctionWithEffect(INamespace ns, TypeMapper m, Call call)
         {
-            if (call.Function is null)
+            if (m.ContainsKey(call.Function) && m[call.Function] is { }) return false;
+
+            switch (call.Function)
             {
-                call.Function = Lookup.FindFunction(src, call.Name, call.Arguments);
+                case VariableValue x:
+                    var body = Lookup.FindFunction(ns, x.Name, call.Arguments);
+                    if (body is { } fb) m[call.Function] = new FunctionMapper(fb);
+                    break;
+
             }
             return false;
         }
 
-        public static bool ValueInferenceWithEffect(ITypedValue v, string type_name, SourceCodeBody src)
+        public static bool ValueInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, string type_name)
         {
-            if (v.Type is { }) return false;
-            v.Type = Lookup.LoadStruct(src, type_name);
+            if (m.ContainsKey(v) && m[v] is { }) return false;
+            m[v] = Lookup.LoadStruct(ns, type_name);
             return true;
         }
 
-        public static bool ValueInferenceWithEffect(FunctionBody body, ITypedValue v, SourceCodeBody src)
+        public static bool ValueInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v)
         {
-            if (v.Type is { }) return false;
-            return false;
+            if (m.ContainsKey(v) && m[v] is { }) return false;
+            m[v] = ToTypedValue(ns, m, v);
+            return true;
+        }
+
+        public static IType? ToTypedValue(INamespace ns, TypeMapper m, ITypedValue v)
+        {
+            switch (v)
+            {
+                case StringValue x:
+                    m[x] = Lookup.LoadStruct(ns, "String");
+                    return m[x];
+
+                case VariableValue x:
+                    return m[x];
+
+                default:
+                    throw new Exception();
+            }
         }
     }
 }

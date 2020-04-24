@@ -2,7 +2,6 @@
 using Roku.IntermediateCode;
 using Roku.Manager;
 using Roku.Node;
-using Roku.TypeSystem;
 using System;
 using System.Collections.Generic;
 
@@ -32,14 +31,12 @@ namespace Roku.Compiler
             pgm.Functions.Each(f =>
                 {
                     var body = MakeFunction(src, f.Name.Name);
-                    var fn = body.Function.Cast<RkFunction>();
                     f.Arguments.Each(x =>
                         {
-                            var t = Lookup.LoadStruct(src, x.Type.Name);
+                            //var t = Lookup.LoadStruct(src, x.Type.Name);
                             var name = new VariableValue(x.Name.Name, body);
                             body.Arguments.Add((name, new VariableValue(x.Type.Name, body)));
                             body.LexicalScope.Add(x.Name.Name, name);
-                            fn.NamedArguments.Add((x.Name.Name, t));
                         });
 
                     FunctionBodyDefinition(body, f.Statements);
@@ -56,11 +53,11 @@ namespace Roku.Compiler
                         Call x;
                         if (call.Expression is PropertyNode prop)
                         {
-                            x = new Call(prop.Right.Name) { FirstLookup = ToTypedValue(scope, prop.Left) };
+                            x = new Call(new VariableValue(prop.Right.Name, scope)) { FirstLookup = ToTypedValue(scope, prop.Left) };
                         }
                         else
                         {
-                            x = new Call(call.Expression.Cast<VariableNode>().Name);
+                            x = new Call(new VariableValue(call.Expression.Cast<VariableNode>().Name, scope));
                         }
                         call.Arguments.Each(arg => x.Arguments.Add(ToTypedValue(scope, arg)));
                         scope.Body.Add(x);
@@ -77,7 +74,7 @@ namespace Roku.Compiler
             switch (e)
             {
                 case StringNode x:
-                    return new StringValue(x.Value) { Type = Lookup.LoadStruct(scope.Namespace, "String") };
+                    return new StringValue(x.Value);
 
                 case VariableNode x:
                     return FindScopeValue(scope, x.Name);
@@ -94,8 +91,7 @@ namespace Roku.Compiler
 
         public static FunctionBody MakeFunction(INamespace ns, string name)
         {
-            var f = new RkFunction(name);
-            var body = new FunctionBody(ns, f);
+            var body = new FunctionBody(ns, name);
             ns.Functions.Add(body);
             return body;
         }

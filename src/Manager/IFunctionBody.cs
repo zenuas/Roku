@@ -1,9 +1,7 @@
-﻿using Roku.TypeSystem;
-
-namespace Roku.Manager
+﻿namespace Roku.Manager
 {
     public interface IFunctionBody
     {
-        public IFunction Function { get; set; }
+        public string Name { get; }
     }
 }
