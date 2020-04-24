@@ -5,6 +5,6 @@ namespace Roku.Manager
     public class RootNamespace : INamespace
     {
         public List<IFunctionBody> Functions { get; } = new List<IFunctionBody>();
-        public List<StructBody> Structs { get; } = new List<StructBody>();
+        public List<IStructBody> Structs { get; } = new List<IStructBody>();
     }
 }

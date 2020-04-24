@@ -25,14 +25,13 @@ namespace Roku
             pgm.Functions.Add(fn);
 
             var root = new RootNamespace();
-            //Lookup.LoadType(root, typeof(string));
+            Lookup.LoadType(root, typeof(string));
             root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) })!));
 
             var src = Definition.LoadProgram(root, pgm);
-            var entrypoint = Lookup.FindFunction(src, "main", new List<ITypedValue>())!.Cast<FunctionBody>();
             src.Uses.Add(root);
-            var m = Typing.TypeInference(entrypoint);
-            CodeGenerator.Emit(entrypoint, m, "a.il");
+            Typing.TypeInference(src);
+            CodeGenerator.Emit(src, "a.il");
         }
     }
 }

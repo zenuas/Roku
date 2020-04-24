@@ -5,6 +5,6 @@ namespace Roku.Manager
     public interface INamespace
     {
         public List<IFunctionBody> Functions { get; }
-        public List<StructBody> Structs { get; }
+        public List<IStructBody> Structs { get; }
     }
 }

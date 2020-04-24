@@ -1,17 +1,16 @@
 ﻿using Roku.IntermediateCode;
-using Roku.TypeSystem;
 using System.Collections.Generic;
 
 namespace Roku.Manager
 {
-    public class StructBody
+    public class StructBody : IStructBody
     {
-        public IType Struct { get; set; }
+        public string Name { get; }
         public List<Operand> Body { get; } = new List<Operand>();
 
-        public StructBody(IType t)
+        public StructBody(string name)
         {
-            Struct = t;
+            Name = name;
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Roku.IntermediateCode;
-using Roku.TypeSystem;
 using System.Collections.Generic;
 
 namespace Roku.Manager
@@ -13,6 +12,7 @@ namespace Roku.Manager
         public INamespace Namespace { get; }
         public ILexicalScope? Parent { get; } = null;
         public Dictionary<string, ITypedValue> LexicalScope { get; } = new Dictionary<string, ITypedValue>();
+        public Dictionary<ITypedValue, IStructBody?> TypeMapper { get; } = new Dictionary<ITypedValue, IStructBody?>();
 
         public FunctionBody(INamespace ns, string name)
         {

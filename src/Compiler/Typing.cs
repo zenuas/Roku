@@ -1,29 +1,32 @@
 ﻿using Extensions;
 using Roku.IntermediateCode;
 using Roku.Manager;
-using Roku.TypeSystem;
 using System;
+using System.Collections.Generic;
 
 namespace Roku.Compiler
 {
     public static class Typing
     {
-        public static TypeMapper TypeInference(FunctionBody body)
+        public static void TypeInference(SourceCodeBody src)
         {
-            var m = new TypeMapper();
-            while (FunctionBodyInference(body, m)) ;
-            return m;
+            Lookup.AllFunctionBodies(Lookup.AllPrograms(src)).Each(x => TypeInference(x.Body));
         }
 
-        public static bool FunctionBodyInference(FunctionBody body, TypeMapper m)
+        public static void TypeInference(FunctionBody body)
+        {
+            while (FunctionBodyInference(body)) ;
+        }
+
+        public static bool FunctionBodyInference(FunctionBody body)
         {
             var resolved = false;
-            body.Arguments.Each(x => resolved = ValueInferenceWithEffect(body.Namespace, m, x.Name, x.Type.Name) || resolved);
-            body.Body.Each(x => resolved = OperandTypeInference(body.Namespace, m, x) || resolved);
+            body.Arguments.Each(x => resolved = ValueInferenceWithEffect(body.Namespace, body.TypeMapper, x.Name, x.Type.Name) || resolved);
+            body.Body.Each(x => resolved = OperandTypeInference(body.Namespace, body.TypeMapper, x) || resolved);
             return resolved;
         }
 
-        public static bool OperandTypeInference(INamespace ns, TypeMapper m, Operand op)
+        public static bool OperandTypeInference(INamespace ns, Dictionary<ITypedValue, IStructBody?> m, Operand op)
         {
             switch (op)
             {
@@ -35,7 +38,7 @@ namespace Roku.Compiler
             }
         }
 
-        public static bool ResolveFunctionWithEffect(INamespace ns, TypeMapper m, Call call)
+        public static bool ResolveFunctionWithEffect(INamespace ns, Dictionary<ITypedValue, IStructBody?> m, Call call)
         {
             if (m.ContainsKey(call.Function) && m[call.Function] is { }) return false;
 
@@ -50,21 +53,21 @@ namespace Roku.Compiler
             return false;
         }
 
-        public static bool ValueInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, string type_name)
+        public static bool ValueInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, IStructBody?> m, ITypedValue v, string type_name)
         {
             if (m.ContainsKey(v) && m[v] is { }) return false;
             m[v] = Lookup.LoadStruct(ns, type_name);
             return true;
         }
 
-        public static bool ValueInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v)
+        public static bool ValueInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, IStructBody?> m, ITypedValue v)
         {
             if (m.ContainsKey(v) && m[v] is { }) return false;
             m[v] = ToTypedValue(ns, m, v);
             return true;
         }
 
-        public static IType? ToTypedValue(INamespace ns, TypeMapper m, ITypedValue v)
+        public static IStructBody? ToTypedValue(INamespace ns, Dictionary<ITypedValue, IStructBody?> m, ITypedValue v)
         {
             switch (v)
             {

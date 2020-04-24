@@ -1,9 +1,9 @@
 ﻿using Extensions;
 using Roku.IntermediateCode;
 using Roku.Manager;
-using Roku.TypeSystem;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Roku.Compiler
 {
@@ -68,12 +68,12 @@ namespace Roku.Compiler
             return true;
         }
 
-        public static bool TypeEquals(IType source, ITypedValue arg)
-        {
-            return true;
-        }
+        //public static bool TypeEquals(IType source, ITypedValue arg)
+        //{
+        //    return true;
+        //}
 
-        public static IType LoadStruct(INamespace ns, string name)
+        public static IStructBody LoadStruct(INamespace ns, string name)
         {
             var xs = LoadStructs(ns, name);
             if (!xs.IsNull()) return xs.First();
@@ -86,9 +86,9 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static IType? LoadStructOrNull(INamespace ns, string name) => LoadStructs(ns, name).FirstOrNull();
+        public static IStructBody? LoadStructOrNull(INamespace ns, string name) => LoadStructs(ns, name).FirstOrNull();
 
-        public static IEnumerable<IType> LoadStructs(INamespace ns, string name) => ns.Structs.Map(x => x.Struct).Where(x => x.Name == name);
+        public static IEnumerable<IStructBody> LoadStructs(INamespace ns, string name) => ns.Structs.Where(x => x.Name == name);
 
         public static IEnumerable<ITypedValue> AllValues(Operand op)
         {
@@ -101,21 +101,21 @@ namespace Roku.Compiler
             }
         }
 
-        //public static RkCILStruct LoadType(RootNamespace root, Type t) => LoadType(root, t.Name, t);
+        public static ExternStruct LoadType(RootNamespace root, Type t) => LoadType(root, t.Name, t);
 
-        //public static RkCILStruct LoadType(RootNamespace root, string name, Type t) => LoadType(root, name, t.GetTypeInfo());
+        public static ExternStruct LoadType(RootNamespace root, string name, Type t) => LoadType(root, name, t.GetTypeInfo());
 
-        //public static RkCILStruct LoadType(RootNamespace root, TypeInfo ti) => LoadType(root, ti.Name, ti);
+        public static ExternStruct LoadType(RootNamespace root, TypeInfo ti) => LoadType(root, ti.Name, ti);
 
-        //public static RkCILStruct LoadType(RootNamespace root, string name, TypeInfo ti)
-        //{
-        //    var st = root.Structs.Where(x => x.Struct is RkCILStruct && x.Struct.Name == name).FirstOrNull();
-        //    if (st is { }) return (RkCILStruct)st.Struct;
+        public static ExternStruct LoadType(RootNamespace root, string name, TypeInfo ti)
+        {
+            var st = root.Structs.Where(x => x is ExternStruct && x.Name == name).FirstOrNull();
+            if (st is { }) return st.Cast<ExternStruct>();
 
-        //    var t = new RkCILStruct(name, ti);
-        //    root.Structs.Add(new StructBody(t));
-        //    return t;
-        //}
+            var t = new ExternStruct(name, ti);
+            root.Structs.Add(t);
+            return t;
+        }
 
         //public static RkCILStruct? LoadTypeWithoutVoid(RootNamespace root, Type t) => LoadTypeWithoutVoid(root, t.GetTypeInfo());
 
