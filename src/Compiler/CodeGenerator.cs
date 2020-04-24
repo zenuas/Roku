@@ -60,9 +60,16 @@ namespace Roku.Compiler
             switch (op)
             {
                 case Call x:
-                    //var f = m[x.Function]!;
+                    var f = m[x.Function]!.Cast<FunctionMapper>();
                     il.WriteLine(x.Arguments.Map(LoadValue).Join('\n'));
-                    //il.WriteLine($"call {GetTypeName(m[f.Return])} {GetFunctionName(f)}({x.Arguments.Map(a => GetTypeName(a.Type)).Join(", ")})");
+                    if (f.Function is ExternFunction fx)
+                    {
+                        il.WriteLine($"call {GetTypeName(fx.Function.ReturnType)} [{fx.Function.DeclaringType!.FullName}]{fx.Function.DeclaringType!.FullName}::{fx.Function.Name}({x.Arguments.Map(a => GetTypeName(m[a])).Join(", ")})");
+                    }
+                    else if (f.Function is FunctionBody fb)
+                    {
+                        il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return)} {fb.Name}({fb.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name])).Join(", ")})");
+                    }
                     break;
             }
         }
@@ -80,27 +87,23 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        //public static string GetFunctionName(IFunction f)
-        //{
-        //    switch (f)
-        //    {
-        //        case RkCILFunction x:
-        //            return $"[{x.MethodInfo.DeclaringType!.FullName}]{x.MethodInfo.DeclaringType!.FullName}::{x.MethodInfo.Name}";
-
-        //        case RkFunction x:
-        //            return $"{x.Name}";
-        //    }
-        //    throw new Exception();
-        //}
+        public static string GetTypeName(Dictionary<ITypedValue, IStructBody?> m, ITypedValue? t) => t is null ? "void" : GetTypeName(m[t]);
 
         public static string GetTypeName(IStructBody? t)
         {
             switch (t)
             {
                 case null: return "void";
-                case ExternStruct x when x.Struct == typeof(string): return "string";
+                case ExternStruct x: return GetTypeName(x.Struct);
             }
             throw new Exception();
+        }
+
+        public static string GetTypeName(Type t)
+        {
+            if (t == typeof(void)) return "void";
+            if (t == typeof(string)) return "string";
+            return t.Name;
         }
     }
 }

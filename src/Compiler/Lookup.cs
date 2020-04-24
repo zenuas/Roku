@@ -53,15 +53,17 @@ namespace Roku.Compiler
 
         public static IEnumerable<ExternFunction> AllExternFunctions(INamespace src) => src.Functions.By<ExternFunction>();
 
-        public static IFunctionBody? FindFunction(SourceCodeBody src, string name, List<ITypedValue> args)
+        public static IFunctionBody? FindFunctionOrNull(INamespace ns, string name, List<ITypedValue> args) => ns is SourceCodeBody src ? FindFunctioInSourceCodeOrNulln(src, name, args) : FindFunctionInNamespaceOrNull(ns, name, args);
+
+        public static IFunctionBody? FindFunctioInSourceCodeOrNulln(SourceCodeBody src, string name, List<ITypedValue> args)
         {
             var f = src.Functions.FindFirstOrNull(x => x.Name == name && FunctionArgumentsEquals(x, args));
             if (f is { }) return f;
 
-            return src.Uses.Map(x => FindFunction(x, name, args)).By<IFunctionBody>().FirstOrNull();
+            return src.Uses.Map(x => FindFunctionInNamespaceOrNull(x, name, args)).By<IFunctionBody>().FirstOrNull();
         }
 
-        public static IFunctionBody? FindFunction(INamespace ns, string name, List<ITypedValue> args) => ns.Functions.FindFirstOrNull(x => x.Name == name && FunctionArgumentsEquals(x, args));
+        public static IFunctionBody? FindFunctionInNamespaceOrNull(INamespace ns, string name, List<ITypedValue> args) => ns.Functions.FindFirstOrNull(x => x.Name == name && FunctionArgumentsEquals(x, args));
 
         public static bool FunctionArgumentsEquals(IFunctionBody source, List<ITypedValue> args)
         {

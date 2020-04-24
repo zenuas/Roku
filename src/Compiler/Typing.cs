@@ -45,12 +45,21 @@ namespace Roku.Compiler
             switch (call.Function)
             {
                 case VariableValue x:
-                    var body = Lookup.FindFunction(ns, x.Name, call.Arguments);
-                    if (body is { } fb) m[call.Function] = new FunctionMapper(fb);
+                    var body = Lookup.FindFunctionOrNull(ns, x.Name, call.Arguments);
+                    if (body is { } b)
+                    {
+                        var fm = new FunctionMapper(b);
+                        if (b is FunctionBody fb)
+                        {
+                            if (fb.Return is { }) fm.TypeMapper[fb.Return] = Lookup.LoadStruct(fb.Namespace, fb.Return.Name);
+                            fb.Arguments.Each(x => fm.TypeMapper[x.Name] = Lookup.LoadStruct(fb.Namespace, x.Type.Name));
+                        }
+                        m[call.Function] = fm;
+                    }
                     break;
 
             }
-            return false;
+            return true;
         }
 
         public static bool ValueInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, IStructBody?> m, ITypedValue v, string type_name)
