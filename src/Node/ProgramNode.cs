@@ -2,7 +2,7 @@
 
 namespace Roku.Node
 {
-    public class ProgramNode
+    public class ProgramNode : Node
     {
         public List<VariableNode> Uses { get; } = new List<VariableNode>();
         public string FileName { get; set; } = "";

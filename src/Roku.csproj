@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="cd $(ProjectDir)&#xD;&#xA;make.bat parser" />
+  </Target>
+
 </Project>

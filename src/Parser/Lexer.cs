@@ -1,20 +1,31 @@
 ﻿using Extensions;
+using Roku.Node;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Roku.Parser
 {
-    public class Lexer
+    public class Lexer : ILexer<INode>
     {
+        public SourceCodeReader BaseReader { get; }
         public List<Token> Store { get; } = new List<Token>();
 
-        public static Token ReadToken(Lexer lex, SourceCodeReader reader)
+        public Lexer(SourceCodeReader reader)
         {
-            if (lex.Store.IsNull()) lex.Store.AddRange(ReadLineTokens(reader));
+            BaseReader = reader;
+        }
 
-            var t = lex.Store.First();
-            lex.Store.RemoveAt(0);
+        public IToken<INode> PeekToken()
+        {
+            if (Store.IsNull()) Store.AddRange(ReadLineTokens(BaseReader));
+            return Store.First();
+        }
+
+        public IToken<INode> ReadToken()
+        {
+            var t = PeekToken();
+            Store.RemoveAt(0);
             return t;
         }
 
@@ -190,7 +201,7 @@ namespace Roku.Parser
                 if (c == start) break;
                 s.Append(c);
             }
-            return new Token { Type = Symbols.STRING, Name = s.ToString() };
+            return new Token { Type = Symbols.STR, Name = s.ToString() };
         }
 
         public static bool IsNumber(char c) => c >= '0' && c <= '9';
