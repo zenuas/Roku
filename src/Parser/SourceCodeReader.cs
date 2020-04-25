@@ -35,19 +35,9 @@ namespace Roku.Parser
             return BaseReader.ReadLine();
         }
 
-        public char ReadChar()
-        {
-            if (EndOfStream) return '\0';
+        public char ReadChar() => EndOfStream ? '\0' : (char)Read();
 
-            return (char)Read();
-        }
-
-        public char PeekChar()
-        {
-            if (EndOfStream) return '\0';
-
-            return (char)BaseReader.Peek();
-        }
+        public char PeekChar() => EndOfStream ? '\0' : (char)BaseReader.Peek();
 
         public bool EndOfStream { get => BaseReader.Peek() < 0; }
     }
