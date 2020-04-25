@@ -9,13 +9,17 @@ using System.Diagnostics;
 
 namespace Roku.Parser
 {
-    public class Parser
+    public partial class Parser
     {
         public List<IToken<INode>> TokenStack { get; } = new List<IToken<INode>>();
         public int[,] Tables { get; } = new int[,] {
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, 1},
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0},
-                {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0},
+                {0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, 3, 1},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0},
+                {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -4, 0, 0, 0, 0, 0, 0, 0, 0},
             };
 
         public INode? Parse(ILexer<INode> lex)
@@ -55,7 +59,7 @@ namespace Roku.Parser
         public IToken<INode> RunAction(int yy_no)
         {
             IToken<INode>? yy_token;
-            INode? yy_value;
+            INode? yy_value = null;
 
             switch (yy_no)
             {
@@ -69,6 +73,18 @@ namespace Roku.Parser
                     TraceAction("start :");
                     yy_value = new ProgramNode();
                     yy_token = DoAction(Symbols.start, 0, yy_value);
+                    break;
+
+                case -3:
+                    TraceAction("start : program_begin stmt END");
+                    yy_value = Scopes.Pop();
+                    yy_token = DoAction(Symbols.start, 3, yy_value);
+                    break;
+
+                case -4:
+                    TraceAction("program_begin : BEGIN");
+                    Scopes.Push(new ProgramNode());
+                    yy_token = DoAction(Symbols.program_begin, 1, yy_value);
                     break;
 
                 default:
@@ -86,9 +102,9 @@ namespace Roku.Parser
 
         public bool IsAccept(IToken<INode> token) => Tables[TokenStack.Count == 0 ? 0 : TokenStack[^1].TableIndex, token.InputToken] != 0;
 
-        public IToken<INode> DoAction(Symbols type, int length, INode value) => DoAction(new Token { Type = type }, length, value);
+        public IToken<INode> DoAction(Symbols type, int length, INode? value) => DoAction(new Token { Type = type }, length, value);
 
-        public IToken<INode> DoAction(IToken<INode> token, int length, INode value)
+        public IToken<INode> DoAction(IToken<INode> token, int length, INode? value)
         {
             token.Value = value;
             TokenStack.RemoveRange(TokenStack.Count - length, length);

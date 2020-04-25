@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Roku.Parser
 {
-    public class Lexer : ILexer<INode>
+    public partial class Lexer : ILexer<INode>
     {
         public SourceCodeReader BaseReader { get; }
         public List<Token> Store { get; } = new List<Token>();

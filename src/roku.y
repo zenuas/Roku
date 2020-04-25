@@ -18,4 +18,6 @@ using Roku.Node;
 
 %%
 
-start: {$$ = new ProgramNode();}
+start :                        {$$ = new ProgramNode();}
+      | program_begin stmt END {$$ = Scopes.Pop();}
+program_begin : BEGIN          {Scopes.Push(new ProgramNode());}

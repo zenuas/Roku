@@ -19,6 +19,12 @@ namespace Roku.Parser
         /// <summary>'{'</summary>
         __x7B,
 
+        /// <summary>BEGIN</summary>
+        BEGIN,
+
+        /// <summary>END</summary>
+        END,
+
         /// <summary>EOF</summary>
         EOF,
 
@@ -46,6 +52,9 @@ namespace Roku.Parser
         /// <summary>NUM</summary>
         NUM,
 
+        /// <summary>stmt</summary>
+        stmt,
+
         /// <summary>STR</summary>
         STR,
 
@@ -63,6 +72,9 @@ namespace Roku.Parser
 
         /// <summary>$END</summary>
         _END,
+
+        /// <summary>program_begin</summary>
+        program_begin,
 
         /// <summary>start</summary>
         start,
