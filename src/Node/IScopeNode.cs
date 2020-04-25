@@ -1,6 +1,9 @@
-﻿namespace Roku.Node
+﻿using System.Collections.Generic;
+
+namespace Roku.Node
 {
     public interface IScopeNode : INode
     {
+        public List<IStatementNode> Statements { get; }
     }
 }

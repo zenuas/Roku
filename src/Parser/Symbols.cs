@@ -7,6 +7,9 @@ namespace Roku.Parser
         /// <summary>'('</summary>
         __x28,
 
+        /// <summary>')'</summary>
+        __x29,
+
         /// <summary>','</summary>
         __x2C,
 
@@ -22,6 +25,9 @@ namespace Roku.Parser
         /// <summary>BEGIN</summary>
         BEGIN,
 
+        /// <summary>block</summary>
+        block,
+
         /// <summary>END</summary>
         END,
 
@@ -34,6 +40,9 @@ namespace Roku.Parser
         /// <summary>EQ</summary>
         EQ,
 
+        /// <summary>extra</summary>
+        extra,
+
         /// <summary>FALSE</summary>
         FALSE,
 
@@ -45,9 +54,6 @@ namespace Roku.Parser
 
         /// <summary>LET</summary>
         LET,
-
-        /// <summary>line</summary>
-        line,
 
         /// <summary>NULL</summary>
         NULL,
@@ -73,6 +79,30 @@ namespace Roku.Parser
         /// <summary>$END</summary>
         _END,
 
+        /// <summary>call</summary>
+        call,
+
+        /// <summary>expr</summary>
+        expr,
+
+        /// <summary>let</summary>
+        let,
+
+        /// <summary>line</summary>
+        line,
+
+        /// <summary>list</summary>
+        list,
+
+        /// <summary>list2n</summary>
+        list2n,
+
+        /// <summary>listn</summary>
+        listn,
+
+        /// <summary>num</summary>
+        num,
+
         /// <summary>program_begin</summary>
         program_begin,
 
@@ -81,6 +111,12 @@ namespace Roku.Parser
 
         /// <summary>stmt</summary>
         stmt,
+
+        /// <summary>str</summary>
+        str,
+
+        /// <summary>var</summary>
+        var,
 
         /// <summary>void</summary>
         @void,

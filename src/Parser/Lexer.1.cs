@@ -205,14 +205,14 @@ namespace Roku.Parser
         public static Token ReadDecimal(SourceCodeReader reader)
         {
             var s = new StringBuilder();
-            var n = 0;
+            var n = 0u;
             while (!reader.EndOfStream)
             {
                 var c = reader.PeekChar();
                 if (c == '_') { /* read skip */ }
                 else if (IsNumber(c))
                 {
-                    n = (n * 10) + (c - '0');
+                    n = (n * 10u) + (uint)(c - '0');
                 }
                 else
                 {
@@ -221,7 +221,7 @@ namespace Roku.Parser
                 _ = reader.ReadChar();
                 s.Append(c);
             }
-            return new Token { Type = Symbols.NUM, Name = s.ToString(), Value = null };
+            return new Token { Type = Symbols.NUM, Name = s.ToString(), Value = new NumericNode { Value = n, Format = s.ToString() } };
         }
 
         public static Token ReadString(SourceCodeReader reader)

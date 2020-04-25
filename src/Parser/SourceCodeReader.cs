@@ -1,5 +1,4 @@
-﻿using Extensions;
-using System.IO;
+﻿using System.IO;
 
 namespace Roku.Parser
 {

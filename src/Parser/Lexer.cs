@@ -1,6 +1,8 @@
 
 
+using Extensions;
 using Roku.Node;
+using IEvaluableListNode = Roku.Node.ListNode<Roku.Node.IEvaluableNode>;
 
 
 using System.Collections.Generic;
@@ -13,6 +15,7 @@ namespace Roku.Parser
         {
             var table = new Dictionary<char, Symbols>();
             table['('] = Symbols.__x28;
+            table[')'] = Symbols.__x29;
             table[','] = Symbols.__x2C;
             table['.'] = Symbols.__x2E;
             table['['] = Symbols.__x5B;
@@ -24,15 +27,16 @@ namespace Roku.Parser
         {
             var table = new Dictionary<string, Symbols>();
             table["BEGIN"] = Symbols.BEGIN;
+            table["block"] = Symbols.block;
             table["END"] = Symbols.END;
             table["EOF"] = Symbols.EOF;
             table["EOL"] = Symbols.EOL;
             table["EQ"] = Symbols.EQ;
+            table["extra"] = Symbols.extra;
             table["FALSE"] = Symbols.FALSE;
             table["IF"] = Symbols.IF;
             table["IGNORE"] = Symbols.IGNORE;
             table["LET"] = Symbols.LET;
-            table["line"] = Symbols.line;
             table["NULL"] = Symbols.NULL;
             table["NUM"] = Symbols.NUM;
             table["STR"] = Symbols.STR;
