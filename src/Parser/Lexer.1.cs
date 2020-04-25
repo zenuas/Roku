@@ -11,14 +11,15 @@ namespace Roku.Parser
         public SourceCodeReader BaseReader { get; }
         public List<Token> Store { get; } = new List<Token>();
         public Stack<int> Indents { get; } = new Stack<int>();
-        public Dictionary<char, Symbols> ReservedChar { get; }
-        public Dictionary<string, Symbols> ReservedString { get; }
+        public static Dictionary<char, Symbols> ReservedChar { get; } = CreateReservedCharTable();
+        public static Dictionary<string, Symbols> ReservedString { get; } = new Dictionary<string, Symbols>
+            {
+                { "var", Symbols.LET },
+            };
 
         public Lexer(SourceCodeReader reader)
         {
             BaseReader = reader;
-            ReservedChar = CreateReservedCharTable();
-            ReservedString = CreateReservedStringTable();
         }
 
         public IToken<INode> PeekToken()
@@ -31,7 +32,7 @@ namespace Roku.Parser
                 if (ts.First().Type == Symbols.EOL) goto READ_LINE_;
                 Store.AddRange(ts);
 
-                if (Store[0].Type != Symbols.EOF && (Indents.Count == 0 || Store[0].Indent > Indents.Peek()))
+                if (!Store[0].EndOfToken && (Indents.Count == 0 || Store[0].Indent > Indents.Peek()))
                 {
                     Store.Insert(0, new Token { Type = Symbols.BEGIN, LineNumber = line, Indent = Store[0].Indent });
                     Indents.Push(Store[0].Indent);
@@ -40,7 +41,7 @@ namespace Roku.Parser
                 {
                     var count = 0;
                     var first = Store[0];
-                    while (Indents.Count > 0 && (first.Type == Symbols.EOF || first.Indent < Indents.Peek()))
+                    while (Indents.Count > 0 && (first.EndOfToken || first.Indent < Indents.Peek()))
                     {
                         Store.Insert(count, new Token { Type = Symbols.END, LineNumber = line, Indent = Indents.Pop() });
                         count++;
@@ -107,7 +108,7 @@ namespace Roku.Parser
         {
             var line = reader.LineNumber;
             var col = reader.LineColumn;
-            if (reader.EndOfStream) return (0, new Token { Type = only_first_eof_makes_eof ? Symbols.EOF : Symbols.EOL, LineNumber = line, LineColumn = col });
+            if (reader.EndOfStream) return (0, only_first_eof_makes_eof ? CreateEndOfToken() : new Token { Type = Symbols.EOL, LineNumber = line, LineColumn = col });
 
             var c = reader.PeekChar();
             var indent = 0;
@@ -141,7 +142,7 @@ namespace Roku.Parser
                     var block_count = comment.FindFirstIndex(x => x != '#');
                     while (true)
                     {
-                        if (reader.EndOfStream) return new Token { Type = Symbols.EOF, LineNumber = line, LineColumn = col };
+                        if (reader.EndOfStream) return CreateEndOfToken();
                         var s = reader.ReadLine()!;
                         if (CountIndent(s) == indent)
                         {
@@ -158,6 +159,7 @@ namespace Roku.Parser
         public static Token ReadToken(SourceCodeReader reader)
         {
             var c = reader.PeekChar();
+            if (ReservedChar.ContainsKey(c)) return new Token { Type = ReservedChar[c], Name = c.ToString() };
 
             switch (c)
             {
@@ -199,7 +201,9 @@ namespace Roku.Parser
         public static Token ReadVariable(SourceCodeReader reader, StringBuilder s)
         {
             while (IsWord(reader.PeekChar())) s.Append(reader.ReadChar());
-            return new Token { Type = Symbols.VAR, Name = s.ToString() };
+            var name = s.ToString();
+            if (ReservedString.ContainsKey(name)) return new Token { Type = ReservedString[name], Name = name };
+            return new Token { Type = Symbols.VAR, Name = name };
         }
 
         public static Token ReadDecimal(SourceCodeReader reader)

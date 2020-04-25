@@ -18,7 +18,8 @@ namespace Roku.Parser
         public INode? Value { get; set; }
         public int TableIndex { get; set; }
         public int InputToken => (int)Type;
-        public bool IsAccept => Type == Symbols._END;
+        public bool IsAccept => Type == Symbols._ACCEPT;
+        public bool EndOfToken => Type == Symbols._END;
         public override string ToString() => Type.ToString();
     }
 }

@@ -7,6 +7,7 @@ using IEvaluableListNode = Roku.Node.ListNode<Roku.Node.IEvaluableNode>;
 
 %default INode
 %define YYNAMESPACE Roku.Parser
+%define YYTOKEN     Token
 
 %type<IScopeNode>         block stmt
 %type<IStatementNode>     line
@@ -17,7 +18,7 @@ using IEvaluableListNode = Roku.Node.ListNode<Roku.Node.IEvaluableNode>;
 %type<NumericNode>        num
 %type<StringNode>         str
 
-%left<Token>  VAR STR NULL TRUE FALSE IF LET SUB IGNORE
+%left  VAR STR NULL TRUE FALSE IF LET SUB IGNORE
 %token<NumericNode> NUM
 %left  EQ
 %right UNARY
@@ -25,7 +26,7 @@ using IEvaluableListNode = Roku.Node.ListNode<Roku.Node.IEvaluableNode>;
 
 %left  ','
 %left  '(' '[' '{'
-%left  EOL EOF
+%left  EOL
 
 %%
 

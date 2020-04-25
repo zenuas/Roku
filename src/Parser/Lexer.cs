@@ -29,7 +29,6 @@ namespace Roku.Parser
             table["BEGIN"] = Symbols.BEGIN;
             table["block"] = Symbols.block;
             table["END"] = Symbols.END;
-            table["EOF"] = Symbols.EOF;
             table["EOL"] = Symbols.EOL;
             table["EQ"] = Symbols.EQ;
             table["extra"] = Symbols.extra;
@@ -46,5 +45,7 @@ namespace Roku.Parser
             table["VAR"] = Symbols.VAR;
             return table;
         }
+
+        public static Token CreateEndOfToken() => new Token { Type = Symbols._END };
     }
 }

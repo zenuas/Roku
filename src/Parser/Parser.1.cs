@@ -12,7 +12,7 @@ namespace Roku.Parser
 
         public static VariableNode CreateVariableNode(Token t) => CreateVariableNode(t.Name, t);
 
-        public static VariableNode CreateVariableNode(string s, Token t) => new VariableNode { Name = s }.R(t);
+        public static VariableNode CreateVariableNode(string s, IToken<INode> t) => new VariableNode { Name = s }.R(t);
 
         public static FunctionCallNode CreateFunctionCallNode(IEvaluableNode expr, params IEvaluableNode[] args) => new FunctionCallNode(expr).Return(x => x.Arguments.AddRange(args)).R(expr);
 

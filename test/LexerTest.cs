@@ -21,15 +21,15 @@ namespace Roku.Tests
         {
             var ts1 = Tokens("");
             Assert.AreEqual(ts1.Count, 1);
-            Assert.AreEqual(ts1[0].Type, Symbols.EOF);
+            Assert.AreEqual(ts1[0].Type, Symbols._END);
 
             var ts2 = Tokens(" ");
             Assert.AreEqual(ts2.Count, 1);
-            Assert.AreEqual(ts2[0].Type, Symbols.EOF);
+            Assert.AreEqual(ts2[0].Type, Symbols._END);
 
             var ts3 = Tokens(" \n ");
             Assert.AreEqual(ts3.Count, 1);
-            Assert.AreEqual(ts3[0].Type, Symbols.EOF);
+            Assert.AreEqual(ts3[0].Type, Symbols._END);
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace Roku.Tests
                     Symbols.NUM,
                     Symbols.EOL,
                     Symbols.END,
-                    Symbols.EOF,
+                    Symbols._END,
                 }).And(x => x.First.Type == x.Second));
             Assert.AreEqual(ts1[1].Name, "a");
             Assert.AreEqual(ts1[3].Name, "123_456");
@@ -60,15 +60,15 @@ namespace Roku.Tests
                     Symbols.STR,
                     Symbols.EOL,
                     Symbols.END,
-                    Symbols.EOF,
+                    Symbols._END,
                 }).And(x => x.First.Type == x.Second));
             Assert.AreEqual(ts2[1].Name, "b");
             Assert.AreEqual(ts2[3].Name, "abc123");
         }
 
-        public Lexer Read(string s) => new Lexer(new SourceCodeReader(new StringReader(s)));
+        public static Lexer Read(string s) => new Lexer(new SourceCodeReader(new StringReader(s)));
 
-        public List<Token> Tokens(string s)
+        public static List<Token> Tokens(string s)
         {
             var lex = Read(s);
             var xs = new List<Token>();
@@ -76,7 +76,7 @@ namespace Roku.Tests
             {
                 var t = lex.ReadToken().Cast<Token>();
                 xs.Add(t);
-                if (t.Type == Symbols.EOF) break;
+                if (t.Type == Symbols._END) break;
             }
             return xs;
         }

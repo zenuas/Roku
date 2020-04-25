@@ -3,6 +3,7 @@ namespace Roku.Parser
     public interface IToken<T> where T : class
     {
         public bool IsAccept { get; }
+        public bool EndOfToken { get; }
         public int LineNumber { get; set; }
         public int LineColumn { get; set; }
         public T? Value { get; set; }

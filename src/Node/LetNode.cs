@@ -1,6 +1,6 @@
 ﻿namespace Roku.Node
 {
-    public class LetNode : Node
+    public class LetNode : Node, IStatementNode
     {
         public VariableNode Var { get; }
         public IEvaluableNode Expression { get; set; }

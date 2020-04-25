@@ -31,9 +31,6 @@ namespace Roku.Parser
         /// <summary>END</summary>
         END,
 
-        /// <summary>EOF</summary>
-        EOF,
-
         /// <summary>EOL</summary>
         EOL,
 
