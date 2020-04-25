@@ -10,10 +10,14 @@ namespace Roku.Parser
     {
         public SourceCodeReader BaseReader { get; }
         public List<Token> Store { get; } = new List<Token>();
+        public Dictionary<char, Symbols> ReservedChar { get; }
+        public Dictionary<string, Symbols> ReservedString { get; }
 
         public Lexer(SourceCodeReader reader)
         {
             BaseReader = reader;
+            ReservedChar = CreateReservedCharTable();
+            ReservedString = CreateReservedStringTable();
         }
 
         public IToken<INode> PeekToken()
