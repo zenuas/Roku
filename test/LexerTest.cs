@@ -35,7 +35,7 @@ namespace Roku.Tests
         [Test]
         public void OneLineTest()
         {
-            var ts1 = Tokens("a = 1");
+            var ts1 = Tokens("a = 123_456");
             Assert.AreEqual(ts1.Count, 7);
             Assert.IsTrue(ts1.Zip(new Symbols[]
                 {
@@ -47,6 +47,23 @@ namespace Roku.Tests
                     Symbols.END,
                     Symbols.EOF,
                 }).And(x => x.First.Type == x.Second));
+            Assert.AreEqual(ts1[1].Name, "a");
+            Assert.AreEqual(ts1[3].Name, "123_456");
+
+            var ts2 = Tokens("b = \"abc123\"");
+            Assert.AreEqual(ts2.Count, 7);
+            Assert.IsTrue(ts2.Zip(new Symbols[]
+                {
+                    Symbols.BEGIN,
+                    Symbols.VAR,
+                    Symbols.EQ,
+                    Symbols.STR,
+                    Symbols.EOL,
+                    Symbols.END,
+                    Symbols.EOF,
+                }).And(x => x.First.Type == x.Second));
+            Assert.AreEqual(ts2[1].Name, "b");
+            Assert.AreEqual(ts2[3].Name, "abc123");
         }
 
         public Lexer Read(string s) => new Lexer(new SourceCodeReader(new StringReader(s)));
