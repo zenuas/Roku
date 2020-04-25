@@ -21,3 +21,8 @@ using Roku.Node;
 start :                        {$$ = new ProgramNode();}
       | program_begin stmt END {$$ = Scopes.Pop();}
 program_begin : BEGIN          {Scopes.Push(new ProgramNode());}
+
+stmt : void      {$$ = Scopes.Peek();}
+     | stmt line 
+
+void : {$$ = null;}

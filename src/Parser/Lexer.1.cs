@@ -10,6 +10,7 @@ namespace Roku.Parser
     {
         public SourceCodeReader BaseReader { get; }
         public List<Token> Store { get; } = new List<Token>();
+        public Stack<int> Indents { get; } = new Stack<int>();
         public Dictionary<char, Symbols> ReservedChar { get; }
         public Dictionary<string, Symbols> ReservedString { get; }
 
@@ -22,7 +23,30 @@ namespace Roku.Parser
 
         public IToken<INode> PeekToken()
         {
-            if (Store.IsNull()) Store.AddRange(ReadLineTokens(BaseReader));
+            if (Store.IsNull())
+            {
+            READ_LINE_:
+                var line = BaseReader.LineNumber;
+                var ts = ReadLineTokens(BaseReader);
+                if (ts.First().Type == Symbols.EOL) goto READ_LINE_;
+                Store.AddRange(ts);
+
+                if (Store[0].Type != Symbols.EOF && (Indents.Count == 0 || Store[0].Indent > Indents.Peek()))
+                {
+                    Store.Insert(0, new Token { Type = Symbols.BEGIN, LineNumber = line, Indent = Store[0].Indent });
+                    Indents.Push(Store[0].Indent);
+                }
+                else
+                {
+                    var count = 0;
+                    var first = Store[0];
+                    while (Indents.Count > 0 && (first.Type == Symbols.EOF || first.Indent < Indents.Peek()))
+                    {
+                        Store.Insert(count, new Token { Type = Symbols.END, LineNumber = line, Indent = Indents.Pop() });
+                        count++;
+                    }
+                }
+            }
             return Store.First();
         }
 
@@ -41,6 +65,11 @@ namespace Roku.Parser
             var comment = ReadSkipComment(reader, indent, true);
             if (comment is { }) return new List<Token> { comment };
 
+            return ReadTokens(reader, indent);
+        }
+
+        public static List<Token> ReadTokens(SourceCodeReader reader, int indent)
+        {
             var ts = new List<Token>();
             while (true)
             {

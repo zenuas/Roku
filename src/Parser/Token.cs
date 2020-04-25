@@ -17,5 +17,6 @@ namespace Roku.Parser
         public int TableIndex { get; set; }
         public int InputToken => (int)Type;
         public bool IsAccept => Type == Symbols._END;
+        public override string ToString() => Type.ToString();
     }
 }

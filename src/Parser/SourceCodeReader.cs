@@ -3,18 +3,20 @@ using System.IO;
 
 namespace Roku.Parser
 {
-    public class SourceCodeReader : StreamReader
+    public class SourceCodeReader
     {
+        public TextReader BaseReader { get; }
         public int LineNumber { get; protected set; } = 1;
         public int LineColumn { get; protected set; } = 1;
 
-        public SourceCodeReader(Stream stream) : base(stream)
+        public SourceCodeReader(TextReader reader)
         {
+            BaseReader = reader;
         }
 
-        public override int Read()
+        public int Read()
         {
-            var c = base.Read();
+            var c = BaseReader.Read();
             if (c == '\n')
             {
                 LineNumber += 1;
@@ -27,25 +29,27 @@ namespace Roku.Parser
             return c;
         }
 
-        public override string? ReadLine()
+        public string? ReadLine()
         {
             LineNumber += 1;
             LineColumn = 1;
-            return base.ReadLine();
+            return BaseReader.ReadLine();
         }
 
-        public virtual char ReadChar()
+        public char ReadChar()
         {
             if (EndOfStream) return '\0';
 
-            return Read().Cast<char>();
+            return (char)Read();
         }
 
-        public virtual char PeekChar()
+        public char PeekChar()
         {
             if (EndOfStream) return '\0';
 
-            return Peek().Cast<char>();
+            return (char)BaseReader.Peek();
         }
+
+        public bool EndOfStream { get => BaseReader.Peek() < 0; }
     }
 }

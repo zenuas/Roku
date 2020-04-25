@@ -32,9 +32,9 @@ namespace Roku.Parser
             table["IF"] = Symbols.IF;
             table["IGNORE"] = Symbols.IGNORE;
             table["LET"] = Symbols.LET;
+            table["line"] = Symbols.line;
             table["NULL"] = Symbols.NULL;
             table["NUM"] = Symbols.NUM;
-            table["stmt"] = Symbols.stmt;
             table["STR"] = Symbols.STR;
             table["SUB"] = Symbols.SUB;
             table["TRUE"] = Symbols.TRUE;

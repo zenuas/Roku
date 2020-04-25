@@ -46,14 +46,14 @@ namespace Roku.Parser
         /// <summary>LET</summary>
         LET,
 
+        /// <summary>line</summary>
+        line,
+
         /// <summary>NULL</summary>
         NULL,
 
         /// <summary>NUM</summary>
         NUM,
-
-        /// <summary>stmt</summary>
-        stmt,
 
         /// <summary>STR</summary>
         STR,
@@ -78,6 +78,12 @@ namespace Roku.Parser
 
         /// <summary>start</summary>
         start,
+
+        /// <summary>stmt</summary>
+        stmt,
+
+        /// <summary>void</summary>
+        @void,
 
         /// <summary>$ACCEPT</summary>
         _ACCEPT,
