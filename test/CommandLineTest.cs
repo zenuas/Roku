@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Roku.Tests
 {
-    class Option
+    public class Option
     {
         [ShortOption('o')]
         [LongOption("output")]

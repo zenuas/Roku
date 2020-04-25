@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Roku.Tests
 {
-    class ExpressionsTest
+    public class ExpressionsTest
     {
         [Test]
         public void AddTest()

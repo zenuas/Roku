@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Roku.Tests
 {
-    class LexerTest
+    public class LexerTest
     {
         [Test]
         public void CountIndentTest()

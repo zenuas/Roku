@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace Roku.Tests
 {
-    class ListsTest
+    public class ListsTest
     {
         [Test]
         public void SequenceTest()
