@@ -134,5 +134,11 @@ namespace Roku.Tests
                 (14, "p"),
             }));
         }
+
+        [Test]
+        public void DropTest()
+        {
+            Assert.IsTrue("abc123".Drop(3).ToStringByChars() == "123");
+        }
     }
 }

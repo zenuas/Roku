@@ -189,5 +189,7 @@ namespace Extensions
         public static Dictionary<K, V> ToDictionary<T, K, V>(this IEnumerable<T> self, Func<T, K> fkey, Func<T, V> fvalue) where K : notnull => Enumerable.ToDictionary(self, fkey, fvalue);
 
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> self) => Enumerable.ToHashSet(self);
+
+        public static string ToStringByChars(this IEnumerable<char> self) => new string(self.ToArray());
     }
 }
