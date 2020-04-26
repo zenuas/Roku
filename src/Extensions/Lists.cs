@@ -161,6 +161,9 @@ namespace Extensions
         public static IEnumerable<T> Reverse<T>(this IEnumerable<T> self) => Enumerable.Reverse(self);
 
         [DebuggerHidden]
+        public static IEnumerable<T> Unique<T>(this IEnumerable<T> self) => Enumerable.Distinct(self);
+
+        [DebuggerHidden]
         public static IEnumerable<T> By<T>(this System.Collections.IEnumerable self) => Enumerable.OfType<T>(self);
 
         [DebuggerHidden]

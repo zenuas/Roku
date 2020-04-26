@@ -20,8 +20,8 @@ sub fn(s: String, n: Int)
     var y = 234_567
     print(s)
     print(x)
-    #print(n)
-    #print(y)
+    print(n)
+    print(y)
 ")));
             var pgm = new Parser.Parser().Parse(lex).Cast<ProgramNode>();
 
@@ -29,7 +29,7 @@ sub fn(s: String, n: Int)
             Lookup.LoadType(root, "String", typeof(string));
             Lookup.LoadType(root, "Int", typeof(int));
             root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) })!));
-            //root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(int) })!));
+            root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(int) })!));
 
             var src = Definition.LoadProgram(root, pgm);
             src.Uses.Add(root);

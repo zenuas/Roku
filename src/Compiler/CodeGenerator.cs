@@ -16,7 +16,7 @@ namespace Roku.Compiler
             var nss = Lookup.AllNamespaces(body);
             var fss = Lookup.AllFunctionBodies(pgms).UnZip().First;
             var externs = Lookup.AllExternFunctions(nss);
-            var extern_asms = externs.Map(GetAssembly).ToArray();
+            var extern_asms = externs.Map(GetAssembly).Unique().ToArray();
 
             using (var il = new StreamWriter(path))
             {
