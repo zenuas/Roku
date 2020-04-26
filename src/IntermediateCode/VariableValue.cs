@@ -12,5 +12,7 @@ namespace Roku.IntermediateCode
             Name = name;
             Scope = scope;
         }
+
+        public override string ToString() => Name;
     }
 }

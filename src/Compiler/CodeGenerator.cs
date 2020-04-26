@@ -49,49 +49,95 @@ namespace Roku.Compiler
                 il.WriteLine("{");
                 if (f.Name == "main") il.WriteLine("\t.entrypoint");
                 il.WriteLine("\t.maxstack 8");
+                var local_vals = f.TypeMapper.Values.Where(x => x.Type == VariableType.LocalVariable).Sort((a, b) => a.Index - b.Index).ToList();
+                if (local_vals.Count > 0)
+                {
+                    il.WriteLine(".locals(");
+                    il.WriteLine(local_vals.Map(x => $"[{x.Index}] {GetTypeName(x)}").Join(",\n"));
+                    il.WriteLine(")");
+                }
                 f.Body.Each(x => AssemblyOperandEmit(il, x, f.TypeMapper));
                 il.WriteLine("\tret");
                 il.WriteLine("}");
             });
         }
 
-        public static void AssemblyOperandEmit(StreamWriter il, Operand op, Dictionary<ITypedValue, IStructBody?> m)
+        public static void AssemblyOperandEmit(StreamWriter il, IOperand op, Dictionary<ITypedValue, VariableDetail> m)
         {
-            switch (op)
+            switch (op.Operator)
             {
-                case Call x:
-                    var f = m[x.Function]!.Cast<FunctionMapper>();
-                    il.WriteLine(x.Arguments.Map(LoadValue).Join('\n'));
+                case Operator.Bind:
+                    var bind = op.Cast<Code>();
+                    il.WriteLine(LoadValue(m, bind.Right!));
+                    il.WriteLine(StoreValue(m, bind.Left!));
+                    break;
+
+                case Operator.Call:
+                    var call = op.Cast<Call>();
+                    var f = m[call.Function].Struct!.Cast<FunctionMapper>();
+                    il.WriteLine(call.Arguments.Map(x => LoadValue(m, x)).Join('\n'));
                     if (f.Function is ExternFunction fx)
                     {
-                        il.WriteLine($"call {GetTypeName(fx.Function.ReturnType)} [{fx.Function.DeclaringType!.FullName}]{fx.Function.DeclaringType!.FullName}::{fx.Function.Name}({x.Arguments.Map(a => GetTypeName(m[a])).Join(", ")})");
+                        il.WriteLine($"call {GetTypeName(fx.Function.ReturnType)} [{fx.Function.DeclaringType!.FullName}]{fx.Function.DeclaringType!.FullName}::{fx.Function.Name}({call.Arguments.Map(a => GetTypeName(m[a])).Join(", ")})");
                     }
                     else if (f.Function is FunctionBody fb)
                     {
                         il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return)} {fb.Name}({fb.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name])).Join(", ")})");
                     }
                     break;
+
+                default:
+                    throw new Exception();
             }
         }
 
-        public static string LoadValue(ITypedValue value)
+        public static string LoadValue(Dictionary<ITypedValue, VariableDetail> m, ITypedValue value)
         {
             switch (value)
             {
                 case StringValue x:
                     return $"ldstr \"{x.Value}\"";
 
+                case NumericValue x:
+                    return $"ldc.i4 {x.Value}";
+
                 case VariableValue x:
-                    return $"ldarg.0";
+                    var detail = m[x];
+                    if (detail.Type == VariableType.Argument)
+                    {
+                        return $"ldarg.{detail.Index}";
+                    }
+                    else
+                    {
+                        return $"ldloc.{detail.Index}";
+                    }
             }
             throw new Exception();
         }
 
-        public static string GetTypeName(Dictionary<ITypedValue, IStructBody?> m, ITypedValue? t) => t is null ? "void" : GetTypeName(m[t]);
-
-        public static string GetTypeName(IStructBody? t)
+        public static string StoreValue(Dictionary<ITypedValue, VariableDetail> m, ITypedValue value)
         {
-            switch (t)
+            switch (value)
+            {
+                case VariableValue x:
+                    var detail = m[x];
+                    if (detail.Type == VariableType.Argument)
+                    {
+                        return $"starg.{detail.Index}";
+                    }
+                    else
+                    {
+                        return $"stloc.{detail.Index}";
+                    }
+            }
+            throw new Exception();
+        }
+
+        public static string GetTypeName(Dictionary<ITypedValue, VariableDetail> m, ITypedValue? t) => t is null ? "void" : GetTypeName(m[t]);
+
+        public static string GetTypeName(VariableDetail t)
+        {
+            switch (t.Struct)
             {
                 case null: return "void";
                 case ExternStruct x: return GetTypeName(x.Struct);
@@ -103,6 +149,7 @@ namespace Roku.Compiler
         {
             if (t == typeof(void)) return "void";
             if (t == typeof(string)) return "string";
+            if (t == typeof(int)) return "int32";
             return t.Name;
         }
     }

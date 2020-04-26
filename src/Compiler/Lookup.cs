@@ -92,7 +92,7 @@ namespace Roku.Compiler
 
         public static IEnumerable<IStructBody> LoadStructs(INamespace ns, string name) => ns.Structs.Where(x => x.Name == name);
 
-        public static IEnumerable<ITypedValue> AllValues(Operand op)
+        public static IEnumerable<ITypedValue> AllValues(IOperand op)
         {
             switch (op)
             {

@@ -49,6 +49,12 @@ namespace Roku.Compiler
             {
                 switch (stmt)
                 {
+                    case LetNode let:
+                        var v = new VariableValue(let.Var.Name, scope);
+                        scope.LexicalScope.Add(let.Var.Name, v);
+                        scope.Body.Add(new Code { Operator = Operator.Bind, Left = v, Right = ToTypedValue(scope, let.Expression) });
+                        break;
+
                     case FunctionCallNode call:
                         Call x;
                         if (call.Expression is PropertyNode prop)
@@ -75,6 +81,9 @@ namespace Roku.Compiler
             {
                 case StringNode x:
                     return new StringValue(x.Value);
+
+                case NumericNode x:
+                    return new NumericValue(x.Value);
 
                 case VariableNode x:
                     return FindScopeValue(scope, x.Name);

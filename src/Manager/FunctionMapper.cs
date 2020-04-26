@@ -7,7 +7,7 @@ namespace Roku.Manager
     {
         public IFunctionBody Function { get; }
         public string Name { get => Function.Name; }
-        public Dictionary<ITypedValue, IStructBody?> TypeMapper { get; } = new Dictionary<ITypedValue, IStructBody?>();
+        public Dictionary<ITypedValue, VariableDetail> TypeMapper { get; } = new Dictionary<ITypedValue, VariableDetail>();
 
         public FunctionMapper(IFunctionBody f)
         {

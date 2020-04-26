@@ -8,11 +8,11 @@ namespace Roku.Manager
         public string Name { get; }
         public VariableValue? Return { get; set; } = null;
         public List<(VariableValue Name, VariableValue Type)> Arguments { get; } = new List<(VariableValue, VariableValue)>();
-        public List<Operand> Body { get; } = new List<Operand>();
+        public List<IOperand> Body { get; } = new List<IOperand>();
         public INamespace Namespace { get; }
         public ILexicalScope? Parent { get; } = null;
         public Dictionary<string, ITypedValue> LexicalScope { get; } = new Dictionary<string, ITypedValue>();
-        public Dictionary<ITypedValue, IStructBody?> TypeMapper { get; } = new Dictionary<ITypedValue, IStructBody?>();
+        public Dictionary<ITypedValue, VariableDetail> TypeMapper { get; } = new Dictionary<ITypedValue, VariableDetail>();
 
         public FunctionBody(INamespace ns, string name)
         {

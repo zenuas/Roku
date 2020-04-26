@@ -6,7 +6,7 @@ namespace Roku.Manager
     public class StructBody : IStructBody
     {
         public string Name { get; }
-        public List<Operand> Body { get; } = new List<Operand>();
+        public List<IOperand> Body { get; } = new List<IOperand>();
 
         public StructBody(string name)
         {

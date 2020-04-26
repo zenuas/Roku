@@ -8,6 +8,6 @@ namespace Roku.Manager
         public INamespace Namespace { get; }
         public ILexicalScope? Parent { get; }
         public Dictionary<string, ITypedValue> LexicalScope { get; }
-        public List<Operand> Body { get; }
+        public List<IOperand> Body { get; }
     }
 }

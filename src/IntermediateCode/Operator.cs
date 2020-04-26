@@ -3,6 +3,7 @@
     public enum Operator
     {
         Nop,
-        Call
+        Call,
+        Bind,
     }
 }

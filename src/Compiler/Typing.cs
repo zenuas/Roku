@@ -21,15 +21,18 @@ namespace Roku.Compiler
         public static bool FunctionBodyInference(FunctionBody body)
         {
             var resolved = false;
-            body.Arguments.Each(x => resolved = ValueInferenceWithEffect(body.Namespace, body.TypeMapper, x.Name, x.Type.Name) || resolved);
+            body.Arguments.Each((x, i) => resolved = ArgumentInferenceWithEffect(body.Namespace, body.TypeMapper, x.Name, x.Type.Name, i) || resolved);
             body.Body.Each(x => resolved = OperandTypeInference(body.Namespace, body.TypeMapper, x) || resolved);
             return resolved;
         }
 
-        public static bool OperandTypeInference(INamespace ns, Dictionary<ITypedValue, IStructBody?> m, Operand op)
+        public static bool OperandTypeInference(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, IOperand op)
         {
             switch (op)
             {
+                case Code x when x.Operator == Operator.Bind:
+                    return LocalValueInferenceWithEffect(ns, m, x.Left!, ToTypedValue(ns, m, x.Right!).Struct);
+
                 case Call x:
                     return ResolveFunctionWithEffect(ns, m, x);
 
@@ -38,7 +41,7 @@ namespace Roku.Compiler
             }
         }
 
-        public static bool ResolveFunctionWithEffect(INamespace ns, Dictionary<ITypedValue, IStructBody?> m, Call call)
+        public static bool ResolveFunctionWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, Call call)
         {
             if (m.ContainsKey(call.Function) && m[call.Function] is { }) return false;
 
@@ -51,10 +54,10 @@ namespace Roku.Compiler
                         var fm = new FunctionMapper(b);
                         if (b is FunctionBody fb)
                         {
-                            if (fb.Return is { }) fm.TypeMapper[fb.Return] = Lookup.LoadStruct(fb.Namespace, fb.Return.Name);
-                            fb.Arguments.Each(x => fm.TypeMapper[x.Name] = Lookup.LoadStruct(fb.Namespace, x.Type.Name));
+                            if (fb.Return is { }) fm.TypeMapper[fb.Return] = CreateVariableDetail(Lookup.LoadStruct(fb.Namespace, fb.Return.Name), VariableType.Type);
+                            fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(Lookup.LoadStruct(fb.Namespace, x.Type.Name), VariableType.Argument, i));
                         }
-                        m[call.Function] = fm;
+                        m[call.Function] = CreateVariableDetail(fm, VariableType.FunctionMapper);
                     }
                     break;
 
@@ -62,26 +65,30 @@ namespace Roku.Compiler
             return true;
         }
 
-        public static bool ValueInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, IStructBody?> m, ITypedValue v, string type_name)
+        public static bool ArgumentInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v, string type_name, int index)
         {
-            if (m.ContainsKey(v) && m[v] is { }) return false;
-            m[v] = Lookup.LoadStruct(ns, type_name);
+            if (m.ContainsKey(v) && m[v].Struct is { }) return false;
+            m[v] = CreateVariableDetail(Lookup.LoadStruct(ns, type_name), VariableType.Argument, index);
             return true;
         }
 
-        public static bool ValueInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, IStructBody?> m, ITypedValue v)
+        public static bool LocalValueInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v, IStructBody? b)
         {
-            if (m.ContainsKey(v) && m[v] is { }) return false;
-            m[v] = ToTypedValue(ns, m, v);
+            if (m.ContainsKey(v) && m[v].Struct is { }) return false;
+            m[v] = CreateVariableDetail(b, VariableType.LocalVariable, m.Values.Where(x => x.Type == VariableType.LocalVariable).FoldLeft((r, x) => Math.Max(r, x.Index + 1), 0));
             return true;
         }
 
-        public static IStructBody? ToTypedValue(INamespace ns, Dictionary<ITypedValue, IStructBody?> m, ITypedValue v)
+        public static VariableDetail ToTypedValue(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v)
         {
             switch (v)
             {
+                case NumericValue x:
+                    m[x] = CreateVariableDetail(Lookup.LoadStruct(ns, "Int"), VariableType.Type);
+                    return m[x];
+
                 case StringValue x:
-                    m[x] = Lookup.LoadStruct(ns, "String");
+                    m[x] = CreateVariableDetail(Lookup.LoadStruct(ns, "String"), VariableType.Type);
                     return m[x];
 
                 case VariableValue x:
@@ -91,5 +98,7 @@ namespace Roku.Compiler
                     throw new Exception();
             }
         }
+
+        public static VariableDetail CreateVariableDetail(IStructBody? b, VariableType type, int index = 0) => new VariableDetail { Struct = b, Type = type, Index = index };
     }
 }

@@ -12,5 +12,7 @@ namespace Roku.Manager
             Name = name;
             Struct = f;
         }
+
+        public override string ToString() => Name;
     }
 }

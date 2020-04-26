@@ -8,5 +8,7 @@
         {
             Value = s;
         }
+
+        public override string ToString() => $"\"{Value}\"";
     }
 }
