@@ -9,6 +9,7 @@ namespace Roku.Parser
     public partial class Lexer : ILexer<INode>
     {
         public SourceCodeReader BaseReader { get; }
+        public Parser? Parser { get; set; }
         public List<Token> Store { get; } = new List<Token>();
         public Stack<int> Indents { get; } = new Stack<int>();
         public static Dictionary<char, Symbols> ReservedChar { get; } = CreateReservedCharTable();
@@ -41,15 +42,24 @@ namespace Roku.Parser
                 else
                 {
                     var count = 0;
-                    var first = Store[0];
-                    while (Indents.Count > 0 && (first.EndOfToken || first.Indent < Indents.Peek()))
+                    var head = Store[0];
+                    while (Indents.Count > 0 && (head.EndOfToken || head.Indent < Indents.Peek()))
                     {
                         Store.Insert(count, new Token { Type = Symbols.END, LineNumber = line, Indent = Indents.Pop() });
                         count++;
                     }
                 }
             }
-            return Store.First();
+
+        READ_FIRST_:
+            var first = Store.First();
+            if (Parser is { } && first.Type == Symbols.EOL && !Parser.IsAccept(first))
+            {
+                Store.Clear();
+                Store.AddRange(ReadLineTokens(BaseReader));
+                goto READ_FIRST_;
+            }
+            return first;
         }
 
         public IToken<INode> ReadToken()

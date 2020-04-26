@@ -47,6 +47,73 @@ namespace Roku.Tests
             Assert.AreEqual(str.Value, "hello world");
         }
 
-        public static ProgramNode Parse(string s) => new Parser.Parser().Parse(LexerTest.Read(s)).Cast<ProgramNode>();
+        [Test]
+        public void FunctionTest()
+        {
+            var p = Parse(@"
+sub fn(s: String, n: Int)
+    var x = 12
+");
+            Assert.AreEqual(p.Statements.Count, 0);
+            Assert.AreEqual(p.Functions.Count, 1);
+
+            var fn = p.Functions[0];
+            Assert.AreEqual(fn.Name.Name, "fn");
+            Assert.AreEqual(fn.Arguments.Count, 2);
+            Assert.AreEqual(fn.Arguments[0].Name.Name, "s");
+            Assert.AreEqual(fn.Arguments[0].Type.Name, "String");
+            Assert.AreEqual(fn.Arguments[1].Name.Name, "n");
+            Assert.AreEqual(fn.Arguments[1].Type.Name, "Int");
+
+            Assert.AreEqual(fn.Statements.Count, 1);
+            Assert.IsTrue(fn.Statements[0] is LetNode);
+            var let = fn.Statements[0].Cast<LetNode>();
+            Assert.AreEqual(let.Var.Name, "x");
+            Assert.IsTrue(let.Expression is NumericNode);
+
+            var num = let.Expression.Cast<NumericNode>();
+            Assert.AreEqual(num.Format, "12");
+            Assert.AreEqual(num.Value, 12);
+        }
+
+        [Test]
+        public void ContinueEolTest()
+        {
+            var p = Parse(@"
+sub fn(
+        s: String,
+        n: Int,
+    )
+    var x = 12
+");
+            Assert.AreEqual(p.Statements.Count, 0);
+            Assert.AreEqual(p.Functions.Count, 1);
+
+            var fn = p.Functions[0];
+            Assert.AreEqual(fn.Name.Name, "fn");
+            Assert.AreEqual(fn.Arguments.Count, 2);
+            Assert.AreEqual(fn.Arguments[0].Name.Name, "s");
+            Assert.AreEqual(fn.Arguments[0].Type.Name, "String");
+            Assert.AreEqual(fn.Arguments[1].Name.Name, "n");
+            Assert.AreEqual(fn.Arguments[1].Type.Name, "Int");
+
+            Assert.AreEqual(fn.Statements.Count, 1);
+            Assert.IsTrue(fn.Statements[0] is LetNode);
+            var let = fn.Statements[0].Cast<LetNode>();
+            Assert.AreEqual(let.Var.Name, "x");
+            Assert.IsTrue(let.Expression is NumericNode);
+
+            var num = let.Expression.Cast<NumericNode>();
+            Assert.AreEqual(num.Format, "12");
+            Assert.AreEqual(num.Value, 12);
+        }
+
+        public static ProgramNode Parse(string s)
+        {
+            var lex = LexerTest.Read(s);
+            var p = new Parser.Parser();
+            lex.Parser = p;
+            return p.Parse(lex).Cast<ProgramNode>();
+        }
     }
 }
