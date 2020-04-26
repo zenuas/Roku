@@ -16,6 +16,9 @@ namespace Roku.Parser
         /// <summary>'.'</summary>
         __x2E,
 
+        /// <summary>':'</summary>
+        __x3A,
+
         /// <summary>'['</summary>
         __x5B,
 
@@ -73,14 +76,26 @@ namespace Roku.Parser
         /// <summary>$END</summary>
         _END,
 
+        /// <summary>argn</summary>
+        argn,
+
+        /// <summary>args</summary>
+        args,
+
         /// <summary>call</summary>
         call,
+
+        /// <summary>decla</summary>
+        decla,
 
         /// <summary>expr</summary>
         expr,
 
         /// <summary>extra</summary>
         extra,
+
+        /// <summary>fn</summary>
+        fn,
 
         /// <summary>let</summary>
         let,
@@ -97,6 +112,9 @@ namespace Roku.Parser
         /// <summary>listn</summary>
         listn,
 
+        /// <summary>nsvar</summary>
+        nsvar,
+
         /// <summary>num</summary>
         num,
 
@@ -112,11 +130,35 @@ namespace Roku.Parser
         /// <summary>str</summary>
         str,
 
+        /// <summary>sub</summary>
+        sub,
+
+        /// <summary>sub_begin</summary>
+        sub_begin,
+
+        /// <summary>sub_block</summary>
+        sub_block,
+
+        /// <summary>type</summary>
+        type,
+
+        /// <summary>typev</summary>
+        typev,
+
+        /// <summary>typex</summary>
+        typex,
+
         /// <summary>var</summary>
         var,
 
+        /// <summary>varx</summary>
+        varx,
+
         /// <summary>void</summary>
         @void,
+
+        /// <summary>where</summary>
+        where,
 
         /// <summary>$ACCEPT</summary>
         _ACCEPT,

@@ -3,9 +3,9 @@
     public class DeclareNode : Node
     {
         public VariableNode Name { get; set; }
-        public VariableNode Type { get; set; }
+        public TypeNode Type { get; set; }
 
-        public DeclareNode(VariableNode name, VariableNode type)
+        public DeclareNode(VariableNode name, TypeNode type)
         {
             Name = name;
             Type = type;

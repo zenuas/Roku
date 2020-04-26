@@ -1,7 +1,10 @@
-﻿using Roku.Compiler;
+﻿using Extensions;
+using Roku.Compiler;
 using Roku.Manager;
 using Roku.Node;
+using Roku.Parser;
 using System;
+using System.IO;
 
 namespace Roku
 {
@@ -9,17 +12,13 @@ namespace Roku
     {
         public static void Main(string[] args)
         {
-            var pgm = new ProgramNode() { FileName = "Sample.rk" };
-            var call = new FunctionCallNode(new VariableNode() { Name = "fn" });
-            call.Arguments.Add(new StringNode() { Value = "hello world" });
-            pgm.Statements.Add(call);
+            var lex = new Lexer(new SourceCodeReader(new StringReader(@"
+fn(""hello world"")
 
-            var fn = new FunctionNode(new VariableNode() { Name = "fn" });
-            fn.Arguments.Add(new DeclareNode(new VariableNode() { Name = "x" }, new VariableNode() { Name = "String" }));
-            var fn_call = new FunctionCallNode(new VariableNode() { Name = "print" });
-            fn_call.Arguments.Add(new VariableNode() { Name = "x" });
-            fn.Statements.Add(fn_call);
-            pgm.Functions.Add(fn);
+sub fn(s: String)
+    print(s)
+")));
+            var pgm = new Parser.Parser().Parse(lex).Cast<ProgramNode>();
 
             var root = new RootNamespace();
             Lookup.LoadType(root, typeof(string));

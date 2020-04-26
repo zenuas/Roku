@@ -2,16 +2,12 @@
 
 namespace Roku.Node
 {
-    public class FunctionNode : Node
+    public class FunctionNode : Node, IScopeNode
     {
-        public VariableNode Name { get; }
-        public VariableNode? Return { get; set; }
+        public VariableNode Name { get; set; } = new VariableNode();
+        public TypeNode? Return { get; set; }
         public List<DeclareNode> Arguments { get; } = new List<DeclareNode>();
         public List<IStatementNode> Statements { get; } = new List<IStatementNode>();
-
-        public FunctionNode(VariableNode name)
-        {
-            Name = name;
-        }
+        public List<FunctionNode> Functions { get; } = new List<FunctionNode>();
     }
 }

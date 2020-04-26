@@ -15,6 +15,7 @@ namespace Roku.Parser
         public static Dictionary<string, Symbols> ReservedString { get; } = new Dictionary<string, Symbols>
             {
                 { "var", Symbols.LET },
+                { "sub", Symbols.SUB },
             };
 
         public Lexer(SourceCodeReader reader)

@@ -17,5 +17,19 @@ namespace Roku.Parser
         public static FunctionCallNode CreateFunctionCallNode(IEvaluableNode expr, params IEvaluableNode[] args) => new FunctionCallNode(expr).Return(x => x.Arguments.AddRange(args)).R(expr);
 
         public static LetNode CreateLetNode(VariableNode v, IEvaluableNode e) => new LetNode(v, e).R(v);
+
+        public static FunctionNode CreateFunctionNode(
+                FunctionNode fn,
+                VariableNode name,
+                ListNode<DeclareNode> args,
+                TypeNode? ret,
+                INode where
+            )
+        {
+            fn.Name = name;
+            fn.Arguments.AddRange(args.List);
+            fn.Return = ret;
+            return fn.R(name);
+        }
     }
 }
