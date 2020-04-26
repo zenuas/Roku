@@ -37,9 +37,6 @@ namespace Roku.Parser
         /// <summary>EQ</summary>
         EQ,
 
-        /// <summary>extra</summary>
-        extra,
-
         /// <summary>FALSE</summary>
         FALSE,
 
@@ -81,6 +78,9 @@ namespace Roku.Parser
 
         /// <summary>expr</summary>
         expr,
+
+        /// <summary>extra</summary>
+        extra,
 
         /// <summary>let</summary>
         let,

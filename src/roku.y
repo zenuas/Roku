@@ -65,4 +65,7 @@ num    : NUM         {$$ = $1;}
 str    : STR         {$$ = new StringNode { Value = $1.Name }.R($1);}
        | str STR     {$$ = $1.Return(x => x.Value += $2.Name);}
 
-void : {$$ = null;}
+extra  : void
+       | ','
+
+void   : {$$ = null;}
