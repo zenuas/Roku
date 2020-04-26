@@ -48,7 +48,7 @@ namespace Roku.Compiler
             switch (call.Function)
             {
                 case VariableValue x:
-                    var body = Lookup.FindFunctionOrNull(ns, x.Name, call.Arguments);
+                    var body = Lookup.FindFunctionOrNull(ns, x.Name, call.Arguments.Map(x => ToTypedValue(ns, m, x).Struct).ToList());
                     if (body is { } b)
                     {
                         var fm = new FunctionMapper(b);

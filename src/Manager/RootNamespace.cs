@@ -4,6 +4,7 @@ namespace Roku.Manager
 {
     public class RootNamespace : INamespace
     {
+        public INamespace? Parent => null;
         public List<IFunctionBody> Functions { get; } = new List<IFunctionBody>();
         public List<IStructBody> Structs { get; } = new List<IStructBody>();
     }

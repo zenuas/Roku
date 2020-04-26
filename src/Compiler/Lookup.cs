@@ -53,27 +53,43 @@ namespace Roku.Compiler
 
         public static IEnumerable<ExternFunction> AllExternFunctions(INamespace src) => src.Functions.By<ExternFunction>();
 
-        public static IFunctionBody? FindFunctionOrNull(INamespace ns, string name, List<ITypedValue> args) => ns is SourceCodeBody src ? FindFunctioInSourceCodeOrNulln(src, name, args) : FindFunctionInNamespaceOrNull(ns, name, args);
+        public static IFunctionBody? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args) => ns is SourceCodeBody src ? FindFunctioInSourceCodeOrNulln(src, name, args) : FindFunctionInNamespaceOrNull(ns, name, args);
 
-        public static IFunctionBody? FindFunctioInSourceCodeOrNulln(SourceCodeBody src, string name, List<ITypedValue> args)
+        public static IFunctionBody? FindFunctioInSourceCodeOrNulln(SourceCodeBody src, string name, List<IStructBody?> args)
         {
-            var f = src.Functions.FindFirstOrNull(x => x.Name == name && FunctionArgumentsEquals(x, args));
+            var f = src.Functions.FindFirstOrNull(x => x.Name == name && FunctionArgumentsEquals(src, x, args));
             if (f is { }) return f;
 
             return src.Uses.Map(x => FindFunctionInNamespaceOrNull(x, name, args)).By<IFunctionBody>().FirstOrNull();
         }
 
-        public static IFunctionBody? FindFunctionInNamespaceOrNull(INamespace ns, string name, List<ITypedValue> args) => ns.Functions.FindFirstOrNull(x => x.Name == name && FunctionArgumentsEquals(x, args));
+        public static IFunctionBody? FindFunctionInNamespaceOrNull(INamespace ns, string name, List<IStructBody?> args) => ns.Functions.FindFirstOrNull(x => x.Name == name && FunctionArgumentsEquals(ns, x, args));
 
-        public static bool FunctionArgumentsEquals(IFunctionBody source, List<ITypedValue> args)
+        public static bool FunctionArgumentsEquals(INamespace ns, IFunctionBody source, List<IStructBody?> args)
         {
-            return true;
+            var fargs = GetArgumentsType(ns, source);
+            if (fargs.Count != args.Count) return false;
+            return fargs.Zip(args).And(x => TypeEquals(x.First, x.Second));
+        }
+        public static List<IStructBody> GetArgumentsType(INamespace ns, IFunctionBody body)
+        {
+            if (body is FunctionBody fb)
+            {
+                return fb.Arguments.Map(x => LoadStruct(ns, x.Type.Name)).ToList();
+            }
+            else
+            {
+                var root = GetRootNamespace(ns);
+                return body.Cast<ExternFunction>().Function.GetParameters().Map(x => LoadType(root, x.ParameterType).Cast<IStructBody>()).ToList();
+            }
         }
 
-        //public static bool TypeEquals(IType source, ITypedValue arg)
-        //{
-        //    return true;
-        //}
+        public static bool TypeEquals(IStructBody source, IStructBody? arg)
+        {
+            if (source is ExternStruct ea && arg is ExternStruct eb) return ea.Struct == eb.Struct;
+            if (source is StructBody sa && arg is StructBody sb) return sa == sb;
+            return false;
+        }
 
         public static IStructBody LoadStruct(INamespace ns, string name)
         {
@@ -117,6 +133,11 @@ namespace Roku.Compiler
             var t = new ExternStruct(name, ti);
             root.Structs.Add(t);
             return t;
+        }
+
+        public static RootNamespace GetRootNamespace(INamespace ns)
+        {
+            return ns is RootNamespace root ? root : GetRootNamespace(ns.Parent!);
         }
 
         //public static RkCILStruct? LoadTypeWithoutVoid(RootNamespace root, Type t) => LoadTypeWithoutVoid(root, t.GetTypeInfo());

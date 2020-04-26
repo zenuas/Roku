@@ -11,7 +11,7 @@ namespace Roku.Compiler
     {
         public static SourceCodeBody LoadProgram(RootNamespace root, ProgramNode pgm)
         {
-            var src = new SourceCodeBody();
+            var src = new SourceCodeBody(root);
             src.Uses.Add(root);
             TypeDefinition(src, pgm);
             FunctionDefinition(src, pgm);
