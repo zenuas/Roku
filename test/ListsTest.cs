@@ -1,7 +1,6 @@
 ﻿using Extensions;
 using NUnit.Framework;
 using System;
-using System.Diagnostics;
 
 namespace Roku.Tests
 {
@@ -85,29 +84,6 @@ namespace Roku.Tests
                 (14, "p"),
                 (10, "q"),
             };
-
-            var sw = new Stopwatch();
-            sw.Restart();
-            foreach (var x in Lists.Range(0, 10000))
-            {
-                xs.ToList().Sort(new Comparison<(int, string)>((x, y) => x.Item1 - y.Item1));
-            }
-            var rap1 = sw.ElapsedMilliseconds;
-            sw.Restart();
-            foreach (var x in Lists.Range(0, 10000))
-            {
-                var sort = xs.Sort((x, y) => x.Item1 - y.Item1);
-            }
-            var rap2 = sw.ElapsedMilliseconds;
-            sw.Restart();
-            foreach (var x in Lists.Range(0, 10000))
-            {
-                var sort = xs.StableSort((x, y) => x.Item1 - y.Item1).ToList();
-            }
-            var rap3 = sw.ElapsedMilliseconds;
-
-            Assert.IsTrue(rap1 < rap2);
-            Assert.IsTrue(rap2 < rap3);
 
             var unstable_sort = xs.Sort((x, y) => x.Item1 - y.Item1);
             var stable_sort = xs.StableSort((x, y) => x.Item1 - y.Item1).ToList();
