@@ -25,6 +25,12 @@ using Roku.Node;
 %left  VAR STR NULL TRUE FALSE IF LET SUB IGNORE
 %token<NumericNode> NUM
 %left  EQ
+%left  OPE OR LT GT
+%left<TokenNode> ope nope
+%left<TokenNode> or
+%left  OR2
+%left  AND2
+%left<TokenNode> and
 %right UNARY
 %left  '.'
 
@@ -51,6 +57,8 @@ expr : var
      | str
      | num
      | call
+     | ope expr %prec UNARY   {$$ = CreateFunctionCallNode($1, $2);}
+     | expr nope expr         {$$ = CreateFunctionCallNode($2, $1, $3);}
 
 call : expr '(' list ')' {$$ = CreateFunctionCallNode($1, $3.List.ToArray());}
 
@@ -91,6 +99,8 @@ varx   : var
 num    : NUM     {$$ = $1;}
 str    : STR     {$$ = new StringNode { Value = $1.Name }.R($1);}
        | str STR {$$ = $1.Return(x => x.Value += $2.Name);}
+nope   : OPE     {$$ = new TokenNode { Token = $1 }.R($1);}
+       | OR      {$$ = new TokenNode { Token = $1 }.R($1);}
 
 extra  : void
        | ','

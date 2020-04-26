@@ -52,21 +52,19 @@ namespace Roku.Compiler
                     case LetNode let:
                         var v = new VariableValue(let.Var.Name, scope);
                         scope.LexicalScope.Add(let.Var.Name, v);
-                        scope.Body.Add(new Code { Operator = Operator.Bind, Left = v, Right = ToTypedValue(scope, let.Expression) });
-                        break;
-
-                    case FunctionCallNode call:
-                        Call x;
-                        if (call.Expression is PropertyNode prop)
+                        var e = NormalizationExpression(scope, let.Expression);
+                        if (e is FunctionCallValue fcall)
                         {
-                            x = new Call(new VariableValue(prop.Right.Name, scope)) { FirstLookup = ToTypedValue(scope, prop.Left) };
+                            scope.Body.Add(new Call(fcall) { Return = v });
                         }
                         else
                         {
-                            x = new Call(new VariableValue(call.Expression.Cast<VariableNode>().Name, scope));
+                            scope.Body.Add(new Code { Operator = Operator.Bind, Left = v, Right = e });
                         }
-                        call.Arguments.Each(arg => x.Arguments.Add(ToTypedValue(scope, arg)));
-                        scope.Body.Add(x);
+                        break;
+
+                    case FunctionCallNode call:
+                        scope.Body.Add(new Call(NormalizationExpression(scope, call).Cast<FunctionCallValue>()));
                         break;
 
                     default:
@@ -75,7 +73,7 @@ namespace Roku.Compiler
             });
         }
 
-        public static ITypedValue ToTypedValue(ILexicalScope scope, IEvaluableNode e)
+        public static ITypedValue NormalizationExpression(ILexicalScope scope, IEvaluableNode e, bool evaluate_as_expression = false)
         {
             switch (e)
             {
@@ -88,9 +86,42 @@ namespace Roku.Compiler
                 case VariableNode x:
                     return FindScopeValue(scope, x.Name);
 
-                default:
-                    throw new Exception();
+                case FunctionCallNode x:
+                    if (evaluate_as_expression)
+                    {
+                        var v = CreateTemporaryVariable(scope);
+                        scope.Body.Add(new Call(NormalizationExpression(scope, x).Cast<FunctionCallValue>()) { Return = v });
+                        return v;
+                    }
+                    else
+                    {
+                        var call = x.Expression is PropertyNode prop
+                            ? new FunctionCallValue(new VariableValue(prop.Right.Name, scope)) { FirstLookup = NormalizationExpression(scope, prop.Left) }
+                            : new FunctionCallValue(new VariableValue(GetName(x.Expression), scope));
+
+                        x.Arguments.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
+                        return call;
+                    }
             }
+            throw new Exception();
+        }
+
+        public static string GetName(IEvaluableNode node)
+        {
+            return node switch
+            {
+                VariableNode x => x.Name,
+                TokenNode x => x.Token.Name,
+                _ => throw new Exception(),
+            };
+        }
+
+        public static ITypedValue CreateTemporaryVariable(ILexicalScope scope)
+        {
+            var max = scope.LexicalScope.Values.By<TemporaryValue>().FoldLeft((r, x) => Math.Max(r, x.Index + 1), 1);
+            var v = new TemporaryValue($"$${max}", max, scope);
+            scope.LexicalScope.Add(v.Name, v);
+            return v;
         }
 
         public static ITypedValue FindScopeValue(ILexicalScope scope, string name)

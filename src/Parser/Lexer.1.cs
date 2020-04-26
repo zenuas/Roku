@@ -201,6 +201,7 @@ namespace Roku.Parser
                 default:
                     if (IsNumber(c)) return ReadDecimal(reader);
                     if (IsAlphabet(c)) return ReadVariable(reader);
+                    if (IsOperator(c)) return ReadOperator(reader);
                     break;
             }
 
@@ -233,8 +234,7 @@ namespace Roku.Parser
                 {
                     break;
                 }
-                _ = reader.ReadChar();
-                s.Append(c);
+                s.Append(reader.ReadChar());
             }
             return new Token { Type = Symbols.NUM, Name = s.ToString(), Value = new NumericNode { Value = n, Format = s.ToString() } };
         }
@@ -250,6 +250,30 @@ namespace Roku.Parser
                 s.Append(c);
             }
             return new Token { Type = Symbols.STR, Name = s.ToString() };
+        }
+
+        public static Token ReadOperator(SourceCodeReader reader)
+        {
+            var s = new StringBuilder();
+            while (!reader.EndOfStream)
+            {
+                if (!IsOperator(reader.PeekChar())) break;
+                s.Append(reader.ReadChar());
+            }
+            var ope = s.ToString();
+            return new Token
+            {
+                Type = ope switch
+                {
+                    "<" => Symbols.LT,
+                    ">" => Symbols.GT,
+                    "|" => Symbols.OR,
+                    "&&" => Symbols.AND2,
+                    "||" => Symbols.OR2,
+                    _ => Symbols.OPE,
+                },
+                Name = ope
+            };
         }
 
         public static bool IsNumber(char c) => c >= '0' && c <= '9';

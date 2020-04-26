@@ -14,23 +14,12 @@ namespace Roku
         {
             var lex = new Lexer(new SourceCodeReader(new StringReader(@"
 fn(""hello"", 123_456)
-fn(345_678, ""good"")
 
 sub fn(s: String, n: Int)
-    var x = ""world""
-    var y = 234_567
-    print(s)
+    var x = s + "" world"" + ""!!""
+    var y = 234_567 - n
     print(x)
     print(n)
-    print(y)
-
-sub fn(n: Int, s: String)
-    var x = ""morning""
-    var y = 456_789
-    print(s)
-    print(x)
-    print(n)
-    print(y)
 ")));
             var pgm = new Parser.Parser().Parse(lex).Cast<ProgramNode>();
 

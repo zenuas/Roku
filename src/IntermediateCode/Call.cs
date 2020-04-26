@@ -2,16 +2,17 @@
 
 namespace Roku.IntermediateCode
 {
-    public class Call : IOperand
+    public class Call : IOperand, IReturnBind
     {
         public Operator Operator { get; set; } = Operator.Call;
-        public ITypedValue Function { get; }
-        public ITypedValue? FirstLookup { get; set; }
-        public List<ITypedValue> Arguments { get; } = new List<ITypedValue>();
+        public ITypedValue? Return { get; set; }
+        public FunctionCallValue Function { get; }
 
-        public Call(ITypedValue f)
+        public Call(FunctionCallValue f)
         {
             Function = f;
         }
+
+        public override string ToString() => $"{(Return is null ? "" : Return.ToString() + " = ")}{Function}";
     }
 }

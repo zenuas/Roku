@@ -74,11 +74,11 @@ namespace Roku.Compiler
 
                 case Operator.Call:
                     var call = op.Cast<Call>();
-                    var f = m[call.Function].Struct!.Cast<FunctionMapper>();
-                    il.WriteLine(call.Arguments.Map(x => LoadValue(m, x)).Join('\n'));
+                    var f = m[call.Function.Function].Struct!.Cast<FunctionMapper>();
+                    il.WriteLine(call.Function.Arguments.Map(x => LoadValue(m, x)).Join('\n'));
                     if (f.Function is ExternFunction fx)
                     {
-                        il.WriteLine($"call {GetTypeName(fx.Function.ReturnType)} [{fx.Function.DeclaringType!.FullName}]{fx.Function.DeclaringType!.FullName}::{fx.Function.Name}({call.Arguments.Map(a => GetTypeName(m[a])).Join(", ")})");
+                        il.WriteLine($"call {GetTypeName(fx.Function.ReturnType)} [{fx.Function.DeclaringType!.FullName}]{fx.Function.DeclaringType!.FullName}::{fx.Function.Name}({call.Function.Arguments.Map(a => GetTypeName(m[a])).Join(", ")})");
                     }
                     else if (f.Function is FunctionBody fb)
                     {

@@ -113,8 +113,8 @@ namespace Roku.Compiler
             switch (op)
             {
                 case Call x:
-                    foreach (var arg in x.Arguments) yield return arg;
-                    if (x.FirstLookup is { }) yield return x.FirstLookup;
+                    foreach (var arg in x.Function.Arguments) yield return arg;
+                    if (x.Function.FirstLookup is { }) yield return x.Function.FirstLookup;
                     break;
             }
         }

@@ -43,12 +43,12 @@ namespace Roku.Compiler
 
         public static bool ResolveFunctionWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, Call call)
         {
-            if (m.ContainsKey(call.Function) && m[call.Function] is { }) return false;
+            if (m.ContainsKey(call.Function.Function) && m[call.Function.Function] is { }) return false;
 
-            switch (call.Function)
+            switch (call.Function.Function)
             {
                 case VariableValue x:
-                    var body = Lookup.FindFunctionOrNull(ns, x.Name, call.Arguments.Map(x => ToTypedValue(ns, m, x).Struct).ToList());
+                    var body = Lookup.FindFunctionOrNull(ns, x.Name, call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct).ToList());
                     if (body is { } b)
                     {
                         var fm = new FunctionMapper(b);
@@ -57,11 +57,17 @@ namespace Roku.Compiler
                             if (fb.Return is { }) fm.TypeMapper[fb.Return] = CreateVariableDetail(Lookup.LoadStruct(fb.Namespace, fb.Return.Name), VariableType.Type);
                             fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(Lookup.LoadStruct(fb.Namespace, x.Type.Name), VariableType.Argument, i));
                         }
-                        m[call.Function] = CreateVariableDetail(fm, VariableType.FunctionMapper);
+                        m[call.Function.Function] = CreateVariableDetail(fm, VariableType.FunctionMapper);
+                        //if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!);
+                    }
+                    else
+                    {
+                        return false;
                     }
                     break;
 
             }
+            if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!);
             return true;
         }
 
@@ -72,10 +78,17 @@ namespace Roku.Compiler
             return true;
         }
 
-        public static bool LocalValueInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v, IStructBody? b)
+        public static bool LocalValueInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v, IStructBody? b = null)
         {
-            if (m.ContainsKey(v) && m[v].Struct is { }) return false;
-            m[v] = CreateVariableDetail(b, VariableType.LocalVariable, m.Values.Where(x => x.Type == VariableType.LocalVariable).FoldLeft((r, x) => Math.Max(r, x.Index + 1), 0));
+            if (m.ContainsKey(v))
+            {
+                if (m[v].Struct is { } || b is null) return false;
+                m[v].Struct = b;
+            }
+            else
+            {
+                m[v] = CreateVariableDetail(b, VariableType.LocalVariable, m.Values.Where(x => x.Type == VariableType.LocalVariable).FoldLeft((r, x) => Math.Max(r, x.Index + 1), 0));
+            }
             return true;
         }
 
@@ -92,6 +105,9 @@ namespace Roku.Compiler
                     return m[x];
 
                 case VariableValue x:
+                    return m[x];
+
+                case TemporaryValue x:
                     return m[x];
 
                 default:
