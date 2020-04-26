@@ -1,6 +1,6 @@
 ﻿namespace Roku.Node
 {
-    class StringNode : Node, IEvaluableNode
+    public class StringNode : Node, IEvaluableNode
     {
         public string Value { get; set; } = "";
     }
