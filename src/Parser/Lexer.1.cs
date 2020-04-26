@@ -159,7 +159,7 @@ namespace Roku.Parser
         public static Token ReadToken(SourceCodeReader reader)
         {
             var c = reader.PeekChar();
-            if (ReservedChar.ContainsKey(c)) return new Token { Type = ReservedChar[c], Name = c.ToString() };
+            if (ReservedChar.ContainsKey(c)) return new Token { Type = ReservedChar[c], Name = reader.ReadChar().ToString() };
 
             switch (c)
             {
