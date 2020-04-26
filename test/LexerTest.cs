@@ -66,6 +66,33 @@ namespace Roku.Tests
             Assert.AreEqual(ts2[3].Name, "abc123");
         }
 
+        [Test]
+        public void IndentErrorTest()
+        {
+            var ts = Tokens(
+@"    a = 123_456
+  b = ""abc123""");
+            Assert.AreEqual(ts.Count, 11);
+            Assert.IsTrue(ts.Zip(new Symbols[]
+                {
+                    Symbols.BEGIN,
+                    Symbols.VAR,
+                    Symbols.EQ,
+                    Symbols.NUM,
+                    Symbols.EOL,
+                    Symbols.END,
+                    Symbols.VAR,
+                    Symbols.EQ,
+                    Symbols.STR,
+                    Symbols.EOL,
+                    Symbols._END,
+                }).And(x => x.First.Type == x.Second));
+            Assert.AreEqual(ts[1].Name, "a");
+            Assert.AreEqual(ts[3].Name, "123_456");
+            Assert.AreEqual(ts[6].Name, "b");
+            Assert.AreEqual(ts[8].Name, "abc123");
+        }
+
         public static Lexer Read(string s) => new Lexer(new SourceCodeReader(new StringReader(s)));
 
         public static List<Token> Tokens(string s)
