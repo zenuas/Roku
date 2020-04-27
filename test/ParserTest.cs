@@ -30,6 +30,34 @@ namespace Roku.Tests
         }
 
         [Test]
+        public void ExpressionTest()
+        {
+            var p = Parse("var a = 1 + 2 - 3");
+            Assert.AreEqual(p.Statements.Count, 1);
+            Assert.IsTrue(p.Statements[0] is LetNode);
+
+            var let = p.Statements[0].Cast<LetNode>();
+            Assert.AreEqual(let.Var.Name, "a");
+
+            Assert.IsTrue(let.Expression is FunctionCallNode);
+            var minus = let.Expression.Cast<FunctionCallNode>();
+            Assert.IsTrue(minus.Arguments[0] is FunctionCallNode);
+            var plus = minus.Arguments[0].Cast<FunctionCallNode>();
+
+            Assert.IsTrue(plus.Expression is TokenNode);
+            Assert.IsTrue(minus.Expression is TokenNode);
+            Assert.IsTrue(plus.Arguments[0] is NumericNode);
+            Assert.IsTrue(plus.Arguments[1] is NumericNode);
+            Assert.IsTrue(minus.Arguments[1] is NumericNode);
+
+            Assert.AreEqual(plus.Expression.Cast<TokenNode>().Token.Name, "+");
+            Assert.AreEqual(minus.Expression.Cast<TokenNode>().Token.Name, "-");
+            Assert.AreEqual(plus.Arguments[0].Cast<NumericNode>().Value, 1);
+            Assert.AreEqual(plus.Arguments[1].Cast<NumericNode>().Value, 2);
+            Assert.AreEqual(minus.Arguments[1].Cast<NumericNode>().Value, 3);
+        }
+
+        [Test]
         public void CallTest()
         {
             var p = Parse("print(\"hello world\")");
