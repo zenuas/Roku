@@ -1,4 +1,5 @@
-﻿using Roku.IntermediateCode;
+﻿using Extensions;
+using Roku.IntermediateCode;
 using System.Collections.Generic;
 
 namespace Roku.Manager
@@ -19,5 +20,7 @@ namespace Roku.Manager
             Namespace = ns;
             Name = name;
         }
+
+        public override string ToString() => $"sub {Name}({Arguments.Map(x => x.Name.ToString() + " : " + x.Type.ToString()).Join(", ")}){(Return is null ? "" : " " + Return.ToString())}";
     }
 }

@@ -5,5 +5,7 @@
         public IStructBody? Struct { get; set; }
         public VariableType Type { get; set; }
         public int Index { get; set; }
+
+        public override string ToString() => Struct?.ToString() ?? "";
     }
 }

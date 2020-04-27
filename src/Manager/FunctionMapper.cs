@@ -13,5 +13,7 @@ namespace Roku.Manager
         {
             Function = f;
         }
+
+        public override string ToString() => Function.ToString()!;
     }
 }
