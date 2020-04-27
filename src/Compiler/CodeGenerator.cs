@@ -54,7 +54,7 @@ namespace Roku.Compiler
                 if (local_vals.Count > 0)
                 {
                     il.WriteLine(".locals(");
-                    il.WriteLine(local_vals.Map(x => $"[{x.Index}] {GetTypeName(x)}").Join(",\n"));
+                    il.WriteLine(local_vals.Map(x => $"[{x.Index}] {GetTypeName(x)} {x.Name}").Join(",\n"));
                     il.WriteLine(")");
                 }
                 f.Body.Each(x => AssemblyOperandEmit(il, x, f.TypeMapper));

@@ -54,7 +54,7 @@ namespace Roku.Compiler
                     {
                         var ret = new EmbeddedFunction("return", null, call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct?.Name!).ToArray()) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                         var fm = new FunctionMapper(ret);
-                        m[x] = CreateVariableDetail(fm, VariableType.FunctionMapper);
+                        m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
                         return true;
                     }
 
@@ -66,8 +66,8 @@ namespace Roku.Compiler
                         IStructBody? ret = null;
                         if (b is FunctionBody fb)
                         {
-                            if (fb.Return is { }) fm.TypeMapper[fb.Return] = CreateVariableDetail(ret = Lookup.LoadStruct(fb.Namespace, fb.Return.Name), VariableType.Type);
-                            fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(Lookup.LoadStruct(fb.Namespace, x.Type.Name), VariableType.Argument, i));
+                            if (fb.Return is { }) fm.TypeMapper[fb.Return] = CreateVariableDetail("", ret = Lookup.LoadStruct(fb.Namespace, fb.Return.Name), VariableType.Type);
+                            fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(x.Name.Name, Lookup.LoadStruct(fb.Namespace, x.Type.Name), VariableType.Argument, i));
                         }
                         else if (b is ExternFunction fx)
                         {
@@ -75,10 +75,10 @@ namespace Roku.Compiler
                         }
                         else if (b is EmbeddedFunction ef)
                         {
-                            if (ef.Return is { }) fm.TypeMapper[ef.Return] = CreateVariableDetail(ret = Lookup.LoadStruct(ns, ef.Return.Name), VariableType.Type);
-                            ef.Arguments.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail(Lookup.LoadStruct(ns, x.Name), VariableType.Argument, i));
+                            if (ef.Return is { }) fm.TypeMapper[ef.Return] = CreateVariableDetail("", ret = Lookup.LoadStruct(ns, ef.Return.Name), VariableType.Type);
+                            ef.Arguments.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail($"${i}", Lookup.LoadStruct(ns, x.Name), VariableType.Argument, i));
                         }
-                        m[x] = CreateVariableDetail(fm, VariableType.FunctionMapper);
+                        m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
                         if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, ret);
                         resolve = true;
                     }
@@ -91,14 +91,14 @@ namespace Roku.Compiler
         public static bool ArgumentInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v, string type_name, int index)
         {
             if (m.ContainsKey(v) && m[v].Struct is { }) return false;
-            m[v] = CreateVariableDetail(Lookup.LoadStruct(ns, type_name), VariableType.Argument, index);
+            m[v] = CreateVariableDetail($"${index}", Lookup.LoadStruct(ns, type_name), VariableType.Argument, index);
             return true;
         }
 
         public static bool TypeInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v, string type_name)
         {
             if (m.ContainsKey(v) && m[v].Struct is { }) return false;
-            m[v] = CreateVariableDetail(Lookup.LoadStruct(ns, type_name), VariableType.Type);
+            m[v] = CreateVariableDetail("", Lookup.LoadStruct(ns, type_name), VariableType.Type);
             return true;
         }
 
@@ -111,7 +111,7 @@ namespace Roku.Compiler
             }
             else
             {
-                m[v] = CreateVariableDetail(b, VariableType.LocalVariable, m.Values.Where(x => x.Type == VariableType.LocalVariable).FoldLeft((r, x) => Math.Max(r, x.Index + 1), 0));
+                m[v] = CreateVariableDetail(v.ToString()!, b, VariableType.LocalVariable, m.Values.Where(x => x.Type == VariableType.LocalVariable).FoldLeft((r, x) => Math.Max(r, x.Index + 1), 0));
             }
             return true;
         }
@@ -121,11 +121,11 @@ namespace Roku.Compiler
             switch (v)
             {
                 case NumericValue x:
-                    m[x] = CreateVariableDetail(Lookup.LoadStruct(ns, "Int"), VariableType.Type);
+                    m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "Int"), VariableType.Type);
                     return m[x];
 
                 case StringValue x:
-                    m[x] = CreateVariableDetail(Lookup.LoadStruct(ns, "String"), VariableType.Type);
+                    m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "String"), VariableType.Type);
                     return m[x];
 
                 case VariableValue x:
@@ -139,6 +139,6 @@ namespace Roku.Compiler
             }
         }
 
-        public static VariableDetail CreateVariableDetail(IStructBody? b, VariableType type, int index = 0) => new VariableDetail { Struct = b, Type = type, Index = index };
+        public static VariableDetail CreateVariableDetail(string name, IStructBody? b, VariableType type, int index = 0) => new VariableDetail { Name = name, Struct = b, Type = type, Index = index };
     }
 }

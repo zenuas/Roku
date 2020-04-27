@@ -31,7 +31,8 @@ print(1==1)
 print(1!=0)
 
 sub fn(s: Int) Int
-    return(s + s)
+    var x = s + s
+    return(x)
 
 sub fn(s: String) String
     return(s + s)
