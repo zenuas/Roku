@@ -31,6 +31,7 @@ namespace Roku.Compiler
             pgm.Functions.Each(f =>
                 {
                     var body = MakeFunction(src, f.Name.Name);
+                    if (f.Return is { }) body.Return = new VariableValue(f.Return.Name, body);
                     f.Arguments.Each(x =>
                         {
                             //var t = Lookup.LoadStruct(src, x.Type.Name);

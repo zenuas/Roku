@@ -23,6 +23,7 @@ namespace Roku.Compiler
         {
             var resolved = false;
             body.Arguments.Each((x, i) => resolved = ArgumentInferenceWithEffect(body.Namespace, body.TypeMapper, x.Name, x.Type.Name, i) || resolved);
+            if (body.Return is { } x) resolved = TypeInferenceWithEffect(body.Namespace, body.TypeMapper, x, x.Name) || resolved;
             body.Body.Each(x => resolved = OperandTypeInference(body.Namespace, body.TypeMapper, x) || resolved);
             return resolved;
         }
@@ -49,6 +50,14 @@ namespace Roku.Compiler
             var resolve = false;
             switch (call.Function.Function)
             {
+                case VariableValue x when call.Return is null && call.Function.FirstLookup is null && x.Name == "return":
+                    {
+                        var ret = new EmbeddedFunction("return", null, call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct?.Name!).ToArray());
+                        var fm = new FunctionMapper(ret);
+                        m[x] = CreateVariableDetail(fm, VariableType.FunctionMapper);
+                        return true;
+                    }
+
                 case VariableValue x:
                     var body = Lookup.FindFunctionOrNull(ns, x.Name, call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct).ToList());
                     if (body is { } b)
@@ -69,7 +78,7 @@ namespace Roku.Compiler
                             if (ef.Return is { }) fm.TypeMapper[ef.Return] = CreateVariableDetail(ret = Lookup.LoadStruct(ns, ef.Return.Name), VariableType.Type);
                             ef.Arguments.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail(Lookup.LoadStruct(ns, x.Name), VariableType.Argument, i));
                         }
-                        m[call.Function.Function] = CreateVariableDetail(fm, VariableType.FunctionMapper);
+                        m[x] = CreateVariableDetail(fm, VariableType.FunctionMapper);
                         if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, ret);
                         resolve = true;
                     }
@@ -83,6 +92,13 @@ namespace Roku.Compiler
         {
             if (m.ContainsKey(v) && m[v].Struct is { }) return false;
             m[v] = CreateVariableDetail(Lookup.LoadStruct(ns, type_name), VariableType.Argument, index);
+            return true;
+        }
+
+        public static bool TypeInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v, string type_name)
+        {
+            if (m.ContainsKey(v) && m[v].Struct is { }) return false;
+            m[v] = CreateVariableDetail(Lookup.LoadStruct(ns, type_name), VariableType.Type);
             return true;
         }
 

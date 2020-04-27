@@ -46,7 +46,7 @@ namespace Roku.Compiler
         {
             fss.Each(f =>
             {
-                il.WriteLine($".method public static void {f.Name}({f.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name])).Join(", ")}) cil managed");
+                il.WriteLine($".method public static {GetTypeName(f.TypeMapper, f.Return)} {f.Name}({f.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name])).Join(", ")}) cil managed");
                 il.WriteLine("{");
                 if (f.Name == "main") il.WriteLine("\t.entrypoint");
                 il.WriteLine("\t.maxstack 8");
