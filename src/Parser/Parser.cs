@@ -348,7 +348,7 @@ namespace Roku.Parser
 
                 case -36:
                     TraceAction("nsvar : varx");
-                    yy_value = new TypeNode { Name = ((VariableNode)GetValue(-1)).Name } .R(((VariableNode)GetValue(-1)));
+                    yy_value = new TypeNode { Name = ((VariableNode)GetValue(-1)).Name }.R(((VariableNode)GetValue(-1)));
                     yy_token = DoAction(Symbols.nsvar, 1, yy_value);
                     break;
 

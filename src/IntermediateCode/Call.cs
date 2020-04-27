@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Roku.IntermediateCode
+﻿namespace Roku.IntermediateCode
 {
     public class Call : IOperand, IReturnBind
     {
