@@ -5,6 +5,7 @@
 
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
+    <PathMap>$(MSBuildProjectDirectory)=.</PathMap>
   </PropertyGroup>
 
   <ItemGroup>
