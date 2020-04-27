@@ -16,7 +16,8 @@ namespace Roku.Compiler
             var nss = Lookup.AllNamespaces(body);
             var fss = Lookup.AllFunctionBodies(pgms).UnZip().First;
             var externs = Lookup.AllExternFunctions(nss);
-            var extern_asms = externs.Map(GetAssembly).Unique().ToArray();
+            var embedded = Lookup.AllEmbeddedFunctions(nss);
+            var extern_asms = externs.Map(GetAssembly).Concat(embedded.Map(x => x.Assembly()).By<Assembly>()).Unique().ToArray();
 
             using (var il = new StreamWriter(path))
             {
@@ -64,12 +65,12 @@ namespace Roku.Compiler
 
         public static void AssemblyOperandEmit(StreamWriter il, IOperand op, Dictionary<ITypedValue, VariableDetail> m)
         {
+            il.WriteLine();
             switch (op.Operator)
             {
                 case Operator.Bind:
                     var bind = op.Cast<Code>();
                     il.WriteLine(LoadValue(m, bind.Right!));
-                    il.WriteLine(StoreValue(m, bind.Left!));
                     break;
 
                 case Operator.Call:
@@ -84,10 +85,19 @@ namespace Roku.Compiler
                     {
                         il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return)} {fb.Name}({fb.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name])).Join(", ")})");
                     }
+                    else if (f.Function is EmbeddedFunction ef)
+                    {
+                        il.WriteLine(ef.OpCode());
+                    }
                     break;
 
                 default:
                     throw new Exception();
+            }
+
+            if (op is IReturnBind ret && ret.Return is { })
+            {
+                il.WriteLine(StoreValue(m, ret.Return));
             }
         }
 
@@ -101,8 +111,9 @@ namespace Roku.Compiler
                 case NumericValue x:
                     return $"ldc.i4 {x.Value}";
 
-                case VariableValue x:
-                    var detail = m[x];
+                case VariableValue _:
+                case TemporaryValue _:
+                    var detail = m[value];
                     if (detail.Type == VariableType.Argument)
                     {
                         return $"ldarg.{detail.Index}";
@@ -119,8 +130,9 @@ namespace Roku.Compiler
         {
             switch (value)
             {
-                case VariableValue x:
-                    var detail = m[x];
+                case VariableValue _:
+                case TemporaryValue _:
+                    var detail = m[value];
                     if (detail.Type == VariableType.Argument)
                     {
                         return $"starg.{detail.Index}";

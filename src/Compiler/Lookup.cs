@@ -49,9 +49,11 @@ namespace Roku.Compiler
 
         public static IEnumerable<FunctionBody> AllFunctionBodies(SourceCodeBody src) => src.Functions.By<FunctionBody>();
 
-        public static IEnumerable<ExternFunction> AllExternFunctions(List<INamespace> srcs) => srcs.Map(AllExternFunctions).Flatten();
+        public static IEnumerable<ExternFunction> AllExternFunctions(List<INamespace> srcs) => srcs.Map(AllFunctions<ExternFunction>).Flatten();
 
-        public static IEnumerable<ExternFunction> AllExternFunctions(INamespace src) => src.Functions.By<ExternFunction>();
+        public static IEnumerable<EmbeddedFunction> AllEmbeddedFunctions(List<INamespace> srcs) => srcs.Map(AllFunctions<EmbeddedFunction>).Flatten();
+
+        public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionBody => src.Functions.By<T>();
 
         public static IFunctionBody? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args) => ns is SourceCodeBody src ? FindFunctioInSourceCodeOrNulln(src, name, args) : FindFunctionInNamespaceOrNull(ns, name, args);
 
@@ -76,6 +78,10 @@ namespace Roku.Compiler
             if (body is FunctionBody fb)
             {
                 return fb.Arguments.Map(x => LoadStruct(ns, x.Type.Name)).ToList();
+            }
+            else if (body is EmbeddedFunction ef)
+            {
+                return ef.Arguments.Map(x => LoadStruct(ns, x.Name)).ToList();
             }
             else
             {
@@ -140,9 +146,9 @@ namespace Roku.Compiler
             return ns is RootNamespace root ? root : GetRootNamespace(ns.Parent!);
         }
 
-        //public static RkCILStruct? LoadTypeWithoutVoid(RootNamespace root, Type t) => LoadTypeWithoutVoid(root, t.GetTypeInfo());
+        public static ExternStruct? LoadTypeWithoutVoid(RootNamespace root, Type t) => LoadTypeWithoutVoid(root, t.GetTypeInfo());
 
-        //public static RkCILStruct? LoadTypeWithoutVoid(RootNamespace root, TypeInfo ti) => ti == typeof(void) ? null : LoadType(root, ti.Name, ti);
+        public static ExternStruct? LoadTypeWithoutVoid(RootNamespace root, TypeInfo ti) => ti == typeof(void) ? null : LoadType(root, ti.Name, ti);
 
         //public static RkCILFunction LoadFunction(RootNamespace root, MethodInfo method) => LoadFunction(root, method.Name, method);
 

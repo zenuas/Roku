@@ -3,6 +3,7 @@ using Roku.IntermediateCode;
 using Roku.Manager;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Roku.Compiler
 {
@@ -45,6 +46,7 @@ namespace Roku.Compiler
         {
             if (m.ContainsKey(call.Function.Function) && m[call.Function.Function] is { }) return false;
 
+            var resolve = false;
             switch (call.Function.Function)
             {
                 case VariableValue x:
@@ -52,23 +54,29 @@ namespace Roku.Compiler
                     if (body is { } b)
                     {
                         var fm = new FunctionMapper(b);
+                        IStructBody? ret = null;
                         if (b is FunctionBody fb)
                         {
-                            if (fb.Return is { }) fm.TypeMapper[fb.Return] = CreateVariableDetail(Lookup.LoadStruct(fb.Namespace, fb.Return.Name), VariableType.Type);
+                            if (fb.Return is { }) fm.TypeMapper[fb.Return] = CreateVariableDetail(ret = Lookup.LoadStruct(fb.Namespace, fb.Return.Name), VariableType.Type);
                             fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(Lookup.LoadStruct(fb.Namespace, x.Type.Name), VariableType.Argument, i));
                         }
+                        else if (b is ExternFunction fx)
+                        {
+                            ret = Lookup.LoadTypeWithoutVoid(Lookup.GetRootNamespace(ns), fx.Function.ReturnType.GetTypeInfo());
+                        }
+                        else if (b is EmbeddedFunction ef)
+                        {
+                            if (ef.Return is { }) fm.TypeMapper[ef.Return] = CreateVariableDetail(ret = Lookup.LoadStruct(ns, ef.Return.Name), VariableType.Type);
+                            ef.Arguments.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail(Lookup.LoadStruct(ns, x.Name), VariableType.Argument, i));
+                        }
                         m[call.Function.Function] = CreateVariableDetail(fm, VariableType.FunctionMapper);
-                        //if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!);
-                    }
-                    else
-                    {
-                        return false;
+                        if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, ret);
+                        resolve = true;
                     }
                     break;
 
             }
-            if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!);
-            return true;
+            return call.Return is { } ? LocalValueInferenceWithEffect(ns, m, call.Return!) || resolve : resolve;
         }
 
         public static bool ArgumentInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v, string type_name, int index)
