@@ -25,9 +25,6 @@ namespace Roku.Parser
         /// <summary>'{'</summary>
         __x7B,
 
-        /// <summary>and</summary>
-        and,
-
         /// <summary>AND2</summary>
         AND2,
 
@@ -70,14 +67,8 @@ namespace Roku.Parser
         /// <summary>NUM</summary>
         NUM,
 
-        /// <summary>ope</summary>
-        ope,
-
         /// <summary>OPE</summary>
         OPE,
-
-        /// <summary>or</summary>
-        or,
 
         /// <summary>OR</summary>
         OR,
@@ -102,6 +93,9 @@ namespace Roku.Parser
 
         /// <summary>$END</summary>
         _END,
+
+        /// <summary>and</summary>
+        and,
 
         /// <summary>argn</summary>
         argn,
@@ -147,6 +141,12 @@ namespace Roku.Parser
 
         /// <summary>num</summary>
         num,
+
+        /// <summary>ope</summary>
+        ope,
+
+        /// <summary>or</summary>
+        or,
 
         /// <summary>program_begin</summary>
         program_begin,

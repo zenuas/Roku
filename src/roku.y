@@ -59,6 +59,8 @@ expr : var
      | call
      | ope expr %prec UNARY   {$$ = CreateFunctionCallNode($1, $2);}
      | expr nope expr         {$$ = CreateFunctionCallNode($2, $1, $3);}
+     | expr LT expr           {$$ = CreateFunctionCallNode($2, $1, $3);}
+     | expr GT expr           {$$ = CreateFunctionCallNode($2, $1, $3);}
 
 call : expr '(' list ')' {$$ = CreateFunctionCallNode($1, $3.List.ToArray());}
 
@@ -99,8 +101,15 @@ varx   : var
 num    : NUM     {$$ = $1;}
 str    : STR     {$$ = new StringNode { Value = $1.Name }.R($1);}
        | str STR {$$ = $1.Return(x => x.Value += $2.Name);}
+ope    : nope
+       | and
+       | or
+       | LT      {$$ = new TokenNode { Token = $1 }.R($1);}
+       | GT      {$$ = new TokenNode { Token = $1 }.R($1);}
 nope   : OPE     {$$ = new TokenNode { Token = $1 }.R($1);}
        | OR      {$$ = new TokenNode { Token = $1 }.R($1);}
+and    : AND2    {$$ = new TokenNode { Token = $1 }.R($1);}
+or     : OR2     {$$ = new TokenNode { Token = $1 }.R($1);}
 
 extra  : void
        | ','

@@ -52,7 +52,7 @@ namespace Roku.Compiler
             {
                 case VariableValue x when call.Return is null && call.Function.FirstLookup is null && x.Name == "return":
                     {
-                        var ret = new EmbeddedFunction("return", null, call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct?.Name!).ToArray());
+                        var ret = new EmbeddedFunction("return", null, call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct?.Name!).ToArray()) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                         var fm = new FunctionMapper(ret);
                         m[x] = CreateVariableDetail(fm, VariableType.FunctionMapper);
                         return true;

@@ -11,7 +11,7 @@ namespace Roku.Manager
         public string Name { get; }
         public EmbeddedTokenValue? Return { get; set; } = null;
         public List<EmbeddedTokenValue> Arguments { get; } = new List<EmbeddedTokenValue>();
-        public Func<string> OpCode { get; set; } = () => "";
+        public Func<string[], string> OpCode { get; set; } = (xs) => "";
         public Func<Assembly?> Assembly { get; set; } = () => null;
 
         public EmbeddedFunction(string name, string? ret, params string[] args)

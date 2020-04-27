@@ -182,6 +182,16 @@ namespace Roku.Parser
 
                 case '=':
                     _ = reader.ReadChar();
+                    if (reader.PeekChar() == '=')
+                    {
+                        _ = reader.ReadChar();
+                        if (reader.PeekChar() == '=')
+                        {
+                            _ = reader.ReadChar();
+                            return new Token { Type = Symbols.OPE, Name = "===" };
+                        }
+                        return new Token { Type = Symbols.OPE, Name = "==" };
+                    }
                     return new Token { Type = Symbols.EQ };
 
                 case '_':
@@ -260,6 +270,7 @@ namespace Roku.Parser
                 if (!IsOperator(reader.PeekChar())) break;
                 s.Append(reader.ReadChar());
             }
+            if (reader.PeekChar() == '=') s.Append(reader.ReadChar());
             var ope = s.ToString();
             return new Token
             {

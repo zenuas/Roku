@@ -76,18 +76,20 @@ namespace Roku.Compiler
                 case Operator.Call:
                     var call = op.Cast<Call>();
                     var f = m[call.Function.Function].Struct!.Cast<FunctionMapper>();
-                    il.WriteLine(call.Function.Arguments.Map(x => LoadValue(m, x)).Join('\n'));
+                    var args = call.Function.Arguments.Map(x => LoadValue(m, x)).ToArray();
                     if (f.Function is ExternFunction fx)
                     {
+                        il.WriteLine(args.Join('\n'));
                         il.WriteLine($"call {GetTypeName(fx.Function.ReturnType)} [{fx.Function.DeclaringType!.FullName}]{fx.Function.DeclaringType!.FullName}::{fx.Function.Name}({call.Function.Arguments.Map(a => GetTypeName(m[a])).Join(", ")})");
                     }
                     else if (f.Function is FunctionBody fb)
                     {
+                        il.WriteLine(args.Join('\n'));
                         il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return)} {fb.Name}({fb.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name])).Join(", ")})");
                     }
                     else if (f.Function is EmbeddedFunction ef)
                     {
-                        il.WriteLine(ef.OpCode());
+                        il.WriteLine(ef.OpCode(args));
                     }
                     break;
 
@@ -109,18 +111,28 @@ namespace Roku.Compiler
                     return $"ldstr \"{x.Value}\"";
 
                 case NumericValue x:
-                    return $"ldc.i4 {x.Value}";
+                    return
+                        x.Value <= 8 ? $"ldc.i4.{x.Value}"
+                        : x.Value <= sbyte.MaxValue ? $"ldc.i4.s {x.Value}"
+                        : x.Value <= int.MaxValue ? $"ldc.i4 {x.Value}"
+                        : $"ldc.i8 {x.Value}";
 
                 case VariableValue _:
                 case TemporaryValue _:
                     var detail = m[value];
                     if (detail.Type == VariableType.Argument)
                     {
-                        return $"ldarg.{detail.Index}";
+                        return
+                            detail.Index <= 3 ? $"ldarg.{detail.Index}"
+                            : detail.Index <= byte.MaxValue ? $"ldarg.s {detail.Index}"
+                            : $"ldarg {detail.Index}";
                     }
                     else
                     {
-                        return $"ldloc.{detail.Index}";
+                        return
+                            detail.Index <= 3 ? $"ldloc.{detail.Index}"
+                            : detail.Index <= byte.MaxValue ? $"ldloc.s {detail.Index}"
+                            : $"ldloc {detail.Index}";
                     }
             }
             throw new Exception();
@@ -135,11 +147,17 @@ namespace Roku.Compiler
                     var detail = m[value];
                     if (detail.Type == VariableType.Argument)
                     {
-                        return $"starg.{detail.Index}";
+                        return
+                            detail.Index <= 3 ? $"starg.{detail.Index}"
+                            : detail.Index <= byte.MaxValue ? $"starg.s {detail.Index}"
+                            : $"starg {detail.Index}";
                     }
                     else
                     {
-                        return $"stloc.{detail.Index}";
+                        return
+                            detail.Index <= 3 ? $"stloc.{detail.Index}"
+                            : detail.Index <= byte.MaxValue ? $"stloc.s {detail.Index}"
+                            : $"stloc {detail.Index}";
                     }
             }
             throw new Exception();
@@ -162,6 +180,7 @@ namespace Roku.Compiler
             if (t == typeof(void)) return "void";
             if (t == typeof(string)) return "string";
             if (t == typeof(int)) return "int32";
+            if (t == typeof(bool)) return "bool";
             return t.Name;
         }
     }

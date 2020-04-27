@@ -26,7 +26,6 @@ namespace Roku.Parser
         public static Dictionary<string, Symbols> CreateReservedStringTable()
         {
             var table = new Dictionary<string, Symbols>();
-            table["and"] = Symbols.and;
             table["AND2"] = Symbols.AND2;
             table["BEGIN"] = Symbols.BEGIN;
             table["block"] = Symbols.block;
@@ -41,9 +40,7 @@ namespace Roku.Parser
             table["LT"] = Symbols.LT;
             table["NULL"] = Symbols.NULL;
             table["NUM"] = Symbols.NUM;
-            table["ope"] = Symbols.ope;
             table["OPE"] = Symbols.OPE;
-            table["or"] = Symbols.or;
             table["OR"] = Symbols.OR;
             table["OR2"] = Symbols.OR2;
             table["STR"] = Symbols.STR;
