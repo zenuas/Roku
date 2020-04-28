@@ -1,0 +1,26 @@
+
+#=>hello
+var a = "hello"
+print(a)
+
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly var02 {}
+.method public static void main() cil managed
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] string a
+    )
+    
+    ldstr "hello"
+    stloc.0
+    
+    ldloc.0
+    call void [System.Console]System.Console::WriteLine(string)
+    ret
+}
+###end

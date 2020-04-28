@@ -1,4 +1,5 @@
-﻿using Extensions;
+﻿using Command;
+using Extensions;
 using Roku.Compiler;
 using Roku.Manager;
 using Roku.Node;
@@ -9,37 +10,31 @@ using System.Reflection;
 
 namespace Roku
 {
-    public static class Program
+    public static class FrontEnd
     {
         public static void Main(string[] args)
         {
-            var lex = new Lexer(new SourceCodeReader(new StringReader(@"
-print(fn(""hello""))
-print(fn(12))
-print(1+2)
-print(1-2)
-print(2*3)
-print(4/2)
-print(5%3)
-print(1<2)
-print(1<=2)
-print(2<=2)
-print(3>2)
-print(3>=2)
-print(3>=3)
-print(1==1)
-print(1!=0)
+            var opt = new Option();
+            var xs = CommandLine.Run(opt, args);
+            if (xs.Length == 0)
+            {
+                Compile(Console.In, opt.Output);
+            }
+            else
+            {
+                Compile(xs[0], opt.Output);
+            }
+        }
 
-sub fn(s: Int) Int
-    var x = s + s
-    return(x)
+        public static void Compile(string input, string output)
+        {
+            using var source = new StreamReader(input);
+            Compile(source, output);
+        }
 
-sub fn(s: String) String
-    return(s + s)
-
-#sub fn(s: a) a
-#    return(s + s)
-")));
+        public static void Compile(TextReader input, string output)
+        {
+            var lex = new Lexer(new SourceCodeReader(input));
             var pgm = new Parser.Parser().Parse(lex).Cast<ProgramNode>();
 
             var root = new RootNamespace();
@@ -67,7 +62,7 @@ sub fn(s: String) String
             var src = Definition.LoadProgram(root, pgm);
             src.Uses.Add(root);
             Typing.TypeInference(src);
-            CodeGenerator.Emit(src, "a.il");
+            CodeGenerator.Emit(src, output);
         }
     }
 }

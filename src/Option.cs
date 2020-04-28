@@ -6,15 +6,15 @@ namespace Roku
     {
         [ShortOption('o')]
         [LongOption("output")]
-        string Output { get; set; } = "";
+        public string Output { get; set; } = "a.il";
 
         [ShortOption('e')]
         [LongOption("entrypoint")]
-        string EntryPoint { get; set; } = "";
+        public string EntryPoint { get; set; } = "";
 
         [ShortOption('l')]
         [LongOption("lib")]
-        void LoadLibrary(string path)
+        public void LoadLibrary(string path)
         {
 
         }
