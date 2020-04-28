@@ -12,12 +12,20 @@ exit /B 0
 
 :il
 	set IL=%1
-	set ILOUT=%IL:.il=.dll%
+	set FILENAME=%IL:.il=%
+	set ILOUT=%FILENAME%.dll
+	set TESTIN=%FILENAME%.testin
+	set TESTOUT=%FILENAME%.testout
+	set TESTERR=%FILENAME%.testerr
+	set TESTARGS=%FILENAME%.testargs
+	set STDOUT=%FILENAME%.stdout
+	set STDERR=%FILENAME%.stderr
+	set DIFF=%FILENAME%.diff
 	
 	ilasm %IL% /out:%ILOUT% /quit /dll
-	copy rk.test.runtimeconfig.json %IL:.il=%.runtimeconfig.json 1>NUL
+	copy rk.test.runtimeconfig.json %FILENAME%.runtimeconfig.json 1>NUL
 	
-	echo ---
 	echo %~n1
-	dotnet %ILOUT%
+	dotnet %ILOUT% < %TESTIN% > %STDOUT%
+	fc %TESTOUT% %STDOUT% >%DIFF% || type %DIFF%
 	exit /B 0
