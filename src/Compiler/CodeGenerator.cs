@@ -70,7 +70,7 @@ namespace Roku.Compiler
             {
                 case Operator.Bind:
                     var bind = op.Cast<Code>();
-                    il.WriteLine(LoadValue(m, bind.Right!));
+                    il.WriteLine(LoadValue(m, bind.Left!));
                     break;
 
                 case Operator.Call:

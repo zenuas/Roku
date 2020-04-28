@@ -60,7 +60,7 @@ namespace Roku.Compiler
                         }
                         else
                         {
-                            scope.Body.Add(new Code { Operator = Operator.Bind, Left = v, Right = e });
+                            scope.Body.Add(new Code { Operator = Operator.Bind, Return = v, Left = e });
                         }
                         break;
 

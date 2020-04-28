@@ -33,7 +33,7 @@ namespace Roku.Compiler
             switch (op)
             {
                 case Code x when x.Operator == Operator.Bind:
-                    return LocalValueInferenceWithEffect(ns, m, x.Left!, ToTypedValue(ns, m, x.Right!).Struct);
+                    return LocalValueInferenceWithEffect(ns, m, x.Return!, ToTypedValue(ns, m, x.Left!).Struct);
 
                 case Call x:
                     return ResolveFunctionWithEffect(ns, m, x);
