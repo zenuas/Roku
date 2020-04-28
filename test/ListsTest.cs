@@ -115,6 +115,11 @@ namespace Roku.Tests
         public void DropTest()
         {
             Assert.IsTrue("abc123".Drop(3).ToStringByChars() == "123");
+            Assert.IsTrue("abc123"[0..^0].ToStringByChars() == "abc123");
+            Assert.IsTrue("abc123"[0..^1].ToStringByChars() == "abc12");
+            Assert.IsTrue("a"[0..^0].ToStringByChars() == "a");
+            Assert.IsTrue("a"[0..^1].ToStringByChars() == "");
+            Assert.IsTrue(""[0..^0].ToStringByChars() == "");
         }
     }
 }
