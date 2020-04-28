@@ -20,12 +20,12 @@ namespace Roku.Compiler
 
         public override void WriteLine(string? s)
         {
-            IsLineHead = WriteLine(new Regex("\r?\n|\r").Split(s!), Indent, IsLineHead);
+            IsLineHead = WriteLine(s!.SplitLine(), Indent, IsLineHead);
         }
 
         public override void Write(string? s)
         {
-            IsLineHead = Write(new Regex("\r?\n|\r").Split(s!), Indent, IsLineHead);
+            IsLineHead = Write(s!.SplitLine(), Indent, IsLineHead);
         }
 
         public bool Write(string[] lines, int indent, bool line_head = true)

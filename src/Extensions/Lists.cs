@@ -254,6 +254,9 @@ namespace Extensions
         public static string Join(this IEnumerable<string> self, string separator = "") => string.Join(separator, self);
 
         [DebuggerHidden]
+        public static string[] SplitLine(this string self) => self.Split(new string[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
+
+        [DebuggerHidden]
         public static Dictionary<K, T> ToDictionary<T, K>(this IEnumerable<T> self, Func<T, K> fkey) where K : notnull => Enumerable.ToDictionary(self, fkey);
 
         [DebuggerHidden]
