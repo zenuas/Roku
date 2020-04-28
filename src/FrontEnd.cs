@@ -15,6 +15,9 @@ namespace Roku
         public static void Main(string[] args)
         {
             var opt = new Option();
+#if DEBUG
+            opt.Output = "-";
+#endif
             var xs = CommandLine.Run(opt, args);
             if (xs.Length == 0)
             {
