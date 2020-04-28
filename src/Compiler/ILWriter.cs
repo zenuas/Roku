@@ -1,6 +1,5 @@
 ﻿using Extensions;
 using System.IO;
-using System.Text.RegularExpressions;
 
 namespace Roku.Compiler
 {
