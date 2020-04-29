@@ -22,12 +22,12 @@ if 1 == 1
     stloc.0
     
     ldloc.0
-    brfalse _Label1
+    brfalse _EndIf1
     
     ldstr "then"
     call void [System.Console]System.Console::WriteLine(string)
     
-_Label1:
+_EndIf1:
     ret
 }
 ###end

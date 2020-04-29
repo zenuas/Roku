@@ -69,12 +69,28 @@ namespace Roku.Compiler
                         break;
 
                     case IfNode if_:
-                        var cond = NormalizationExpression(scope, if_.Condition, true);
-                        var else_ = new LabelCode();
-                        var endif = new LabelCode();
-                        scope.Body.Add(new IfCode(cond, if_.Else is { } ? else_ : endif));
+                        var else_ = new LabelCode() { Name = "Else" };
+                        var elseif = if_.ElseIf.Map(x => new LabelCode() { Name = "ElseIf" }).ToArray();
+                        var endif = new LabelCode() { Name = "EndIf" };
+
+                        scope.Body.Add(new IfCode(NormalizationExpression(scope, if_.Condition, true),
+                            elseif.Length > 0 ? elseif.First()
+                            : if_.Else is { } ? else_
+                            : endif));
 
                         FunctionBodyDefinition(scope, if_.Then.Statements);
+
+                        if_.ElseIf.Each((x, i) =>
+                        {
+                            scope.Body.Add(new GotoCode(endif));
+
+                            scope.Body.Add(elseif[i]);
+                            scope.Body.Add(new IfCode(NormalizationExpression(scope, x.Condition, true),
+                                elseif.Length > i + 1 ? elseif[i + 1]
+                                : if_.Else is { } ? else_
+                                : endif));
+                            FunctionBodyDefinition(scope, x.Then.Statements);
+                        });
 
                         if (if_.Else is { })
                         {

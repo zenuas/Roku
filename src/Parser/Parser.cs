@@ -473,13 +473,13 @@ namespace Roku.Parser
 
                 case -50:
                     TraceAction("elseif : ifthen ELSE ifthen");
-                    yy_value = AddElse(((IfNode)GetValue(-3)), ToBlock(((IfNode)GetValue(-1))));
+                    yy_value = ((IfNode)GetValue(-3)).Return(x => x.ElseIf.Add(((IfNode)GetValue(-1))));
                     yy_token = DoAction(Symbols.elseif, 3, yy_value);
                     break;
 
                 case -51:
                     TraceAction("elseif : elseif ELSE ifthen");
-                    yy_value = AddElse(((IfNode)GetValue(-3)), ToBlock(((IfNode)GetValue(-1))));
+                    yy_value = ((IfNode)GetValue(-3)).Return(x => x.ElseIf.Add(((IfNode)GetValue(-1))));
                     yy_token = DoAction(Symbols.elseif, 3, yy_value);
                     break;
 

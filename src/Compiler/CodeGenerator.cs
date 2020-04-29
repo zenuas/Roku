@@ -60,7 +60,7 @@ namespace Roku.Compiler
                     il.Indent--;
                     il.WriteLine(")");
                 }
-                var labels = Lookup.AllLabels(f).Zip(Lists.Sequence(1)).ToDictionary(x => x.First, x => "_Label" + x.Second.ToString());
+                var labels = Lookup.AllLabels(f).Zip(Lists.Sequence(1)).ToDictionary(x => x.First, x => $"_{x.First.Name}{x.Second}");
                 f.Body.Each(x => AssemblyOperandEmit(il, x, f.TypeMapper, labels));
                 il.WriteLine("ret");
                 il.Indent--;
