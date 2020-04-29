@@ -68,6 +68,23 @@ namespace Roku.Compiler
                         scope.Body.Add(new Call(NormalizationExpression(scope, call).Cast<FunctionCallValue>()));
                         break;
 
+                    case IfNode if_:
+                        var cond = NormalizationExpression(scope, if_.Condition, true);
+                        var else_ = new LabelCode();
+                        var endif = new LabelCode();
+                        scope.Body.Add(new IfCode(cond, if_.Else is { } ? else_ : endif));
+
+                        FunctionBodyDefinition(scope, if_.Then.Statements);
+
+                        if (if_.Else is { })
+                        {
+                            scope.Body.Add(new GotoCode(endif));
+                            scope.Body.Add(else_);
+                            FunctionBodyDefinition(scope, if_.Else.Statements);
+                        }
+                        scope.Body.Add(endif);
+                        break;
+
                     default:
                         throw new Exception();
                 }

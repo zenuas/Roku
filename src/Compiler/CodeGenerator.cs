@@ -60,14 +60,15 @@ namespace Roku.Compiler
                     il.Indent--;
                     il.WriteLine(")");
                 }
-                f.Body.Each(x => AssemblyOperandEmit(il, x, f.TypeMapper));
+                var labels = Lookup.AllLabels(f).Zip(Lists.Sequence(1)).ToDictionary(x => x.First, x => "_Label" + x.Second.ToString());
+                f.Body.Each(x => AssemblyOperandEmit(il, x, f.TypeMapper, labels));
                 il.WriteLine("ret");
                 il.Indent--;
                 il.WriteLine("}");
             });
         }
 
-        public static void AssemblyOperandEmit(ILWriter il, IOperand op, Dictionary<ITypedValue, VariableDetail> m)
+        public static void AssemblyOperandEmit(ILWriter il, IOperand op, Dictionary<ITypedValue, VariableDetail> m, Dictionary<LabelCode, string> labels)
         {
             il.WriteLine();
             switch (op.Operator)
@@ -95,6 +96,24 @@ namespace Roku.Compiler
                     {
                         il.WriteLine(ef.OpCode(args));
                     }
+                    break;
+
+                case Operator.If:
+                    var if_ = op.Cast<IfCode>();
+                    il.WriteLine(LoadValue(m, if_.Condition));
+                    il.WriteLine($"brfalse {labels[if_.Else]}");
+                    break;
+
+                case Operator.Goto:
+                    var goto_ = op.Cast<GotoCode>();
+                    il.WriteLine($"br {labels[goto_.Label]}");
+                    break;
+
+                case Operator.Label:
+                    var label = op.Cast<LabelCode>();
+                    il.Indent--;
+                    il.WriteLine($"{labels[label]}:");
+                    il.Indent++;
                     break;
 
                 default:

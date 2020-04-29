@@ -125,6 +125,8 @@ namespace Roku.Compiler
             }
         }
 
+        public static IEnumerable<LabelCode> AllLabels(FunctionBody f) => f.Body.By<LabelCode>().Unique();
+
         public static ExternStruct LoadType(RootNamespace root, Type t) => LoadType(root, t.Name, t);
 
         public static ExternStruct LoadType(RootNamespace root, string name, Type t) => LoadType(root, name, t.GetTypeInfo());

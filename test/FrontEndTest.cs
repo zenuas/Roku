@@ -34,6 +34,11 @@ namespace Roku.Tests
                     var lines = txt.SplitLine();
                     var start = lines.FindFirstIndex(x => x.StartsWith("###start"));
                     var end = lines.FindFirstIndex(x => x.StartsWith("###end"));
+                    if (start < 0 || end < 0)
+                    {
+                        failed.Add((filename, "test code not found ###start - ###end"));
+                        continue;
+                    }
                     var valid = lines[(start + 1)..end].Join("\r\n").Trim();
                     var il_src = File.ReadAllText(il).Trim();
 

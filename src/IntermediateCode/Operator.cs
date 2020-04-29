@@ -5,5 +5,8 @@
         Nop,
         Call,
         Bind,
+        If,
+        Goto,
+        Label,
     }
 }

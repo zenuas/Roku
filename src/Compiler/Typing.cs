@@ -38,6 +38,11 @@ namespace Roku.Compiler
                 case Call x:
                     return ResolveFunctionWithEffect(ns, m, x);
 
+                case IfCode _:
+                case GotoCode _:
+                case LabelCode _:
+                    return false;
+
                 default:
                     throw new Exception();
             }

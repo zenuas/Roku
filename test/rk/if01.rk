@@ -2,3 +2,32 @@
 #=>then
 if 1 == 1
 	print("then")
+
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly if01 {}
+.method public static void main() cil managed
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] bool $$1
+    )
+    
+    ldc.i4.1
+    ldc.i4.1
+    ceq
+    stloc.0
+    
+    ldloc.0
+    brfalse _Label1
+    
+    ldstr "then"
+    call void [System.Console]System.Console::WriteLine(string)
+    
+_Label1:
+    ret
+}
+###end
