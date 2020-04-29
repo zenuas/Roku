@@ -27,6 +27,9 @@ namespace Roku
             {
                 Compile(xs[0], opt.Output);
             }
+#if DEBUG
+            if (opt.Output == "-") _ = Console.ReadKey();
+#endif
         }
 
         public static void Compile(string input, string output)
