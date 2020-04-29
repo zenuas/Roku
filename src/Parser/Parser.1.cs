@@ -33,5 +33,31 @@ namespace Roku.Parser
             fn.Return = ret;
             return fn.R(name);
         }
+
+        public static IfNode CreateIfNode(IEvaluableNode cond, IScopeNode then) => CreateIfNode(cond, then, null);
+
+        public static IfNode CreateIfNode(IEvaluableNode cond, IScopeNode then, IScopeNode? else_)
+        {
+            then.InnerScope = true;
+            if (else_ is { }) else_.InnerScope = true;
+            return new IfNode(cond, then) { Else = else_ }.R(cond);
+        }
+
+        public static IfNode AddElse(IfNode if_, IScopeNode else_)
+        {
+            else_.InnerScope = true;
+            if_.Else = else_;
+            return if_;
+        }
+
+        public static BlockNode ToBlock(IStatementNode stmt) => new BlockNode().Return(x => x.Statements.Add(stmt)).R(stmt);
+
+        public static BlockNode ToStatementBlock(IEvaluableNode expr) => ToBlock(expr.Cast<IStatementNode>());
+
+        public void SyntaxError(Token t) => SyntaxError(t, "syntax error");
+
+        public static void SyntaxError(Token t, string message) => throw new SyntaxErrorException(message) { LineNumber = t.LineNumber, LineColumn = t.LineColumn };
+
+        public static void SyntaxError(INode node, string message) => throw new SyntaxErrorException(message) { LineNumber = node.LineNumber, LineColumn = node.LineColumn };
     }
 }

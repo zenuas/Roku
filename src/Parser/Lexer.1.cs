@@ -17,6 +17,9 @@ namespace Roku.Parser
             {
                 { "var", Symbols.LET },
                 { "sub", Symbols.SUB },
+                { "if", Symbols.IF },
+                { "then", Symbols.THEN },
+                { "else", Symbols.ELSE },
             };
 
         public Lexer(SourceCodeReader reader)
@@ -215,7 +218,7 @@ namespace Roku.Parser
                     break;
             }
 
-            throw new Exception();
+            throw new SyntaxErrorException("syntax error") { LineNumber = reader.LineNumber, LineColumn = reader.LineColumn };
         }
 
         public static Token ReadVariable(SourceCodeReader reader) => ReadVariable(reader, new StringBuilder());

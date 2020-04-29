@@ -28,7 +28,7 @@ namespace Roku.Parser
             var table = new Dictionary<string, Symbols>();
             table["AND2"] = Symbols.AND2;
             table["BEGIN"] = Symbols.BEGIN;
-            table["block"] = Symbols.block;
+            table["ELSE"] = Symbols.ELSE;
             table["END"] = Symbols.END;
             table["EOL"] = Symbols.EOL;
             table["EQ"] = Symbols.EQ;
@@ -45,6 +45,7 @@ namespace Roku.Parser
             table["OR2"] = Symbols.OR2;
             table["STR"] = Symbols.STR;
             table["SUB"] = Symbols.SUB;
+            table["THEN"] = Symbols.THEN;
             table["TRUE"] = Symbols.TRUE;
             table["UNARY"] = Symbols.UNARY;
             table["VAR"] = Symbols.VAR;

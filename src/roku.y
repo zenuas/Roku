@@ -18,6 +18,7 @@ using Roku.Node;
 %type<ListNode<IEvaluableNode>> list listn list2n
 %type<TypeNode>                 nsvar type typev
 %type<TypeNode?>                typex
+%type<IfNode>                   if ifthen elseif
 %type<VariableNode>             var varx fn
 %type<NumericNode>              num
 %type<StringNode>               str
@@ -50,7 +51,10 @@ stmt : void      {$$ = Scopes.Peek();}
 line : call EOL
      | let  EOL
      | sub       {Scopes.Peek().Functions.Add($1);}
+     | if
 
+block : begin stmt END {$$ = Scopes.Pop();}
+begin : BEGIN          {Scopes.Push(new BlockNode().R($1));}
 
 ########## expr ##########
 expr : var
@@ -93,11 +97,26 @@ nsvar  : varx           {$$ = new TypeNode { Name = $1.Name }.R($1);}
 typex  : void
        | type
 
+########## if ##########
+if     : ifthen
+       | elseif
+       | ifthen ELSE EOL block                        {$$ = AddElse($1, $4);}
+       | elseif ELSE EOL block                        {$$ = AddElse($1, $4);}
+       | IF expr                 THEN NOTEOL expr EOL {$$ = CreateIfNode($2, ToStatementBlock($5));}
+#      | IF var ':' type EQ expr THEN NOTEOL expr EOL {$$ = CreateIfCastNode($2, $4, $6, ToStatementBlock($9));}
+ifthen : IF expr EOL block                            {$$ = CreateIfNode($2, $4);}
+#      | IF var ':' type EQ expr EOL block            {$$ = CreateIfCastNode($2, $4, $6, $8);}
+elseif : ifthen ELSE ifthen                           {$$ = AddElse($1, ToBlock($3));}
+       | elseif ELSE ifthen                           {$$ = AddElse($1, ToBlock($3));}
+
 ########## other ##########
 var    : VAR     {$$ = CreateVariableNode($1);}
 varx   : var
        | SUB     {$$ = CreateVariableNode($1);}
        | LET     {$$ = CreateVariableNode($1);}
+       | IF      {$$ = CreateVariableNode($1);}
+       | THEN    {$$ = CreateVariableNode($1);}
+       | ELSE    {$$ = CreateVariableNode($1);}
 num    : NUM     {$$ = $1;}
 str    : STR     {$$ = new StringNode { Value = $1.Name }.R($1);}
        | str STR {$$ = $1.Return(x => x.Value += $2.Name);}
@@ -113,5 +132,8 @@ or     : OR2     {$$ = new TokenNode { Token = $1 }.R($1);}
 
 extra  : void
        | ','
+
+NOTEOL : EOL     {SyntaxError($1, "not eol");}
+       | void
 
 void   : {$$ = null;}

@@ -31,8 +31,8 @@ namespace Roku.Parser
         /// <summary>BEGIN</summary>
         BEGIN,
 
-        /// <summary>block</summary>
-        block,
+        /// <summary>ELSE</summary>
+        ELSE,
 
         /// <summary>END</summary>
         END,
@@ -82,6 +82,9 @@ namespace Roku.Parser
         /// <summary>SUB</summary>
         SUB,
 
+        /// <summary>THEN</summary>
+        THEN,
+
         /// <summary>TRUE</summary>
         TRUE,
 
@@ -103,11 +106,20 @@ namespace Roku.Parser
         /// <summary>args</summary>
         args,
 
+        /// <summary>begin</summary>
+        begin,
+
+        /// <summary>block</summary>
+        block,
+
         /// <summary>call</summary>
         call,
 
         /// <summary>decla</summary>
         decla,
+
+        /// <summary>elseif</summary>
+        elseif,
 
         /// <summary>expr</summary>
         expr,
@@ -117,6 +129,12 @@ namespace Roku.Parser
 
         /// <summary>fn</summary>
         fn,
+
+        /// <summary>if</summary>
+        @if,
+
+        /// <summary>ifthen</summary>
+        ifthen,
 
         /// <summary>let</summary>
         let,
@@ -135,6 +153,9 @@ namespace Roku.Parser
 
         /// <summary>nope</summary>
         nope,
+
+        /// <summary>NOTEOL</summary>
+        NOTEOL,
 
         /// <summary>nsvar</summary>
         nsvar,
