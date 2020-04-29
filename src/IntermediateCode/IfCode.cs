@@ -1,6 +1,4 @@
-﻿using System.Reflection.Emit;
-
-namespace Roku.IntermediateCode
+﻿namespace Roku.IntermediateCode
 {
     public class IfCode : IOperand
     {
