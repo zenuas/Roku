@@ -73,6 +73,7 @@ namespace Roku.Compiler
             if (fargs.Count != args.Count) return false;
             return fargs.Zip(args).And(x => TypeEquals(x.First, x.Second));
         }
+
         public static List<IStructBody> GetArgumentsType(INamespace ns, IFunctionBody body)
         {
             if (body is FunctionBody fb)
