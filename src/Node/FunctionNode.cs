@@ -2,8 +2,10 @@
 
 namespace Roku.Node
 {
-    public class FunctionNode : Node, IScopeNode
+    public class FunctionNode : INode, IScopeNode
     {
+        public int? LineNumber { get; set; }
+        public int? LineColumn { get; set; }
         public VariableNode Name { get; set; } = new VariableNode();
         public TypeNode? Return { get; set; }
         public List<DeclareNode> Arguments { get; } = new List<DeclareNode>();

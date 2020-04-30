@@ -1,7 +1,9 @@
 ﻿namespace Roku.Node
 {
-    public class LetNode : Node, IStatementNode
+    public class LetNode : INode, IStatementNode
     {
+        public int? LineNumber { get; set; }
+        public int? LineColumn { get; set; }
         public VariableNode Var { get; }
         public IEvaluableNode Expression { get; set; }
 
