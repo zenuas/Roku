@@ -56,7 +56,7 @@ namespace Roku.Tests
         [Test]
         public void MakeTestCaseTest()
         {
-            foreach (var src in Directory.GetFiles(SourceDir, "*.rk"))
+            Directory.GetFiles(SourceDir, "*.rk").AsParallel().Each(src =>
             {
                 var in_ = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".testin");
                 var out_ = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".testout");
@@ -80,7 +80,7 @@ namespace Roku.Tests
                 File.WriteAllText(out_, out_p);
                 File.WriteAllText(err_, err_p);
                 File.WriteAllText(args_, args_p);
-            }
+            });
             Assert.Pass();
         }
     }

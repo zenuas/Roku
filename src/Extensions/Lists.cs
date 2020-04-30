@@ -280,5 +280,8 @@ namespace Extensions
 
         [DebuggerHidden]
         public static string ToStringByChars(this IEnumerable<char> self) => new string(self.ToArray());
+
+        [DebuggerHidden]
+        public static ParallelQuery<T> AsParallel<T>(this IEnumerable<T> self) => ParallelEnumerable.AsParallel(self);
     }
 }
