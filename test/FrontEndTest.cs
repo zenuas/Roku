@@ -9,7 +9,7 @@ namespace Roku.Tests
     public class FrontEndTest
     {
         public string SourceDir = "..\\..\\..\\rk";
-        public string ObjDir = Path.Combine("..\\..\\..\\rk", "obj");
+        public string ObjDir = "..\\..\\..\\rk\\obj";
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -21,34 +21,35 @@ namespace Roku.Tests
         [Test]
         public void CompileTest()
         {
-            var failed = new List<(string Path, string Message)>();
-            foreach (var src in Directory.GetFiles(SourceDir, "*.rk"))
-            {
-                var filename = Path.GetFileName(src);
-                try
+            var failed = new List<(string Path, string Message)>(
+                Directory.GetFiles(SourceDir, "*.rk").MapParallelAll(src =>
                 {
-                    var il = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".il");
-                    var txt = File.ReadAllText(src);
-                    FrontEnd.Compile(new StringReader(txt), il);
-
-                    var lines = txt.SplitLine();
-                    var start = lines.FindFirstIndex(x => x.StartsWith("###start"));
-                    var end = lines.FindFirstIndex(x => x.StartsWith("###end"));
-                    if (start < 0 || end < 0)
+                    var filename = Path.GetFileName(src);
+                    try
                     {
-                        failed.Add((filename, "test code not found ###start - ###end"));
-                        continue;
-                    }
-                    var valid = lines[(start + 1)..end].Join("\r\n").Trim();
-                    var il_src = File.ReadAllText(il).Trim();
+                        var il = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".il");
+                        var txt = File.ReadAllText(src);
+                        FrontEnd.Compile(new StringReader(txt), il);
 
-                    if (valid != il_src) failed.Add((filename, "il make a difference"));
-                }
-                catch (Exception ex)
-                {
-                    failed.Add((filename, ex.Message));
-                }
-            }
+                        var lines = txt.SplitLine();
+                        var start = lines.FindFirstIndex(x => x.StartsWith("###start"));
+                        var end = lines.FindFirstIndex(x => x.StartsWith("###end"));
+                        if (start < 0 || end < 0)
+                        {
+                            return (filename, "test code not found ###start - ###end");
+                        }
+                        var valid = lines[(start + 1)..end].Join("\r\n").Trim();
+                        var il_src = File.ReadAllText(il).Trim();
+
+                        if (valid != il_src) return (filename, "il make a difference");
+                    }
+                    catch (Exception ex)
+                    {
+                        return (filename, ex.Message);
+                    }
+                    return (filename, "");
+                }).Where(x => x.Item2 != ""));
+
             if (failed.Count > 0) Assert.Fail(failed.Map(x => $"{x.Path}: {x.Message}").Join("\n"));
         }
 

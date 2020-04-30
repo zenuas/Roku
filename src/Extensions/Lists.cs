@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Extensions
 {
@@ -135,6 +136,18 @@ namespace Extensions
 
         [DebuggerHidden]
         public static IEnumerable<R> Map<T, R>(this IEnumerable<T> self, Func<T, int, R> f) => self.Select(f);
+
+        [DebuggerHidden]
+        public static IEnumerable<Task<R>> MapParallel<T, R>(this IEnumerable<T> self, Func<T, R> f) => self.Select(x => Task.Run(() => f(x)));
+
+        [DebuggerHidden]
+        public static IEnumerable<Task<R>> MapParallel<T, R>(this IEnumerable<T> self, Func<T, int, R> f) => self.Select((x, i) => Task.Run(() => f(x, i)));
+
+        [DebuggerHidden]
+        public static R[] MapParallelAll<T, R>(this IEnumerable<T> self, Func<T, R> f) => Task.WhenAll(self.Select(x => Task.Run(() => f(x)))).Result;
+
+        [DebuggerHidden]
+        public static R[] MapParallelAll<T, R>(this IEnumerable<T> self, Func<T, int, R> f) => Task.WhenAll(self.Select((x, i) => Task.Run(() => f(x, i)))).Result;
 
         [DebuggerHidden]
         public static IEnumerable<T> Where<T>(this IEnumerable<T> self, Func<T, bool> f) => Enumerable.Where(self, f);
