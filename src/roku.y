@@ -68,7 +68,7 @@ expr : var
 
 call : expr '(' list ')' {$$ = CreateFunctionCallNode($1, $3.List.ToArray());}
 
-list   : void
+list   : void            {$$ = CreateListNode<IEvaluableNode>();}
        | listn extra
 listn  : expr            {$$ = CreateListNode($1);}
        | list2n

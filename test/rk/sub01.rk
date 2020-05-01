@@ -1,0 +1,51 @@
+
+#=>1
+f(1)
+
+f(0)
+
+sub f(x: Int)
+	if x == 0
+		return()
+	print(x)
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly sub01 {}
+.method public static void main() cil managed
+{
+    .entrypoint
+    .maxstack 8
+    
+    ldc.i4.1
+    call void f(int32)
+    
+    ldc.i4.0
+    call void f(int32)
+    ret
+}
+.method public static void f(int32) cil managed
+{
+    .maxstack 8
+    .locals(
+        [0] bool $$1
+    )
+    
+    ldarg.0
+    ldc.i4.0
+    ceq
+    stloc.0
+    
+    ldloc.0
+    brfalse _EndIf1
+    
+    ret
+    
+_EndIf1:
+    
+    ldarg.0
+    call void [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+###end

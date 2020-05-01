@@ -305,7 +305,7 @@ namespace Roku.Parser
 
                 case -22:
                     TraceAction("list : void");
-                    yy_value = DefaultAction(1);
+                    yy_value = CreateListNode<IEvaluableNode>();
                     yy_token = DoAction(Symbols.list, 1, yy_value);
                     break;
 
