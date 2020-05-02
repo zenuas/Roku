@@ -1,10 +1,11 @@
 ﻿namespace Roku.IntermediateCode
 {
-    public class EmbeddedTokenValue : ITypedValue
+    public class TypeValue : ITypedValue
     {
         public string Name { get; }
+        public Types Types { get; set; } = Types.Struct;
 
-        public EmbeddedTokenValue(string name)
+        public TypeValue(string name)
         {
             Name = name;
         }

@@ -31,12 +31,12 @@ namespace Roku.Compiler
             pgm.Functions.Each(f =>
                 {
                     var body = MakeFunction(src, f.Name.Name);
-                    if (f.Return is { }) body.Return = new VariableValue(f.Return.Name, body);
+                    if (f.Return is { }) body.Return = new TypeValue(f.Return.Name);
                     f.Arguments.Each(x =>
                         {
                             //var t = Lookup.LoadStruct(src, x.Type.Name);
-                            var name = new VariableValue(x.Name.Name, body);
-                            body.Arguments.Add((name, new VariableValue(x.Type.Name, body)));
+                            var name = new VariableValue(x.Name.Name);
+                            body.Arguments.Add((name, ToType(x.Type, body)));
                             body.LexicalScope.Add(x.Name.Name, name);
                         });
 
@@ -51,7 +51,7 @@ namespace Roku.Compiler
                 switch (stmt)
                 {
                     case LetNode let:
-                        var v = new VariableValue(let.Var.Name, scope);
+                        var v = new VariableValue(let.Var.Name);
                         scope.LexicalScope.Add(let.Var.Name, v);
                         var e = NormalizationExpression(scope, let.Expression);
                         if (e is FunctionCallValue fcall)
@@ -130,8 +130,8 @@ namespace Roku.Compiler
                     else
                     {
                         var call = x.Expression is PropertyNode prop
-                            ? new FunctionCallValue(new VariableValue(prop.Right.Name, scope)) { FirstLookup = NormalizationExpression(scope, prop.Left) }
-                            : new FunctionCallValue(new VariableValue(GetName(x.Expression), scope));
+                            ? new FunctionCallValue(new VariableValue(prop.Right.Name)) { FirstLookup = NormalizationExpression(scope, prop.Left) }
+                            : new FunctionCallValue(new VariableValue(GetName(x.Expression)));
 
                         x.Arguments.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
                         return call;
@@ -149,6 +149,8 @@ namespace Roku.Compiler
                 _ => throw new Exception(),
             };
         }
+
+        public static TypeValue ToType(TypeNode type, ILexicalScope scope) => new TypeValue(type.Name) { Types = char.IsLetter(type.Name.First()) ? Types.Generics : Types.Struct };
 
         public static ITypedValue CreateTemporaryVariable(ILexicalScope scope)
         {

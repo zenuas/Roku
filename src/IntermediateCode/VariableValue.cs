@@ -1,16 +1,12 @@
-﻿using Roku.Manager;
-
-namespace Roku.IntermediateCode
+﻿namespace Roku.IntermediateCode
 {
     public class VariableValue : ITypedValue
     {
         public string Name { get; }
-        public ILexicalScope Scope { get; }
 
-        public VariableValue(string name, ILexicalScope scope)
+        public VariableValue(string name)
         {
             Name = name;
-            Scope = scope;
         }
 
         public override string ToString() => Name;

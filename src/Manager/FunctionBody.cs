@@ -7,8 +7,8 @@ namespace Roku.Manager
     public class FunctionBody : IFunctionBody, ILexicalScope
     {
         public string Name { get; }
-        public VariableValue? Return { get; set; } = null;
-        public List<(VariableValue Name, VariableValue Type)> Arguments { get; } = new List<(VariableValue, VariableValue)>();
+        public TypeValue? Return { get; set; } = null;
+        public List<(VariableValue Name, TypeValue Type)> Arguments { get; } = new List<(VariableValue, TypeValue)>();
         public List<IOperand> Body { get; } = new List<IOperand>();
         public INamespace Namespace { get; }
         public ILexicalScope? Parent { get; } = null;
