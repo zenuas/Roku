@@ -55,9 +55,9 @@ namespace Roku.Compiler
 
         public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionBody => src.Functions.By<T>();
 
-        public static IFunctionBody? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args) => ns is SourceCodeBody src ? FindFunctioInSourceCodeOrNulln(src, name, args) : FindFunctionInNamespaceOrNull(ns, name, args);
+        public static IFunctionBody? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args) => ns is SourceCodeBody src ? FindFunctioInSourceCodeOrNull(src, name, args) : FindFunctionInNamespaceOrNull(ns, name, args);
 
-        public static IFunctionBody? FindFunctioInSourceCodeOrNulln(SourceCodeBody src, string name, List<IStructBody?> args)
+        public static IFunctionBody? FindFunctioInSourceCodeOrNull(SourceCodeBody src, string name, List<IStructBody?> args)
         {
             var f = src.Functions.FindFirstOrNull(x => x.Name == name && FunctionArgumentsEquals(src, x, args));
             if (f is { }) return f;
