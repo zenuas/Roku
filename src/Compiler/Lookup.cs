@@ -55,39 +55,53 @@ namespace Roku.Compiler
 
         public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionBody => src.Functions.By<T>();
 
-        public static IFunctionBody? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args) => ns is SourceCodeBody src ? FindFunctioInSourceCodeOrNull(src, name, args) : FindFunctionInNamespaceOrNull(ns, name, args);
+        public static FunctionCaller? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args) => ns is SourceCodeBody src ? FindFunctioInSourceCodeOrNull(src, name, args) : FindFunctionInNamespaceOrNull(ns, name, args);
 
-        public static IFunctionBody? FindFunctioInSourceCodeOrNull(SourceCodeBody src, string name, List<IStructBody?> args)
+        public static FunctionCaller? FindFunctioInSourceCodeOrNull(SourceCodeBody src, string name, List<IStructBody?> args)
         {
-            var f = src.Functions.FindFirstOrNull(x => x.Name == name && FunctionArgumentsEquals(src, x, args));
-            if (f is { }) return f;
+            var x = FindFunctionInNamespaceOrNull(src, name, args);
+            if (x is { }) return x;
 
-            return src.Uses.Map(x => FindFunctionInNamespaceOrNull(x, name, args)).By<IFunctionBody>().FirstOrNull();
+            return src.Uses.Map(x => FindFunctionInNamespaceOrNull(x, name, args)).By<FunctionCaller>().FirstOrNull();
         }
 
-        public static IFunctionBody? FindFunctionInNamespaceOrNull(INamespace ns, string name, List<IStructBody?> args) => ns.Functions.FindFirstOrNull(x => x.Name == name && FunctionArgumentsEquals(ns, x, args));
-
-        public static bool FunctionArgumentsEquals(INamespace ns, IFunctionBody source, List<IStructBody?> args)
+        public static FunctionCaller? FindFunctionInNamespaceOrNull(INamespace ns, string name, List<IStructBody?> args)
         {
-            var fargs = GetArgumentsType(ns, source);
-            if (fargs.Count != args.Count) return false;
-            return fargs.Zip(args).And(x => TypeEquals(x.First, x.Second));
-        }
-
-        public static List<IStructBody> GetArgumentsType(INamespace ns, IFunctionBody body)
-        {
-            if (body is FunctionBody || body is EmbeddedFunction)
+            foreach (var x in ns.Functions.Where(x => x.Name == name))
             {
-                return FunctionToArgumentsType(body).Map(x => LoadStruct(ns, x.Name)).ToList();
+                var v = FunctionArgumentsEquals(ns, x, args);
+                if (v.Item1) return new FunctionCaller(x, v.Item2);
             }
-            else
-            {
-                var root = GetRootNamespace(ns);
-                return body.Cast<ExternFunction>().Function.GetParameters().Map(x => LoadType(root, x.ParameterType).Cast<IStructBody>()).ToList();
-            }
+            return null;
         }
 
-        public static IEnumerable<TypeValue> FunctionToArgumentsType(IFunctionBody body)
+        public static (bool, Dictionary<TypeValue, IStructBody?>) FunctionArgumentsEquals(INamespace ns, IFunctionBody source, List<IStructBody?> args)
+        {
+            var gens = ApplyArgumentsToGenericsParameter(source, args);
+            var fargs = GetArgumentsType(ns, source, gens);
+            return (fargs.Count != args.Count ? false : fargs.Zip(args).And(x => TypeEquals(x.First, x.Second)), gens);
+        }
+
+        public static List<IStructBody?> GetArgumentsType(INamespace ns, IFunctionBody body, Dictionary<TypeValue, IStructBody?> gens) => FunctionToArgumentsType(body).Map(x => GetArgumentType(ns, x, gens)).ToList();
+
+        public static IStructBody? GetArgumentType(INamespace ns, ITypeDefinition t, Dictionary<TypeValue, IStructBody?> gens)
+        {
+            if (t is TypeValue gen && gen.Types == Types.Generics)
+            {
+                return gens[gen]!;
+            }
+            else if (t is TypeValue tv)
+            {
+                return LoadStruct(ns, tv.Name);
+            }
+            else if (t is TypeInfoValue ti)
+            {
+                return LoadType(GetRootNamespace(ns), ti.Type);
+            }
+            throw new Exception();
+        }
+
+        public static IEnumerable<ITypeDefinition> FunctionToArgumentsType(IFunctionBody body)
         {
             if (body is FunctionBody fb)
             {
@@ -97,10 +111,30 @@ namespace Roku.Compiler
             {
                 return ef.Arguments;
             }
+            else if (body is ExternFunction xf)
+            {
+                return xf.Function.GetParameters().Map(x => new TypeInfoValue(x.ParameterType));
+            }
             throw new Exception();
         }
 
-        public static bool TypeEquals(IStructBody source, IStructBody? arg)
+        public static IEnumerable<TypeValue> ExtractArgumentsTypeToGenericsParameter(IEnumerable<ITypeDefinition> types) => types.By<TypeValue>().Where(x => x.Types == Types.Generics).Unique();
+
+        public static Dictionary<TypeValue, IStructBody?> ApplyArgumentsToGenericsParameter(IFunctionBody body, List<IStructBody?> args)
+        {
+            var param = FunctionToArgumentsType(body).ToList();
+            var gens = ExtractArgumentsTypeToGenericsParameter(param).ToDictionary(x => x, x => (IStructBody?)null);
+
+            Action<ITypeDefinition, IStructBody?> match = (p, arg) =>
+            {
+                if (p is TypeValue v && v.Types == Types.Generics) gens[v] = arg;
+            };
+            param.Each((x, i) => match(x, args.Count > i ? args[i] : null));
+
+            return gens;
+        }
+
+        public static bool TypeEquals(IStructBody? source, IStructBody? arg)
         {
             if (source is ExternStruct ea && arg is ExternStruct eb) return ea.Struct == eb.Struct;
             if (source is StructBody sa && arg is StructBody sb) return sa == sb;

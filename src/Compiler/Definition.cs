@@ -36,7 +36,7 @@ namespace Roku.Compiler
                         {
                             //var t = Lookup.LoadStruct(src, x.Type.Name);
                             var name = new VariableValue(x.Name.Name);
-                            body.Arguments.Add((name, ToType(x.Type, body)));
+                            body.Arguments.Add((name, new TypeValue(x.Type.Name) { Types = char.IsLower(x.Type.Name.First()) ? Types.Generics : Types.Struct }));
                             body.LexicalScope.Add(x.Name.Name, name);
                         });
 
@@ -149,8 +149,6 @@ namespace Roku.Compiler
                 _ => throw new Exception(),
             };
         }
-
-        public static TypeValue ToType(TypeNode type, ILexicalScope scope) => new TypeValue(type.Name) { Types = char.IsLetter(type.Name.First()) ? Types.Generics : Types.Struct };
 
         public static ITypedValue CreateTemporaryVariable(ILexicalScope scope)
         {

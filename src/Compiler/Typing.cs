@@ -22,7 +22,7 @@ namespace Roku.Compiler
         public static bool FunctionBodyInference(FunctionBody body)
         {
             var resolved = false;
-            body.Arguments.Each((x, i) => resolved = ArgumentInferenceWithEffect(body.Namespace, body.TypeMapper, x.Name, x.Type.Name, i) || resolved);
+            body.Arguments.Each((x, i) => resolved = ArgumentInferenceWithEffect(body.Namespace, body.TypeMapper, x.Name, x.Type, i) || resolved);
             if (body.Return is { } x) resolved = TypeInferenceWithEffect(body.Namespace, body.TypeMapper, x, x.Name) || resolved;
             body.Body.Each(x => resolved = OperandTypeInference(body.Namespace, body.TypeMapper, x) || resolved);
             return resolved;
@@ -65,20 +65,20 @@ namespace Roku.Compiler
 
                 case VariableValue x:
                     var body = Lookup.FindFunctionOrNull(ns, x.Name, call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct).ToList());
-                    if (body is { } b)
+                    if (body is { })
                     {
-                        var fm = new FunctionMapper(b);
+                        var fm = new FunctionMapper(body.Body);
                         IStructBody? ret = null;
-                        if (b is FunctionBody fb)
+                        if (body.Body is FunctionBody fb)
                         {
-                            if (fb.Return is { }) fm.TypeMapper[fb.Return] = CreateVariableDetail("", ret = Lookup.LoadStruct(fb.Namespace, fb.Return.Name), VariableType.Type);
-                            fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(x.Name.Name, Lookup.LoadStruct(fb.Namespace, x.Type.Name), VariableType.Argument, i));
+                            if (fb.Return is { }) fm.TypeMapper[fb.Return] = CreateVariableDetail("", ret = Lookup.GetArgumentType(fb.Namespace, fb.Return, body.GenericsMapper), VariableType.Type);
+                            fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(x.Name.Name, Lookup.GetArgumentType(fb.Namespace, x.Type, body.GenericsMapper), VariableType.Argument, i));
                         }
-                        else if (b is ExternFunction fx)
+                        else if (body.Body is ExternFunction fx)
                         {
                             ret = Lookup.LoadTypeWithoutVoid(Lookup.GetRootNamespace(ns), fx.Function.ReturnType.GetTypeInfo());
                         }
-                        else if (b is EmbeddedFunction ef)
+                        else if (body.Body is EmbeddedFunction ef)
                         {
                             if (ef.Return is { }) fm.TypeMapper[ef.Return] = CreateVariableDetail("", ret = Lookup.LoadStruct(ns, ef.Return.Name), VariableType.Type);
                             ef.Arguments.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail($"${i}", Lookup.LoadStruct(ns, x.Name), VariableType.Argument, i));
@@ -93,10 +93,18 @@ namespace Roku.Compiler
             return call.Return is { } ? LocalValueInferenceWithEffect(ns, m, call.Return!) || resolve : resolve;
         }
 
-        public static bool ArgumentInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v, string type_name, int index)
+        public static bool ArgumentInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v, TypeValue type, int index)
         {
             if (m.ContainsKey(v) && m[v].Struct is { }) return false;
-            m[v] = CreateVariableDetail($"${index}", Lookup.LoadStruct(ns, type_name), VariableType.Argument, index);
+            if (type.Types == Types.Generics)
+            {
+                if (!m.ContainsKey(type)) m[type] = CreateVariableDetail(type.Name, new GenericsParameter(type.Name), VariableType.TypeParameter, index);
+                m[v] = CreateVariableDetail($"${index}", m[type].Struct, VariableType.Argument, index);
+            }
+            else
+            {
+                m[v] = CreateVariableDetail($"${index}", Lookup.LoadStruct(ns, type.Name), VariableType.Argument, index);
+            }
             return true;
         }
 
