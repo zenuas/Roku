@@ -24,15 +24,19 @@ exit /B 0
 	set STDERR=%FILENAME%.stderr
 	set DIFF=%FILENAME%.diff
 	
+	echo %~n1
 	if not exist "%IL%" (
-		echo %~n1 not found
+		echo   not found
 		exit /B0
 	)
 	
 	ilasm %IL% /out:%ILOUT% /quit /dll
+	if not exist "%ILOUT%" (
+		echo   compile error
+		exit /B0
+	)
 	copy rk.test.runtimeconfig.json %FILENAME%.runtimeconfig.json 1>NUL
 	
-	echo %~n1
 	dotnet %ILOUT% < %TESTIN% > %STDOUT%
 	fc %TESTOUT% %STDOUT% >%DIFF% || type %DIFF%
 	exit /B 0
