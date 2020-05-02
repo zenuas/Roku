@@ -76,19 +76,28 @@ namespace Roku.Compiler
 
         public static List<IStructBody> GetArgumentsType(INamespace ns, IFunctionBody body)
         {
-            if (body is FunctionBody fb)
+            if (body is FunctionBody || body is EmbeddedFunction)
             {
-                return fb.Arguments.Map(x => LoadStruct(ns, x.Type.Name)).ToList();
-            }
-            else if (body is EmbeddedFunction ef)
-            {
-                return ef.Arguments.Map(x => LoadStruct(ns, x.Name)).ToList();
+                return FunctionToArgumentsType(body).Map(x => LoadStruct(ns, x.Name)).ToList();
             }
             else
             {
                 var root = GetRootNamespace(ns);
                 return body.Cast<ExternFunction>().Function.GetParameters().Map(x => LoadType(root, x.ParameterType).Cast<IStructBody>()).ToList();
             }
+        }
+
+        public static IEnumerable<TypeValue> FunctionToArgumentsType(IFunctionBody body)
+        {
+            if (body is FunctionBody fb)
+            {
+                return fb.Arguments.Map(x => x.Type);
+            }
+            else if (body is EmbeddedFunction ef)
+            {
+                return ef.Arguments;
+            }
+            throw new Exception();
         }
 
         public static bool TypeEquals(IStructBody source, IStructBody? arg)
