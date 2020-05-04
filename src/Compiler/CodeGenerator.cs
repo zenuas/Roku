@@ -14,7 +14,7 @@ namespace Roku.Compiler
         {
             var pgms = Lookup.AllPrograms(body);
             var nss = Lookup.AllNamespaces(body);
-            var fss = Lookup.AllFunctionBodies(pgms).UnZip().First;
+            var entrypoint = Lookup.AllFunctionBodies(pgms).FindFirst(x => x.Body.Name == "main").Body;
             var externs = Lookup.AllExternFunctions(nss);
             var embedded = Lookup.AllEmbeddedFunctions(nss);
             var extern_asms = externs.Map(GetAssembly).Concat(embedded.Map(x => x.Assembly()).By<Assembly>()).Unique().ToArray();
@@ -23,7 +23,7 @@ namespace Roku.Compiler
             {
                 AssemblyExternEmit(il, extern_asms);
                 AssemblyNameEmit(il, path);
-                AssemblyFunctionEmit(il, fss);
+                AssemblyFunctionEmit(il, entrypoint);
             }
         }
 
@@ -42,33 +42,54 @@ namespace Roku.Compiler
             il.WriteLine($".assembly {Path.GetFileNameWithoutExtension(path)} {{}}");
         }
 
-        public static void AssemblyFunctionEmit(ILWriter il, IEnumerable<FunctionBody> fss)
+        public static void AssemblyFunctionEmit(ILWriter il, FunctionBody entrypoint)
         {
-            fss.Each(f =>
+            var fss = new List<FunctionCaller>() { new FunctionCaller(entrypoint, new Dictionary<TypeValue, IStructBody?>()) };
+            for (var i = 0; i < fss.Count; i++)
             {
-                il.WriteLine($".method public static {GetTypeName(f.TypeMapper, f.Return)} {f.Name}({f.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name])).Join(", ")}) cil managed");
+                var f = fss[i].Body.Cast<FunctionBody>();
+                var g = fss[i].GenericsMapper;
+
+                il.WriteLine($".method public static {GetTypeName(f.TypeMapper, f.Return, g)} {f.Name}({f.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")}) cil managed");
                 il.WriteLine("{");
                 il.Indent++;
-                if (f.Name == "main") il.WriteLine(".entrypoint");
+                if (f == entrypoint) il.WriteLine(".entrypoint");
                 il.WriteLine(".maxstack 8");
                 var local_vals = f.TypeMapper.Values.Where(x => x.Type == VariableType.LocalVariable).Sort((a, b) => a.Index - b.Index).ToList();
                 if (local_vals.Count > 0)
                 {
                     il.WriteLine(".locals(");
                     il.Indent++;
-                    il.WriteLine(local_vals.Map(x => $"[{x.Index}] {GetTypeName(x)} {x.Name}").Join(",\n"));
+                    il.WriteLine(local_vals.Map(x => $"[{x.Index}] {GetTypeName(x, g)} {x.Name}").Join(",\n"));
                     il.Indent--;
                     il.WriteLine(")");
                 }
                 var labels = Lookup.AllLabels(f).Zip(Lists.Sequence(1)).ToDictionary(x => x.First, x => $"_{x.First.Name}{x.Second}");
-                f.Body.Each(x => AssemblyOperandEmit(il, x, f.TypeMapper, labels));
+                f.Body.Each(x =>
+                {
+                    if (x is Call call) CallToAddEmitFunctionList(call, fss);
+                    AssemblyOperandEmit(f, il, x, f.TypeMapper, labels, g);
+                });
                 il.WriteLine("ret");
                 il.Indent--;
                 il.WriteLine("}");
-            });
+            }
         }
 
-        public static void AssemblyOperandEmit(ILWriter il, IOperand op, Dictionary<ITypedValue, VariableDetail> m, Dictionary<LabelCode, string> labels)
+        public static void CallToAddEmitFunctionList(Call call, List<FunctionCaller> fss)
+        {
+            if (call.Caller is { } caller &&
+                caller.Body is FunctionBody &&
+                fss.FindFirstIndex(x => EqualsFunctionCaller(x, caller)) < 0) fss.Add(caller);
+        }
+
+        public static bool EqualsFunctionCaller(FunctionCaller left, FunctionCaller right)
+        {
+            if (left.Body != right.Body) return false;
+            return left.GenericsMapper.Keys.And(x => left.GenericsMapper[x] == right.GenericsMapper[x]);
+        }
+
+        public static void AssemblyOperandEmit(FunctionBody body, ILWriter il, IOperand op, Dictionary<ITypedValue, VariableDetail> m, Dictionary<LabelCode, string> labels, Dictionary<TypeValue, IStructBody?> g)
         {
             il.WriteLine();
             switch (op.Operator)
@@ -80,17 +101,18 @@ namespace Roku.Compiler
 
                 case Operator.Call:
                     var call = op.Cast<Call>();
+                    if (!m.ContainsKey(call.Function.Function)) ResolveFunctionWithEffect(body.Namespace, m, call, g);
                     var f = m[call.Function.Function].Struct!.Cast<FunctionMapper>();
                     var args = call.Function.Arguments.Map(x => LoadValue(m, x)).ToArray();
                     if (f.Function is ExternFunction fx)
                     {
                         il.WriteLine(args.Join('\n'));
-                        il.WriteLine($"call {GetTypeName(fx.Function.ReturnType)} [{fx.Function.DeclaringType!.FullName}]{fx.Function.DeclaringType!.FullName}::{fx.Function.Name}({call.Function.Arguments.Map(a => GetTypeName(m[a])).Join(", ")})");
+                        il.WriteLine($"call {GetILStructName(fx.Function.ReturnType)} [{fx.Function.DeclaringType!.FullName}]{fx.Function.DeclaringType!.FullName}::{fx.Function.Name}({call.Function.Arguments.Map(a => GetTypeName(m[a], g)).Join(", ")})");
                     }
                     else if (f.Function is FunctionBody fb)
                     {
                         il.WriteLine(args.Join('\n'));
-                        il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return)} {fb.Name}({fb.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name])).Join(", ")})");
+                        il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return, g)} {fb.Name}({fb.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")})");
                     }
                     else if (f.Function is EmbeddedFunction ef)
                     {
@@ -123,6 +145,19 @@ namespace Roku.Compiler
             if (op is IReturnBind ret && ret.Return is { })
             {
                 il.WriteLine(StoreValue(m, ret.Return));
+            }
+        }
+
+        public static void ResolveFunctionWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, Call call, Dictionary<TypeValue, IStructBody?> g)
+        {
+            switch (call.Function.Function)
+            {
+                case VariableValue x:
+                    var body = Lookup.FindFunctionOrNull(ns, x.Name, call.Function.Arguments.Map(x => GetType(m[x], g)).ToList());
+                    var fm = new FunctionMapper(body!.Body);
+                    m[x] = Typing.CreateVariableDetail("", fm, VariableType.FunctionMapper);
+                    call.Caller = body;
+                    break;
             }
         }
 
@@ -186,19 +221,25 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static string GetTypeName(Dictionary<ITypedValue, VariableDetail> m, ITypedValue? t) => t is null ? "void" : GetTypeName(m[t]);
+        public static string GetTypeName(Dictionary<ITypedValue, VariableDetail> m, ITypedValue? t, Dictionary<TypeValue, IStructBody?> g) => t is null ? "void" : GetStructName(GetType(m[t], g));
 
-        public static string GetTypeName(VariableDetail t)
+        public static string GetTypeName(VariableDetail vd, Dictionary<TypeValue, IStructBody?> g) => GetStructName(GetType(vd, g));
+
+        public static IStructBody? GetType(VariableDetail vd, Dictionary<TypeValue, IStructBody?> g) => GetType(vd.Struct, g);
+
+        public static IStructBody? GetType(IStructBody? body, Dictionary<TypeValue, IStructBody?> g) => body is GenericsParameter gp ? g.FindFirst(x => x.Key.Name == gp.Name).Value : body;
+
+        public static string GetStructName(IStructBody? body)
         {
-            switch (t.Struct)
+            switch (body)
             {
                 case null: return "void";
-                case ExternStruct x: return GetTypeName(x.Struct);
+                case ExternStruct x: return GetILStructName(x.Struct);
             }
             throw new Exception();
         }
 
-        public static string GetTypeName(Type t)
+        public static string GetILStructName(Type t)
         {
             if (t == typeof(void)) return "void";
             if (t == typeof(string)) return "string";

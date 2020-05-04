@@ -60,6 +60,7 @@ namespace Roku.Compiler
                         var ret = new EmbeddedFunction("return", null, call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct?.Name!).ToArray()) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                         var fm = new FunctionMapper(ret);
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
+                        call.Caller = new FunctionCaller(ret, new Dictionary<TypeValue, IStructBody?>());
                         return true;
                     }
 
@@ -84,6 +85,7 @@ namespace Roku.Compiler
                             ef.Arguments.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail($"${i}", Lookup.LoadStruct(ns, x.Name), VariableType.Argument, i));
                         }
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
+                        call.Caller = body;
                         if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, ret);
                         resolve = true;
                     }
