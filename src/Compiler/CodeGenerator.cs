@@ -80,7 +80,10 @@ namespace Roku.Compiler
         {
             if (call.Caller is { } caller &&
                 caller.Body is FunctionBody &&
-                fss.FindFirstIndex(x => EqualsFunctionCaller(x, caller)) < 0) fss.Add(caller);
+                fss.FindFirstIndex(x => EqualsFunctionCaller(x, caller)) < 0)
+            {
+                fss.Add(caller);
+            }
         }
 
         public static bool EqualsFunctionCaller(FunctionCaller left, FunctionCaller right)
