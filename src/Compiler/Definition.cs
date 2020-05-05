@@ -28,15 +28,19 @@ namespace Roku.Compiler
             {
                 FunctionBodyDefinition(MakeFunction(src, "main"), pgm.Statements);
             }
+
+            var types = new Dictionary<string, TypeValue>();
+            TypeValue create_type(string s) => types.ContainsKey(s) ? types[s] : new TypeValue(s) { Types = char.IsLower(s.First()) ? Types.Generics : Types.Struct }.Return(x => types[s] = x);
+
             pgm.Functions.Each(f =>
                 {
                     var body = MakeFunction(src, f.Name.Name);
-                    if (f.Return is { }) body.Return = new TypeValue(f.Return.Name);
+                    if (f.Return is { }) body.Return = create_type(f.Return.Name);
                     f.Arguments.Each(x =>
                         {
                             //var t = Lookup.LoadStruct(src, x.Type.Name);
                             var name = new VariableValue(x.Name.Name);
-                            body.Arguments.Add((name, new TypeValue(x.Type.Name) { Types = char.IsLower(x.Type.Name.First()) ? Types.Generics : Types.Struct }));
+                            body.Arguments.Add((name, create_type(x.Type.Name)));
                             body.LexicalScope.Add(x.Name.Name, name);
                         });
 

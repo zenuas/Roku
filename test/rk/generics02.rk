@@ -1,0 +1,12 @@
+
+#=>2
+f(1)
+
+#=>hellohello
+f("hello")
+
+sub f(x: a) a
+	return(x + x)
+
+###start
+###end
