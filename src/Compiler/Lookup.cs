@@ -75,16 +75,16 @@ namespace Roku.Compiler
             return null;
         }
 
-        public static (bool, Dictionary<TypeValue, IStructBody?>) FunctionArgumentsEquals(INamespace ns, IFunctionBody source, List<IStructBody?> args)
+        public static (bool, GenericsMapper) FunctionArgumentsEquals(INamespace ns, IFunctionBody source, List<IStructBody?> args)
         {
             var gens = ApplyArgumentsToGenericsParameter(source, args);
             var fargs = GetArgumentsType(ns, source, gens);
             return (fargs.Count != args.Count ? false : fargs.Zip(args).And(x => TypeEquals(x.First, x.Second)), gens);
         }
 
-        public static List<IStructBody?> GetArgumentsType(INamespace ns, IFunctionBody body, Dictionary<TypeValue, IStructBody?> gens) => FunctionToArgumentsType(body).Map(x => GetArgumentType(ns, x, gens)).ToList();
+        public static List<IStructBody?> GetArgumentsType(INamespace ns, IFunctionBody body, GenericsMapper gens) => FunctionToArgumentsType(body).Map(x => GetArgumentType(ns, x, gens)).ToList();
 
-        public static IStructBody? GetArgumentType(INamespace ns, ITypeDefinition t, Dictionary<TypeValue, IStructBody?> gens)
+        public static IStructBody? GetArgumentType(INamespace ns, ITypeDefinition t, GenericsMapper gens)
         {
             if (t is TypeValue gen && gen.Types == Types.Generics)
             {
@@ -120,10 +120,11 @@ namespace Roku.Compiler
 
         public static IEnumerable<TypeValue> ExtractArgumentsTypeToGenericsParameter(IEnumerable<ITypeDefinition> types) => types.By<TypeValue>().Where(x => x.Types == Types.Generics).Unique();
 
-        public static Dictionary<TypeValue, IStructBody?> ApplyArgumentsToGenericsParameter(IFunctionBody body, List<IStructBody?> args)
+        public static GenericsMapper ApplyArgumentsToGenericsParameter(IFunctionBody body, List<IStructBody?> args)
         {
             var param = FunctionToArgumentsType(body).ToList();
-            var gens = ExtractArgumentsTypeToGenericsParameter(param).ToDictionary(x => x, x => (IStructBody?)null);
+            var gens = new GenericsMapper();
+            ExtractArgumentsTypeToGenericsParameter(param).Each(x => gens[x] = null);
 
             Action<ITypeDefinition, IStructBody?> match = (p, arg) =>
             {
@@ -196,14 +197,15 @@ namespace Roku.Compiler
 
         public static ExternStruct? LoadTypeWithoutVoid(RootNamespace root, TypeInfo ti) => ti == typeof(void) ? null : LoadType(root, ti.Name, ti);
 
-        //public static RkCILFunction LoadFunction(RootNamespace root, MethodInfo method) => LoadFunction(root, method.Name, method);
+        public static TypeMapper? GetTypemapperOrNull(Dictionary<GenericsMapper, TypeMapper> sp, GenericsMapper g)
+        {
+            foreach (var kv in sp)
+            {
+                if (kv.Key.Keys.And(x => g.ContainsKey(x) && kv.Key[x] == g[x])) return kv.Value;
+            }
+            return null;
+        }
 
-        //public static RkCILFunction LoadFunction(RootNamespace root, string name, MethodInfo method)
-        //{
-        //    var f = new RkCILFunction(name, method);
-        //    f.Return = LoadTypeWithoutVoid(root, method.ReturnType);
-        //    method.GetParameters().Each(x => f.Arguments.Add(LoadType(root, x.ParameterType)));
-        //    return f;
-        //}
+        public static TypeMapper GetTypemapper(Dictionary<GenericsMapper, TypeMapper> sp, GenericsMapper g) => GetTypemapperOrNull(sp, g)!;
     }
 }

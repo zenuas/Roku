@@ -1,12 +1,71 @@
 
 #=>2
-f(1)
+print(f(1))
 
 #=>hellohello
-f("hello")
+print(f("hello"))
 
 sub f(x: a) a
 	return(x + x)
 
 ###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly generics02 {}
+.method public static void main() cil managed
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] int32 $$1,
+        [1] string $$2
+    )
+    
+    ldc.i4.1
+    call int32 f(int32)
+    stloc.0
+    
+    ldloc.0
+    call void [System.Console]System.Console::WriteLine(int32)
+    
+    ldstr "hello"
+    call string f(string)
+    stloc.1
+    
+    ldloc.1
+    call void [System.Console]System.Console::WriteLine(string)
+    ret
+}
+.method public static int32 f(int32) cil managed
+{
+    .maxstack 8
+    .locals(
+        [0] int32 $$1
+    )
+    
+    ldarg.0
+    ldarg.0
+    add
+    stloc.0
+    
+    ldloc.0
+    ret
+    ret
+}
+.method public static string f(string) cil managed
+{
+    .maxstack 8
+    .locals(
+        [0] string $$1
+    )
+    
+    ldarg.0
+    ldarg.0
+    call string [System.Runtime]System.String::Concat(string, string)
+    stloc.0
+    
+    ldloc.0
+    ret
+    ret
+}
 ###end

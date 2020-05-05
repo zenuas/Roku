@@ -26,7 +26,9 @@ namespace Roku.Compiler
         {
             if (pgm.Statements.Count > 0)
             {
-                FunctionBodyDefinition(MakeFunction(src, "main"), pgm.Statements);
+                var body = MakeFunction(src, "main");
+                body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+                FunctionBodyDefinition(body, pgm.Statements);
             }
 
             var types = new Dictionary<string, TypeValue>();
@@ -44,6 +46,7 @@ namespace Roku.Compiler
                             body.LexicalScope.Add(x.Name.Name, name);
                         });
 
+                    if (types.FindFirstIndex(x => x.Value.Types == Types.Generics) < 0) body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
                     FunctionBodyDefinition(body, f.Statements);
                 });
         }

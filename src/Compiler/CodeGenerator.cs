@@ -44,18 +44,19 @@ namespace Roku.Compiler
 
         public static void AssemblyFunctionEmit(ILWriter il, FunctionBody entrypoint)
         {
-            var fss = new List<FunctionCaller>() { new FunctionCaller(entrypoint, new Dictionary<TypeValue, IStructBody?>()) };
+            var fss = new List<FunctionCaller>() { new FunctionCaller(entrypoint, new GenericsMapper()) };
             for (var i = 0; i < fss.Count; i++)
             {
                 var f = fss[i].Body.Cast<FunctionBody>();
                 var g = fss[i].GenericsMapper;
+                var mapper = Lookup.GetTypemapper(f.SpecializationMapper, g);
 
-                il.WriteLine($".method public static {GetTypeName(f.TypeMapper, f.Return, g)} {f.Name}({f.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")}) cil managed");
+                il.WriteLine($".method public static {GetTypeName(mapper, f.Return, g)} {f.Name}({f.Arguments.Map(a => GetTypeName(mapper[a.Name], g)).Join(", ")}) cil managed");
                 il.WriteLine("{");
                 il.Indent++;
                 if (f == entrypoint) il.WriteLine(".entrypoint");
                 il.WriteLine(".maxstack 8");
-                var local_vals = f.TypeMapper.Values.Where(x => x.Type == VariableType.LocalVariable).Sort((a, b) => a.Index - b.Index).ToList();
+                var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable).Sort((a, b) => a.Index - b.Index).ToList();
                 if (local_vals.Count > 0)
                 {
                     il.WriteLine(".locals(");
@@ -68,7 +69,7 @@ namespace Roku.Compiler
                 f.Body.Each(x =>
                 {
                     if (x is Call call) CallToAddEmitFunctionList(call, fss);
-                    AssemblyOperandEmit(f, il, x, f.TypeMapper, labels, g);
+                    AssemblyOperandEmit(f, il, x, mapper, labels, g);
                 });
                 il.WriteLine("ret");
                 il.Indent--;
@@ -92,7 +93,7 @@ namespace Roku.Compiler
             return left.GenericsMapper.Keys.And(x => left.GenericsMapper[x] == right.GenericsMapper[x]);
         }
 
-        public static void AssemblyOperandEmit(FunctionBody body, ILWriter il, IOperand op, Dictionary<ITypedValue, VariableDetail> m, Dictionary<LabelCode, string> labels, Dictionary<TypeValue, IStructBody?> g)
+        public static void AssemblyOperandEmit(FunctionBody body, ILWriter il, IOperand op, TypeMapper m, Dictionary<LabelCode, string> labels, GenericsMapper g)
         {
             il.WriteLine();
             switch (op.Operator)
@@ -104,7 +105,6 @@ namespace Roku.Compiler
 
                 case Operator.Call:
                     var call = op.Cast<Call>();
-                    if (!m.ContainsKey(call.Function.Function)) ResolveFunctionWithEffect(body.Namespace, m, call, g);
                     var f = m[call.Function.Function].Struct!.Cast<FunctionMapper>();
                     var args = call.Function.Arguments.Map(x => LoadValue(m, x)).ToArray();
                     if (f.Function is ExternFunction fx)
@@ -151,20 +151,7 @@ namespace Roku.Compiler
             }
         }
 
-        public static void ResolveFunctionWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, Call call, Dictionary<TypeValue, IStructBody?> g)
-        {
-            switch (call.Function.Function)
-            {
-                case VariableValue x:
-                    var body = Lookup.FindFunctionOrNull(ns, x.Name, call.Function.Arguments.Map(x => GetType(m[x], g)).ToList());
-                    var fm = new FunctionMapper(body!.Body);
-                    m[x] = Typing.CreateVariableDetail("", fm, VariableType.FunctionMapper);
-                    call.Caller = body;
-                    break;
-            }
-        }
-
-        public static string LoadValue(Dictionary<ITypedValue, VariableDetail> m, ITypedValue value)
+        public static string LoadValue(TypeMapper m, ITypedValue value)
         {
             switch (value)
             {
@@ -199,7 +186,7 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static string StoreValue(Dictionary<ITypedValue, VariableDetail> m, ITypedValue value)
+        public static string StoreValue(TypeMapper m, ITypedValue value)
         {
             switch (value)
             {
@@ -224,13 +211,13 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static string GetTypeName(Dictionary<ITypedValue, VariableDetail> m, ITypedValue? t, Dictionary<TypeValue, IStructBody?> g) => t is null ? "void" : GetStructName(GetType(m[t], g));
+        public static string GetTypeName(TypeMapper m, ITypedValue? t, GenericsMapper g) => t is null ? "void" : GetStructName(GetType(m[t], g));
 
-        public static string GetTypeName(VariableDetail vd, Dictionary<TypeValue, IStructBody?> g) => GetStructName(GetType(vd, g));
+        public static string GetTypeName(VariableDetail vd, GenericsMapper g) => GetStructName(GetType(vd, g));
 
-        public static IStructBody? GetType(VariableDetail vd, Dictionary<TypeValue, IStructBody?> g) => GetType(vd.Struct, g);
+        public static IStructBody? GetType(VariableDetail vd, GenericsMapper g) => GetType(vd.Struct, g);
 
-        public static IStructBody? GetType(IStructBody? body, Dictionary<TypeValue, IStructBody?> g) => body is GenericsParameter gp ? g.FindFirst(x => x.Key.Name == gp.Name).Value : body;
+        public static IStructBody? GetType(IStructBody? body, GenericsMapper g) => body is GenericsParameter gp ? g.FindFirst(x => x.Key.Name == gp.Name).Value : body;
 
         public static string GetStructName(IStructBody? body)
         {

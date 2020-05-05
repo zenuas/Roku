@@ -1,13 +1,10 @@
-﻿using Roku.IntermediateCode;
-using System.Collections.Generic;
-
-namespace Roku.Manager
+﻿namespace Roku.Manager
 {
     public class FunctionMapper : IStructBody
     {
         public IFunctionBody Function { get; }
         public string Name { get => Function.Name; }
-        public Dictionary<ITypedValue, VariableDetail> TypeMapper { get; } = new Dictionary<ITypedValue, VariableDetail>();
+        public TypeMapper TypeMapper { get; } = new TypeMapper();
 
         public FunctionMapper(IFunctionBody f)
         {

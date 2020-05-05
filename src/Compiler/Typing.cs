@@ -22,13 +22,18 @@ namespace Roku.Compiler
         public static bool FunctionBodyInference(FunctionBody body)
         {
             var resolved = false;
-            body.Arguments.Each((x, i) => resolved = ArgumentInferenceWithEffect(body.Namespace, body.TypeMapper, x.Name, x.Type, i) || resolved);
-            if (body.Return is { } x) resolved = TypeInferenceWithEffect(body.Namespace, body.TypeMapper, x, x.Name) || resolved;
-            body.Body.Each(x => resolved = OperandTypeInference(body.Namespace, body.TypeMapper, x) || resolved);
+            var keys = body.SpecializationMapper.Keys.ToArray();
+            for (var i = 0; i < keys.Length; i++)
+            {
+                var value = body.SpecializationMapper[keys[i]];
+                body.Arguments.Each((x, i) => resolved = ArgumentInferenceWithEffect(body.Namespace, value, x.Name, x.Type, i) || resolved);
+                if (body.Return is { } x) resolved = TypeInferenceWithEffect(body.Namespace, value, x, x.Name) || resolved;
+                body.Body.Each(x => resolved = OperandTypeInference(body.Namespace, value, x) || resolved);
+            }
             return resolved;
         }
 
-        public static bool OperandTypeInference(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, IOperand op)
+        public static bool OperandTypeInference(INamespace ns, TypeMapper m, IOperand op)
         {
             switch (op)
             {
@@ -48,7 +53,7 @@ namespace Roku.Compiler
             }
         }
 
-        public static bool ResolveFunctionWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, Call call)
+        public static bool ResolveFunctionWithEffect(INamespace ns, TypeMapper m, Call call)
         {
             if (m.ContainsKey(call.Function.Function) && m[call.Function.Function] is { }) return false;
 
@@ -60,7 +65,7 @@ namespace Roku.Compiler
                         var ret = new EmbeddedFunction("return", null, call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct?.Name!).ToArray()) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                         var fm = new FunctionMapper(ret);
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
-                        call.Caller = new FunctionCaller(ret, new Dictionary<TypeValue, IStructBody?>());
+                        call.Caller = new FunctionCaller(ret, new GenericsMapper());
                         return true;
                     }
 
@@ -72,6 +77,7 @@ namespace Roku.Compiler
                         IStructBody? ret = null;
                         if (body.Body is FunctionBody fb)
                         {
+                            if (Lookup.GetTypemapperOrNull(fb.SpecializationMapper, body.GenericsMapper) is null) fb.SpecializationMapper[body.GenericsMapper] = GenericsMapperToTypeMapper(body.GenericsMapper);
                             if (fb.Return is { }) fm.TypeMapper[fb.Return] = CreateVariableDetail("", ret = Lookup.GetArgumentType(fb.Namespace, fb.Return, body.GenericsMapper), VariableType.Type);
                             fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(x.Name.Name, Lookup.GetArgumentType(fb.Namespace, x.Type, body.GenericsMapper), VariableType.Argument, i));
                         }
@@ -95,7 +101,14 @@ namespace Roku.Compiler
             return call.Return is { } ? LocalValueInferenceWithEffect(ns, m, call.Return!) || resolve : resolve;
         }
 
-        public static bool ArgumentInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v, TypeValue type, int index)
+        public static TypeMapper GenericsMapperToTypeMapper(GenericsMapper g)
+        {
+            var mapper = new TypeMapper();
+            g.Each(kv => mapper[kv.Key] = CreateVariableDetail(kv.Key.Name, kv.Value, VariableType.TypeParameter));
+            return mapper;
+        }
+
+        public static bool ArgumentInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, TypeValue type, int index)
         {
             if (m.ContainsKey(v) && m[v].Struct is { }) return false;
             if (type.Types == Types.Generics)
@@ -110,14 +123,14 @@ namespace Roku.Compiler
             return true;
         }
 
-        public static bool TypeInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v, string type_name)
+        public static bool TypeInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, string type_name)
         {
             if (m.ContainsKey(v) && m[v].Struct is { }) return false;
             m[v] = CreateVariableDetail("", Lookup.LoadStruct(ns, type_name), VariableType.Type);
             return true;
         }
 
-        public static bool LocalValueInferenceWithEffect(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v, IStructBody? b = null)
+        public static bool LocalValueInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, IStructBody? b = null)
         {
             if (m.ContainsKey(v))
             {
@@ -131,7 +144,7 @@ namespace Roku.Compiler
             return true;
         }
 
-        public static VariableDetail ToTypedValue(INamespace ns, Dictionary<ITypedValue, VariableDetail> m, ITypedValue v)
+        public static VariableDetail ToTypedValue(INamespace ns, TypeMapper m, ITypedValue v)
         {
             switch (v)
             {
