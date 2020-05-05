@@ -6,7 +6,13 @@ print(f(1))
 print(f("hello"))
 
 sub f(x: a) a
-	return(x + x)
+	var y = x + x
+	return(y)
+
+###
+ジェネリック解決にあたりローカル変数yの型解決が行われること
+###
+
 
 ###start
 .assembly extern System.Console {}
@@ -40,7 +46,7 @@ sub f(x: a) a
 {
     .maxstack 8
     .locals(
-        [0] int32 $$1
+        [0] int32 y
     )
     
     ldarg.0
@@ -56,7 +62,7 @@ sub f(x: a) a
 {
     .maxstack 8
     .locals(
-        [0] string $$1
+        [0] string y
     )
     
     ldarg.0
