@@ -1,0 +1,60 @@
+
+#=>-1
+print(-1)
+
+#=>1
+print(- -1)
+
+##=>1
+#print(+1)
+
+###
+Int型の単項マイナスのテスト
+単項プラスはサポートしない
+
+2重の単項マイナスはサポートする必要はないが演算子を定義していないため除外することが難しい
+C言語でたまにある二重否定(!!n)と同じことをする場合
+単項マイナスは二重使用NGだが
+単項否定は二重使用OKと
+演算子によって対応を変えないといけない
+
+そのためパーサ上は制限しない方針とする
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly expr04 {}
+.method public static void main() cil managed
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] int32 $$1,
+        [1] int32 $$3,
+        [2] int32 $$2
+    )
+    
+    ldc.i4.0
+    ldc.i4.1
+    sub
+    stloc.0
+    
+    ldloc.0
+    call void [System.Console]System.Console::WriteLine(int32)
+    
+    ldc.i4.0
+    ldc.i4.1
+    sub
+    stloc.1
+    
+    ldc.i4.0
+    ldloc.1
+    sub
+    stloc.2
+    
+    ldloc.2
+    call void [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+###end
