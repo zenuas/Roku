@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Nullable>enable</Nullable>
     <PathMap>$(MSBuildProjectDirectory)=.</PathMap>
+    <AssemblyName>roku</AssemblyName>
   </PropertyGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
