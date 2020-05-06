@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 
 namespace Roku.Manager
 {
@@ -6,6 +7,8 @@ namespace Roku.Manager
     {
         public string Name { get; }
         public MethodInfo Function { get; }
+        public Type? DeclaringType { get; set; }
+        public Assembly? Assembly { get; set; }
 
         public ExternFunction(string name, MethodInfo f)
         {

@@ -27,10 +27,9 @@ namespace Roku.Compiler
             }
         }
 
-        public static Assembly GetAssembly(ExternFunction e)
-        {
-            return e.Function.DeclaringType!.Assembly;
-        }
+        public static Type GetType(ExternFunction e) => e.DeclaringType ?? e.Function.DeclaringType!;
+
+        public static Assembly GetAssembly(ExternFunction e) => e.Assembly ?? GetType(e).Assembly;
 
         public static void AssemblyExternEmit(ILWriter il, Assembly[] extern_asms)
         {
@@ -110,7 +109,7 @@ namespace Roku.Compiler
                     if (f.Function is ExternFunction fx)
                     {
                         il.WriteLine(args.Join('\n'));
-                        il.WriteLine($"call {GetILStructName(fx.Function.ReturnType)} [{fx.Function.DeclaringType!.FullName}]{fx.Function.DeclaringType!.FullName}::{fx.Function.Name}({call.Function.Arguments.Map(a => GetTypeName(m[a], g)).Join(", ")})");
+                        il.WriteLine($"call {GetILStructName(fx.Function.ReturnType)} [{GetAssembly(fx).GetName().Name}]{GetType(fx).FullName}::{fx.Function.Name}({call.Function.Arguments.Map(a => GetTypeName(m[a], g)).Join(", ")})");
                     }
                     else if (f.Function is FunctionBody fb)
                     {

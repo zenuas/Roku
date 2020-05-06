@@ -47,7 +47,7 @@ namespace Roku
             root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) })!));
             root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(int) })!));
             root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(bool) })!));
-            //root.Functions.Add(new ExternFunction("+", typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) })!));
+            root.Functions.Add(new ExternFunction("+", typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) })!) { Assembly = Assembly.Load("System.Runtime") });
             root.Functions.Add(new EmbeddedFunction("+", "Int", "Int", "Int") { OpCode = (args) => $"{args[0]}\n{args[1]}\nadd" });
             root.Functions.Add(new EmbeddedFunction("-", "Int", "Int", "Int") { OpCode = (args) => $"{args[0]}\n{args[1]}\nsub" });
             root.Functions.Add(new EmbeddedFunction("*", "Int", "Int", "Int") { OpCode = (args) => $"{args[0]}\n{args[1]}\nmul" });
@@ -60,7 +60,6 @@ namespace Roku
             root.Functions.Add(new EmbeddedFunction(">", "Bool", "Int", "Int") { OpCode = (args) => $"{args[0]}\n{args[1]}\ncgt" });
             root.Functions.Add(new EmbeddedFunction(">=", "Bool", "Int", "Int") { OpCode = (args) => $"{args[0]}\n{args[1]}\nclt\nldc.i4.0\nceq" });
             root.Functions.Add(new EmbeddedFunction("-", "Int", "Int") { OpCode = (args) => $"ldc.i4.0\n{args[0]}\nsub" });
-            root.Functions.Add(new EmbeddedFunction("+", "String", "String", "String") { OpCode = (args) => $"{args[0]}\n{args[1]}\ncall string [System.Runtime]System.String::Concat(string, string)", Assembly = () => Assembly.Load("System.Runtime") });
 
             var src = Definition.LoadProgram(root, pgm);
             src.Uses.Add(root);
