@@ -2,7 +2,6 @@
 using Roku.IntermediateCode;
 using Roku.Manager;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Roku.Compiler
@@ -16,6 +15,8 @@ namespace Roku.Compiler
 
         public static void TypeInference(FunctionBody body)
         {
+            while (FunctionBodyInference(body)) ;
+            FunctionBodyNumericDecide(body);
             while (FunctionBodyInference(body)) ;
         }
 
@@ -31,6 +32,18 @@ namespace Roku.Compiler
                 body.Body.Each(x => resolved = OperandTypeInference(body.Namespace, value, x) || resolved);
             }
             return resolved;
+        }
+
+        public static void FunctionBodyNumericDecide(FunctionBody body)
+        {
+            foreach (var value in body.SpecializationMapper.Values)
+            {
+                var nums = value.Where(x => x.Value.Struct is NumericStruct).ToList();
+                for (var i = 0; i < nums.Count; i++)
+                {
+                    nums[i].Value.Struct = nums[i].Value.Struct!.Cast<NumericStruct>().Types.First();
+                }
+            }
         }
 
         public static bool OperandTypeInference(INamespace ns, TypeMapper m, IOperand op)
@@ -58,11 +71,12 @@ namespace Roku.Compiler
             if (m.ContainsKey(call.Function.Function) && m[call.Function.Function] is { }) return false;
 
             var resolve = false;
+            var args = call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct).ToList();
             switch (call.Function.Function)
             {
                 case VariableValue x when call.Return is null && call.Function.FirstLookup is null && x.Name == "return":
                     {
-                        var ret = new EmbeddedFunction("return", null, call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct?.Name!).ToArray()) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
+                        var ret = new EmbeddedFunction("return", null, args.Map(x => x?.Name!).ToArray()) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                         var fm = new FunctionMapper(ret);
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
                         call.Caller = new FunctionCaller(ret, new GenericsMapper());
@@ -70,7 +84,7 @@ namespace Roku.Compiler
                     }
 
                 case VariableValue x:
-                    var body = Lookup.FindFunctionOrNull(ns, x.Name, call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct).ToList());
+                    var body = Lookup.FindFunctionOrNull(ns, x.Name, args);
                     if (body is { })
                     {
                         var fm = new FunctionMapper(body.Body);
@@ -146,10 +160,12 @@ namespace Roku.Compiler
 
         public static VariableDetail ToTypedValue(INamespace ns, TypeMapper m, ITypedValue v)
         {
+            if (m.ContainsKey(v)) return m[v];
+
             switch (v)
             {
                 case NumericValue x:
-                    m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "Int"), VariableType.Type);
+                    m[x] = CreateNumericType(ns);
                     return m[x];
 
                 case StringValue x:
@@ -165,6 +181,16 @@ namespace Roku.Compiler
                 default:
                     throw new Exception();
             }
+        }
+
+        public static VariableDetail CreateNumericType(INamespace ns)
+        {
+            var num = new NumericStruct();
+            num.Types.Add(Lookup.LoadStruct(ns, "Int"));
+            num.Types.Add(Lookup.LoadStruct(ns, "Long"));
+            num.Types.Add(Lookup.LoadStruct(ns, "Short"));
+            num.Types.Add(Lookup.LoadStruct(ns, "Byte"));
+            return CreateVariableDetail("", num, VariableType.Type);
         }
 
         public static VariableDetail CreateVariableDetail(string name, IStructBody? b, VariableType type, int index = 0) => new VariableDetail { Name = name, Struct = b, Type = type, Index = index };

@@ -233,6 +233,9 @@ namespace Roku.Compiler
             if (t == typeof(void)) return "void";
             if (t == typeof(string)) return "string";
             if (t == typeof(int)) return "int32";
+            if (t == typeof(long)) return "int64";
+            if (t == typeof(short)) return "int16";
+            if (t == typeof(byte)) return "byte";
             if (t == typeof(bool)) return "bool";
             return t.Name;
         }
