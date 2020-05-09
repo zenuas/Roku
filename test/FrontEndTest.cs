@@ -14,8 +14,14 @@ namespace Roku.Tests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            if (Directory.Exists(ObjDir)) Directory.Delete(ObjDir, true);
-            Directory.CreateDirectory(ObjDir);
+            if (Directory.Exists(ObjDir))
+            {
+                Directory.GetFiles(ObjDir, "*.*").Each(File.Delete);
+            }
+            else
+            {
+                Directory.CreateDirectory(ObjDir);
+            }
         }
 
         [Test]
