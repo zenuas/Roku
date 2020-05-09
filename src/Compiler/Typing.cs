@@ -94,6 +94,7 @@ namespace Roku.Compiler
                             if (Lookup.GetTypemapperOrNull(fb.SpecializationMapper, body.GenericsMapper) is null) fb.SpecializationMapper[body.GenericsMapper] = GenericsMapperToTypeMapper(body.GenericsMapper);
                             if (fb.Return is { }) fm.TypeMapper[fb.Return] = CreateVariableDetail("", ret = Lookup.GetArgumentType(fb.Namespace, fb.Return, body.GenericsMapper), VariableType.Type);
                             fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(x.Name.Name, Lookup.GetArgumentType(fb.Namespace, x.Type, body.GenericsMapper), VariableType.Argument, i));
+                            fb.Arguments.Each((x, i) => Feedback(args[i], fm.TypeMapper[x.Name].Struct));
                         }
                         else if (body.Body is ExternFunction fx)
                         {
@@ -113,6 +114,16 @@ namespace Roku.Compiler
 
             }
             return call.Return is { } ? LocalValueInferenceWithEffect(ns, m, call.Return!) || resolve : resolve;
+        }
+
+        public static void Feedback(IStructBody? left, IStructBody? right)
+        {
+            if (right is null) return;
+
+            if (left is NumericStruct num)
+            {
+                if (num.Types.Contains(right)) num.Types.RemoveAll(x => x != right);
+            }
         }
 
         public static TypeMapper GenericsMapperToTypeMapper(GenericsMapper g)

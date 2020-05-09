@@ -47,7 +47,7 @@ print(b) がWriteLine(int64)を呼び出すこと
     call void [System.Console]System.Console::WriteLine(int32)
     
     ldc.i4.1
-    conv i8
+    conv.i8
     stloc.1
     
     ldloc.1

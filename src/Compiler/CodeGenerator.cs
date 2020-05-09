@@ -158,11 +158,22 @@ namespace Roku.Compiler
                     return $"ldstr \"{x.Value}\"";
 
                 case NumericValue x:
-                    return
-                        x.Value <= 8 ? $"ldc.i4.{x.Value}"
-                        : x.Value <= sbyte.MaxValue ? $"ldc.i4.s {x.Value}"
-                        : x.Value <= int.MaxValue ? $"ldc.i4 {x.Value}"
-                        : $"ldc.i8 {x.Value}";
+                    if (m[x].Struct is ExternStruct es && es.Struct == typeof(long).GetTypeInfo())
+                    {
+                        return
+                            x.Value <= 8 ? $"ldc.i4.{x.Value}\nconv.i8"
+                            : x.Value <= sbyte.MaxValue ? $"ldc.i4.s {x.Value}\nconv.i8"
+                            : x.Value <= int.MaxValue ? $"ldc.i4 {x.Value}\nconv.i8"
+                            : $"ldc.i8 {x.Value}";
+                    }
+                    else
+                    {
+                        return
+                            x.Value <= 8 ? $"ldc.i4.{x.Value}"
+                            : x.Value <= sbyte.MaxValue ? $"ldc.i4.s {x.Value}"
+                            : x.Value <= int.MaxValue ? $"ldc.i4 {x.Value}"
+                            : $"ldc.i8 {x.Value}";
+                    }
 
                 case VariableValue _:
                 case TemporaryValue _:
