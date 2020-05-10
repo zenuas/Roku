@@ -18,6 +18,14 @@ namespace Roku.Compiler
             while (FunctionBodyInference(body)) ;
             FunctionBodyNumericDecide(body);
             while (FunctionBodyInference(body)) ;
+
+            foreach (var mapper in body.SpecializationMapper.Values)
+            {
+                if (body.Body.By<IfCastCode>().FindFirstOrNull(x => Lookup.IsValueType(mapper[x.Condition].Struct)) is { })
+                {
+                    LocalValueInferenceWithEffect(body.Namespace, mapper, mapper.CastBoxCondition, Lookup.LoadType(Lookup.GetRootNamespace(body.Namespace), typeof(object)));
+                }
+            }
         }
 
         public static bool FunctionBodyInference(FunctionBody body)

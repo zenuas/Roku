@@ -147,16 +147,38 @@ namespace Roku.Compiler
                 case Operator.IfCast:
                     {
                         var ifcast = op.Cast<IfCastCode>();
-                        il.WriteLine(LoadValue(m, ifcast.Condition));
-                        il.WriteLine($"box [System.Runtime]System.Int32");
+
+                        var is_value = Lookup.IsValueType(m[ifcast.Condition].Struct);
+                        var load_cond = LoadValue(m, ifcast.Condition);
+                        il.WriteLine(load_cond);
+                        if (is_value)
+                        {
+                            var value_type = m[ifcast.Condition].Struct!.Cast<ExternStruct>();
+
+                            il.WriteLine($"box [{GetAssembly(value_type).GetName().Name}]{value_type.Struct.FullName}");
+                            il.WriteLine(StoreValue(m, m.CastBoxCondition));
+                            il.WriteLine(load_cond = LoadValue(m, m.CastBoxCondition));
+                        }
+
                         if (m[ifcast.Name].Struct is ExternStruct sx)
                         {
                             il.WriteLine($"isinst [{GetAssembly(sx).GetName().Name}]{sx.Struct.FullName}");
-                            il.WriteLine($"brfalse.s {labels[ifcast.Else]}");
-                            il.WriteLine(LoadValue(m, ifcast.Condition));
-                            il.WriteLine($"box [System.Runtime]System.Int32");
-                            il.WriteLine($"unbox.any [{GetAssembly(sx).GetName().Name}]{sx.Struct.FullName}");
-                            il.WriteLine(StoreValue(m, ifcast.Name));
+
+                            if (Lookup.IsValueType(m[ifcast.Name].Struct))
+                            {
+                                il.WriteLine($"brfalse.s {labels[ifcast.Else]}");
+                                il.WriteLine(load_cond);
+                                il.WriteLine($"unbox.any [{GetAssembly(sx).GetName().Name}]{sx.Struct.FullName}");
+                                il.WriteLine(StoreValue(m, ifcast.Name));
+                            }
+                            else
+                            {
+                                il.WriteLine(StoreValue(m, ifcast.Name));
+                                il.WriteLine(LoadValue(m, ifcast.Name));
+                                il.WriteLine($"ldnull");
+                                il.WriteLine($"cgt.un");
+                                il.WriteLine($"brfalse.s {labels[ifcast.Else]}");
+                            }
                         }
                     }
                     break;
@@ -269,6 +291,7 @@ namespace Roku.Compiler
             if (t == typeof(short)) return "int16";
             if (t == typeof(byte)) return "byte";
             if (t == typeof(bool)) return "bool";
+            if (t == typeof(object)) return "object";
             return t.Name;
         }
     }

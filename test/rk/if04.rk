@@ -1,6 +1,6 @@
-var a = 1
+var a = "hello"
 
-#=>2
+#=>hellohellohello
 if x: Int = a + a
 	print(x)
 else if y: String = a + a + a
@@ -10,36 +10,32 @@ else if y: String = a + a + a
 ###start
 .assembly extern System.Console {}
 .assembly extern System.Runtime {}
-.assembly if03 {}
+.assembly if04 {}
 .method public static void main() cil managed
 {
     .entrypoint
     .maxstack 8
     .locals(
-        [0] int32 a,
-        [1] int32 $$1,
+        [0] string a,
+        [1] string $$1,
         [2] int32 x,
-        [3] int32 $$3,
-        [4] int32 $$2,
-        [5] string y,
-        [6] object $cast_box
+        [3] string $$3,
+        [4] string $$2,
+        [5] string y
     )
     
-    ldc.i4.1
+    ldstr "hello"
     stloc.0
     
     ldloc.0
     ldloc.0
-    add
+    call string [System.Runtime]System.String::Concat(string, string)
     stloc.1
     
     ldloc.1
-    box [System.Runtime]System.Int32
-    stloc.s 6
-    ldloc.s 6
     isinst [System.Runtime]System.Int32
     brfalse.s _ElseIf1
-    ldloc.s 6
+    ldloc.1
     unbox.any [System.Runtime]System.Int32
     stloc.2
     
@@ -52,18 +48,15 @@ _ElseIf1:
     
     ldloc.0
     ldloc.0
-    add
+    call string [System.Runtime]System.String::Concat(string, string)
     stloc.3
     
     ldloc.3
     ldloc.0
-    add
+    call string [System.Runtime]System.String::Concat(string, string)
     stloc.s 4
     
     ldloc.s 4
-    box [System.Runtime]System.Int32
-    stloc.s 6
-    ldloc.s 6
     isinst [System.Runtime]System.String
     stloc.s 5
     ldloc.s 5

@@ -208,5 +208,7 @@ namespace Roku.Compiler
         }
 
         public static TypeMapper GetTypemapper(Dictionary<GenericsMapper, TypeMapper> sp, GenericsMapper g) => GetTypemapperOrNull(sp, g)!;
+
+        public static bool IsValueType(IStructBody? t) => t is ExternStruct sx && sx.Struct.IsValueType;
     }
 }
