@@ -8,5 +8,6 @@
         If,
         Goto,
         Label,
+        Cast,
     }
 }

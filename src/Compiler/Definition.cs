@@ -75,12 +75,31 @@ namespace Roku.Compiler
                         scope.Body.Add(new Call(NormalizationExpression(scope, call).Cast<FunctionCallValue>()));
                         break;
 
-                    case IfNode if_:
+                    case IIfNode if_:
                         var else_ = new LabelCode() { Name = "Else" };
                         var elseif = if_.ElseIf.Map(x => new LabelCode() { Name = "ElseIf" }).ToArray();
                         var endif = new LabelCode() { Name = "EndIf" };
 
-                        scope.Body.Add(new IfCode(NormalizationExpression(scope, if_.Condition, true),
+                        ITypedValue cond;
+                        if (if_ is IfNode ifn)
+                        {
+                            cond = NormalizationExpression(scope, ifn.Condition, true);
+                        }
+                        else
+                        {
+                            var ifc = if_.Cast<IfCastNode>();
+                            var condx = NormalizationExpression(scope, ifc.Condition, true);
+
+                            var cast = new Cast(condx, new TypeValue(ifc.Declare.Name));
+                            cast.Return = new VariableValue(ifc.Name.Name);
+                            scope.LexicalScope.Add(ifc.Name.Name, cast.Return);
+
+                            var f = new FunctionCallValue(new VariableValue("#is_not_null"));
+                            f.Arguments.Add(cast.Return);
+                            scope.Body.Add(new Call(f) { Return = cond = CreateTemporaryVariable(scope) });
+                        }
+
+                        scope.Body.Add(new IfCode(cond,
                             elseif.Length > 0 ? elseif.First()
                             : if_.Else is { } ? else_
                             : endif));
@@ -92,7 +111,25 @@ namespace Roku.Compiler
                             scope.Body.Add(new GotoCode(endif));
 
                             scope.Body.Add(elseif[i]);
-                            scope.Body.Add(new IfCode(NormalizationExpression(scope, x.Condition, true),
+                            ITypedValue cond;
+                            if (x is IfNode ifn)
+                            {
+                                cond = NormalizationExpression(scope, ifn.Condition, true);
+                            }
+                            else
+                            {
+                                var ifc = x.Cast<IfCastNode>();
+                                var condx = NormalizationExpression(scope, ifc.Condition, true);
+
+                                var cast = new Cast(condx, new TypeValue(ifc.Declare.Name));
+                                cast.Return = new VariableValue(ifc.Name.Name);
+                                scope.LexicalScope.Add(ifc.Name.Name, cast.Return);
+
+                                var f = new FunctionCallValue(new VariableValue("#is_not_null"));
+                                f.Arguments.Add(cast.Return);
+                                scope.Body.Add(new Call(f) { Return = cond = CreateTemporaryVariable(scope) });
+                            }
+                            scope.Body.Add(new IfCode(cond,
                                 elseif.Length > i + 1 ? elseif[i + 1]
                                 : if_.Else is { } ? else_
                                 : endif));

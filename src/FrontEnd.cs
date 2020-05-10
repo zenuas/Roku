@@ -57,6 +57,7 @@ namespace Roku
             root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(byte) })!));
             root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(bool) })!));
             root.Functions.Add(new ExternFunction("+", typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) })!) { Assembly = Assembly.Load("System.Runtime") });
+            root.Functions.Add(new EmbeddedFunction("#is_not_null", "Bool", "a") { OpCode = (args) => $"{args[0]}\nldnull\ncgt.un" });
 
             var src = Definition.LoadProgram(root, pgm);
             src.Uses.Add(root);

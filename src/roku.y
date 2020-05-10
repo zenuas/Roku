@@ -18,7 +18,7 @@ using Roku.Node;
 %type<ListNode<IEvaluableNode>> list listn list2n
 %type<TypeNode>                 nsvar type typev
 %type<TypeNode?>                typex
-%type<IfNode>                   if ifthen elseif
+%type<IIfNode>                  if ifthen elseif
 %type<VariableNode>             var varx fn
 %type<NumericNode>              num
 %type<StringNode>               str
@@ -103,9 +103,9 @@ if     : ifthen
        | ifthen ELSE EOL block                        {$$ = AddElse($1, $4);}
        | elseif ELSE EOL block                        {$$ = AddElse($1, $4);}
        | IF expr                 THEN NOTEOL expr EOL {$$ = CreateIfNode($2, ToStatementBlock($5));}
-#      | IF var ':' type EQ expr THEN NOTEOL expr EOL {$$ = CreateIfCastNode($2, $4, $6, ToStatementBlock($9));}
+       | IF var ':' type EQ expr THEN NOTEOL expr EOL {$$ = CreateIfCastNode($2, $4, $6, ToStatementBlock($9));}
 ifthen : IF expr EOL block                            {$$ = CreateIfNode($2, $4);}
-#      | IF var ':' type EQ expr EOL block            {$$ = CreateIfCastNode($2, $4, $6, $8);}
+       | IF var ':' type EQ expr EOL block            {$$ = CreateIfCastNode($2, $4, $6, $8);}
 elseif : ifthen ELSE ifthen                           {$$ = $1.Return(x => x.ElseIf.Add($3));}
        | elseif ELSE ifthen                           {$$ = $1.Return(x => x.ElseIf.Add($3));}
 

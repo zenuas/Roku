@@ -34,16 +34,19 @@ namespace Roku.Parser
             return fn.R(name);
         }
 
-        public static IfNode CreateIfNode(IEvaluableNode cond, IScopeNode then) => CreateIfNode(cond, then, null);
-
-        public static IfNode CreateIfNode(IEvaluableNode cond, IScopeNode then, IScopeNode? else_)
+        public static IfNode CreateIfNode(IEvaluableNode cond, IScopeNode then)
         {
             then.InnerScope = true;
-            if (else_ is { }) else_.InnerScope = true;
-            return new IfNode(cond, then) { Else = else_ }.R(cond);
+            return new IfNode(cond, then).R(cond);
         }
 
-        public static IfNode AddElse(IfNode if_, IScopeNode else_)
+        public static IfCastNode CreateIfCastNode(VariableNode name, TypeNode declare, IEvaluableNode cond, IScopeNode then)
+        {
+            then.InnerScope = true;
+            return new IfCastNode(name, declare, cond, then).R(cond);
+        }
+
+        public static IIfNode AddElse(IIfNode if_, IScopeNode else_)
         {
             else_.InnerScope = true;
             if_.Else = else_;
