@@ -6,6 +6,7 @@ namespace Roku.Manager
     {
         public string Name { get; }
         public TypeInfo Struct { get; }
+        public Assembly? Assembly { get; set; }
 
         public ExternStruct(string name, TypeInfo f)
         {

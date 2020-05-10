@@ -1,0 +1,10 @@
+var a = 1
+
+#=>2
+if x: Int = a + 1
+	print(x)
+
+
+###start
+
+###end

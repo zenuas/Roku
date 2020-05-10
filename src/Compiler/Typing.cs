@@ -56,6 +56,9 @@ namespace Roku.Compiler
                 case Call x:
                     return ResolveFunctionWithEffect(ns, m, x);
 
+                case IfCastCode x:
+                    return LocalValueInferenceWithEffect(ns, m, x.Name, Lookup.LoadStruct(ns, x.Type.Name));
+
                 case IfCode _:
                 case GotoCode _:
                 case LabelCode _:

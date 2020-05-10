@@ -31,6 +31,8 @@ namespace Roku.Compiler
 
         public static Assembly GetAssembly(ExternFunction e) => e.Assembly ?? GetType(e).Assembly;
 
+        public static Assembly GetAssembly(ExternStruct e) => e.Assembly ?? e.Struct.Assembly;
+
         public static void AssemblyExternEmit(ILWriter il, Assembly[] extern_asms)
         {
             extern_asms.Each(x => il.WriteLine($".assembly extern {x.GetName().Name} {{}}"));
@@ -103,22 +105,24 @@ namespace Roku.Compiler
                     break;
 
                 case Operator.Call:
-                    var call = op.Cast<Call>();
-                    var f = m[call.Function.Function].Struct!.Cast<FunctionMapper>();
-                    var args = call.Function.Arguments.Map(x => LoadValue(m, x)).ToArray();
-                    if (f.Function is ExternFunction fx)
                     {
-                        il.WriteLine(args.Join('\n'));
-                        il.WriteLine($"call {GetILStructName(fx.Function.ReturnType)} [{GetAssembly(fx).GetName().Name}]{GetType(fx).FullName}::{fx.Function.Name}({call.Function.Arguments.Map(a => GetTypeName(m[a], g)).Join(", ")})");
-                    }
-                    else if (f.Function is FunctionBody fb)
-                    {
-                        il.WriteLine(args.Join('\n'));
-                        il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return, g)} {fb.Name}({fb.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")})");
-                    }
-                    else if (f.Function is EmbeddedFunction ef)
-                    {
-                        il.WriteLine(ef.OpCode(args));
+                        var call = op.Cast<Call>();
+                        var f = m[call.Function.Function].Struct!.Cast<FunctionMapper>();
+                        var args = call.Function.Arguments.Map(x => LoadValue(m, x)).ToArray();
+                        if (f.Function is ExternFunction fx)
+                        {
+                            il.WriteLine(args.Join('\n'));
+                            il.WriteLine($"call {GetILStructName(fx.Function.ReturnType)} [{GetAssembly(fx).GetName().Name}]{GetType(fx).FullName}::{fx.Function.Name}({call.Function.Arguments.Map(a => GetTypeName(m[a], g)).Join(", ")})");
+                        }
+                        else if (f.Function is FunctionBody fb)
+                        {
+                            il.WriteLine(args.Join('\n'));
+                            il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return, g)} {fb.Name}({fb.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")})");
+                        }
+                        else if (f.Function is EmbeddedFunction ef)
+                        {
+                            il.WriteLine(ef.OpCode(args));
+                        }
                     }
                     break;
 
@@ -138,6 +142,23 @@ namespace Roku.Compiler
                     il.Indent--;
                     il.WriteLine($"{labels[label]}:");
                     il.Indent++;
+                    break;
+
+                case Operator.IfCast:
+                    {
+                        var ifcast = op.Cast<IfCastCode>();
+                        il.WriteLine(LoadValue(m, ifcast.Condition));
+                        il.WriteLine($"box [System.Runtime]System.Int32");
+                        if (m[ifcast.Name].Struct is ExternStruct sx)
+                        {
+                            il.WriteLine($"isinst [{GetAssembly(sx).GetName().Name}]{sx.Struct.FullName}");
+                            il.WriteLine($"brfalse.s {labels[ifcast.Else]}");
+                            il.WriteLine(LoadValue(m, ifcast.Condition));
+                            il.WriteLine($"box [System.Runtime]System.Int32");
+                            il.WriteLine($"unbox.any [{GetAssembly(sx).GetName().Name}]{sx.Struct.FullName}");
+                            il.WriteLine(StoreValue(m, ifcast.Name));
+                        }
+                    }
                     break;
 
                 default:

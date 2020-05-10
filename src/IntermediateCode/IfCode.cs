@@ -12,6 +12,6 @@
             Else = else_;
         }
 
-        public override string ToString() => $"if {Condition} goto {Else}";
+        public override string ToString() => $"if {Condition} else goto {Else}";
     }
 }

@@ -80,59 +80,47 @@ namespace Roku.Compiler
                         var elseif = if_.ElseIf.Map(x => new LabelCode() { Name = "ElseIf" }).ToArray();
                         var endif = new LabelCode() { Name = "EndIf" };
 
-                        ITypedValue cond;
+                        var next_label =
+                            elseif.Length > 0 ? elseif.First()
+                            : if_.Else is { } ? else_
+                            : endif;
+
                         if (if_ is IfNode ifn)
                         {
-                            cond = NormalizationExpression(scope, ifn.Condition, true);
+                            scope.Body.Add(new IfCode(NormalizationExpression(scope, ifn.Condition, true), next_label));
                         }
                         else
                         {
                             var ifc = if_.Cast<IfCastNode>();
-                            var condx = NormalizationExpression(scope, ifc.Condition, true);
-
-                            var cast = new Cast(condx, new TypeValue(ifc.Declare.Name));
-                            cast.Return = new VariableValue(ifc.Name.Name);
-                            scope.LexicalScope.Add(ifc.Name.Name, cast.Return);
-
-                            var f = new FunctionCallValue(new VariableValue("#is_not_null"));
-                            f.Arguments.Add(cast.Return);
-                            scope.Body.Add(new Call(f) { Return = cond = CreateTemporaryVariable(scope) });
+                            var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), new TypeValue(ifc.Declare.Name), NormalizationExpression(scope, ifc.Condition, true), next_label);
+                            scope.Body.Add(ifcast);
+                            scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
                         }
-
-                        scope.Body.Add(new IfCode(cond,
-                            elseif.Length > 0 ? elseif.First()
-                            : if_.Else is { } ? else_
-                            : endif));
 
                         FunctionBodyDefinition(scope, if_.Then.Statements);
 
                         if_.ElseIf.Each((x, i) =>
                         {
                             scope.Body.Add(new GotoCode(endif));
-
                             scope.Body.Add(elseif[i]);
-                            ITypedValue cond;
+
+                            var next_label =
+                                elseif.Length > i + 1 ? elseif[i + 1]
+                                : if_.Else is { } ? else_
+                                : endif;
+
                             if (x is IfNode ifn)
                             {
-                                cond = NormalizationExpression(scope, ifn.Condition, true);
+                                scope.Body.Add(new IfCode(NormalizationExpression(scope, ifn.Condition, true), next_label));
                             }
                             else
                             {
                                 var ifc = x.Cast<IfCastNode>();
-                                var condx = NormalizationExpression(scope, ifc.Condition, true);
-
-                                var cast = new Cast(condx, new TypeValue(ifc.Declare.Name));
-                                cast.Return = new VariableValue(ifc.Name.Name);
-                                scope.LexicalScope.Add(ifc.Name.Name, cast.Return);
-
-                                var f = new FunctionCallValue(new VariableValue("#is_not_null"));
-                                f.Arguments.Add(cast.Return);
-                                scope.Body.Add(new Call(f) { Return = cond = CreateTemporaryVariable(scope) });
+                                var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), new TypeValue(ifc.Declare.Name), NormalizationExpression(scope, ifc.Condition, true), next_label);
+                                scope.Body.Add(ifcast);
+                                scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
                             }
-                            scope.Body.Add(new IfCode(cond,
-                                elseif.Length > i + 1 ? elseif[i + 1]
-                                : if_.Else is { } ? else_
-                                : endif));
+
                             FunctionBodyDefinition(scope, x.Then.Statements);
                         });
 

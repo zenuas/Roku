@@ -41,12 +41,13 @@ namespace Roku
             var pgm = new Parser.Parser().Parse(lex).Cast<ProgramNode>();
 
             var root = new RootNamespace();
-            _ = Lookup.LoadType(root, "String", typeof(string));
-            _ = Lookup.LoadType(root, "Int", typeof(int));
-            _ = Lookup.LoadType(root, "Long", typeof(long));
-            _ = Lookup.LoadType(root, "Short", typeof(short));
-            _ = Lookup.LoadType(root, "Byte", typeof(byte));
-            _ = Lookup.LoadType(root, "Bool", typeof(bool));
+            var sys_runtime = Assembly.Load("System.Runtime");
+            Lookup.LoadType(root, "String", typeof(string)).Assembly = sys_runtime;
+            Lookup.LoadType(root, "Int", typeof(int)).Assembly = sys_runtime;
+            Lookup.LoadType(root, "Long", typeof(long)).Assembly = sys_runtime;
+            Lookup.LoadType(root, "Short", typeof(short)).Assembly = sys_runtime;
+            Lookup.LoadType(root, "Byte", typeof(byte)).Assembly = sys_runtime;
+            Lookup.LoadType(root, "Bool", typeof(bool)).Assembly = sys_runtime;
             DefineNumericFunction(root, "Int");
             DefineNumericFunction(root, "Long");
             DefineNumericFunction(root, "Short");
@@ -56,8 +57,7 @@ namespace Roku
             root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(long) })!));
             root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(byte) })!));
             root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(bool) })!));
-            root.Functions.Add(new ExternFunction("+", typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) })!) { Assembly = Assembly.Load("System.Runtime") });
-            root.Functions.Add(new EmbeddedFunction("#is_not_null", "Bool", "a") { OpCode = (args) => $"{args[0]}\nldnull\ncgt.un" });
+            root.Functions.Add(new ExternFunction("+", typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) })!) { Assembly = sys_runtime });
 
             var src = Definition.LoadProgram(root, pgm);
             src.Uses.Add(root);

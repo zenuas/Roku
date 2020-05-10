@@ -6,8 +6,8 @@
         Call,
         Bind,
         If,
+        IfCast,
         Goto,
         Label,
-        Cast,
     }
 }
