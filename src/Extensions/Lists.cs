@@ -31,14 +31,7 @@ namespace Extensions
         public static IEnumerable<int> RangeTo(int start, int end) => Enumerable.Range(start, end - start + 1);
 
         [DebuggerHidden]
-        public static IEnumerable<char> RangeTo(char start, char end)
-        {
-            for (var c = start; ; c++)
-            {
-                yield return c;
-                if (c >= end) break;
-            }
-        }
+        public static IEnumerable<char> RangeTo(char start, char end) => Range(start, end - start + 1);
 
         [DebuggerHidden]
         public static IEnumerable<T> Repeat<T>(T x)
