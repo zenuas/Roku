@@ -33,15 +33,9 @@ namespace Roku.Compiler
 
         public static Assembly GetAssembly(ExternStruct e) => e.Assembly ?? e.Struct.Assembly;
 
-        public static void AssemblyExternEmit(ILWriter il, Assembly[] extern_asms)
-        {
-            extern_asms.Each(x => il.WriteLine($".assembly extern {x.GetName().Name} {{}}"));
-        }
+        public static void AssemblyExternEmit(ILWriter il, Assembly[] extern_asms) => extern_asms.Each(x => il.WriteLine($".assembly extern {x.GetName().Name} {{}}"));
 
-        public static void AssemblyNameEmit(ILWriter il, string path)
-        {
-            il.WriteLine($".assembly {Path.GetFileNameWithoutExtension(path)} {{}}");
-        }
+        public static void AssemblyNameEmit(ILWriter il, string path) => il.WriteLine($".assembly {Path.GetFileNameWithoutExtension(path)} {{}}");
 
         public static void AssemblyFunctionEmit(ILWriter il, FunctionBody entrypoint)
         {
