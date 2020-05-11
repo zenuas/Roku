@@ -189,10 +189,7 @@ namespace Roku.Compiler
             return t;
         }
 
-        public static RootNamespace GetRootNamespace(INamespace ns)
-        {
-            return ns is RootNamespace root ? root : GetRootNamespace(ns.Parent!);
-        }
+        public static RootNamespace GetRootNamespace(INamespace ns) => ns is RootNamespace root ? root : GetRootNamespace(ns.Parent!);
 
         public static ExternStruct? LoadTypeWithoutVoid(RootNamespace root, Type t) => LoadTypeWithoutVoid(root, t.GetTypeInfo());
 
