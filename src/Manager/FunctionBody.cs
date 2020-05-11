@@ -13,6 +13,7 @@ namespace Roku.Manager
         public INamespace Namespace { get; }
         public ILexicalScope? Parent { get; } = null;
         public Dictionary<string, ITypedValue> LexicalScope { get; } = new Dictionary<string, ITypedValue>();
+        public int MaxTemporaryValue { get; set; } = 0;
         public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
 
         public FunctionBody(INamespace ns, string name)

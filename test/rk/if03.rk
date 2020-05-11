@@ -3,8 +3,8 @@ var a = 1
 #=>2
 if x: Int = a + a
 	print(x)
-else if y: String = a + a + a
-	print(y)
+else if x: String = a + a + a
+	print(x)
 
 
 ###start
@@ -21,7 +21,7 @@ else if y: String = a + a + a
         [2] int32 x,
         [3] int32 $$3,
         [4] int32 $$2,
-        [5] string y,
+        [5] string x,
         [6] object $cast_box
     )
     

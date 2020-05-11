@@ -84,20 +84,23 @@ namespace Roku.Compiler
                             elseif.Length > 0 ? elseif.First()
                             : if_.Else is { } ? else_
                             : endif;
+                        var inner_scope = new InnerScope(scope);
 
                         if (if_ is IfNode ifn)
                         {
-                            scope.Body.Add(new IfCode(NormalizationExpression(scope, ifn.Condition, true), next_label));
+                            inner_scope.Body.Add(new IfCode(NormalizationExpression(inner_scope, ifn.Condition, true), next_label));
                         }
                         else
                         {
                             var ifc = if_.Cast<IfCastNode>();
-                            var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), new TypeValue(ifc.Declare.Name), NormalizationExpression(scope, ifc.Condition, true), next_label);
-                            scope.Body.Add(ifcast);
-                            scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
+                            var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), new TypeValue(ifc.Declare.Name), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
+                            inner_scope.Body.Add(ifcast);
+                            inner_scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
                         }
 
-                        FunctionBodyDefinition(scope, if_.Then.Statements);
+                        FunctionBodyDefinition(inner_scope, if_.Then.Statements);
+                        scope.Body.AddRange(inner_scope.Body);
+                        scope.MaxTemporaryValue = inner_scope.MaxTemporaryValue;
 
                         if_.ElseIf.Each((x, i) =>
                         {
@@ -108,20 +111,23 @@ namespace Roku.Compiler
                                 elseif.Length > i + 1 ? elseif[i + 1]
                                 : if_.Else is { } ? else_
                                 : endif;
+                            var inner_scope = new InnerScope(scope);
 
                             if (x is IfNode ifn)
                             {
-                                scope.Body.Add(new IfCode(NormalizationExpression(scope, ifn.Condition, true), next_label));
+                                inner_scope.Body.Add(new IfCode(NormalizationExpression(inner_scope, ifn.Condition, true), next_label));
                             }
                             else
                             {
                                 var ifc = x.Cast<IfCastNode>();
-                                var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), new TypeValue(ifc.Declare.Name), NormalizationExpression(scope, ifc.Condition, true), next_label);
-                                scope.Body.Add(ifcast);
-                                scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
+                                var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), new TypeValue(ifc.Declare.Name), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
+                                inner_scope.Body.Add(ifcast);
+                                inner_scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
                             }
 
-                            FunctionBodyDefinition(scope, x.Then.Statements);
+                            FunctionBodyDefinition(inner_scope, x.Then.Statements);
+                            scope.Body.AddRange(inner_scope.Body);
+                            scope.MaxTemporaryValue = inner_scope.MaxTemporaryValue;
                         });
 
                         if (if_.Else is { })
@@ -184,7 +190,7 @@ namespace Roku.Compiler
 
         public static ITypedValue CreateTemporaryVariable(ILexicalScope scope)
         {
-            var max = scope.LexicalScope.Values.By<TemporaryValue>().FoldLeft((r, x) => Math.Max(r, x.Index + 1), 1);
+            var max = ++scope.MaxTemporaryValue;
             var v = new TemporaryValue($"$${max}", max, scope);
             scope.LexicalScope.Add(v.Name, v);
             return v;
