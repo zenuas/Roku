@@ -17,7 +17,11 @@ namespace Roku.Compiler
             var entrypoint = Lookup.AllFunctionBodies(pgms).FindFirst(x => x.Body.Name == "main").Body;
             var externs = Lookup.AllExternFunctions(nss);
             var embedded = Lookup.AllEmbeddedFunctions(nss);
-            var extern_asms = externs.Map(GetAssembly).Concat(embedded.Map(x => x.Assembly()).By<Assembly>()).Unique().ToArray();
+            var extern_structs = Lookup.AllExternStructs(Lookup.GetRootNamespace(body));
+            var extern_asms = externs.Map(GetAssembly)
+                .Concat(embedded.Map(x => x.Assembly())
+                .Concat(extern_structs.Map(GetAssembly))
+                .By<Assembly>()).Unique().ToArray();
 
             using (var il = new ILWriter(path))
             {
@@ -149,20 +153,20 @@ namespace Roku.Compiler
                         {
                             var value_type = m[ifcast.Condition].Struct!.Cast<ExternStruct>();
 
-                            il.WriteLine($"box [{GetAssembly(value_type).GetName().Name}]{value_type.Struct.FullName}");
+                            il.WriteLine($"box {GetILClassName(value_type)}");
                             il.WriteLine(StoreValue(m, m.CastBoxCondition));
                             il.WriteLine(load_cond = LoadValue(m, m.CastBoxCondition));
                         }
 
                         if (m[ifcast.Name].Struct is ExternStruct sx)
                         {
-                            il.WriteLine($"isinst [{GetAssembly(sx).GetName().Name}]{sx.Struct.FullName}");
+                            il.WriteLine($"isinst {GetILClassName(sx)}");
 
                             if (Lookup.IsValueType(m[ifcast.Name].Struct))
                             {
                                 il.WriteLine($"brfalse.s {labels[ifcast.Else]}");
                                 il.WriteLine(load_cond);
-                                il.WriteLine($"unbox.any [{GetAssembly(sx).GetName().Name}]{sx.Struct.FullName}");
+                                il.WriteLine($"unbox.any {GetILClassName(sx)}");
                                 il.WriteLine(StoreValue(m, ifcast.Name));
                             }
                             else
@@ -229,6 +233,9 @@ namespace Roku.Compiler
                             : detail.Index <= byte.MaxValue ? $"ldloc.s {detail.Index}"
                             : $"ldloc {detail.Index}";
                     }
+
+                case ArrayContainer x:
+                    return $"newobj instance void {GetStructName(m[x].Struct)}::.ctor()\n{x.Values.Map(v => "dup\n" + LoadValue(m, v) + $"\ncallvirt instance void {GetStructName(m[x].Struct)}::Add(!0)").Join("\n")}";
             }
             throw new Exception();
         }
@@ -271,12 +278,14 @@ namespace Roku.Compiler
             switch (body)
             {
                 case null: return "void";
-                case ExternStruct x: return GetILStructName(x.Struct);
+                case ExternStruct x: return GetILStructName(x);
             }
             throw new Exception();
         }
 
-        public static string GetILStructName(Type t)
+        public static string GetILStructName(ExternStruct sx) => GetILStructName(sx.Struct, GetAssembly(sx));
+
+        public static string GetILStructName(Type t, Assembly? asm = null)
         {
             if (t == typeof(void)) return "void";
             if (t == typeof(string)) return "string";
@@ -286,7 +295,20 @@ namespace Roku.Compiler
             if (t == typeof(byte)) return "byte";
             if (t == typeof(bool)) return "bool";
             if (t == typeof(object)) return "object";
-            return t.Name;
+            return GetILClassName(t, asm ?? t.Assembly);
+        }
+
+        public static string GetILClassName(ExternStruct sx) => GetILClassName(sx.Struct, GetAssembly(sx));
+
+        public static string GetILClassName(Type t, Assembly asm)
+        {
+            var gen = "";
+            var gens = t.GetGenericArguments();
+            if (gens.Length > 0)
+            {
+                gen = $"<{gens.Map(x => GetILStructName(x)).Join(", ")}>";
+            }
+            return $"{(t.IsValueType ? "" : "class ")}[{asm.GetName().Name}]{t.Namespace}.{t.Name}{gen}";
         }
     }
 }

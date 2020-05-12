@@ -22,6 +22,9 @@ namespace Roku.Parser
         /// <summary>'['</summary>
         __x5B,
 
+        /// <summary>']'</summary>
+        __x5D,
+
         /// <summary>'{'</summary>
         __x7B,
 

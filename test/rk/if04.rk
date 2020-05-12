@@ -57,7 +57,7 @@ _ElseIf1:
     stloc.s 4
     
     ldloc.s 4
-    isinst [System.Runtime]System.String
+    isinst class [System.Runtime]System.String
     stloc.s 5
     ldloc.s 5
     ldnull

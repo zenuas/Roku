@@ -174,6 +174,9 @@ namespace Roku.Compiler
                         x.Arguments.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
                         return call;
                     }
+
+                case ListNode<IEvaluableNode> x:
+                    return new ArrayContainer(x.List.Map(list => NormalizationExpression(scope, list, true)).ToList());
             }
             throw new Exception();
         }

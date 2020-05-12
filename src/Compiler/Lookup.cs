@@ -55,6 +55,8 @@ namespace Roku.Compiler
 
         public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionBody => src.Functions.By<T>();
 
+        public static IEnumerable<ExternStruct> AllExternStructs(RootNamespace root) => root.Structs.By<ExternStruct>();
+
         public static FunctionCaller? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args) => ns is SourceCodeBody src ? FindFunctioInSourceCodeOrNull(src, name, args) : FindFunctionInNamespaceOrNull(ns, name, args);
 
         public static FunctionCaller? FindFunctioInSourceCodeOrNull(SourceCodeBody src, string name, List<IStructBody?> args)
@@ -181,7 +183,7 @@ namespace Roku.Compiler
 
         public static ExternStruct LoadType(RootNamespace root, string name, TypeInfo ti)
         {
-            var st = root.Structs.Where(x => x is ExternStruct && x.Name == name).FirstOrNull();
+            var st = root.Structs.Where(x => x is ExternStruct sx && sx.Struct == ti).FirstOrNull();
             if (st is { }) return st.Cast<ExternStruct>();
 
             var t = new ExternStruct(name, ti);

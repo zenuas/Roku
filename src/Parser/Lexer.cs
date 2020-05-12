@@ -19,6 +19,7 @@ namespace Roku.Parser
             table['.'] = Symbols.__x2E;
             table[':'] = Symbols.__x3A;
             table['['] = Symbols.__x5B;
+            table[']'] = Symbols.__x5D;
             table['{'] = Symbols.__x7B;
             return table;
         }

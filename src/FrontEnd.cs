@@ -49,6 +49,7 @@ namespace Roku
             Lookup.LoadType(root, "Byte", typeof(byte)).Assembly = sys_runtime;
             Lookup.LoadType(root, "Bool", typeof(bool)).Assembly = sys_runtime;
             Lookup.LoadType(root, "Object", typeof(object)).Assembly = sys_runtime;
+            //Lookup.LoadType(root, "ListInt", typeof(List<int>)).Assembly = Assembly.Load("System.Collections");
             DefineNumericFunction(root, "Int");
             DefineNumericFunction(root, "Long");
             DefineNumericFunction(root, "Short");

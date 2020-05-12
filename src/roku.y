@@ -61,10 +61,12 @@ expr : var
      | str
      | num
      | call
+     | '[' list ']'           {$$ = $2;}
      | ope expr %prec UNARY   {$$ = CreateFunctionCallNode($1, $2);}
      | expr nope expr         {$$ = CreateFunctionCallNode($2, $1, $3);}
      | expr LT expr           {$$ = CreateFunctionCallNode($2, $1, $3);}
      | expr GT expr           {$$ = CreateFunctionCallNode($2, $1, $3);}
+     | expr '[' expr ']'      {$$ = CreateFunctionCallNode(CreateVariableNode("[]", $2), $1, $3);}
 
 call : expr '(' list ')' {$$ = CreateFunctionCallNode($1, $3.List.ToArray());}
 
@@ -90,8 +92,9 @@ args   : void           {$$ = CreateListNode<DeclareNode>();}
        | argn extra
 argn   : decla          {$$ = CreateListNode($1);}
        | argn ',' decla {$$ = $1.Return(x => x.List.Add($3));}
-decla  : var ':' type   {$$ = new DeclareNode($1, $3);}
+decla  : var ':' type   {$$ = new DeclareNode($1, $3).R($1);}
 type   : typev
+       | '[' type ']'   {$$ = new TypeArrayNode($2).R($1);}
 typev  : nsvar
 nsvar  : varx           {$$ = new TypeNode { Name = $1.Name }.R($1);}
 typex  : void

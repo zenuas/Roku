@@ -200,6 +200,11 @@ namespace Roku.Compiler
                 case TemporaryValue x:
                     return m[x];
 
+                case ArrayContainer x:
+                    x.Values.Each(value => ToTypedValue(ns, m, value));
+                    m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "ListInt"), VariableType.Type);
+                    return m[x];
+
                 default:
                     throw new Exception();
             }
