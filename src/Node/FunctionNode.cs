@@ -11,5 +11,6 @@ namespace Roku.Node
         public List<DeclareNode> Arguments { get; } = new List<DeclareNode>();
         public List<IStatementNode> Statements { get; } = new List<IStatementNode>();
         public List<FunctionNode> Functions { get; } = new List<FunctionNode>();
+        public List<StructNode> Structs { get; } = new List<StructNode>();
     }
 }

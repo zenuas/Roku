@@ -6,5 +6,6 @@ namespace Roku.Node
     {
         public List<IStatementNode> Statements { get; }
         public List<FunctionNode> Functions { get; }
+        public List<StructNode> Structs { get; }
     }
 }

@@ -52,6 +52,7 @@ stmt : void      {$$ = Scopes.Peek();}
 
 line : call EOL
      | let  EOL
+     | struct    {Scopes.Peek().Structs.Add($1);}
      | sub       {Scopes.Peek().Functions.Add($1);}
      | if
 

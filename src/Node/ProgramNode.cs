@@ -10,5 +10,6 @@ namespace Roku.Node
         public string FileName { get; set; } = "";
         public List<IStatementNode> Statements { get; } = new List<IStatementNode>();
         public List<FunctionNode> Functions { get; } = new List<FunctionNode>();
+        public List<StructNode> Structs { get; } = new List<StructNode>();
     }
 }

@@ -1,0 +1,5 @@
+
+var x = "dummy"
+
+struct Foo
+	var x = 1

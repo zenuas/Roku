@@ -9,5 +9,6 @@ namespace Roku.Node
         public VariableNode Name { get; set; } = new VariableNode();
         public List<IStatementNode> Statements { get; } = new List<IStatementNode>();
         public List<FunctionNode> Functions => throw new System.NotImplementedException();
+        public List<StructNode> Structs => throw new System.NotImplementedException();
     }
 }
