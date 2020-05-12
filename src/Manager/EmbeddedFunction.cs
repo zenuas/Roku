@@ -2,7 +2,6 @@
 using Roku.IntermediateCode;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace Roku.Manager
 {
@@ -12,7 +11,6 @@ namespace Roku.Manager
         public TypeValue? Return { get; set; } = null;
         public List<TypeValue> Arguments { get; } = new List<TypeValue>();
         public Func<string[], string> OpCode { get; set; } = (xs) => "";
-        public Func<Assembly?> Assembly { get; set; } = () => null;
 
         public EmbeddedFunction(string name, string? ret, params string[] args)
         {

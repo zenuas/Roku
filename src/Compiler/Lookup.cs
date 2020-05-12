@@ -186,9 +186,40 @@ namespace Roku.Compiler
             var st = root.Structs.Where(x => x is ExternStruct sx && sx.Struct == ti).FirstOrNull();
             if (st is { }) return st.Cast<ExternStruct>();
 
-            var t = new ExternStruct(name, ti);
+            Assembly? asmx = null;
+            foreach (var asm in root.Assemblies)
+            {
+                var x = GetAssemblyType(asm).FindFirstOrNull(x => x.GetTypeInfo() == ti);
+                if (x is { })
+                {
+                    asmx = asm;
+                    break;
+                }
+            }
+            if (asmx is null) root.Assemblies.Add(asmx = ti.Assembly);
+
+            var t = new ExternStruct(name, ti, asmx);
             root.Structs.Add(t);
             return t;
+        }
+
+        public static IEnumerable<Type> GetAssemblyType(Assembly asm)
+        {
+            foreach (var t in asm.GetTypes())
+            {
+                yield return t;
+            }
+            foreach (var t in asm.GetReferencedAssemblies().Map(Assembly.Load).Map(GetAssemblyType).Flatten())
+            {
+                yield return t;
+            }
+        }
+
+        public static ExternFunction LoadFunction(RootNamespace root, string alias, MethodInfo mi)
+        {
+            var f = new ExternFunction(alias, mi, LoadType(root, mi.DeclaringType!).Assembly);
+            root.Functions.Add(f);
+            return f;
         }
 
         public static RootNamespace GetRootNamespace(INamespace ns) => ns is RootNamespace root ? root : GetRootNamespace(ns.Parent!);

@@ -36,7 +36,7 @@ namespace Roku.Tests
                     {
                         var il = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".il");
                         var txt = File.ReadAllText(src);
-                        FrontEnd.Compile(new StringReader(txt), il);
+                        FrontEnd.Compile(new StringReader(txt), il, new string[] { "System.Runtime" });
 
                         var lines = txt.SplitLine();
                         var start = lines.FindFirstIndex(x => x.StartsWith("###start"));

@@ -10,37 +10,37 @@ namespace Roku.Compiler
 {
     public static class FrontEnd
     {
-        public static void Compile(string input, string output)
+        public static void Compile(string input, string output, string[] asms)
         {
             using var source = new StreamReader(input);
-            Compile(source, output);
+            Compile(source, output, asms);
         }
 
-        public static void Compile(TextReader input, string output)
+        public static void Compile(TextReader input, string output, string[] asms)
         {
             var lex = new Lexer(new SourceCodeReader(input));
             var pgm = new Parser.Parser().Parse(lex).Cast<ProgramNode>();
 
             var root = new RootNamespace();
-            var sys_runtime = Assembly.Load("System.Runtime");
-            Lookup.LoadType(root, "String", typeof(string)).Assembly = sys_runtime;
-            Lookup.LoadType(root, "Int", typeof(int)).Assembly = sys_runtime;
-            Lookup.LoadType(root, "Long", typeof(long)).Assembly = sys_runtime;
-            Lookup.LoadType(root, "Short", typeof(short)).Assembly = sys_runtime;
-            Lookup.LoadType(root, "Byte", typeof(byte)).Assembly = sys_runtime;
-            Lookup.LoadType(root, "Bool", typeof(bool)).Assembly = sys_runtime;
-            Lookup.LoadType(root, "Object", typeof(object)).Assembly = sys_runtime;
-            //Lookup.LoadType(root, "ListInt", typeof(List<int>)).Assembly = Assembly.Load("System.Collections");
+            root.Assemblies.AddRange(asms.Map(Assembly.Load));
+            _ = Lookup.LoadType(root, "String", typeof(string));
+            _ = Lookup.LoadType(root, "Int", typeof(int));
+            _ = Lookup.LoadType(root, "Long", typeof(long));
+            _ = Lookup.LoadType(root, "Short", typeof(short));
+            _ = Lookup.LoadType(root, "Byte", typeof(byte));
+            _ = Lookup.LoadType(root, "Bool", typeof(bool));
+            _ = Lookup.LoadType(root, "Object", typeof(object));
+            //_ = Lookup.LoadType(root, "ListInt", typeof(List<int>));
             DefineNumericFunction(root, "Int");
             DefineNumericFunction(root, "Long");
             DefineNumericFunction(root, "Short");
             DefineNumericFunction(root, "Byte");
-            root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) })!));
-            root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(int) })!));
-            root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(long) })!));
-            root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(byte) })!));
-            root.Functions.Add(new ExternFunction("print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(bool) })!));
-            root.Functions.Add(new ExternFunction("+", typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) })!) { Assembly = sys_runtime });
+            _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) })!);
+            _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(int) })!);
+            _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(long) })!);
+            _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(byte) })!);
+            _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(bool) })!);
+            _ = Lookup.LoadFunction(root, "+", typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) })!);
 
             var src = Definition.LoadProgram(root, pgm);
             src.Uses.Add(root);

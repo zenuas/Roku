@@ -18,10 +18,9 @@ namespace Roku.Compiler
             var externs = Lookup.AllExternFunctions(nss);
             var embedded = Lookup.AllEmbeddedFunctions(nss);
             var extern_structs = Lookup.AllExternStructs(Lookup.GetRootNamespace(body));
-            var extern_asms = externs.Map(GetAssembly)
-                .Concat(embedded.Map(x => x.Assembly())
-                .Concat(extern_structs.Map(GetAssembly))
-                .By<Assembly>()).Unique().ToArray();
+            var extern_asms = externs.Map(x => x.Assembly)
+                .Concat(extern_structs.Map(x => x.Assembly))
+                .By<Assembly>().Unique().ToArray();
 
             using (var il = new ILWriter(path))
             {
@@ -32,10 +31,6 @@ namespace Roku.Compiler
         }
 
         public static Type GetType(ExternFunction e) => e.DeclaringType ?? e.Function.DeclaringType!;
-
-        public static Assembly GetAssembly(ExternFunction e) => e.Assembly ?? GetType(e).Assembly;
-
-        public static Assembly GetAssembly(ExternStruct e) => e.Assembly ?? e.Struct.Assembly;
 
         public static void AssemblyExternEmit(ILWriter il, Assembly[] extern_asms) => extern_asms.Each(x => il.WriteLine($".assembly extern {x.GetName().Name} {{}}"));
 
@@ -110,7 +105,7 @@ namespace Roku.Compiler
                         if (f.Function is ExternFunction fx)
                         {
                             il.WriteLine(args.Join('\n'));
-                            il.WriteLine($"call {GetILStructName(fx.Function.ReturnType)} [{GetAssembly(fx).GetName().Name}]{GetType(fx).FullName}::{fx.Function.Name}({call.Function.Arguments.Map(a => GetTypeName(m[a], g)).Join(", ")})");
+                            il.WriteLine($"call {GetILStructName(fx.Function.ReturnType)} [{fx.Assembly.GetName().Name}]{GetType(fx).FullName}::{fx.Function.Name}({call.Function.Arguments.Map(a => GetTypeName(m[a], g)).Join(", ")})");
                         }
                         else if (f.Function is FunctionBody fb)
                         {
@@ -283,7 +278,7 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static string GetILStructName(ExternStruct sx) => GetILStructName(sx.Struct, GetAssembly(sx));
+        public static string GetILStructName(ExternStruct sx) => GetILStructName(sx.Struct, sx.Assembly);
 
         public static string GetILStructName(Type t, Assembly? asm = null)
         {
@@ -298,7 +293,7 @@ namespace Roku.Compiler
             return GetILClassName(t, asm ?? t.Assembly);
         }
 
-        public static string GetILClassName(ExternStruct sx) => GetILClassName(sx.Struct, GetAssembly(sx));
+        public static string GetILClassName(ExternStruct sx) => GetILClassName(sx.Struct, sx.Assembly);
 
         public static string GetILClassName(Type t, Assembly asm)
         {

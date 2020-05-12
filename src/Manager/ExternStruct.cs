@@ -6,12 +6,13 @@ namespace Roku.Manager
     {
         public string Name { get; }
         public TypeInfo Struct { get; }
-        public Assembly? Assembly { get; set; }
+        public Assembly Assembly { get; }
 
-        public ExternStruct(string name, TypeInfo f)
+        public ExternStruct(string name, TypeInfo f, Assembly asm)
         {
             Name = name;
             Struct = f;
+            Assembly = asm;
         }
 
         public override string ToString() => Name;

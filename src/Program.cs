@@ -8,17 +8,18 @@ namespace Roku
         public static void Main(string[] args)
         {
             var opt = new Option();
+            opt.LoadLibrary("System.Runtime");
 #if DEBUG
             opt.Output = "-";
 #endif
             var xs = CommandLine.Run(opt, args);
             if (xs.Length == 0)
             {
-                Compiler.FrontEnd.Compile(Console.In, opt.Output);
+                Compiler.FrontEnd.Compile(Console.In, opt.Output, opt.Libraries.ToArray());
             }
             else
             {
-                Compiler.FrontEnd.Compile(xs[0], opt.Output);
+                Compiler.FrontEnd.Compile(xs[0], opt.Output, opt.Libraries.ToArray());
             }
         }
     }

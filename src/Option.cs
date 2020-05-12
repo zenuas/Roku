@@ -1,4 +1,5 @@
 ﻿using Command;
+using System.Collections.Generic;
 
 namespace Roku
 {
@@ -12,11 +13,10 @@ namespace Roku
         [LongOption("entrypoint")]
         public string EntryPoint { get; set; } = "";
 
+        public List<string> Libraries { get; set; } = new List<string>();
+
         [ShortOption('l')]
         [LongOption("lib")]
-        public void LoadLibrary(string path)
-        {
-
-        }
+        public void LoadLibrary(string path) => Libraries.Add(path);
     }
 }

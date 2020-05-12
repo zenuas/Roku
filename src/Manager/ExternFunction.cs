@@ -8,12 +8,13 @@ namespace Roku.Manager
         public string Name { get; }
         public MethodInfo Function { get; }
         public Type? DeclaringType { get; set; }
-        public Assembly? Assembly { get; set; }
+        public Assembly Assembly { get; }
 
-        public ExternFunction(string name, MethodInfo f)
+        public ExternFunction(string name, MethodInfo f, Assembly asm)
         {
             Name = name;
             Function = f;
+            Assembly = asm;
         }
 
         public override string ToString() => Name;
