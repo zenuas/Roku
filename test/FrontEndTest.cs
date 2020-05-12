@@ -1,5 +1,6 @@
 ﻿using Extensions;
 using NUnit.Framework;
+using Roku.Compiler;
 using System;
 using System.Collections.Generic;
 using System.IO;
