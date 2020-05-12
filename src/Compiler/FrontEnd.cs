@@ -1,5 +1,4 @@
-﻿using Command;
-using Extensions;
+﻿using Extensions;
 using Roku.Compiler;
 using Roku.Manager;
 using Roku.Node;
@@ -12,23 +11,6 @@ namespace Roku
 {
     public static class FrontEnd
     {
-        public static void Main(string[] args)
-        {
-            var opt = new Option();
-#if DEBUG
-            opt.Output = "-";
-#endif
-            var xs = CommandLine.Run(opt, args);
-            if (xs.Length == 0)
-            {
-                Compile(Console.In, opt.Output);
-            }
-            else
-            {
-                Compile(xs[0], opt.Output);
-            }
-        }
-
         public static void Compile(string input, string output)
         {
             using var source = new StreamReader(input);
