@@ -16,9 +16,11 @@ using Roku.Node;
 %type<DeclareNode>              decla
 %type<ListNode<DeclareNode>>    args argn
 %type<ListNode<IEvaluableNode>> list listn list2n
-%type<TypeNode>                 nsvar type typev
-%type<TypeNode?>                typex
+%type<ITypeNode>                type
+%type<TypeNode>                 nsvar typev
+%type<ITypeNode?>               typex
 %type<IIfNode>                  if ifthen elseif
+%type<StructNode>               struct struct_block
 %type<VariableNode>             var varx fn
 %type<NumericNode>              num
 %type<StringNode>               str
@@ -79,6 +81,21 @@ list2n : expr ',' expr   {$$ = CreateListNode($1, $3);}
 
 ########## let ##########
 let : LET var EQ expr    {$$ = CreateLetNode($2, $4);}
+
+########## struct ##########
+struct : STRUCT var              EOL struct_block {$$ = $4.Return(x => x.Name = $2);}
+#       | STRUCT var LT atvarn GT EOL struct_block {$$ = $7.Return(x => x.Name = $2.Name).Return(x => x.Generics.AddRange($4.List));}
+
+struct_block : struct_begin define END {$$ = Scopes.Pop();}
+struct_begin : BEGIN                   {Scopes.Push(new StructNode().R($1));}
+
+define : void
+       | define LET var ':' type EOL   {Scopes.Peek().Statements.Add(CreateLetNode($3, $5));}
+       | define LET var EQ  expr EOL   {Scopes.Peek().Statements.Add(CreateLetNode($3, $5));}
+#       | define sub
+
+#atvarn : atvar                         {$$ = CreateListNode($1);}
+#       | atvarn ',' atvar              {$$ = $1.Return(x => x.List.Add($3));}
 
 ########## sub ##########
 sub    : SUB fn where '(' args ')' typex EOL sub_block {$$ = CreateFunctionNode($9, $2, $5, $7, $3);}

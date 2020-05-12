@@ -20,11 +20,13 @@ namespace Roku.Parser
 
         public static LetNode CreateLetNode(VariableNode v, IEvaluableNode e) => new LetNode(v, e).R(v);
 
+        public static LetTypeNode CreateLetNode(VariableNode v, ITypeNode t) => new LetTypeNode(v, t).R(v);
+
         public static FunctionNode CreateFunctionNode(
                 FunctionNode fn,
                 VariableNode name,
                 ListNode<DeclareNode> args,
-                TypeNode? ret,
+                ITypeNode? ret,
                 INode where
             )
         {
@@ -36,7 +38,7 @@ namespace Roku.Parser
 
         public static IfNode CreateIfNode(IEvaluableNode cond, IScopeNode then) => new IfNode(cond, then).R(cond);
 
-        public static IfCastNode CreateIfCastNode(VariableNode name, TypeNode declare, IEvaluableNode cond, IScopeNode then) => new IfCastNode(name, declare, cond, then).R(cond);
+        public static IfCastNode CreateIfCastNode(VariableNode name, ITypeNode declare, IEvaluableNode cond, IScopeNode then) => new IfCastNode(name, declare, cond, then).R(cond);
 
         public static IIfNode AddElse(IIfNode if_, IScopeNode else_) => if_.Return(x => x.Else = else_);
 

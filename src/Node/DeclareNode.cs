@@ -5,9 +5,9 @@
         public int? LineNumber { get; set; }
         public int? LineColumn { get; set; }
         public VariableNode Name { get; set; }
-        public TypeNode Type { get; set; }
+        public ITypeNode Type { get; set; }
 
-        public DeclareNode(VariableNode name, TypeNode type)
+        public DeclareNode(VariableNode name, ITypeNode type)
         {
             Name = name;
             Type = type;

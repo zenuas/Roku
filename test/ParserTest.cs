@@ -89,9 +89,9 @@ sub fn(s: String, n: Int)
             Assert.AreEqual(fn.Name.Name, "fn");
             Assert.AreEqual(fn.Arguments.Count, 2);
             Assert.AreEqual(fn.Arguments[0].Name.Name, "s");
-            Assert.AreEqual(fn.Arguments[0].Type.Name, "String");
+            Assert.AreEqual(fn.Arguments[0].Type.Cast<TypeNode>().Name, "String");
             Assert.AreEqual(fn.Arguments[1].Name.Name, "n");
-            Assert.AreEqual(fn.Arguments[1].Type.Name, "Int");
+            Assert.AreEqual(fn.Arguments[1].Type.Cast<TypeNode>().Name, "Int");
 
             Assert.AreEqual(fn.Statements.Count, 1);
             Assert.IsTrue(fn.Statements[0] is LetNode);
@@ -121,9 +121,9 @@ sub fn(
             Assert.AreEqual(fn.Name.Name, "fn");
             Assert.AreEqual(fn.Arguments.Count, 2);
             Assert.AreEqual(fn.Arguments[0].Name.Name, "s");
-            Assert.AreEqual(fn.Arguments[0].Type.Name, "String");
+            Assert.AreEqual(fn.Arguments[0].Type.Cast<TypeNode>().Name, "String");
             Assert.AreEqual(fn.Arguments[1].Name.Name, "n");
-            Assert.AreEqual(fn.Arguments[1].Type.Name, "Int");
+            Assert.AreEqual(fn.Arguments[1].Type.Cast<TypeNode>().Name, "Int");
 
             Assert.AreEqual(fn.Statements.Count, 1);
             Assert.IsTrue(fn.Statements[0] is LetNode);

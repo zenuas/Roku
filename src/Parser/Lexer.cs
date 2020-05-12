@@ -45,6 +45,7 @@ namespace Roku.Parser
             table["OR"] = Symbols.OR;
             table["OR2"] = Symbols.OR2;
             table["STR"] = Symbols.STR;
+            table["STRUCT"] = Symbols.STRUCT;
             table["SUB"] = Symbols.SUB;
             table["THEN"] = Symbols.THEN;
             table["TRUE"] = Symbols.TRUE;

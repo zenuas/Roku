@@ -82,6 +82,9 @@ namespace Roku.Parser
         /// <summary>STR</summary>
         STR,
 
+        /// <summary>STRUCT</summary>
+        STRUCT,
+
         /// <summary>SUB</summary>
         SUB,
 
@@ -120,6 +123,9 @@ namespace Roku.Parser
 
         /// <summary>decla</summary>
         decla,
+
+        /// <summary>define</summary>
+        define,
 
         /// <summary>elseif</summary>
         elseif,
@@ -183,6 +189,15 @@ namespace Roku.Parser
 
         /// <summary>str</summary>
         str,
+
+        /// <summary>struct</summary>
+        @struct,
+
+        /// <summary>struct_begin</summary>
+        struct_begin,
+
+        /// <summary>struct_block</summary>
+        struct_block,
 
         /// <summary>sub</summary>
         sub,

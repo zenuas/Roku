@@ -37,12 +37,12 @@ namespace Roku.Compiler
             pgm.Functions.Each(f =>
                 {
                     var body = MakeFunction(src, f.Name.Name);
-                    if (f.Return is { }) body.Return = create_type(f.Return.Name);
+                    if (f.Return is { }) body.Return = create_type(f.Return.Cast<TypeNode>().Name);
                     f.Arguments.Each(x =>
                         {
                             //var t = Lookup.LoadStruct(src, x.Type.Name);
                             var name = new VariableValue(x.Name.Name);
-                            body.Arguments.Add((name, create_type(x.Type.Name)));
+                            body.Arguments.Add((name, create_type(x.Type.Cast<TypeNode>().Name)));
                             body.LexicalScope.Add(x.Name.Name, name);
                         });
 
@@ -93,7 +93,7 @@ namespace Roku.Compiler
                         else
                         {
                             var ifc = if_.Cast<IfCastNode>();
-                            var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), new TypeValue(ifc.Declare.Name), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
+                            var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), new TypeValue(ifc.Declare.Cast<TypeNode>().Name), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
                             inner_scope.Body.Add(ifcast);
                             inner_scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
                         }
@@ -120,7 +120,7 @@ namespace Roku.Compiler
                             else
                             {
                                 var ifc = x.Cast<IfCastNode>();
-                                var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), new TypeValue(ifc.Declare.Name), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
+                                var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), new TypeValue(ifc.Declare.Cast<TypeNode>().Name), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
                                 inner_scope.Body.Add(ifcast);
                                 inner_scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
                             }

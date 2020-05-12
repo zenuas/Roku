@@ -7,13 +7,13 @@ namespace Roku.Node
         public int? LineNumber { get; set; }
         public int? LineColumn { get; set; }
         public VariableNode Name { get; set; }
-        public TypeNode Declare { get; set; }
+        public ITypeNode Declare { get; set; }
         public IEvaluableNode Condition { get; set; }
         public IScopeNode Then { get; set; }
         public List<IIfNode> ElseIf { get; } = new List<IIfNode>();
         public IScopeNode? Else { get; set; } = null;
 
-        public IfCastNode(VariableNode name, TypeNode declare, IEvaluableNode cond, IScopeNode then)
+        public IfCastNode(VariableNode name, ITypeNode declare, IEvaluableNode cond, IScopeNode then)
         {
             Name = name;
             Declare = declare;
