@@ -1,5 +1,4 @@
 ﻿using Extensions;
-using Roku.Compiler;
 using Roku.Manager;
 using Roku.Node;
 using Roku.Parser;
@@ -7,7 +6,7 @@ using System;
 using System.IO;
 using System.Reflection;
 
-namespace Roku
+namespace Roku.Compiler
 {
     public static class FrontEnd
     {

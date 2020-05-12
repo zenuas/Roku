@@ -14,11 +14,11 @@ namespace Roku
             var xs = CommandLine.Run(opt, args);
             if (xs.Length == 0)
             {
-                FrontEnd.Compile(Console.In, opt.Output);
+                Compiler.FrontEnd.Compile(Console.In, opt.Output);
             }
             else
             {
-                FrontEnd.Compile(xs[0], opt.Output);
+                Compiler.FrontEnd.Compile(xs[0], opt.Output);
             }
         }
     }
