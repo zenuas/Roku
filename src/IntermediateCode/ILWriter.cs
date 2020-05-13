@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace Roku.Compiler
+namespace Roku.IntermediateCode
 {
     public class ILWriter : IDisposable
     {
