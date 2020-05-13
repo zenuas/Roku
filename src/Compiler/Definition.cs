@@ -27,6 +27,21 @@ namespace Roku.Compiler
         {
             var sb = new StructBody(src, sn.Name.Name);
             FunctionBodyDefinition(sb, sn.Statements);
+            sn.Statements.Each(let =>
+                {
+                    switch (let)
+                    {
+                        case LetNode x:
+                            sb.Members.Add(x.Var.Name, sb.LexicalScope[x.Var.Name]);
+                            break;
+
+                        case LetTypeNode x:
+                            break;
+
+                        default:
+                            throw new Exception();
+                    }
+                });
             return sb;
         }
 
