@@ -191,7 +191,7 @@ namespace Roku.Compiler
                     return m[x];
 
                 case StringValue x:
-                    m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "String"), VariableType.Type);
+                    m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "String"), VariableType.PrimitiveValue);
                     return m[x];
 
                 case VariableValue x:
@@ -202,7 +202,7 @@ namespace Roku.Compiler
 
                 case ArrayContainer x:
                     x.Values.Each(value => ToTypedValue(ns, m, value));
-                    m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "ListInt"), VariableType.Type);
+                    m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "ListInt"), VariableType.PrimitiveValue);
                     return m[x];
 
                 default:
@@ -217,7 +217,7 @@ namespace Roku.Compiler
             num.Types.Add(Lookup.LoadStruct(ns, "Long"));
             num.Types.Add(Lookup.LoadStruct(ns, "Short"));
             num.Types.Add(Lookup.LoadStruct(ns, "Byte"));
-            return CreateVariableDetail("", num, VariableType.Type);
+            return CreateVariableDetail("", num, VariableType.PrimitiveValue);
         }
 
         public static VariableDetail CreateVariableDetail(string name, IStructBody? b, VariableType type, int index = 0) => new VariableDetail { Name = name, Struct = b, Type = type, Index = index };

@@ -6,6 +6,7 @@
         Argument,
         TypeParameter,
         Type,
+        PrimitiveValue,
         FunctionMapper,
     }
 }
