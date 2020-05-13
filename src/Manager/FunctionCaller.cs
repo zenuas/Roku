@@ -1,6 +1,4 @@
-﻿using Roku.Manager;
-
-namespace Roku.Compiler
+﻿namespace Roku.Manager
 {
     public class FunctionCaller
     {
