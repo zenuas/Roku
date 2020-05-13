@@ -2,4 +2,4 @@
 var x = "dummy"
 
 struct Foo
-	var x = 1
+	var x = 1 + 2 + 3

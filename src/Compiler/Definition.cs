@@ -20,6 +20,14 @@ namespace Roku.Compiler
 
         public static void TypeDefinition(SourceCodeBody src, ProgramNode pgm)
         {
+            pgm.Structs.Each(x => src.Structs.Add(TypeBodyDefinition(src, x)));
+        }
+
+        public static StructBody TypeBodyDefinition(SourceCodeBody src, StructNode sn)
+        {
+            var sb = new StructBody(src, sn.Name.Name);
+            FunctionBodyDefinition(sb, sn.Statements);
+            return sb;
         }
 
         public static void FunctionDefinition(SourceCodeBody src, ProgramNode pgm)
