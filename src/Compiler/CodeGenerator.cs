@@ -49,9 +49,25 @@ namespace Roku.Compiler
                 il.WriteLine("{");
                 il.Indent++;
                 body.Members.Each(x => il.WriteLine($".field public {GetTypeName(mapper, x.Value, g)} {x.Key}"));
+                il.WriteLine("");
+
+                il.WriteLine($".method public specialname void .ctor()");
+                il.WriteLine("{");
+                il.Indent++;
+                il.WriteLine(".maxstack 8");
+                il.WriteLine("ldarg.0");
+                il.WriteLine("ldc.i4 123456");
+                il.WriteLine($"stfld int32 {body.Name}::x");
+                il.WriteLine("ret");
+                il.Indent--;
+                il.WriteLine("}");
+
                 il.Indent--;
                 il.WriteLine("}");
             });
+            //il.WriteLine("newobj instance void Foo::.ctor()");
+            //il.WriteLine("ldfld int32 Foo::x");
+            //il.WriteLine("call void [System.Console]System.Console::WriteLine(int32)");
         }
 
         public static void AssemblyFunctionEmit(ILWriter il, FunctionBody entrypoint)
