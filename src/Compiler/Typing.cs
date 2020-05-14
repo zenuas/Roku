@@ -25,6 +25,12 @@ namespace Roku.Compiler
         public static bool StructBodyInference(StructBody body)
         {
             var resolved = false;
+            var keys = body.SpecializationMapper.Keys.ToArray();
+            for (var i = 0; i < keys.Length; i++)
+            {
+                var value = body.SpecializationMapper[keys[i]];
+                body.Body.Each(x => resolved = OperandTypeInference(body.Namespace, value, x) || resolved);
+            }
             return resolved;
         }
 

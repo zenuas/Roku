@@ -25,14 +25,15 @@ namespace Roku.Compiler
 
         public static StructBody TypeBodyDefinition(SourceCodeBody src, StructNode sn)
         {
-            var sb = new StructBody(src, sn.Name.Name);
-            FunctionBodyDefinition(sb, sn.Statements);
+            var body = new StructBody(src, sn.Name.Name);
+            body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+            FunctionBodyDefinition(body, sn.Statements);
             sn.Statements.Each(let =>
                 {
                     switch (let)
                     {
                         case LetNode x:
-                            sb.Members.Add(x.Var.Name, sb.LexicalScope[x.Var.Name]);
+                            body.Members.Add(x.Var.Name, body.LexicalScope[x.Var.Name]);
                             break;
 
                         case LetTypeNode x:
@@ -42,7 +43,7 @@ namespace Roku.Compiler
                             throw new Exception();
                     }
                 });
-            return sb;
+            return body;
         }
 
         public static void FunctionDefinition(SourceCodeBody src, ProgramNode pgm)
