@@ -47,11 +47,11 @@ namespace Roku.Compiler
 
         public static IEnumerable<StructBody> AllStructBodies(List<SourceCodeBody> srcs) => srcs.Map(AllStructBodies).Flatten();
 
+        public static IEnumerable<StructBody> AllStructBodies(SourceCodeBody src) => src.Structs.By<StructBody>();
+
         public static IEnumerable<FunctionBody> AllFunctionBodies(List<SourceCodeBody> srcs) => srcs.Map(AllFunctionBodies).Flatten();
 
         public static IEnumerable<FunctionBody> AllFunctionBodies(SourceCodeBody src) => src.Functions.By<FunctionBody>();
-
-        public static IEnumerable<StructBody> AllStructBodies(SourceCodeBody src) => src.Structs.By<StructBody>();
 
         public static IEnumerable<ExternFunction> AllExternFunctions(List<INamespace> srcs) => srcs.Map(AllFunctions<ExternFunction>).Flatten();
 
