@@ -10,13 +10,28 @@ namespace Roku.Compiler
     {
         public static void TypeInference(SourceCodeBody src)
         {
-            Lookup.AllFunctionBodies(Lookup.AllPrograms(src)).Each(x => TypeInference(x.Body));
+            var srcs = Lookup.AllPrograms(src).ToList();
+            Lookup.AllStructBodies(srcs).Each(TypeInference);
+            Lookup.AllFunctionBodies(srcs).Each(TypeInference);
+        }
+
+        public static void TypeInference(StructBody body)
+        {
+            while (StructBodyInference(body)) ;
+            SpecializationNumericDecide(body);
+            while (StructBodyInference(body)) ;
+        }
+
+        public static bool StructBodyInference(StructBody body)
+        {
+            var resolved = false;
+            return resolved;
         }
 
         public static void TypeInference(FunctionBody body)
         {
             while (FunctionBodyInference(body)) ;
-            FunctionBodyNumericDecide(body);
+            SpecializationNumericDecide(body);
             while (FunctionBodyInference(body)) ;
 
             foreach (var mapper in body.SpecializationMapper.Values)
@@ -42,9 +57,9 @@ namespace Roku.Compiler
             return resolved;
         }
 
-        public static void FunctionBodyNumericDecide(FunctionBody body)
+        public static void SpecializationNumericDecide(ISpecialization sp)
         {
-            foreach (var value in body.SpecializationMapper.Values)
+            foreach (var value in sp.SpecializationMapper.Values)
             {
                 var nums = value.Where(x => x.Value.Struct is NumericStruct).ToList();
                 for (var i = 0; i < nums.Count; i++)

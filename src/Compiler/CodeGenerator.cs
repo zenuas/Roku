@@ -14,7 +14,7 @@ namespace Roku.Compiler
         {
             var pgms = Lookup.AllPrograms(body);
             var nss = Lookup.AllNamespaces(body);
-            var entrypoint = Lookup.AllFunctionBodies(pgms).FindFirst(x => x.Body.Name == "main").Body;
+            var entrypoint = Lookup.AllFunctionBodies(pgms).FindFirst(x => x.Name == "main");
             var externs = Lookup.AllExternFunctions(nss);
             var embedded = Lookup.AllEmbeddedFunctions(nss);
             var extern_structs = Lookup.AllExternStructs(Lookup.GetRootNamespace(body));

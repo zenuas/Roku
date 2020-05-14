@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Roku.Manager
 {
-    public class FunctionBody : IFunctionBody, ILexicalScope
+    public class FunctionBody : IFunctionBody, ILexicalScope, ISpecialization
     {
         public string Name { get; }
         public TypeValue? Return { get; set; } = null;
