@@ -15,6 +15,7 @@ namespace Roku.Compiler
             var pgms = Lookup.AllPrograms(body);
             var nss = Lookup.AllNamespaces(body);
             var entrypoint = Lookup.AllFunctionBodies(pgms).FindFirst(x => x.Name == "main");
+            var structs = Lookup.AllStructBodies(pgms);
             var externs = Lookup.AllExternFunctions(nss);
             var embedded = Lookup.AllEmbeddedFunctions(nss);
             var extern_structs = Lookup.AllExternStructs(Lookup.GetRootNamespace(body));
@@ -26,6 +27,7 @@ namespace Roku.Compiler
             {
                 AssemblyExternEmit(il, extern_asms);
                 AssemblyNameEmit(il, path);
+                structs.Each(x => AssemblyStructEmit(il, x));
                 AssemblyFunctionEmit(il, entrypoint);
             }
         }
@@ -35,6 +37,22 @@ namespace Roku.Compiler
         public static void AssemblyExternEmit(ILWriter il, Assembly[] extern_asms) => extern_asms.Each(x => il.WriteLine($".assembly extern {x.GetName().Name} {{}}"));
 
         public static void AssemblyNameEmit(ILWriter il, string path) => il.WriteLine($".assembly {Path.GetFileNameWithoutExtension(path)} {{}}");
+
+        public static void AssemblyStructEmit(ILWriter il, StructBody body)
+        {
+            body.SpecializationMapper.Each(sp =>
+            {
+                var g = sp.Key;
+                var mapper = sp.Value;
+
+                il.WriteLine($".class public {body.Name}");
+                il.WriteLine("{");
+                il.Indent++;
+                body.Members.Each(x => il.WriteLine($".field public {GetTypeName(mapper, x.Value, g)} {x.Key}"));
+                il.Indent--;
+                il.WriteLine("}");
+            });
+        }
 
         public static void AssemblyFunctionEmit(ILWriter il, FunctionBody entrypoint)
         {
