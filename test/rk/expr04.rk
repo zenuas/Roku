@@ -25,7 +25,7 @@ C言語でたまにある二重否定(!!n)と同じことをする場合
 .assembly extern System.Console {}
 .assembly extern System.Runtime {}
 .assembly expr04 {}
-.method public static void main() cil managed
+.method public static void main()
 {
     .entrypoint
     .maxstack 8

@@ -51,7 +51,7 @@ namespace Roku.Compiler
                 body.Members.Each(x => il.WriteLine($".field public {GetTypeName(mapper, x.Value, g)} {x.Key}"));
                 il.WriteLine("");
 
-                il.WriteLine($".method public specialname void .ctor()");
+                il.WriteLine($".method public void .ctor()");
                 il.WriteLine("{");
                 il.Indent++;
                 il.WriteLine(".maxstack 8");
@@ -79,7 +79,7 @@ namespace Roku.Compiler
                 var g = fss[i].GenericsMapper;
                 var mapper = Lookup.GetTypemapper(f.SpecializationMapper, g);
 
-                il.WriteLine($".method public static {GetTypeName(mapper, f.Return, g)} {f.Name}({f.Arguments.Map(a => GetTypeName(mapper[a.Name], g)).Join(", ")}) cil managed");
+                il.WriteLine($".method public static {GetTypeName(mapper, f.Return, g)} {f.Name}({f.Arguments.Map(a => GetTypeName(mapper[a.Name], g)).Join(", ")})");
                 il.WriteLine("{");
                 il.Indent++;
                 if (f == entrypoint) il.WriteLine(".entrypoint");

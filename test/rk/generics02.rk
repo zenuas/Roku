@@ -18,7 +18,7 @@ sub f(x: a) a
 .assembly extern System.Console {}
 .assembly extern System.Runtime {}
 .assembly generics02 {}
-.method public static void main() cil managed
+.method public static void main()
 {
     .entrypoint
     .maxstack 8
@@ -42,7 +42,7 @@ sub f(x: a) a
     call void [System.Console]System.Console::WriteLine(string)
     ret
 }
-.method public static int32 f(int32) cil managed
+.method public static int32 f(int32)
 {
     .maxstack 8
     .locals(
@@ -58,7 +58,7 @@ sub f(x: a) a
     ret
     ret
 }
-.method public static string f(string) cil managed
+.method public static string f(string)
 {
     .maxstack 8
     .locals(

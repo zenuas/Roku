@@ -51,7 +51,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
 .assembly extern System.Console {}
 .assembly extern System.Runtime {}
 .assembly expr03 {}
-.method public static void main() cil managed
+.method public static void main()
 {
     .entrypoint
     .maxstack 8

@@ -8,7 +8,7 @@ print(a)
 .assembly extern System.Console {}
 .assembly extern System.Runtime {}
 .assembly var02 {}
-.method public static void main() cil managed
+.method public static void main()
 {
     .entrypoint
     .maxstack 8

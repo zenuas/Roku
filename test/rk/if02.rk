@@ -34,7 +34,7 @@ sub f(n: Int)
 .assembly extern System.Console {}
 .assembly extern System.Runtime {}
 .assembly if02 {}
-.method public static void main() cil managed
+.method public static void main()
 {
     .entrypoint
     .maxstack 8
@@ -55,7 +55,7 @@ sub f(n: Int)
     call void f(int32)
     ret
 }
-.method public static void f(int32) cil managed
+.method public static void f(int32)
 {
     .maxstack 8
     .locals(

@@ -7,7 +7,7 @@ print(1 + 2)
 .assembly extern System.Console {}
 .assembly extern System.Runtime {}
 .assembly expr01 {}
-.method public static void main() cil managed
+.method public static void main()
 {
     .entrypoint
     .maxstack 8
