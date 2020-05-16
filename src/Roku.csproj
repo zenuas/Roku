@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="cd $(ProjectDir)&#xD;&#xA;make.bat parser" />
+    <Exec Command="cd $(ProjectDir).. &amp; make.bat parser" />
   </Target>
 
 </Project>
