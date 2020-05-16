@@ -1,0 +1,44 @@
+
+struct Foo
+	var x: Int
+
+#=>6
+var v = Foo()
+v.x = 6
+print(v.x)
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly struct02 {}
+.class public Foo
+{
+    .field public int32 x
+    
+    .method public void .ctor()
+    {
+        
+        ret
+    }
+}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] class Foo v
+    )
+    
+    newobj instance void Foo::.ctor()
+    stloc.0
+    
+    ldloc.0
+    ldc.i4.6
+    stfld int32 class Foo::x
+    
+    ldloc.0
+    ldfld int32 class Foo::x
+    call void [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+###end

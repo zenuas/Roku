@@ -184,6 +184,9 @@ namespace Roku.Compiler
                     il.Indent++;
                     break;
 
+                case Operator.TypeBind:
+                    break;
+
                 case Operator.IfCast:
                     {
                         var ifcast = op.Cast<IfCastCode>();
@@ -311,6 +314,9 @@ namespace Roku.Compiler
                         return $"stfld {GetStructName(detail.Struct!)} {GetStructName(m[detail.Reciever!].Struct!)}::{detail.Name}";
                     }
                     break;
+
+                case PropertyValue x:
+                    return $"stfld {GetStructName(m[x].Struct)} {GetStructName(m[x.Left].Struct)}::{x.Right}";
             }
             throw new Exception();
         }

@@ -5,6 +5,7 @@
         Nop,
         Call,
         Bind,
+        TypeBind,
         If,
         IfCast,
         Goto,

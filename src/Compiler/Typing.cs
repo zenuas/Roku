@@ -95,10 +95,18 @@ namespace Roku.Compiler
             switch (op)
             {
                 case Code x when x.Operator == Operator.Bind:
-                    return LocalValueInferenceWithEffect(ns, m, x.Return!, ToTypedValue(ns, m, x.Left!).Struct);
+                    var resolve = false;
+                    if (x.Return is PropertyValue prop)
+                    {
+                        resolve = LocalValueInferenceWithEffect(ns, m, prop, ToTypedValue(ns, m, prop).Struct);
+                    }
+                    return LocalValueInferenceWithEffect(ns, m, x.Return!, ToTypedValue(ns, m, x.Left!).Struct) || resolve;
 
                 case Call x:
                     return ResolveFunctionWithEffect(ns, m, x);
+
+                case TypeBind x:
+                    return LocalValueInferenceWithEffect(ns, m, x.Name, Lookup.LoadStruct(ns, x.Type.Name));
 
                 case IfCastCode x:
                     return LocalValueInferenceWithEffect(ns, m, x.Name, Lookup.LoadStruct(ns, x.Type.Name));
@@ -107,10 +115,8 @@ namespace Roku.Compiler
                 case GotoCode _:
                 case LabelCode _:
                     return false;
-
-                default:
-                    throw new Exception();
             }
+            throw new Exception();
         }
 
         public static bool ResolveFunctionWithEffect(INamespace ns, TypeMapper m, Call call)

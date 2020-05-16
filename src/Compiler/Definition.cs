@@ -37,6 +37,7 @@ namespace Roku.Compiler
                             break;
 
                         case LetTypeNode x:
+                            body.Members.Add(x.Var.Name, body.LexicalScope[x.Var.Name]);
                             break;
 
                         default:
@@ -83,17 +84,31 @@ namespace Roku.Compiler
                 switch (stmt)
                 {
                     case LetNode let:
-                        var v = new VariableValue(let.Var.Name);
-                        scope.LexicalScope.Add(let.Var.Name, v);
-                        var e = NormalizationExpression(scope, let.Expression);
-                        if (e is FunctionCallValue fcall)
                         {
-                            scope.Body.Add(new Call(fcall) { Return = v });
+                            var v = new VariableValue(let.Var.Name);
+                            scope.LexicalScope.Add(let.Var.Name, v);
+                            var e = NormalizationExpression(scope, let.Expression);
+                            if (e is FunctionCallValue fcall)
+                            {
+                                scope.Body.Add(new Call(fcall) { Return = v });
+                            }
+                            else
+                            {
+                                scope.Body.Add(new Code { Operator = Operator.Bind, Return = v, Left = e });
+                            }
                         }
-                        else
+                        break;
+
+                    case LetTypeNode let:
                         {
-                            scope.Body.Add(new Code { Operator = Operator.Bind, Return = v, Left = e });
+                            var v = new VariableValue(let.Var.Name);
+                            scope.LexicalScope.Add(let.Var.Name, v);
+                            scope.Body.Add(new TypeBind(v, new TypeValue(let.Type.Cast<TypeNode>().Name)));
                         }
+                        break;
+
+                    case LetPropertyNode let:
+                        scope.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(NormalizationExpression(scope, let.Left, true), let.Right.Name), Left = NormalizationExpression(scope, let.Expression, true) });
                         break;
 
                     case FunctionCallNode call:

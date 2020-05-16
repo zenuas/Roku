@@ -82,7 +82,8 @@ list2n : expr ',' expr   {$$ = CreateListNode($1, $3);}
        | list2n ',' expr {$$ = $1.Return(x => x.List.Add($3));}
 
 ########## let ##########
-let : LET var EQ expr    {$$ = CreateLetNode($2, $4);}
+let : LET var EQ expr       {$$ = CreateLetNode($2, $4);}
+    | expr '.' fvar EQ expr {$$ = CreateLetNode($1, $3, $5);}
 
 ########## struct ##########
 struct : STRUCT var              EOL struct_block {$$ = $4.Return(x => x.Name = $2);}

@@ -24,6 +24,8 @@ namespace Roku.Parser
 
         public static LetNode CreateLetNode(VariableNode v, IEvaluableNode e) => new LetNode(v, e).R(v);
 
+        public static LetPropertyNode CreateLetNode(IEvaluableNode left, VariableNode right, IEvaluableNode e) => new LetPropertyNode(left, right, e).R(right);
+
         public static LetTypeNode CreateLetNode(VariableNode v, ITypeNode t) => new LetTypeNode(v, t).R(v);
 
         public static FunctionNode CreateFunctionNode(
