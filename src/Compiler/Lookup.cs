@@ -177,7 +177,7 @@ namespace Roku.Compiler
             }
         }
 
-        public static IEnumerable<LabelCode> AllLabels(FunctionBody f) => f.Body.By<LabelCode>().Unique();
+        public static IEnumerable<LabelCode> AllLabels(List<IOperand> ops) => ops.By<LabelCode>().Unique();
 
         public static ExternStruct LoadType(RootNamespace root, Type t) => LoadType(root, t.Name, t);
 

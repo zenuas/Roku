@@ -3,3 +3,49 @@ var x = "dummy"
 
 struct Foo
 	var x = 1 + 2 + 3
+
+###
+構造体コンストラクタに未対応
+コンストラクタ内部のコード生成に対応
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly struct01 {}
+.class public Foo
+{
+    .field public int32 x
+    
+    .method public void .ctor()
+    {
+        .locals(
+            [0] int32 $$1
+        )
+        
+        ldc.i4.1
+        ldc.i4.2
+        add
+        stloc.0
+        
+        ldarg.0
+        ldloc.0
+        ldc.i4.3
+        add
+        stfld int32 Foo::x
+        ret
+    }
+}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] string x
+    )
+    
+    ldstr "dummy"
+    stloc.0
+    ret
+}
+###end

@@ -7,6 +7,7 @@
         TypeParameter,
         Type,
         PrimitiveValue,
+        Property,
         FunctionMapper,
     }
 }

@@ -54,10 +54,21 @@ namespace Roku.Compiler
                 il.WriteLine($".method public void .ctor()");
                 il.WriteLine("{");
                 il.Indent++;
-                il.WriteLine(".maxstack 8");
-                il.WriteLine("ldarg.0");
-                il.WriteLine("ldc.i4 123456");
-                il.WriteLine($"stfld int32 {body.Name}::x");
+                var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable).Sort((a, b) => a.Index - b.Index).ToList();
+                if (local_vals.Count > 0)
+                {
+                    il.WriteLine(".locals(");
+                    il.Indent++;
+                    il.WriteLine(local_vals.Map(x => $"[{x.Index}] {GetTypeName(x, g)} {x.Name}").Join(",\n"));
+                    il.Indent--;
+                    il.WriteLine(")");
+                }
+                var labels = Lookup.AllLabels(body.Body).Zip(Lists.Sequence(1)).ToDictionary(x => x.First, x => $"_{x.First.Name}{x.Second}");
+                body.Body.Each(x =>
+                {
+                    //if (x is Call call) CallToAddEmitFunctionList(call, fss);
+                    AssemblyOperandEmit(il, x, mapper, labels, g);
+                });
                 il.WriteLine("ret");
                 il.Indent--;
                 il.WriteLine("}");
@@ -93,11 +104,11 @@ namespace Roku.Compiler
                     il.Indent--;
                     il.WriteLine(")");
                 }
-                var labels = Lookup.AllLabels(f).Zip(Lists.Sequence(1)).ToDictionary(x => x.First, x => $"_{x.First.Name}{x.Second}");
+                var labels = Lookup.AllLabels(f.Body).Zip(Lists.Sequence(1)).ToDictionary(x => x.First, x => $"_{x.First.Name}{x.Second}");
                 f.Body.Each(x =>
                 {
                     if (x is Call call) CallToAddEmitFunctionList(call, fss);
-                    AssemblyOperandEmit(f, il, x, mapper, labels, g);
+                    AssemblyOperandEmit(il, x, mapper, labels, g);
                 });
                 il.WriteLine("ret");
                 il.Indent--;
@@ -121,9 +132,14 @@ namespace Roku.Compiler
             return left.GenericsMapper.Keys.And(x => left.GenericsMapper[x] == right.GenericsMapper[x]);
         }
 
-        public static void AssemblyOperandEmit(FunctionBody body, ILWriter il, IOperand op, TypeMapper m, Dictionary<LabelCode, string> labels, GenericsMapper g)
+        public static void AssemblyOperandEmit(ILWriter il, IOperand op, TypeMapper m, Dictionary<LabelCode, string> labels, GenericsMapper g)
         {
             il.WriteLine();
+            if (op is IReturnBind prop && prop.Return is { } && m[prop.Return].Type == VariableType.Property)
+            {
+                il.WriteLine(LoadValue(m, m[prop.Return].Reciever!));
+            }
+
             switch (op.Operator)
             {
                 case Operator.Bind:
@@ -283,13 +299,18 @@ namespace Roku.Compiler
                             : detail.Index <= byte.MaxValue ? $"starg.s {detail.Index}"
                             : $"starg {detail.Index}";
                     }
-                    else
+                    else if (detail.Type == VariableType.LocalVariable)
                     {
                         return
                             detail.Index <= 3 ? $"stloc.{detail.Index}"
                             : detail.Index <= byte.MaxValue ? $"stloc.s {detail.Index}"
                             : $"stloc {detail.Index}";
                     }
+                    else if (detail.Type == VariableType.Property)
+                    {
+                        return $"stfld {GetStructName(detail.Struct!)} {GetStructName(m[detail.Reciever!].Struct!)}::{detail.Name}";
+                    }
+                    break;
             }
             throw new Exception();
         }
@@ -308,6 +329,7 @@ namespace Roku.Compiler
             {
                 case null: return "void";
                 case ExternStruct x: return GetILStructName(x);
+                case StructBody x: return x.Name;
             }
             throw new Exception();
         }

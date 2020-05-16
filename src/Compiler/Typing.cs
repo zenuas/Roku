@@ -20,6 +20,21 @@ namespace Roku.Compiler
             while (StructBodyInference(body)) ;
             SpecializationNumericDecide(body);
             while (StructBodyInference(body)) ;
+
+            var self = new VariableValue("$self");
+            foreach (var mapper in body.SpecializationMapper.Values)
+            {
+                body.LexicalScope.Add(self.Name, self);
+                mapper[self] = CreateVariableDetail(self.Name, body, VariableType.Argument, 0);
+
+                body.Members.Values.Each(x =>
+                {
+                    var d = mapper[x];
+                    d.Type = VariableType.Property;
+                    d.Reciever = self;
+                    d.Index = 0;
+                });
+            }
         }
 
         public static bool StructBodyInference(StructBody body)
