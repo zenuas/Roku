@@ -236,14 +236,30 @@ namespace Roku.Compiler
                 case TemporaryValue x:
                     return m[x];
 
+                case PropertyValue x:
+                    _ = ToTypedValue(ns, m, x.Left);
+                    var prop = m[x] = CreateVariableDetail(x.Right, GetPropertyType(ns, m, x.Left, x.Right), VariableType.Property);
+                    prop.Reciever = x.Left;
+                    return m[x];
+
                 case ArrayContainer x:
                     x.Values.Each(value => ToTypedValue(ns, m, value));
                     m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "ListInt"), VariableType.PrimitiveValue);
                     return m[x];
-
-                default:
-                    throw new Exception();
             }
+            throw new Exception();
+        }
+
+        public static IStructBody? GetPropertyType(INamespace ns, TypeMapper m, ITypedValue receiver, string property)
+        {
+            var left = m[receiver].Struct;
+            switch (left)
+            {
+                case StructBody x:
+                    if (x.Members.ContainsKey(property)) return x.SpecializationMapper.First().Value[x.Members[property]].Struct;
+                    break;
+            }
+            return null;
         }
 
         public static VariableDetail CreateNumericType(INamespace ns)

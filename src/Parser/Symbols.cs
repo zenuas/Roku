@@ -139,6 +139,9 @@ namespace Roku.Parser
         /// <summary>fn</summary>
         fn,
 
+        /// <summary>fvar</summary>
+        fvar,
+
         /// <summary>if</summary>
         @if,
 

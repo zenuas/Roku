@@ -1,13 +1,10 @@
 
-var x = "dummy"
-
 struct Foo
 	var x = 1 + 2 + 3
 
-###
-構造体コンストラクタに未対応
-コンストラクタ内部のコード生成に対応
-###
+#=>6
+var v = Foo()
+print(v.x)
 
 ###start
 .assembly extern System.Console {}
@@ -32,7 +29,7 @@ struct Foo
         ldloc.0
         ldc.i4.3
         add
-        stfld int32 Foo::x
+        stfld int32 class Foo::x
         ret
     }
 }
@@ -41,11 +38,15 @@ struct Foo
     .entrypoint
     .maxstack 8
     .locals(
-        [0] string x
+        [0] class Foo v
     )
     
-    ldstr "dummy"
+    newobj instance void Foo::.ctor()
     stloc.0
+    
+    ldloc.0
+    ldfld int32 class Foo::x
+    call void [System.Console]System.Console::WriteLine(int32)
     ret
 }
 ###end

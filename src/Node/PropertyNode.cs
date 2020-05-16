@@ -1,6 +1,6 @@
 ﻿namespace Roku.Node
 {
-    public class PropertyNode : INode
+    public class PropertyNode : INode, IEvaluableNode
     {
         public int? LineNumber { get; set; }
         public int? LineColumn { get; set; }

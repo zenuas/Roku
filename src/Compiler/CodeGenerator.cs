@@ -76,9 +76,6 @@ namespace Roku.Compiler
                 il.Indent--;
                 il.WriteLine("}");
             });
-            //il.WriteLine("newobj instance void Foo::.ctor()");
-            //il.WriteLine("ldfld int32 Foo::x");
-            //il.WriteLine("call void [System.Console]System.Console::WriteLine(int32)");
         }
 
         public static void AssemblyFunctionEmit(ILWriter il, FunctionBody entrypoint)
@@ -279,6 +276,9 @@ namespace Roku.Compiler
                             : $"ldloc {detail.Index}";
                     }
 
+                case PropertyValue x:
+                    return $"{LoadValue(m, x.Left)}\nldfld {GetStructName(m[x].Struct)} {GetStructName(m[x.Left].Struct)}::{x.Right}";
+
                 case ArrayContainer x:
                     return $"newobj instance void {GetStructName(m[x].Struct)}::.ctor()\n{x.Values.Map(v => "dup\n" + LoadValue(m, v) + $"\ncallvirt instance void {GetStructName(m[x].Struct)}::Add(!0)").Join("\n")}";
             }
@@ -329,7 +329,7 @@ namespace Roku.Compiler
             {
                 case null: return "void";
                 case ExternStruct x: return GetILStructName(x);
-                case StructBody x: return x.Name;
+                case StructBody x: return $"class {x.Name}";
             }
             throw new Exception();
         }

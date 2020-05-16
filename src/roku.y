@@ -21,7 +21,7 @@ using Roku.Node;
 %type<ITypeNode?>               typex
 %type<IIfNode>                  if ifthen elseif
 %type<StructNode>               struct struct_block
-%type<VariableNode>             var varx fn
+%type<VariableNode>             var varx fvar fn
 %type<NumericNode>              num
 %type<StringNode>               str
 
@@ -65,6 +65,7 @@ expr : var
      | num
      | call
      | '[' list ']'           {$$ = $2;}
+     | expr '.' fvar          {$$ = CreatePropertyNode($1, $3).R($2);}
      | ope expr %prec UNARY   {$$ = CreateFunctionCallNode($1, $2);}
      | expr nope expr         {$$ = CreateFunctionCallNode($2, $1, $3);}
      | expr LT expr           {$$ = CreateFunctionCallNode($2, $1, $3);}
@@ -138,6 +139,8 @@ varx   : var
        | IF      {$$ = CreateVariableNode($1);}
        | THEN    {$$ = CreateVariableNode($1);}
        | ELSE    {$$ = CreateVariableNode($1);}
+fvar   : varx
+       | NUM     {$$ = CreateVariableNode($1.Format).R($1);}
 num    : NUM     {$$ = $1;}
 str    : STR     {$$ = new StringNode { Value = $1.Name }.R($1);}
        | str STR {$$ = $1.Return(x => x.Value += $2.Name);}

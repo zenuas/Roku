@@ -43,6 +43,7 @@ namespace Roku.Compiler
                             throw new Exception();
                     }
                 });
+            src.Functions.Add(new EmbeddedFunction(sn.Name.Name, sn.Name.Name) { OpCode = (args) => $"newobj instance void {sn.Name.Name}::.ctor()" });
             return body;
         }
 
@@ -198,6 +199,9 @@ namespace Roku.Compiler
                         x.Arguments.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
                         return call;
                     }
+
+                case PropertyNode x:
+                    return new PropertyValue(NormalizationExpression(scope, x.Left, true), x.Right.Name);
 
                 case ListNode<IEvaluableNode> x:
                     return new ArrayContainer(x.List.Map(list => NormalizationExpression(scope, list, true)).ToList());
