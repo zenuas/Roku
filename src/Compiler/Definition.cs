@@ -108,7 +108,7 @@ namespace Roku.Compiler
                         break;
 
                     case LetPropertyNode let:
-                        scope.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(NormalizationExpression(scope, let.Left, true), let.Right.Name), Left = NormalizationExpression(scope, let.Expression, true) });
+                        scope.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(NormalizationExpression(scope, let.Reciever, true), let.Name.Name), Left = NormalizationExpression(scope, let.Expression, true) });
                         break;
 
                     case FunctionCallNode call:

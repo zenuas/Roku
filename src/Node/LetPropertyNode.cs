@@ -4,14 +4,14 @@
     {
         public int? LineNumber { get; set; }
         public int? LineColumn { get; set; }
-        public IEvaluableNode Left { get; }
-        public VariableNode Right { get; }
+        public IEvaluableNode Reciever { get; }
+        public VariableNode Name { get; }
         public IEvaluableNode Expression { get; set; }
 
-        public LetPropertyNode(IEvaluableNode left, VariableNode right, IEvaluableNode e)
+        public LetPropertyNode(IEvaluableNode recv, VariableNode name, IEvaluableNode e)
         {
-            Left = left;
-            Right = right;
+            Reciever = recv;
+            Name = name;
             Expression = e;
         }
     }
