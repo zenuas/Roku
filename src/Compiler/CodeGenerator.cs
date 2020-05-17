@@ -27,8 +27,10 @@ namespace Roku.Compiler
             {
                 AssemblyExternEmit(il, extern_asms);
                 AssemblyNameEmit(il, path);
-                structs.Each(x => AssemblyStructEmit(il, x));
-                AssemblyFunctionEmit(il, entrypoint);
+
+                var fss = new List<FunctionCaller>() { new FunctionCaller(entrypoint, new GenericsMapper()) };
+                structs.Each(x => AssemblyStructEmit(il, x, fss));
+                AssemblyFunctionEmit(il, fss);
             }
         }
 
@@ -38,7 +40,7 @@ namespace Roku.Compiler
 
         public static void AssemblyNameEmit(ILWriter il, string path) => il.WriteLine($".assembly {Path.GetFileNameWithoutExtension(path)} {{}}");
 
-        public static void AssemblyStructEmit(ILWriter il, StructBody body)
+        public static void AssemblyStructEmit(ILWriter il, StructBody body, List<FunctionCaller> fss)
         {
             body.SpecializationMapper.Each(sp =>
             {
@@ -66,7 +68,7 @@ namespace Roku.Compiler
                 var labels = Lookup.AllLabels(body.Body).Zip(Lists.Sequence(1)).ToDictionary(x => x.First, x => $"_{x.First.Name}{x.Second}");
                 body.Body.Each(x =>
                 {
-                    //if (x is Call call) CallToAddEmitFunctionList(call, fss);
+                    if (x is Call call) CallToAddEmitFunctionList(call, fss);
                     AssemblyOperandEmit(il, x, mapper, labels, g);
                 });
                 il.WriteLine("ret");
@@ -78,9 +80,8 @@ namespace Roku.Compiler
             });
         }
 
-        public static void AssemblyFunctionEmit(ILWriter il, FunctionBody entrypoint)
+        public static void AssemblyFunctionEmit(ILWriter il, List<FunctionCaller> fss)
         {
-            var fss = new List<FunctionCaller>() { new FunctionCaller(entrypoint, new GenericsMapper()) };
             for (var i = 0; i < fss.Count; i++)
             {
                 var f = fss[i].Body.Cast<FunctionBody>();
@@ -90,7 +91,7 @@ namespace Roku.Compiler
                 il.WriteLine($".method public static {GetTypeName(mapper, f.Return, g)} {f.Name}({f.Arguments.Map(a => GetTypeName(mapper[a.Name], g)).Join(", ")})");
                 il.WriteLine("{");
                 il.Indent++;
-                if (f == entrypoint) il.WriteLine(".entrypoint");
+                if (i == 0) il.WriteLine(".entrypoint");
                 il.WriteLine(".maxstack 8");
                 var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable).Sort((a, b) => a.Index - b.Index).ToList();
                 if (local_vals.Count > 0)

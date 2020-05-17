@@ -1,0 +1,95 @@
+
+sub f(x: a) a
+	return(x + x)
+
+struct Foo
+	var x = f(1)
+	var y = f("a")
+
+#=>2
+#=>aa
+var v = Foo()
+print(v.x)
+print(v.y)
+
+###
+構造体コンストラクタでジェネリック関数を呼び出す
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly struct03 {}
+.class public Foo
+{
+    .field public int32 x
+    .field public string y
+    
+    .method public void .ctor()
+    {
+        
+        ldarg.0
+        ldc.i4.1
+        call int32 f(int32)
+        stfld int32 class Foo::x
+        
+        ldarg.0
+        ldstr "a"
+        call string f(string)
+        stfld string class Foo::y
+        ret
+    }
+}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] class Foo v
+    )
+    
+    newobj instance void Foo::.ctor()
+    stloc.0
+    
+    ldloc.0
+    ldfld int32 class Foo::x
+    call void [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.0
+    ldfld string class Foo::y
+    call void [System.Console]System.Console::WriteLine(string)
+    ret
+}
+.method public static int32 f(int32)
+{
+    .maxstack 8
+    .locals(
+        [0] int32 $$1
+    )
+    
+    ldarg.0
+    ldarg.0
+    add
+    stloc.0
+    
+    ldloc.0
+    ret
+    ret
+}
+.method public static string f(string)
+{
+    .maxstack 8
+    .locals(
+        [0] string $$1
+    )
+    
+    ldarg.0
+    ldarg.0
+    call string [System.Runtime]System.String::Concat(string, string)
+    stloc.0
+    
+    ldloc.0
+    ret
+    ret
+}
+###end
