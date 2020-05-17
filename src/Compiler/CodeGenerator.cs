@@ -23,15 +23,13 @@ namespace Roku.Compiler
                 .Concat(extern_structs.Map(x => x.Assembly))
                 .By<Assembly>().Unique().ToArray();
 
-            using (var il = new ILWriter(path))
-            {
-                AssemblyExternEmit(il, extern_asms);
-                AssemblyNameEmit(il, path);
+            using var il = new ILWriter(path);
+            AssemblyExternEmit(il, extern_asms);
+            AssemblyNameEmit(il, path);
 
-                var fss = new List<FunctionCaller>() { new FunctionCaller(entrypoint, new GenericsMapper()) };
-                structs.Each(x => AssemblyStructEmit(il, x, fss));
-                AssemblyFunctionEmit(il, fss);
-            }
+            var fss = new List<FunctionCaller>() { new FunctionCaller(entrypoint, new GenericsMapper()) };
+            structs.Each(x => AssemblyStructEmit(il, x, fss));
+            AssemblyFunctionEmit(il, fss);
         }
 
         public static Type GetType(ExternFunction e) => e.DeclaringType ?? e.Function.DeclaringType!;
