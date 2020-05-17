@@ -1,0 +1,22 @@
+
+struct Foo<a>
+	var x: a
+
+#=>2
+var v = Foo<Int>()
+v.x = 2
+print(v.x)
+
+
+#=>aa
+var w = Foo<String>()
+w.x = "aa"
+print(w.x)
+
+###
+ジェネリック構造体のコンストラクタを呼び出す
+###
+
+###start
+
+###end

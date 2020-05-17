@@ -26,7 +26,6 @@ namespace Roku.Compiler
         public static StructBody TypeBodyDefinition(SourceCodeBody src, StructNode sn)
         {
             var body = new StructBody(src, sn.Name.Name);
-            body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
             FunctionBodyDefinition(body, sn.Statements);
             sn.Statements.Each(let =>
                 {
@@ -44,7 +43,11 @@ namespace Roku.Compiler
                             throw new Exception();
                     }
                 });
-            src.Functions.Add(new EmbeddedFunction(sn.Name.Name, sn.Name.Name) { OpCode = (args) => $"newobj instance void {sn.Name.Name}::.ctor()" });
+            if (sn.Generics.Count == 0)
+            {
+                body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+                src.Functions.Add(new EmbeddedFunction(sn.Name.Name, sn.Name.Name) { OpCode = (args) => $"newobj instance void {sn.Name.Name}::.ctor()" });
+            }
             return body;
         }
 
@@ -58,7 +61,7 @@ namespace Roku.Compiler
             }
 
             var types = new Dictionary<string, TypeValue>();
-            TypeValue create_type(string s) => types.ContainsKey(s) ? types[s] : new TypeValue(s) { Types = char.IsLower(s.First()) ? Types.Generics : Types.Struct }.Return(x => types[s] = x);
+            TypeValue create_type(string s) => types.ContainsKey(s) ? types[s] : new TypeValue(s).Return(x => types[s] = x);
 
             pgm.Functions.Each(f =>
                 {
@@ -207,8 +210,9 @@ namespace Roku.Compiler
                     }
                     else
                     {
-                        var call = x.Expression is PropertyNode prop
-                            ? new FunctionCallValue(new VariableValue(prop.Right.Name)) { FirstLookup = NormalizationExpression(scope, prop.Left) }
+                        var call =
+                            x.Expression is PropertyNode prop ? new FunctionCallValue(new VariableValue(prop.Right.Name)) { FirstLookup = NormalizationExpression(scope, prop.Left) }
+                            : x.Expression is TypeGenericsNode gen ? new FunctionCallValue(CreateTypeGenerics(gen))
                             : new FunctionCallValue(new VariableValue(GetName(x.Expression)));
 
                         x.Arguments.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
@@ -222,6 +226,18 @@ namespace Roku.Compiler
                     return new ArrayContainer(x.List.Map(list => NormalizationExpression(scope, list, true)).ToList());
             }
             throw new Exception();
+        }
+
+        public static TypeGenericsValue CreateTypeGenerics(TypeGenericsNode gen)
+        {
+            var g = new TypeGenericsValue(gen.Name);
+            gen.Generics.Map(x => x switch
+            {
+                TypeNode t => (ITypeDefinition)new TypeValue(t.Name),
+                TypeGenericsNode t => CreateTypeGenerics(t),
+                _ => throw new Exception(),
+            }).Each(x => g.Generics.Add(x));
+            return g;
         }
 
         public static string GetName(IEvaluableNode node)

@@ -16,7 +16,8 @@ using Roku.Node;
 %type<DeclareNode>              decla
 %type<ListNode<DeclareNode>>    args argn
 %type<ListNode<IEvaluableNode>> list listn list2n
-%type<ITypeNode>                type
+%type<ITypeNode>                type gen
+%type<ListNode<ITypeNode>>      typen genn
 %type<TypeNode>                 nsvar typev
 %type<ITypeNode?>               typex
 %type<IIfNode>                  if ifthen elseif
@@ -40,6 +41,7 @@ using Roku.Node;
 %left  ','
 %left  '(' '[' '{'
 %left  EOL
+%right TYPE_PARAM
 
 %%
 
@@ -64,13 +66,15 @@ expr : var
      | str
      | num
      | call
-     | '[' list ']'           {$$ = $2;}
-     | expr '.' fvar          {$$ = CreatePropertyNode($1, $3).R($2);}
-     | ope expr %prec UNARY   {$$ = CreateFunctionCallNode($1, $2);}
-     | expr nope expr         {$$ = CreateFunctionCallNode($2, $1, $3);}
-     | expr LT expr           {$$ = CreateFunctionCallNode($2, $1, $3);}
-     | expr GT expr           {$$ = CreateFunctionCallNode($2, $1, $3);}
-     | expr '[' expr ']'      {$$ = CreateFunctionCallNode(CreateVariableNode("[]", $2), $1, $3);}
+     | '[' list ']'                               {$$ = $2;}
+     | expr '.' fvar                              {$$ = CreatePropertyNode($1, $3).R($2);}
+     | ope expr %prec UNARY                       {$$ = CreateFunctionCallNode($1, $2);}
+     | expr nope expr                             {$$ = CreateFunctionCallNode($2, $1, $3);}
+     | expr LT expr                               {$$ = CreateFunctionCallNode($2, $1, $3);}
+     | expr GT expr                               {$$ = CreateFunctionCallNode($2, $1, $3);}
+     | expr LT expr GT           %prec TYPE_PARAM {$$ = ExpressionToType($1, $3);}
+     | expr LT expr ',' typen GT %prec TYPE_PARAM {$$ = ExpressionToType($1, $3, $5.List.ToArray());}
+     | expr '[' expr ']'                          {$$ = CreateFunctionCallNode(CreateVariableNode("[]", $2), $1, $3);}
 
 call : expr '(' list ')' {$$ = CreateFunctionCallNode($1, $3.List.ToArray());}
 
@@ -86,8 +90,8 @@ let : LET var EQ expr       {$$ = CreateLetNode($2, $4);}
     | expr '.' fvar EQ expr {$$ = CreateLetNode($1, $3, $5);}
 
 ########## struct ##########
-struct : STRUCT var              EOL struct_block {$$ = $4.Return(x => x.Name = $2);}
-#       | STRUCT var LT atvarn GT EOL struct_block {$$ = $7.Return(x => x.Name = $2.Name).Return(x => x.Generics.AddRange($4.List));}
+struct : STRUCT var            EOL struct_block {$$ = $4.Return(x => x.Name = $2);}
+       | STRUCT var LT genn GT EOL struct_block {$$ = $7.Return(x => x.Name = $2).Return(x => x.Generics.AddRange($4.List));}
 
 struct_block : struct_begin define END {$$ = Scopes.Pop();}
 struct_begin : BEGIN                   {Scopes.Push(new StructNode().R($1));}
@@ -97,8 +101,9 @@ define : void
        | define LET var EQ  expr EOL   {Scopes.Peek().Statements.Add(CreateLetNode($3, $5));}
 #       | define sub
 
-#atvarn : atvar                         {$$ = CreateListNode($1);}
-#       | atvarn ',' atvar              {$$ = $1.Return(x => x.List.Add($3));}
+gen    : var                           {$$ = new TypeNode { Name = $1.Name }.R($1);}
+genn   : gen                           {$$ = CreateListNode($1);}
+       | genn ',' gen                  {$$ = $1.Return(x => x.List.Add($3));}
 
 ########## sub ##########
 sub    : SUB fn where '(' args ')' typex EOL sub_block {$$ = CreateFunctionNode($9, $2, $5, $7, $3);}

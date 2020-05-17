@@ -1,5 +1,6 @@
 ﻿using Extensions;
 using Roku.Node;
+using System;
 using System.Collections.Generic;
 
 namespace Roku.Parser
@@ -51,6 +52,24 @@ namespace Roku.Parser
         public static BlockNode ToBlock(IStatementNode stmt) => new BlockNode().Return(x => x.Statements.Add(stmt)).R(stmt);
 
         public static BlockNode ToStatementBlock(IEvaluableNode expr) => ToBlock(expr.Cast<IStatementNode>());
+
+        public static ITypeNode ExpressionToType(IEvaluableNode expr)
+        {
+            return expr switch
+            {
+                VariableNode v => new TypeNode { Name = v.Name },
+                ITypeNode t => t,
+                _ => throw new SyntaxErrorException("not type"),
+            };
+        }
+
+        public static TypeGenericsNode ExpressionToType(IEvaluableNode expr, IEvaluableNode t1, params ITypeNode[] ts)
+        {
+            var g = new TypeGenericsNode() { Name = expr.Cast<VariableNode>().Name };
+            g.Generics.Add(ExpressionToType(t1));
+            g.Generics.AddRange(ts);
+            return g;
+        }
 
         public void SyntaxError(Token t) => SyntaxError(t, "syntax error");
 

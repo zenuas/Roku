@@ -1,6 +1,6 @@
 ﻿namespace Roku.Node
 {
-    public interface ITypeNode : INode
+    public interface ITypeNode : INode, IEvaluableNode
     {
     }
 }

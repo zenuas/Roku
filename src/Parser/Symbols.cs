@@ -94,6 +94,12 @@ namespace Roku.Parser
         /// <summary>TRUE</summary>
         TRUE,
 
+        /// <summary>TYPE_PARAM</summary>
+        TYPE_PARAM,
+
+        /// <summary>typen</summary>
+        typen,
+
         /// <summary>UNARY</summary>
         UNARY,
 
@@ -141,6 +147,12 @@ namespace Roku.Parser
 
         /// <summary>fvar</summary>
         fvar,
+
+        /// <summary>gen</summary>
+        gen,
+
+        /// <summary>genn</summary>
+        genn,
 
         /// <summary>if</summary>
         @if,
