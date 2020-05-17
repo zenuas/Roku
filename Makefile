@@ -49,7 +49,7 @@ testd:
 
 $(TESTS):
 	@echo $(subst test\rk\,,$(patsubst %.rk,%,$@))
-	@ilasm $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.il,$@)) /out:$(subst \rk\,\rk\obj\,$(patsubst %.rk,%.dll,$@)) /quit /dll
+	-@ilasm $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.il,$@)) /out:$(subst \rk\,\rk\obj\,$(patsubst %.rk,%.dll,$@)) /quit /dll
 	@copy rk.test.runtimeconfig.json $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.runtimeconfig.json,$@)) 1>NUL
-	@dotnet $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.dll,$@)) < $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.testin,$@)) > $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.stdout,$@))
+	-@dotnet $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.dll,$@)) < $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.testin,$@)) > $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.stdout,$@))
 	@fc $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.testout,$@)) $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.stdout,$@)) > $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.diff,$@)) || type $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.diff,$@))
