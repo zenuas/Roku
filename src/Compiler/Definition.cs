@@ -28,21 +28,21 @@ namespace Roku.Compiler
             var body = new StructBody(src, sn.Name.Name);
             FunctionBodyDefinition(body, sn.Statements);
             sn.Statements.Each(let =>
+            {
+                switch (let)
                 {
-                    switch (let)
-                    {
-                        case LetNode x:
-                            body.Members.Add(x.Var.Name, body.LexicalScope[x.Var.Name]);
-                            break;
+                    case LetNode x:
+                        body.Members.Add(x.Var.Name, body.LexicalScope[x.Var.Name]);
+                        break;
 
-                        case LetTypeNode x:
-                            body.Members.Add(x.Var.Name, body.LexicalScope[x.Var.Name]);
-                            break;
+                    case LetTypeNode x:
+                        body.Members.Add(x.Var.Name, body.LexicalScope[x.Var.Name]);
+                        break;
 
-                        default:
-                            throw new Exception();
-                    }
-                });
+                    default:
+                        throw new Exception();
+                }
+            });
             if (sn.Generics.Count == 0)
             {
                 body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
@@ -64,20 +64,20 @@ namespace Roku.Compiler
             TypeValue create_type(string s) => types.ContainsKey(s) ? types[s] : new TypeValue(s).Return(x => types[s] = x);
 
             pgm.Functions.Each(f =>
+            {
+                var body = MakeFunction(src, f.Name.Name);
+                if (f.Return is { }) body.Return = create_type(f.Return.Cast<TypeNode>().Name);
+                f.Arguments.Each(x =>
                 {
-                    var body = MakeFunction(src, f.Name.Name);
-                    if (f.Return is { }) body.Return = create_type(f.Return.Cast<TypeNode>().Name);
-                    f.Arguments.Each(x =>
-                        {
-                            //var t = Lookup.LoadStruct(src, x.Type.Name);
-                            var name = new VariableValue(x.Name.Name);
-                            body.Arguments.Add((name, create_type(x.Type.Cast<TypeNode>().Name)));
-                            body.LexicalScope.Add(x.Name.Name, name);
-                        });
-
-                    if (types.FindFirstIndex(x => x.Value.Types == Types.Generics) < 0) body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
-                    FunctionBodyDefinition(body, f.Statements);
+                    //var t = Lookup.LoadStruct(src, x.Type.Name);
+                    var name = new VariableValue(x.Name.Name);
+                    body.Arguments.Add((name, create_type(x.Type.Cast<TypeNode>().Name)));
+                    body.LexicalScope.Add(x.Name.Name, name);
                 });
+
+                if (types.FindFirstIndex(x => x.Value.Types == Types.Generics) < 0) body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+                FunctionBodyDefinition(body, f.Statements);
+            });
         }
 
         public static void FunctionBodyDefinition(ILexicalScope scope, List<IStatementNode> stmts)
