@@ -51,8 +51,6 @@ namespace Roku.Compiler
 
         public static IEnumerable<T> AllStructs<T>(INamespace src) where T : IStructBody => src.Structs.By<T>();
 
-        //public static IStructBody? FindStructOrNull(INamespace ns, string name, List<IStructBody> args) => AllStructBodies;
-
         public static IEnumerable<FunctionBody> AllFunctionBodies(List<SourceCodeBody> srcs) => srcs.Map(AllFunctionBodies).Flatten();
 
         public static IEnumerable<FunctionBody> AllFunctionBodies(SourceCodeBody src) => src.Functions.By<FunctionBody>();
@@ -149,22 +147,25 @@ namespace Roku.Compiler
             return false;
         }
 
-        public static IStructBody LoadStruct(INamespace ns, string name)
+        public static IStructBody? FindStructOrNull(INamespace ns, string name, List<IStructBody> args)
         {
-            var xs = LoadStructs(ns, name);
-            if (!xs.IsNull()) return xs.First();
+            foreach (var x in ns.Structs.Where(x => x.Name == name))
+            {
+                //var v = FunctionArgumentsEquals(ns, x, args);
+                return x;
+            }
 
             if (ns is SourceCodeBody body)
             {
-                return body.Uses.Map(x => LoadStructOrNull(x, name)).FindFirst(x => x is { })!;
+                foreach (var use in body.Uses)
+                {
+                    if (FindStructOrNull(use, name, args) is { } x) return x;
+                }
             }
-
-            throw new Exception();
+            return null;
         }
 
-        public static IStructBody? LoadStructOrNull(INamespace ns, string name) => LoadStructs(ns, name).FirstOrNull();
-
-        public static IEnumerable<IStructBody> LoadStructs(INamespace ns, string name) => ns.Structs.Where(x => x.Name == name);
+        public static IStructBody LoadStruct(INamespace ns, string name) => FindStructOrNull(ns, name, new List<IStructBody>()) ?? throw new Exception();
 
         public static IEnumerable<LabelCode> AllLabels(List<IOperand> ops) => ops.By<LabelCode>().Unique();
 
