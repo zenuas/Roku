@@ -2,7 +2,6 @@
 using Roku.IntermediateCode;
 using Roku.Manager;
 using System;
-using System.Reflection;
 
 namespace Roku.Compiler
 {
@@ -137,33 +136,49 @@ namespace Roku.Compiler
                     }
 
                 case VariableValue x:
-                    var body = Lookup.FindFunctionOrNull(ns, x.Name, args);
-                    if (body is { })
                     {
-                        var fm = new FunctionMapper(body.Body);
+                        var caller = Lookup.FindFunctionOrNull(ns, x.Name, args);
+                        if (caller is null) break;
+
+                        var fm = new FunctionMapper(caller.Body);
                         IStructBody? ret = null;
-                        if (body.Body is FunctionBody fb)
+                        if (caller.Body is FunctionBody fb)
                         {
-                            if (Lookup.GetTypemapperOrNull(fb.SpecializationMapper, body.GenericsMapper) is null) fb.SpecializationMapper[body.GenericsMapper] = GenericsMapperToTypeMapper(body.GenericsMapper);
-                            if (fb.Return is { }) fm.TypeMapper[fb.Return] = CreateVariableDetail("", ret = Lookup.GetArgumentType(fb.Namespace, fb.Return, body.GenericsMapper), VariableType.Type);
-                            fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(x.Name.Name, Lookup.GetArgumentType(fb.Namespace, x.Type, body.GenericsMapper), VariableType.Argument, i));
+                            if (Lookup.GetTypemapperOrNull(fb.SpecializationMapper, caller.GenericsMapper) is null) fb.SpecializationMapper[caller.GenericsMapper] = GenericsMapperToTypeMapper(caller.GenericsMapper);
+                            if (fb.Return is { }) fm.TypeMapper[fb.Return] = CreateVariableDetail("", ret = Lookup.GetArgumentType(fb.Namespace, fb.Return, caller.GenericsMapper), VariableType.Type);
+                            fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(x.Name.Name, Lookup.GetArgumentType(fb.Namespace, x.Type, caller.GenericsMapper), VariableType.Argument, i));
                             fb.Arguments.Each((x, i) => Feedback(args[i], fm.TypeMapper[x.Name].Struct));
                         }
-                        else if (body.Body is ExternFunction fx)
+                        else if (caller.Body is ExternFunction fx)
                         {
-                            ret = Lookup.LoadTypeWithoutVoid(Lookup.GetRootNamespace(ns), fx.Function.ReturnType.GetTypeInfo());
+                            ret = Lookup.LoadTypeWithoutVoid(Lookup.GetRootNamespace(ns), fx.Function.ReturnType);
                         }
-                        else if (body.Body is EmbeddedFunction ef)
+                        else if (caller.Body is EmbeddedFunction ef)
                         {
                             if (ef.Return is { }) fm.TypeMapper[ef.Return] = CreateVariableDetail("", ret = Lookup.LoadStruct(ns, ef.Return.Name), VariableType.Type);
                             ef.Arguments.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail($"${i}", Lookup.LoadStruct(ns, x.Name), VariableType.Argument, i));
                         }
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
-                        call.Caller = body;
+                        call.Caller = caller;
                         if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, ret);
                         resolve = true;
                     }
                     break;
+
+                case TypeGenericsValue x:
+                    {
+                        var sp = x.Generics.Map(x => Lookup.GetStructType(ns, x, m)!).ToList();
+                        var body = Lookup.FindStructOrNull(ns, x.Name, sp);
+                        if (body is null) break;
+
+                        var fm = new FunctionMapper(new EmbeddedFunction(x.ToString(), x.ToString()) { OpCode = (args) => $"newobj instance void {x}::.ctor()" });
+                        m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
+                        resolve = true;
+                    }
+                    break;
+
+                default:
+                    throw new Exception();
 
             }
             return call.Return is { } ? LocalValueInferenceWithEffect(ns, m, call.Return!) || resolve : resolve;

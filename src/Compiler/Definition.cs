@@ -26,6 +26,7 @@ namespace Roku.Compiler
         public static StructBody TypeBodyDefinition(SourceCodeBody src, StructNode sn)
         {
             var body = new StructBody(src, sn.Name.Name);
+            sn.Generics.Each(x => body.Generics.Add(new TypeValue(x.Cast<TypeNode>().Name) { Types = Types.Generics }));
             FunctionBodyDefinition(body, sn.Statements);
             sn.Statements.Each(let =>
             {
@@ -60,22 +61,21 @@ namespace Roku.Compiler
                 FunctionBodyDefinition(body, pgm.Statements);
             }
 
-            var types = new Dictionary<string, TypeValue>();
-            TypeValue create_type(string s) => types.ContainsKey(s) ? types[s] : new TypeValue(s).Return(x => types[s] = x);
-
             pgm.Functions.Each(f =>
             {
                 var body = MakeFunction(src, f.Name.Name);
-                if (f.Return is { }) body.Return = create_type(f.Return.Cast<TypeNode>().Name);
+                var types = new Dictionary<string, TypeValue>();
+                TypeValue create_type(string s) => types.ContainsKey(s) ? types[s] : new TypeValue(s).Return(x => types[s] = x).Return(x => { if (x.Types == Types.Generics) body.Generics.Add(x); });
+
                 f.Arguments.Each(x =>
                 {
-                    //var t = Lookup.LoadStruct(src, x.Type.Name);
                     var name = new VariableValue(x.Name.Name);
                     body.Arguments.Add((name, create_type(x.Type.Cast<TypeNode>().Name)));
                     body.LexicalScope.Add(x.Name.Name, name);
                 });
+                if (f.Return is { }) body.Return = create_type(f.Return.Cast<TypeNode>().Name);
 
-                if (types.FindFirstIndex(x => x.Value.Types == Types.Generics) < 0) body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+                if (body.Generics.Count == 0) body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
                 FunctionBodyDefinition(body, f.Statements);
             });
         }

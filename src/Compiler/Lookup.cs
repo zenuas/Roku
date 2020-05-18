@@ -105,6 +105,23 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
+        public static IStructBody? GetStructType(INamespace ns, ITypeDefinition t, TypeMapper mapper)
+        {
+            if (t is TypeValue gen && gen.Types == Types.Generics)
+            {
+                //return mapper[gen]!;
+            }
+            else if (t is TypeValue tv)
+            {
+                return LoadStruct(ns, tv.Name);
+            }
+            else if (t is TypeInfoValue ti)
+            {
+                return LoadType(GetRootNamespace(ns), ti.Type);
+            }
+            throw new Exception();
+        }
+
         public static IEnumerable<ITypeDefinition> FunctionToArgumentsType(IFunctionBody body)
         {
             if (body is FunctionBody fb)
@@ -147,12 +164,21 @@ namespace Roku.Compiler
             return false;
         }
 
-        public static IStructBody? FindStructOrNull(INamespace ns, string name, List<IStructBody> args)
+        public static TypeSpecialization? FindStructOrNull(INamespace ns, string name, List<IStructBody> args)
         {
             foreach (var x in ns.Structs.Where(x => x.Name == name))
             {
-                //var v = FunctionArgumentsEquals(ns, x, args);
-                return x;
+                if (x is ISpecialization g)
+                {
+                    if (g.Generics.Count != args.Count) continue;
+                    var gens = new GenericsMapper();
+                    g.Generics.Each((x, i) => gens[x] = args[i]);
+                    return new TypeSpecialization(x, gens);
+                }
+                else
+                {
+                    return new TypeSpecialization(x, new GenericsMapper());
+                }
             }
 
             if (ns is SourceCodeBody body)
@@ -165,7 +191,7 @@ namespace Roku.Compiler
             return null;
         }
 
-        public static IStructBody LoadStruct(INamespace ns, string name) => FindStructOrNull(ns, name, new List<IStructBody>()) ?? throw new Exception();
+        public static IStructBody LoadStruct(INamespace ns, string name) => FindStructOrNull(ns, name, new List<IStructBody>())?.Body ?? throw new Exception();
 
         public static IEnumerable<LabelCode> AllLabels(List<IOperand> ops) => ops.By<LabelCode>().Unique();
 
