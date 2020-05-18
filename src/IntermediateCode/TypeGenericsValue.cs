@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Extensions;
+using System.Collections.Generic;
 
 namespace Roku.IntermediateCode
 {
@@ -13,6 +14,6 @@ namespace Roku.IntermediateCode
             Name = name;
         }
 
-        public override string ToString() => Name;
+        public override string ToString() => $"{Name}<{Generics.Map(x => x.ToString()!).Join(", ")}>";
     }
 }
