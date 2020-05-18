@@ -45,9 +45,13 @@ namespace Roku.Compiler
             return use_load(src);
         }
 
-        public static IEnumerable<StructBody> AllStructBodies(List<SourceCodeBody> srcs) => srcs.Map(AllStructBodies).Flatten();
+        public static IEnumerable<StructBody> AllStructBodies(List<SourceCodeBody> srcs) => srcs.Map(AllStructs<StructBody>).Flatten();
 
-        public static IEnumerable<StructBody> AllStructBodies(SourceCodeBody src) => src.Structs.By<StructBody>();
+        public static IEnumerable<ExternStruct> AllExternStructs(RootNamespace root) => AllStructs<ExternStruct>(root);
+
+        public static IEnumerable<T> AllStructs<T>(INamespace src) where T : IStructBody => src.Structs.By<T>();
+
+        //public static IStructBody? FindStructOrNull(INamespace ns, string name, List<IStructBody> args) => AllStructBodies;
 
         public static IEnumerable<FunctionBody> AllFunctionBodies(List<SourceCodeBody> srcs) => srcs.Map(AllFunctionBodies).Flatten();
 
@@ -59,29 +63,25 @@ namespace Roku.Compiler
 
         public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionBody => src.Functions.By<T>();
 
-        public static IEnumerable<ExternStruct> AllExternStructs(RootNamespace root) => root.Structs.By<ExternStruct>();
-
-        public static FunctionCaller? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args) => ns is SourceCodeBody src ? FindFunctioInSourceCodeOrNull(src, name, args) : FindFunctionInNamespaceOrNull(ns, name, args);
-
-        public static FunctionCaller? FindFunctioInSourceCodeOrNull(SourceCodeBody src, string name, List<IStructBody?> args)
-        {
-            var x = FindFunctionInNamespaceOrNull(src, name, args);
-            if (x is { }) return x;
-
-            return src.Uses.Map(x => FindFunctionInNamespaceOrNull(x, name, args)).By<FunctionCaller>().FirstOrNull();
-        }
-
-        public static FunctionCaller? FindFunctionInNamespaceOrNull(INamespace ns, string name, List<IStructBody?> args)
+        public static FunctionCaller? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args)
         {
             foreach (var x in ns.Functions.Where(x => x.Name == name))
             {
                 var v = FunctionArgumentsEquals(ns, x, args);
-                if (v.Item1) return new FunctionCaller(x, v.Item2);
+                if (v.Exists) return new FunctionCaller(x, v.GenericsMapper);
+            }
+
+            if (ns is SourceCodeBody body)
+            {
+                foreach (var use in body.Uses)
+                {
+                    if (FindFunctionOrNull(use, name, args) is { } x) return x;
+                }
             }
             return null;
         }
 
-        public static (bool, GenericsMapper) FunctionArgumentsEquals(INamespace ns, IFunctionBody source, List<IStructBody?> args)
+        public static (bool Exists, GenericsMapper GenericsMapper) FunctionArgumentsEquals(INamespace ns, IFunctionBody source, List<IStructBody?> args)
         {
             var gens = ApplyArgumentsToGenericsParameter(source, args);
             var fargs = GetArgumentsType(ns, source, gens);
@@ -165,17 +165,6 @@ namespace Roku.Compiler
         public static IStructBody? LoadStructOrNull(INamespace ns, string name) => LoadStructs(ns, name).FirstOrNull();
 
         public static IEnumerable<IStructBody> LoadStructs(INamespace ns, string name) => ns.Structs.Where(x => x.Name == name);
-
-        public static IEnumerable<ITypedValue> AllValues(IOperand op)
-        {
-            switch (op)
-            {
-                case Call x:
-                    foreach (var arg in x.Function.Arguments) yield return arg;
-                    if (x.Function.FirstLookup is { }) yield return x.Function.FirstLookup;
-                    break;
-            }
-        }
 
         public static IEnumerable<LabelCode> AllLabels(List<IOperand> ops) => ops.By<LabelCode>().Unique();
 
