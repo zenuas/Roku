@@ -220,7 +220,7 @@ namespace Roku.Compiler
 
         public static void AppendSpecialization(ISpecialization sp, GenericsMapper g)
         {
-            if (Lookup.GetGenericsTypeMapperOrNull(sp.SpecializationMapper, g) is { }) return;
+            if (Lookup.GetGenericsTypeMapperOrNull(sp.SpecializationMapper, g).HasValue) return;
             sp.SpecializationMapper[g] = GenericsMapperToTypeMapper(g);
         }
 
@@ -279,7 +279,7 @@ namespace Roku.Compiler
 
         public static VariableDetail ToTypedValue(INamespace ns, TypeMapper m, ITypedValue v)
         {
-            if (m.ContainsKey(v)) return m[v];
+            if (m.ContainsKey(v) && m[v].Struct is { }) return m[v];
 
             switch (v)
             {
@@ -299,7 +299,7 @@ namespace Roku.Compiler
 
                 case PropertyValue x:
                     _ = ToTypedValue(ns, m, x.Left);
-                    var prop = m[x] = CreateVariableDetail(x.Right, GetPropertyType(ns, m, x.Left, x.Right), VariableType.Property);
+                    var prop = m[x] = CreateVariableDetail(x.Right, GetPropertyType(m, x.Left, x.Right), VariableType.Property);
                     prop.Reciever = x.Left;
                     return m[x];
 
@@ -311,16 +311,34 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static IStructBody? GetPropertyType(INamespace ns, TypeMapper m, ITypedValue receiver, string property)
+        public static IStructBody? GetPropertyType(TypeMapper m, ITypedValue receiver, string property)
         {
             var left = m[receiver].Struct;
             switch (left)
             {
                 case StructBody x:
-                    if (x.Members.ContainsKey(property)) return x.SpecializationMapper.First().Value[x.Members[property]].Struct;
-                    break;
+                    return GetPropertyType(x, property, null);
 
                 case TypeSpecialization x:
+                    var sp = x.Body.Cast<ISpecialization>();
+                    var tm = Lookup.GetGenericsTypeMapperOrNull(sp.SpecializationMapper, x.GenericsMapper);
+                    return GetPropertyType(x.Body, property, x.GenericsMapper);
+
+                default:
+                    throw new Exception();
+            }
+        }
+
+        public static IStructBody? GetPropertyType(IStructBody left, string property, GenericsMapper? g)
+        {
+            switch (left)
+            {
+                case StructBody x:
+                    if (x.Members.ContainsKey(property))
+                    {
+                        var m = g is null ? x.SpecializationMapper.First().Value : Lookup.GetGenericsTypeMapperOrNull(x.SpecializationMapper, g)!.Value.TypeMapper;
+                        if (m.ContainsKey(x.Members[property])) return m[x.Members[property]].Struct;
+                    }
                     break;
 
                 default:
