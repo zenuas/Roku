@@ -248,14 +248,16 @@ namespace Roku.Compiler
 
         public static ExternStruct? LoadTypeWithoutVoid(RootNamespace root, TypeInfo ti) => ti == typeof(void) ? null : LoadType(root, ti.Name, ti);
 
-        public static TypeMapper? GetTypemapperOrNull(Dictionary<GenericsMapper, TypeMapper> sp, GenericsMapper g)
+        public static (GenericsMapper GenericsMapper, TypeMapper TypeMapper)? GetGenericsTypeMapperOrNull(Dictionary<GenericsMapper, TypeMapper> sp, GenericsMapper g)
         {
             foreach (var kv in sp)
             {
-                if (kv.Key.Keys.And(x => g.ContainsKey(x) && kv.Key[x] == g[x])) return kv.Value;
+                if (kv.Key.Keys.And(x => g.ContainsKey(x) && kv.Key[x] == g[x])) return (kv.Key, kv.Value);
             }
             return null;
         }
+
+        public static TypeMapper? GetTypemapperOrNull(Dictionary<GenericsMapper, TypeMapper> sp, GenericsMapper g) => GetGenericsTypeMapperOrNull(sp, g)?.TypeMapper;
 
         public static TypeMapper GetTypemapper(Dictionary<GenericsMapper, TypeMapper> sp, GenericsMapper g) => GetTypemapperOrNull(sp, g)!;
 

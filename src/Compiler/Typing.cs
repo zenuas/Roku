@@ -10,21 +10,40 @@ namespace Roku.Compiler
         public static void TypeInference(SourceCodeBody src)
         {
             var srcs = Lookup.AllPrograms(src).ToList();
-            Lookup.AllStructBodies(srcs).Each(TypeInference);
-            Lookup.AllFunctionBodies(srcs).Each(TypeInference);
+
+            while (true)
+            {
+                var resolved = false;
+
+                Lookup.AllStructBodies(srcs).Each(x => resolved = TypeInference(x) || resolved);
+                Lookup.AllFunctionBodies(srcs).Each(x => resolved = TypeInference(x) || resolved);
+
+                if (!resolved) break;
+            }
         }
 
-        public static void TypeInference(StructBody body)
+        public static bool TypeInference(StructBody body)
         {
-            while (StructBodyInference(body)) ;
+            var resolved = false;
+
+            while (StructBodyInference(body)) resolved = true;
             SpecializationNumericDecide(body);
             while (StructBodyInference(body)) ;
 
-            var self = new VariableValue("$self");
+            VariableValue self;
+            if (body.LexicalScope.ContainsKey("$self"))
+            {
+                self = body.LexicalScope["$self"].Cast<VariableValue>();
+            }
+            else
+            {
+                self = new VariableValue("$self");
+                body.LexicalScope.Add(self.Name, self);
+            }
+
             foreach (var mapper in body.SpecializationMapper.Values)
             {
-                body.LexicalScope.Add(self.Name, self);
-                mapper[self] = CreateVariableDetail(self.Name, body, VariableType.Argument, 0);
+                if (!mapper.ContainsKey(self)) mapper[self] = CreateVariableDetail(self.Name, body, VariableType.Argument, 0);
 
                 body.Members.Values.Each(x =>
                 {
@@ -34,6 +53,7 @@ namespace Roku.Compiler
                     d.Index = 0;
                 });
             }
+            return resolved;
         }
 
         public static bool StructBodyInference(StructBody body)
@@ -48,9 +68,11 @@ namespace Roku.Compiler
             return resolved;
         }
 
-        public static void TypeInference(FunctionBody body)
+        public static bool TypeInference(FunctionBody body)
         {
-            while (FunctionBodyInference(body)) ;
+            var resolved = false;
+
+            while (FunctionBodyInference(body)) resolved = true;
             SpecializationNumericDecide(body);
             while (FunctionBodyInference(body)) ;
 
@@ -61,6 +83,7 @@ namespace Roku.Compiler
                     LocalValueInferenceWithEffect(body.Namespace, mapper, mapper.CastBoxCondition, Lookup.LoadType(Lookup.GetRootNamespace(body.Namespace), typeof(object)));
                 }
             }
+            return resolved;
         }
 
         public static bool FunctionBodyInference(FunctionBody body)
@@ -105,7 +128,14 @@ namespace Roku.Compiler
                     return ResolveFunctionWithEffect(ns, m, x);
 
                 case TypeBind x:
-                    return LocalValueInferenceWithEffect(ns, m, x.Name, Lookup.LoadStruct(ns, x.Type.Name));
+                    if (x.Type.Types == Types.Generics)
+                    {
+                        return LocalValueInferenceWithEffect(ns, m, x.Name, FindTypeMapperToGenerics(m, x.Type.Name));
+                    }
+                    else
+                    {
+                        return LocalValueInferenceWithEffect(ns, m, x.Name, Lookup.LoadStruct(ns, x.Type.Name));
+                    }
 
                 case IfCastCode x:
                     return LocalValueInferenceWithEffect(ns, m, x.Name, Lookup.LoadStruct(ns, x.Type.Name));
@@ -118,9 +148,11 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
+        public static IStructBody FindTypeMapperToGenerics(TypeMapper m, string name) => m.Where(x => x.Key is TypeValue t && t.Name == name).First().Value.Struct!;
+
         public static bool ResolveFunctionWithEffect(INamespace ns, TypeMapper m, Call call)
         {
-            if (m.ContainsKey(call.Function.Function) && m[call.Function.Function] is { }) return false;
+            if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { }) return false;
 
             var resolve = false;
             var args = call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct).ToList();
@@ -167,12 +199,14 @@ namespace Roku.Compiler
 
                 case TypeGenericsValue x:
                     {
-                        var sp = x.Generics.Map(x => Lookup.GetStructType(ns, x, m)!).ToList();
-                        var body = Lookup.FindStructOrNull(ns, x.Name, sp);
+                        var gens = x.Generics.Map(x => Lookup.GetStructType(ns, x, m)!).ToList();
+                        var body = Lookup.FindStructOrNull(ns, x.Name, gens);
                         if (body is null) break;
 
                         var fm = new FunctionMapper(new EmbeddedFunction(x.ToString(), x.ToString()) { OpCode = (args) => $"newobj instance void {x}::.ctor()" });
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
+                        if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, body);
+                        if (body.Body is ISpecialization sp) AppendSpecialization(sp, body.GenericsMapper);
                         resolve = true;
                     }
                     break;
@@ -182,6 +216,12 @@ namespace Roku.Compiler
 
             }
             return call.Return is { } ? LocalValueInferenceWithEffect(ns, m, call.Return!) || resolve : resolve;
+        }
+
+        public static void AppendSpecialization(ISpecialization sp, GenericsMapper g)
+        {
+            if (Lookup.GetGenericsTypeMapperOrNull(sp.SpecializationMapper, g) is { }) return;
+            sp.SpecializationMapper[g] = GenericsMapperToTypeMapper(g);
         }
 
         public static void Feedback(IStructBody? left, IStructBody? right)
@@ -279,6 +319,12 @@ namespace Roku.Compiler
                 case StructBody x:
                     if (x.Members.ContainsKey(property)) return x.SpecializationMapper.First().Value[x.Members[property]].Struct;
                     break;
+
+                case TypeSpecialization x:
+                    break;
+
+                default:
+                    throw new Exception();
             }
             return null;
         }
