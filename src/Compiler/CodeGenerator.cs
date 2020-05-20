@@ -45,7 +45,7 @@ namespace Roku.Compiler
                 var g = sp.Key;
                 var mapper = sp.Value;
 
-                il.WriteLine($".class public {body.Name}{GetGenericsName(body, g)}");
+                il.WriteLine($".class public {EscapeILName(body.Name, body, g)}");
                 il.WriteLine("{");
                 il.Indent++;
                 body.Members.Each(x => il.WriteLine($".field public {GetTypeName(mapper, x.Value, g)} {x.Key}"));
@@ -335,12 +335,14 @@ namespace Roku.Compiler
                 case null: return "void";
                 case ExternStruct x: return GetILStructName(x);
                 case StructBody x: return $"class {x.Name}";
-                case TypeSpecialization x: return $"class {x.Name}{(x.Body is ISpecialization sp ? GetGenericsName(sp, x.GenericsMapper) : "")}";
+                case TypeSpecialization x: return $"class {(x.Body is ISpecialization sp ? EscapeILName(x.Name, sp, x.GenericsMapper) : x.Name)}";
             }
             throw new Exception();
         }
 
-        public static string GetGenericsName(ISpecialization sp, GenericsMapper g) => g.Count == 0 ? "" : $"<{sp.Generics.Map(x => g[x]!.ToString()!).Join(", ")}>";
+        public static string EscapeILName(string name, ISpecialization sp, GenericsMapper g) => g.Count == 0 ? name : $"'{name}{GetGenericsName(sp, g)}'";
+
+        public static string GetGenericsName(ISpecialization sp, GenericsMapper g) => $"<{sp.Generics.Map(x => g[x]!.ToString()!).Join(", ")}>";
 
         public static string GetILStructName(ExternStruct sx) => GetILStructName(sx.Struct, sx.Assembly);
 

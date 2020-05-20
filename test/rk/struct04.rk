@@ -18,5 +18,59 @@ print(w.x)
 ###
 
 ###start
-
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly struct04 {}
+.class public 'Foo<Int>'
+{
+    .field public int32 x
+    
+    .method public void .ctor()
+    {
+        
+        ret
+    }
+}
+.class public 'Foo<String>'
+{
+    .field public string x
+    
+    .method public void .ctor()
+    {
+        
+        ret
+    }
+}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] class 'Foo<Int>' v,
+        [1] class 'Foo<String>' w
+    )
+    
+    newobj instance void 'Foo<Int>'::.ctor()
+    stloc.0
+    
+    ldloc.0
+    ldc.i4.2
+    stfld int32 class 'Foo<Int>'::x
+    
+    ldloc.0
+    ldfld int32 class 'Foo<Int>'::x
+    call void [System.Console]System.Console::WriteLine(int32)
+    
+    newobj instance void 'Foo<String>'::.ctor()
+    stloc.1
+    
+    ldloc.1
+    ldstr "aa"
+    stfld string class 'Foo<String>'::x
+    
+    ldloc.1
+    ldfld string class 'Foo<String>'::x
+    call void [System.Console]System.Console::WriteLine(string)
+    ret
+}
 ###end
