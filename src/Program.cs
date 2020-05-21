@@ -9,9 +9,6 @@ namespace Roku
         {
             var opt = new Option();
             opt.LoadLibrary("System.Runtime");
-#if DEBUG
-            opt.Output = "-";
-#endif
             var xs = CommandLine.Run(opt, args);
             if (xs.Length == 0)
             {
