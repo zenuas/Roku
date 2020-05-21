@@ -320,8 +320,6 @@ namespace Roku.Compiler
                     return GetPropertyType(x, property, null);
 
                 case TypeSpecialization x:
-                    var sp = x.Body.Cast<ISpecialization>();
-                    var tm = Lookup.GetGenericsTypeMapperOrNull(sp.SpecializationMapper, x.GenericsMapper);
                     return GetPropertyType(x.Body, property, x.GenericsMapper);
 
                 default:
