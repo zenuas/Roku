@@ -30,7 +30,7 @@ namespace Roku.Compiler
             _ = Lookup.LoadType(root, "Byte", typeof(byte));
             _ = Lookup.LoadType(root, "Bool", typeof(bool));
             _ = Lookup.LoadType(root, "Object", typeof(object));
-            //_ = Lookup.LoadType(root, "ListInt", typeof(List<int>));
+            _ = Lookup.LoadType(root, "List", typeof(System.Collections.Generic.List<>));
             DefineNumericFunction(root, "Int");
             DefineNumericFunction(root, "Long");
             DefineNumericFunction(root, "Short");

@@ -203,7 +203,7 @@ namespace Roku.Compiler
                         var body = Lookup.FindStructOrNull(ns, x.Name, gens);
                         if (body is null) break;
 
-                        var fm = new FunctionMapper(new EmbeddedFunction(x.ToString(), x.ToString()) { OpCode = (args) => $"newobj instance void '{x}'::.ctor()" });
+                        var fm = new FunctionMapper(new EmbeddedFunction(x.ToString(), x.ToString()) { OpCode = (args) => $"newobj instance void {CodeGenerator.GetStructName(body)}::.ctor()" });
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
                         if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, body);
                         if (body.Body is ISpecialization sp) AppendSpecialization(sp, body.GenericsMapper);

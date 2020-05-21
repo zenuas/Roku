@@ -1,8 +1,6 @@
 
-var x = "dummy"
-
-##=>2
-#var xs = [1, 2, 3]
+#=>2
+var xs = List<Int>()
 #print(xs[1])
 
 

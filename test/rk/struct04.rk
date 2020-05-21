@@ -21,7 +21,7 @@ print(w.x)
 .assembly extern System.Console {}
 .assembly extern System.Runtime {}
 .assembly struct04 {}
-.class public 'Foo<Int>'
+.class public 'Foo<int32>'
 {
     .field public int32 x
     
@@ -31,7 +31,7 @@ print(w.x)
         ret
     }
 }
-.class public 'Foo<String>'
+.class public 'Foo<string>'
 {
     .field public string x
     
@@ -46,30 +46,30 @@ print(w.x)
     .entrypoint
     .maxstack 8
     .locals(
-        [0] class 'Foo<Int>' v,
-        [1] class 'Foo<String>' w
+        [0] class 'Foo<int32>' v,
+        [1] class 'Foo<string>' w
     )
     
-    newobj instance void 'Foo<Int>'::.ctor()
+    newobj instance void class 'Foo<int32>'::.ctor()
     stloc.0
     
     ldloc.0
     ldc.i4.2
-    stfld int32 class 'Foo<Int>'::x
+    stfld int32 class 'Foo<int32>'::x
     
     ldloc.0
-    ldfld int32 class 'Foo<Int>'::x
+    ldfld int32 class 'Foo<int32>'::x
     call void [System.Console]System.Console::WriteLine(int32)
     
-    newobj instance void 'Foo<String>'::.ctor()
+    newobj instance void class 'Foo<string>'::.ctor()
     stloc.1
     
     ldloc.1
     ldstr "aa"
-    stfld string class 'Foo<String>'::x
+    stfld string class 'Foo<string>'::x
     
     ldloc.1
-    ldfld string class 'Foo<String>'::x
+    ldfld string class 'Foo<string>'::x
     call void [System.Console]System.Console::WriteLine(string)
     ret
 }

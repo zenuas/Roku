@@ -335,14 +335,15 @@ namespace Roku.Compiler
                 case null: return "void";
                 case ExternStruct x: return GetILStructName(x);
                 case StructBody x: return $"class {x.Name}";
-                case TypeSpecialization x: return $"class {(x.Body is ISpecialization sp ? EscapeILName(x.Name, sp, x.GenericsMapper) : x.Name)}";
+                case TypeSpecialization x when x.Body is ExternStruct e: return $"class {x.Name}{GetGenericsName(e, x.GenericsMapper)}";
+                case TypeSpecialization x when x.Body is StructBody e: return $"class {EscapeILName(x.Name, e, x.GenericsMapper)}";
             }
             throw new Exception();
         }
 
         public static string EscapeILName(string name, ISpecialization sp, GenericsMapper g) => g.Count == 0 ? name : $"'{name}{GetGenericsName(sp, g)}'";
 
-        public static string GetGenericsName(ISpecialization sp, GenericsMapper g) => $"<{sp.Generics.Map(x => g[x]!.ToString()!).Join(", ")}>";
+        public static string GetGenericsName(ISpecialization sp, GenericsMapper g) => $"<{sp.Generics.Map(x => GetStructName(g[x])).Join(", ")}>";
 
         public static string GetILStructName(ExternStruct sx) => GetILStructName(sx.Struct, sx.Assembly);
 
