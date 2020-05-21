@@ -50,7 +50,7 @@ namespace Command
                     method = map[args[i].Substring(2)].Method;
                     is_method_name = true;
                 }
-                else if (args[i].StartsWith("-"))
+                else if (args[i].Length > 1 && args[i].StartsWith("-"))
                 {
                     method = map[args[i].Substring(1, 1)].Method;
                     if (args[i].Length > 2) method_args.Add(args[i].Substring(2));

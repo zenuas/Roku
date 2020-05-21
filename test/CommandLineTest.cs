@@ -39,5 +39,14 @@ namespace Roku.Tests
             Assert.IsTrue(receiver.Lib.SequenceEqual(new string[] { "xxx", "test3", "test4" }));
             Assert.IsTrue(args.SequenceEqual(new string[] { "a", "b", "c" }));
         }
+
+        [Test]
+        public void OutputStdout()
+        {
+            var receiver = new Option();
+            _ = CommandLine.Run<Option>(receiver, "-o", "-");
+
+            Assert.AreEqual(receiver.Output, "-");
+        }
     }
 }
