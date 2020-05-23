@@ -55,6 +55,15 @@ namespace Extensions
         public static T? FirstOrNullValue<T>(this IEnumerable<T> self) where T : struct => self.IsNull() ? null : self.First().Cast<T?>();
 
         [DebuggerHidden]
+        public static T Last<T>(this IEnumerable<T> self) => Enumerable.Last(self);
+
+        [DebuggerHidden]
+        public static T? LastOrNull<T>(this IEnumerable<T> self) where T : class => Enumerable.LastOrDefault(self);
+
+        [DebuggerHidden]
+        public static T? LastOrNullValue<T>(this IEnumerable<T> self) where T : struct => self.IsNull() ? null : self.Last().Cast<T?>();
+
+        [DebuggerHidden]
         public static IEnumerable<T> Next<T>(this IEnumerable<T> self) => !self.IsNull() ? self.Drop(1) : throw new IndexOutOfRangeException();
 
         [DebuggerHidden]
@@ -105,6 +114,9 @@ namespace Extensions
             rev.Drop(1).Each(x => acc = f(x, acc));
             return acc;
         }
+
+        [DebuggerHidden]
+        public static IEnumerable<T> Concat<T>(this IEnumerable<T> self, T x) => Enumerable.Concat(self, new T[] { x });
 
         [DebuggerHidden]
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> self, IEnumerable<T> xs) => Enumerable.Concat(self, xs);
