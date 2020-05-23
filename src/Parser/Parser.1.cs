@@ -65,7 +65,7 @@ namespace Roku.Parser
 
         public static TypeGenericsNode ExpressionToType(IEvaluableNode expr, IEvaluableNode t1, params ITypeNode[] ts)
         {
-            var g = new TypeGenericsNode() { Name = expr.Cast<VariableNode>().Name };
+            var g = new TypeGenericsNode(expr);
             g.Generics.Add(ExpressionToType(t1));
             g.Generics.AddRange(ts);
             return g;

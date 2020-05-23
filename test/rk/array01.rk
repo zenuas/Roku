@@ -1,6 +1,5 @@
 
-#=>2
-var xs = List<Int>()
+var xs = System.Collections.Generic.List<Int>()
 #print(xs[1])
 
 

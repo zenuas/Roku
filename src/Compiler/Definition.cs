@@ -212,7 +212,7 @@ namespace Roku.Compiler
                     {
                         var call =
                             x.Expression is PropertyNode prop ? new FunctionCallValue(new VariableValue(prop.Right.Name)) { FirstLookup = NormalizationExpression(scope, prop.Left) }
-                            : x.Expression is TypeGenericsNode gen ? new FunctionCallValue(CreateTypeGenerics(gen))
+                            : x.Expression is TypeGenericsNode gen ? new FunctionCallValue(CreateTypeGenerics(scope, gen))
                             : new FunctionCallValue(new VariableValue(GetName(x.Expression)));
 
                         x.Arguments.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
@@ -221,7 +221,13 @@ namespace Roku.Compiler
                     }
 
                 case PropertyNode x:
-                    return new PropertyValue(NormalizationExpression(scope, x.Left, true), x.Right.Name);
+                    {
+                        var prop = new PropertyValue(NormalizationExpression(scope, x.Left, true), x.Right.Name);
+                        if (!evaluate_as_expression) return prop;
+                        var v = CreateTemporaryVariable(scope);
+                        scope.Body.Add(new Code() { Operator = Operator.Bind, Left = prop, Return = v });
+                        return v;
+                    }
 
                 case ListNode<IEvaluableNode> x:
                     return new ArrayContainer(x.List.Map(list => NormalizationExpression(scope, list, true)).ToList());
@@ -229,13 +235,13 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static TypeGenericsValue CreateTypeGenerics(TypeGenericsNode gen)
+        public static TypeGenericsValue CreateTypeGenerics(ILexicalScope scope, TypeGenericsNode gen)
         {
-            var g = new TypeGenericsValue(gen.Name);
+            var g = new TypeGenericsValue(NormalizationExpression(scope, gen.Name));
             gen.Generics.Map(x => x switch
             {
                 TypeNode t => (ITypeDefinition)new TypeValue(t.Name),
-                TypeGenericsNode t => CreateTypeGenerics(t),
+                TypeGenericsNode t => CreateTypeGenerics(scope, t),
                 _ => throw new Exception(),
             }).Each(x => g.Generics.Add(x));
             return g;
@@ -261,7 +267,21 @@ namespace Roku.Compiler
 
         public static ITypedValue FindScopeValue(ILexicalScope scope, string name)
         {
-            return scope.LexicalScope.ContainsKey(name) ? scope.LexicalScope[name] : FindScopeValue(scope.Parent!, name);
+            if (scope.LexicalScope.ContainsKey(name)) return scope.LexicalScope[name];
+            if (scope.Parent is { } parent) return FindScopeValue(parent, name);
+            if (scope is INamespace ns && FindNamespaceValue(ns, name) is { } p) return p;
+            if (scope.Namespace is SourceCodeBody src)
+            {
+                return src.Uses.Map(x => FindNamespaceValue(x, name)).By<ITypedValue>().First();
+            }
+            throw new Exception();
+        }
+
+        public static ITypedValue? FindNamespaceValue(INamespace ns, string name)
+        {
+            if (ns.Structs.FindFirstOrNull(x => x.Name == name) is { } s) return new TypeValue(s.Name);
+            if (ns is RootNamespace root) return new TypeValue(name);
+            return null;
         }
 
         public static FunctionBody MakeFunction(INamespace ns, string name)

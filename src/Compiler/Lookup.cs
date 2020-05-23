@@ -164,9 +164,30 @@ namespace Roku.Compiler
             return false;
         }
 
-        public static TypeSpecialization? FindStructOrNull(INamespace ns, string name, List<IStructBody> args)
+        public static bool TypeNameEquals(TypeInfo ti, string[] name)
         {
-            foreach (var x in ns.Structs.Where(x => x.Name == name))
+            var full_name = name.Join(".");
+            if (ti.FullName == full_name) return true;
+            var g = ti.FullName!.IndexOf("`");
+            return g >= 0 && ti.FullName.Substring(0, g) == full_name;
+        }
+
+        public static bool TypeNameEquals(IStructBody body, string[] name)
+        {
+            switch (body)
+            {
+                case StructBody x:
+                    return name.Length == 1 && x.Name == name.First();
+
+                case ExternStruct x:
+                    return (name.Length == 1 && x.Name == name.First()) || TypeNameEquals(x.Struct, name);
+            }
+            return false;
+        }
+
+        public static TypeSpecialization? FindStructOrNull(INamespace ns, string[] name, List<IStructBody> args)
+        {
+            foreach (var x in ns.Structs.Where(x => TypeNameEquals(x, name)))
             {
                 if (x is ISpecialization g)
                 {
@@ -181,7 +202,23 @@ namespace Roku.Compiler
                 }
             }
 
-            if (ns is SourceCodeBody body)
+            if (ns is RootNamespace root)
+            {
+                foreach (var asm in root.Assemblies)
+                {
+                    foreach (var ti in GetAssemblyType(asm).Map(x => x.GetTypeInfo()).Where(x => TypeNameEquals(x, name)))
+                    {
+                        if (ti.GetGenericArguments().Length != args.Count) continue;
+                        var t = new ExternStruct("###NO-ALIAS", ti, asm);
+                        root.Structs.Add(t);
+
+                        var gens = new GenericsMapper();
+                        t.Generics.Each((x, i) => gens[x] = args[i]);
+                        return new TypeSpecialization(t, gens);
+                    }
+                }
+            }
+            else if (ns is SourceCodeBody body)
             {
                 foreach (var use in body.Uses)
                 {
@@ -191,7 +228,9 @@ namespace Roku.Compiler
             return null;
         }
 
-        public static IStructBody LoadStruct(INamespace ns, string name) => FindStructOrNull(ns, name, new List<IStructBody>())?.Body ?? throw new Exception();
+        public static IStructBody LoadStruct(INamespace ns, string[] name) => FindStructOrNull(ns, name, new List<IStructBody>())?.Body ?? throw new Exception();
+
+        public static IStructBody LoadStruct(INamespace ns, string name) => LoadStruct(ns, new string[] { name });
 
         public static IEnumerable<LabelCode> AllLabels(List<IOperand> ops) => ops.By<LabelCode>().Unique();
 

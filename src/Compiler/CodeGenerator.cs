@@ -54,7 +54,8 @@ namespace Roku.Compiler
                 il.WriteLine($".method public void .ctor()");
                 il.WriteLine("{");
                 il.Indent++;
-                var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable).Sort((a, b) => a.Index - b.Index).ToList();
+                var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable && !(x.Struct is NamespaceBody)).Sort((a, b) => a.Index - b.Index).ToList();
+                local_vals.Each((x, i) => x.Index = i);
                 if (local_vals.Count > 0)
                 {
                     il.WriteLine(".locals(");
@@ -91,7 +92,8 @@ namespace Roku.Compiler
                 il.Indent++;
                 if (i == 0) il.WriteLine(".entrypoint");
                 il.WriteLine(".maxstack 8");
-                var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable).Sort((a, b) => a.Index - b.Index).ToList();
+                var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable && !(x.Struct is NamespaceBody)).Sort((a, b) => a.Index - b.Index).ToList();
+                local_vals.Each((x, i) => x.Index = i);
                 if (local_vals.Count > 0)
                 {
                     il.WriteLine(".locals(");
@@ -139,6 +141,7 @@ namespace Roku.Compiler
             switch (op.Operator)
             {
                 case Operator.Bind:
+                    if (op is IReturnBind r && m[r.Return!].Struct is NamespaceBody) return;
                     var bind = op.Cast<Code>();
                     il.WriteLine(LoadValue(m, bind.Left!));
                     break;

@@ -6,6 +6,7 @@
         Argument,
         TypeParameter,
         Type,
+        Namespace,
         PrimitiveValue,
         Property,
         FunctionMapper,

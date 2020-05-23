@@ -45,7 +45,9 @@ print(v.y)
     .entrypoint
     .maxstack 8
     .locals(
-        [0] class Foo v
+        [0] class Foo v,
+        [1] int32 $$1,
+        [2] string $$2
     )
     
     newobj instance void Foo::.ctor()
@@ -53,10 +55,16 @@ print(v.y)
     
     ldloc.0
     ldfld int32 class Foo::x
+    stloc.1
+    
+    ldloc.1
     call void [System.Console]System.Console::WriteLine(int32)
     
     ldloc.0
     ldfld string class Foo::y
+    stloc.2
+    
+    ldloc.2
     call void [System.Console]System.Console::WriteLine(string)
     ret
 }

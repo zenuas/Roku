@@ -47,7 +47,9 @@ print(w.x)
     .maxstack 8
     .locals(
         [0] class 'Foo<int32>' v,
-        [1] class 'Foo<string>' w
+        [1] int32 $$1,
+        [2] class 'Foo<string>' w,
+        [3] string $$2
     )
     
     newobj instance void class 'Foo<int32>'::.ctor()
@@ -59,17 +61,23 @@ print(w.x)
     
     ldloc.0
     ldfld int32 class 'Foo<int32>'::x
-    call void [System.Console]System.Console::WriteLine(int32)
-    
-    newobj instance void class 'Foo<string>'::.ctor()
     stloc.1
     
     ldloc.1
+    call void [System.Console]System.Console::WriteLine(int32)
+    
+    newobj instance void class 'Foo<string>'::.ctor()
+    stloc.2
+    
+    ldloc.2
     ldstr "aa"
     stfld string class 'Foo<string>'::x
     
-    ldloc.1
+    ldloc.2
     ldfld string class 'Foo<string>'::x
+    stloc.3
+    
+    ldloc.3
     call void [System.Console]System.Console::WriteLine(string)
     ret
 }

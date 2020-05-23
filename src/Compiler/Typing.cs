@@ -2,6 +2,7 @@
 using Roku.IntermediateCode;
 using Roku.Manager;
 using System;
+using System.Collections.Generic;
 
 namespace Roku.Compiler
 {
@@ -200,7 +201,7 @@ namespace Roku.Compiler
                 case TypeGenericsValue x:
                     {
                         var gens = x.Generics.Map(x => Lookup.GetStructType(ns, x, m)!).ToList();
-                        var body = Lookup.FindStructOrNull(ns, x.Name, gens);
+                        var body = Lookup.FindStructOrNull(ns, GetStructNames(m, x).ToArray(), gens);
                         if (body is null) break;
 
                         var fm = new FunctionMapper(new EmbeddedFunction(x.ToString(), x.ToString()) { OpCode = (args) => $"newobj instance void {CodeGenerator.GetStructName(body)}::.ctor()" });
@@ -217,6 +218,19 @@ namespace Roku.Compiler
             }
             return call.Return is { } ? LocalValueInferenceWithEffect(ns, m, call.Return!) || resolve : resolve;
         }
+
+        public static IEnumerable<string> GetStructNames(TypeMapper m, ITypedValue t)
+        {
+            if (t is TypeGenericsValue g)
+            {
+                if (g.Name is PropertyValue prop) return GetStructNames(m, prop.Left).Concat(prop.Right);
+                return new string[] { g.Name.ToString()! };
+            }
+            if (m.ContainsKey(t) && m[t].Struct is NamespaceBody ns) return GetNamespaceNames(ns);
+            throw new Exception();
+        }
+
+        public static IEnumerable<string> GetNamespaceNames(NamespaceBody ns) => ns.Parent is { } p ? GetNamespaceNames(p).Concat(ns.Name) : new string[] { ns.Name };
 
         public static void AppendSpecialization(ISpecialization sp, GenericsMapper g)
         {
@@ -307,6 +321,10 @@ namespace Roku.Compiler
                     x.Values.Each(value => ToTypedValue(ns, m, value));
                     m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "ListInt"), VariableType.PrimitiveValue);
                     return m[x];
+
+                case TypeValue x:
+                    m[x] = CreateVariableDetail(x.Name, new NamespaceBody(x.Name), VariableType.Namespace);
+                    return m[x];
             }
             throw new Exception();
         }
@@ -321,6 +339,9 @@ namespace Roku.Compiler
 
                 case TypeSpecialization x:
                     return GetPropertyType(x.Body, property, x.GenericsMapper);
+
+                case NamespaceBody x:
+                    return new NamespaceBody(property) { Parent = x };
 
                 default:
                     throw new Exception();
