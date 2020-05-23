@@ -3,6 +3,23 @@ var xs = System.Collections.Generic.List<Int>()
 #print(xs[1])
 
 
-###
-
-###
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly extern System.Collections {}
+.assembly array01 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] class [System.Collections]System.Collections.Generic.List`1<int32> xs
+    )
+    
+    
+    
+    newobj instance void class [System.Collections]System.Collections.Generic.List`1<int32>::.ctor()
+    stloc.0
+    ret
+}
+###end

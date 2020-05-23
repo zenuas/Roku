@@ -209,7 +209,12 @@ namespace Roku.Compiler
                     foreach (var ti in GetAssemblyType(asm).Map(x => x.GetTypeInfo()).Where(x => TypeNameEquals(x, name)))
                     {
                         if (ti.GetGenericArguments().Length != args.Count) continue;
-                        var t = new ExternStruct("###NO-ALIAS", ti, asm);
+
+                        //ToDo: List patch
+                        var asmx = asm;
+                        if (ti == typeof(List<>).GetTypeInfo()) asmx = Assembly.Load("System.Collections");
+
+                        var t = new ExternStruct("###NO-ALIAS", ti, asmx);
                         root.Structs.Add(t);
 
                         var gens = new GenericsMapper();
