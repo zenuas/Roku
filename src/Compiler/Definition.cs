@@ -270,7 +270,7 @@ namespace Roku.Compiler
             if (scope.LexicalScope.ContainsKey(name)) return scope.LexicalScope[name];
             if (scope.Parent is { } parent) return FindScopeValue(parent, name);
             if (scope is INamespace ns && FindNamespaceValue(ns, name) is { } p) return p;
-            if (scope.Namespace is SourceCodeBody src)
+            if (scope.Namespace is IUse src)
             {
                 return src.Uses.Map(x => FindNamespaceValue(x, name)).By<ITypedValue>().First();
             }

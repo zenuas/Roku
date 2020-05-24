@@ -23,13 +23,13 @@ namespace Roku.Compiler
 
             var root = new RootNamespace();
             root.Assemblies.AddRange(asms.Map(Assembly.Load));
-            _ = Lookup.LoadType(root, "String", typeof(string));
-            _ = Lookup.LoadType(root, "Int", typeof(int));
-            _ = Lookup.LoadType(root, "Long", typeof(long));
-            _ = Lookup.LoadType(root, "Short", typeof(short));
-            _ = Lookup.LoadType(root, "Byte", typeof(byte));
-            _ = Lookup.LoadType(root, "Bool", typeof(bool));
-            _ = Lookup.LoadType(root, "Object", typeof(object));
+            Lookup.LoadType(root, typeof(string)).Name = "String";
+            Lookup.LoadType(root, typeof(int)).Name = "Int";
+            Lookup.LoadType(root, typeof(long)).Name = "Long";
+            Lookup.LoadType(root, typeof(short)).Name = "Short";
+            Lookup.LoadType(root, typeof(byte)).Name = "Byte";
+            Lookup.LoadType(root, typeof(bool)).Name = "Bool";
+            Lookup.LoadType(root, typeof(object)).Name = "Object";
             DefineNumericFunction(root, "Int");
             DefineNumericFunction(root, "Long");
             DefineNumericFunction(root, "Short");

@@ -2,7 +2,7 @@
 
 namespace Roku.Manager
 {
-    public class SourceCodeBody : INamespace
+    public class SourceCodeBody : INamespace, IUse
     {
         public INamespace? Parent { get; }
         public List<IFunctionBody> Functions { get; } = new List<IFunctionBody>();

@@ -39,7 +39,7 @@ namespace Roku.Compiler
                     xs.Add(source);
                     readed.Add(source);
                 }
-                if (source is SourceCodeBody body) xs.AddRange(body.Uses.Map(xs => use_load(xs)).Flatten());
+                if (source is IUse body) xs.AddRange(body.Uses.Map(xs => use_load(xs)).Flatten());
                 return xs;
             }
             return use_load(src);
@@ -69,7 +69,7 @@ namespace Roku.Compiler
                 if (v.Exists) return new FunctionCaller(x, v.GenericsMapper);
             }
 
-            if (ns is SourceCodeBody body)
+            if (ns is IUse body)
             {
                 foreach (var use in body.Uses)
                 {
@@ -214,8 +214,7 @@ namespace Roku.Compiler
                         var asmx = asm;
                         if (ti == typeof(List<>).GetTypeInfo()) asmx = Assembly.Load("System.Collections");
 
-                        var t = new ExternStruct("###NO-ALIAS", ti, asmx);
-                        root.Structs.Add(t);
+                        var t = CreateExternStruct(root, ti, asmx);
 
                         var gens = new GenericsMapper();
                         t.Generics.Each((x, i) => gens[x] = args[i]);
@@ -223,7 +222,7 @@ namespace Roku.Compiler
                     }
                 }
             }
-            else if (ns is SourceCodeBody body)
+            else if (ns is IUse body)
             {
                 foreach (var use in body.Uses)
                 {
@@ -239,13 +238,9 @@ namespace Roku.Compiler
 
         public static IEnumerable<LabelCode> AllLabels(List<IOperand> ops) => ops.By<LabelCode>().Unique();
 
-        public static ExternStruct LoadType(RootNamespace root, Type t) => LoadType(root, t.Name, t);
+        public static ExternStruct LoadType(RootNamespace root, Type t) => LoadType(root, t.GetTypeInfo());
 
-        public static ExternStruct LoadType(RootNamespace root, string name, Type t) => LoadType(root, name, t.GetTypeInfo());
-
-        public static ExternStruct LoadType(RootNamespace root, TypeInfo ti) => LoadType(root, ti.Name, ti);
-
-        public static ExternStruct LoadType(RootNamespace root, string name, TypeInfo ti)
+        public static ExternStruct LoadType(RootNamespace root, TypeInfo ti)
         {
             var st = root.Structs.Where(x => x is ExternStruct sx && sx.Struct == ti).FirstOrNull();
             if (st is { }) return st.Cast<ExternStruct>();
@@ -262,8 +257,17 @@ namespace Roku.Compiler
             }
             if (asmx is null) root.Assemblies.Add(asmx = ti.Assembly);
 
-            var t = new ExternStruct(name, ti, asmx);
+            return CreateExternStruct(root, ti, asmx);
+        }
+
+        public static ExternStruct CreateExternStruct(RootNamespace root, TypeInfo ti, Assembly asm)
+        {
+            var t = new ExternStruct(ti, asm);
             root.Structs.Add(t);
+
+            ti.GenericTypeParameters.Each(x => t.Generics.Add(new TypeValue(x.Name) { Types = Types.Generics }));
+            ti.GetMethods().Each(x => LoadFunction(root, t, x.Name, x));
+
             return t;
         }
 
@@ -279,10 +283,12 @@ namespace Roku.Compiler
             }
         }
 
-        public static ExternFunction LoadFunction(RootNamespace root, string alias, MethodInfo mi)
+        public static ExternFunction LoadFunction(RootNamespace root, string alias, MethodInfo mi) => LoadFunction(root, root, alias, mi);
+
+        public static ExternFunction LoadFunction(RootNamespace root, INamespace ns, string alias, MethodInfo mi)
         {
             var f = new ExternFunction(alias, mi, LoadType(root, mi.DeclaringType!).Assembly);
-            root.Functions.Add(f);
+            ns.Functions.Add(f);
             return f;
         }
 
@@ -290,7 +296,7 @@ namespace Roku.Compiler
 
         public static ExternStruct? LoadTypeWithoutVoid(RootNamespace root, Type t) => LoadTypeWithoutVoid(root, t.GetTypeInfo());
 
-        public static ExternStruct? LoadTypeWithoutVoid(RootNamespace root, TypeInfo ti) => ti == typeof(void) ? null : LoadType(root, ti.Name, ti);
+        public static ExternStruct? LoadTypeWithoutVoid(RootNamespace root, TypeInfo ti) => ti == typeof(void) ? null : LoadType(root, ti);
 
         public static (GenericsMapper GenericsMapper, TypeMapper TypeMapper)? GetGenericsTypeMapperOrNull(Dictionary<GenericsMapper, TypeMapper> sp, GenericsMapper g)
         {

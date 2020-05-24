@@ -1,5 +1,6 @@
 
 var xs = System.Collections.Generic.List<Int>()
+xs.Add(1)
 #print(xs[1])
 
 

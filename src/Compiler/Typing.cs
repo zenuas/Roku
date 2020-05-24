@@ -157,6 +157,16 @@ namespace Roku.Compiler
 
             var resolve = false;
             var args = call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct).ToList();
+            var lookupns = ns;
+            if (call.Function.FirstLookup is { } receiver)
+            {
+                if (m.ContainsKey(receiver) && m[receiver] is { } r)
+                {
+                    if (r.Struct is { }) lookupns = GetStructNamespace(ns, r.Struct);
+                    if (r.Type == VariableType.LocalVariable) args.Insert(0, r.Struct);
+                }
+            }
+
             switch (call.Function.Function)
             {
                 case VariableValue x when call.Return is null && call.Function.FirstLookup is null && x.Name == "return":
@@ -170,7 +180,7 @@ namespace Roku.Compiler
 
                 case VariableValue x:
                     {
-                        var caller = Lookup.FindFunctionOrNull(ns, x.Name, args);
+                        var caller = Lookup.FindFunctionOrNull(lookupns, x.Name, args);
                         if (caller is null) break;
 
                         var fm = new FunctionMapper(caller.Body);
@@ -217,6 +227,19 @@ namespace Roku.Compiler
 
             }
             return call.Return is { } ? LocalValueInferenceWithEffect(ns, m, call.Return!) || resolve : resolve;
+        }
+
+        public static INamespace GetStructNamespace(INamespace ns, IStructBody body)
+        {
+            switch (body)
+            {
+                case ExternStruct x:
+                    return new NamespaceJunction(ns) { Parent = x };
+
+                case StructBody x:
+                    return x.Namespace;
+            }
+            throw new Exception();
         }
 
         public static IEnumerable<string> GetStructNames(TypeMapper m, ITypedValue t)
