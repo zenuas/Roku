@@ -8,6 +8,7 @@ namespace Roku.IntermediateCode
     {
         public ITypedValue Function { get; }
         public ITypedValue? FirstLookup { get; set; }
+        public bool ReceiverToArgumentsInserted { get; set; } = false;
         public List<ITypedValue> Arguments { get; } = new List<ITypedValue>();
 
         public FunctionCallValue(ITypedValue f)

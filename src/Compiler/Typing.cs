@@ -156,16 +156,20 @@ namespace Roku.Compiler
             if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { }) return false;
 
             var resolve = false;
-            var args = call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct).ToList();
             var lookupns = ns;
             if (call.Function.FirstLookup is { } receiver)
             {
                 if (m.ContainsKey(receiver) && m[receiver] is { } r)
                 {
                     if (r.Struct is { }) lookupns = GetStructNamespace(ns, r.Struct);
-                    if (r.Type == VariableType.LocalVariable) args.Insert(0, r.Struct);
+                    if (r.Type == VariableType.LocalVariable && !call.Function.ReceiverToArgumentsInserted)
+                    {
+                        call.Function.Arguments.Insert(0, receiver);
+                        call.Function.ReceiverToArgumentsInserted = true;
+                    }
                 }
             }
+            var args = call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct).ToList();
 
             switch (call.Function.Function)
             {
@@ -238,6 +242,9 @@ namespace Roku.Compiler
 
                 case StructBody x:
                     return x.Namespace;
+
+                case TypeSpecialization x:
+                    return GetStructNamespace(ns, x.Body);
             }
             throw new Exception();
         }
