@@ -1,7 +1,4 @@
-﻿using Extensions;
-using System.Linq;
-
-namespace Roku.Manager
+﻿namespace Roku.Manager
 {
     public class TypeSpecialization : IStructBody
     {
