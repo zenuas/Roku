@@ -11,7 +11,6 @@ namespace Roku.Manager
         public Assembly Assembly { get; }
         public List<TypeValue> Generics { get; } = new List<TypeValue>();
         public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
-        public INamespace? Parent => null;
         public List<IFunctionBody> Functions { get; } = new List<IFunctionBody>();
         public List<IStructBody> Structs { get; } = new List<IStructBody>();
 

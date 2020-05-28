@@ -76,6 +76,10 @@ namespace Roku.Compiler
                     if (FindFunctionOrNull(use, name, args) is { } x) return x;
                 }
             }
+            if (ns is TypeSpecialization sp && sp.Body is ExternStruct sx)
+            {
+                //var ms = sx.Struct.GetMethods().Where(x => x.Name == name);
+            }
             return null;
         }
 
@@ -292,7 +296,10 @@ namespace Roku.Compiler
             return f;
         }
 
-        public static RootNamespace GetRootNamespace(INamespace ns) => ns is RootNamespace root ? root : GetRootNamespace(ns.Parent!);
+        public static RootNamespace GetRootNamespace(INamespace ns) =>
+            ns is RootNamespace root ? root
+            : ns is IUse use ? use.Uses.By<RootNamespace>().First()
+            : throw new Exception();
 
         public static ExternStruct? LoadTypeWithoutVoid(RootNamespace root, Type t) => LoadTypeWithoutVoid(root, t.GetTypeInfo());
 

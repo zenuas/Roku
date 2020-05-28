@@ -238,13 +238,13 @@ namespace Roku.Compiler
             switch (body)
             {
                 case ExternStruct x:
-                    return new NamespaceJunction(ns) { Parent = x };
+                    return new NamespaceJunction(ns).Return(j => j.Uses.Add(x));
 
                 case StructBody x:
                     return x.Namespace;
 
                 case TypeSpecialization x:
-                    return GetStructNamespace(ns, x.Body);
+                    return new NamespaceJunction(ns).Return(j => j.Uses.Add(x));
             }
             throw new Exception();
         }

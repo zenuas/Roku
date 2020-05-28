@@ -42,7 +42,6 @@ namespace Roku.Compiler
             _ = Lookup.LoadFunction(root, "+", typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) })!);
 
             var src = Definition.LoadProgram(root, pgm);
-            src.Uses.Add(root);
             Typing.TypeInference(src);
             CodeGenerator.Emit(src, output);
         }
