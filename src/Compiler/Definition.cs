@@ -216,7 +216,6 @@ namespace Roku.Compiler
                             : new FunctionCallValue(new VariableValue(GetName(x.Expression)));
 
                         x.Arguments.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
-                        if (x.Expression is VariableNode v && v.Name == "[]") call.FirstLookup = call.Arguments[0];
                         return call;
                     }
 

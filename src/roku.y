@@ -74,7 +74,7 @@ expr : var
      | expr GT expr                               {$$ = CreateFunctionCallNode($2, $1, $3);}
      | expr LT expr GT           %prec TYPE_PARAM {$$ = ExpressionToType($1, $3);}
      | expr LT expr ',' typen GT %prec TYPE_PARAM {$$ = ExpressionToType($1, $3, $5.List.ToArray());}
-     | expr '[' expr ']'                          {$$ = CreateFunctionCallNode(CreateVariableNode("[]", $2), $1, $3);}
+     | expr '[' expr ']'                          {$$ = CreateFunctionCallNode(CreatePropertyNode($1, CreateVariableNode("[]")), $3);}
 
 call : expr '(' list ')' {$$ = CreateFunctionCallNode($1, $3.List.ToArray());}
 

@@ -393,7 +393,7 @@ namespace Roku.Parser
 
                 case -26:
                     TraceAction("expr : expr '[' expr ']'");
-                    yy_value = CreateFunctionCallNode(CreateVariableNode("[]", (GetToken(-3))), ((IEvaluableNode)GetValue(-4)), ((IEvaluableNode)GetValue(-2)));
+                    yy_value = CreateFunctionCallNode(CreatePropertyNode(((IEvaluableNode)GetValue(-4)), CreateVariableNode("[]")), ((IEvaluableNode)GetValue(-2)));
                     yy_token = DoAction(Symbols.expr, 4, yy_value);
                     break;
 
