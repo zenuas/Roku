@@ -61,7 +61,7 @@ namespace Roku.Compiler
 
         public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionBody => src.Functions.By<T>();
 
-        public static FunctionCaller? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args)
+        public static FunctionCaller? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args, bool find_use = true)
         {
             foreach (var x in ns.Functions.Where(x => x.Name == name))
             {
@@ -69,16 +69,32 @@ namespace Roku.Compiler
                 if (v.Exists) return new FunctionCaller(x, v.GenericsMapper);
             }
 
-            if (ns is IUse body)
+            if (find_use && ns is IUse body)
             {
                 foreach (var use in body.Uses)
                 {
-                    if (FindFunctionOrNull(use, name, args) is { } x) return x;
+                    if (FindFunctionOrNull(use, name, args, false) is { } x) return x;
                 }
             }
             if (ns is TypeSpecialization sp && sp.Body is ExternStruct sx)
             {
-                //var ms = sx.Struct.GetMethods().Where(x => x.Name == name);
+                foreach (var m in sx.Struct.GetMethods().Where(x => x.Name == name && x.GetParameters().Length + (x.IsStatic ? 0 : 1) == args.Count))
+                {
+                    var g = new GenericsMapper();
+
+                    //var args_ti = m.GetParameters().Map(x => x.ParameterType.GetTypeInfo()).ToList();
+                    //if (!m.IsStatic) args_ti.Insert(0, sx.Struct);
+
+                    sx.Struct.GetGenericArguments().Each(x => g.Add(new TypeValue(x.Name) { Types = Types.Generics }, sp.GenericsMapper.GetValue(x.Name)));
+                    //m.GetGenericArguments().Each(x => g.Add(new TypeValue(x.Name) { Types = Types.Generics }, null));
+
+                    //ToDo: List patch
+                    var ti = m.DeclaringType!;
+                    var asmx = ti.Assembly;
+                    if (ti == typeof(List<>).GetTypeInfo()) asmx = Assembly.Load("System.Collections");
+
+                    return new FunctionCaller(new ExternFunction(name, m, asmx), g);
+                }
             }
             return null;
         }

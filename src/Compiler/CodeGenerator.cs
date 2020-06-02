@@ -154,7 +154,7 @@ namespace Roku.Compiler
                         if (f.Function is ExternFunction fx)
                         {
                             il.WriteLine(args.Join('\n'));
-                            il.WriteLine($"call {GetILStructName(fx.Function.ReturnType)} [{fx.Assembly.GetName().Name}]{GetType(fx).FullName}::{fx.Function.Name}({call.Function.Arguments.Map(a => GetTypeName(m[a], g)).Join(", ")})");
+                            il.WriteLine($"{(fx.Function.IsVirtual ? "callvirt instance" : "call")} {GetILStructName(fx.Function.ReturnType)} {(fx.Function.IsVirtual ? "class " : "")}[{fx.Assembly.GetName().Name}]{GetTypeName(GetType(fx), call.Caller!.GenericsMapper)}::{fx.Function.Name}({fx.Function.GetParameters().Map(x => GetParameterName(x.ParameterType)).Join(", ")})");
                         }
                         else if (f.Function is FunctionBody fb)
                         {
@@ -326,6 +326,13 @@ namespace Roku.Compiler
         public static string GetTypeName(TypeMapper m, ITypedValue? t, GenericsMapper g) => t is null ? "void" : GetStructName(GetType(m[t], g));
 
         public static string GetTypeName(VariableDetail vd, GenericsMapper g) => GetStructName(GetType(vd, g));
+
+        public static string GetTypeName(Type t, GenericsMapper g) => t.FullName! + (!t.IsGenericType ? "" : $"<{t.GetGenericArguments().Map(x => GetStructName(g.GetValue(x.Name))).Join(", ")}>");
+
+        public static string GetParameterName(Type t) =>
+            t.IsGenericTypeParameter ? $"!{t.GenericParameterPosition}"
+            : t.IsGenericMethodParameter ? $"!!{t.GenericParameterPosition}"
+            : GetILStructName(t);
 
         public static IStructBody? GetType(VariableDetail vd, GenericsMapper g) => GetType(vd.Struct, g);
 
