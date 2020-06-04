@@ -336,9 +336,7 @@ namespace Roku.Compiler
             : ns is IUse use ? use.Uses.By<RootNamespace>().First()
             : throw new Exception();
 
-        public static ExternStruct? LoadTypeWithoutVoid(RootNamespace root, Type t) => LoadTypeWithoutVoid(root, t.GetTypeInfo());
-
-        public static ExternStruct? LoadTypeWithoutVoid(RootNamespace root, TypeInfo ti) => ti == typeof(void) ? null : LoadType(root, ti);
+        public static ExternStruct? LoadTypeWithoutVoid(RootNamespace root, Type t) => t == typeof(void) ? null : LoadType(root, t.GetTypeInfo());
 
         public static (GenericsMapper GenericsMapper, TypeMapper TypeMapper)? GetGenericsTypeMapperOrNull(Dictionary<GenericsMapper, TypeMapper> sp, GenericsMapper g)
         {
