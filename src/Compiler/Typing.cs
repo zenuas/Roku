@@ -198,7 +198,7 @@ namespace Roku.Compiler
                         }
                         else if (caller.Body is ExternFunction fx)
                         {
-                            ret = Lookup.LoadTypeWithoutVoid(Lookup.GetRootNamespace(ns), fx.Function.ReturnType);
+                            ret = Lookup.LoadTypeWithoutVoid(Lookup.GetRootNamespace(ns), fx.Function.ReturnType, caller.GenericsMapper);
                         }
                         else if (caller.Body is EmbeddedFunction ef)
                         {
