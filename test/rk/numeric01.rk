@@ -44,7 +44,7 @@ print(b) がWriteLine(int64)を呼び出すこと
     call void print_int(int32)
     
     ldloc.0
-    call void [System.Console]System.Console::WriteLine(int32)
+    call void class [System.Console]System.Console::WriteLine(int32)
     
     ldc.i4.1
     conv.i8
@@ -54,7 +54,7 @@ print(b) がWriteLine(int64)を呼び出すこと
     call void print_long(int64)
     
     ldloc.1
-    call void [System.Console]System.Console::WriteLine(int64)
+    call void class [System.Console]System.Console::WriteLine(int64)
     ret
 }
 .method public static void print_int(int32)
@@ -62,7 +62,7 @@ print(b) がWriteLine(int64)を呼び出すこと
     .maxstack 8
     
     ldstr "Int"
-    call void [System.Console]System.Console::WriteLine(string)
+    call void class [System.Console]System.Console::WriteLine(string)
     ret
 }
 .method public static void print_long(int64)
@@ -70,7 +70,7 @@ print(b) がWriteLine(int64)を呼び出すこと
     .maxstack 8
     
     ldstr "Long"
-    call void [System.Console]System.Console::WriteLine(string)
+    call void class [System.Console]System.Console::WriteLine(string)
     ret
 }
 ###end

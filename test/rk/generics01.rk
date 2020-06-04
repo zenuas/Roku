@@ -29,7 +29,7 @@ sub f(x: a)
     .maxstack 8
     
     ldarg.0
-    call void [System.Console]System.Console::WriteLine(int32)
+    call void class [System.Console]System.Console::WriteLine(int32)
     ret
 }
 .method public static void f(string)
@@ -37,7 +37,7 @@ sub f(x: a)
     .maxstack 8
     
     ldarg.0
-    call void [System.Console]System.Console::WriteLine(string)
+    call void class [System.Console]System.Console::WriteLine(string)
     ret
 }
 ###end

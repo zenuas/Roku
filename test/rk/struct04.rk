@@ -64,7 +64,7 @@ print(w.x)
     stloc.1
     
     ldloc.1
-    call void [System.Console]System.Console::WriteLine(int32)
+    call void class [System.Console]System.Console::WriteLine(int32)
     
     newobj instance void class 'Foo<string>'::.ctor()
     stloc.2
@@ -78,7 +78,7 @@ print(w.x)
     stloc.3
     
     ldloc.3
-    call void [System.Console]System.Console::WriteLine(string)
+    call void class [System.Console]System.Console::WriteLine(string)
     ret
 }
 ###end

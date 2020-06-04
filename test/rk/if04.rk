@@ -29,7 +29,7 @@ else if x: String = a + a + a
     
     ldloc.0
     ldloc.0
-    call string [System.Runtime]System.String::Concat(string, string)
+    call string class [System.Runtime]System.String::Concat(string, string)
     stloc.1
     
     ldloc.1
@@ -40,7 +40,7 @@ else if x: String = a + a + a
     stloc.2
     
     ldloc.2
-    call void [System.Console]System.Console::WriteLine(int32)
+    call void class [System.Console]System.Console::WriteLine(int32)
     
     br _EndIf2
     
@@ -48,12 +48,12 @@ _ElseIf1:
     
     ldloc.0
     ldloc.0
-    call string [System.Runtime]System.String::Concat(string, string)
+    call string class [System.Runtime]System.String::Concat(string, string)
     stloc.3
     
     ldloc.3
     ldloc.0
-    call string [System.Runtime]System.String::Concat(string, string)
+    call string class [System.Runtime]System.String::Concat(string, string)
     stloc.s 4
     
     ldloc.s 4
@@ -65,7 +65,7 @@ _ElseIf1:
     brfalse.s _EndIf2
     
     ldloc.s 5
-    call void [System.Console]System.Console::WriteLine(string)
+    call void class [System.Console]System.Console::WriteLine(string)
     
 _EndIf2:
     ret

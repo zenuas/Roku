@@ -58,14 +58,14 @@ print(v.y)
     stloc.1
     
     ldloc.1
-    call void [System.Console]System.Console::WriteLine(int32)
+    call void class [System.Console]System.Console::WriteLine(int32)
     
     ldloc.0
     ldfld string class Foo::y
     stloc.2
     
     ldloc.2
-    call void [System.Console]System.Console::WriteLine(string)
+    call void class [System.Console]System.Console::WriteLine(string)
     ret
 }
 .method public static int32 f(int32)
@@ -93,7 +93,7 @@ print(v.y)
     
     ldarg.0
     ldarg.0
-    call string [System.Runtime]System.String::Concat(string, string)
+    call string class [System.Runtime]System.String::Concat(string, string)
     stloc.0
     
     ldloc.0

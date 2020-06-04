@@ -20,7 +20,7 @@ print(a)
     stloc.0
     
     ldloc.0
-    call void [System.Console]System.Console::WriteLine(int32)
+    call void class [System.Console]System.Console::WriteLine(int32)
     ret
 }
 ###end

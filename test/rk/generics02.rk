@@ -32,14 +32,14 @@ sub f(x: a) a
     stloc.0
     
     ldloc.0
-    call void [System.Console]System.Console::WriteLine(int32)
+    call void class [System.Console]System.Console::WriteLine(int32)
     
     ldstr "hello"
     call string f(string)
     stloc.1
     
     ldloc.1
-    call void [System.Console]System.Console::WriteLine(string)
+    call void class [System.Console]System.Console::WriteLine(string)
     ret
 }
 .method public static int32 f(int32)
@@ -67,7 +67,7 @@ sub f(x: a) a
     
     ldarg.0
     ldarg.0
-    call string [System.Runtime]System.String::Concat(string, string)
+    call string class [System.Runtime]System.String::Concat(string, string)
     stloc.0
     
     ldloc.0

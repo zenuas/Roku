@@ -50,7 +50,7 @@ print(v.x)
     stloc.1
     
     ldloc.1
-    call void [System.Console]System.Console::WriteLine(int32)
+    call void class [System.Console]System.Console::WriteLine(int32)
     ret
 }
 ###end

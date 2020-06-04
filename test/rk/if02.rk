@@ -82,14 +82,14 @@ sub f(n: Int)
     brfalse _Else1
     
     ldstr "n > 20"
-    call void [System.Console]System.Console::WriteLine(string)
+    call void class [System.Console]System.Console::WriteLine(string)
     
     br _EndIf2
     
 _Else1:
     
     ldstr "n > 10 && n <= 20"
-    call void [System.Console]System.Console::WriteLine(string)
+    call void class [System.Console]System.Console::WriteLine(string)
     
 _EndIf2:
     
@@ -106,7 +106,7 @@ _ElseIf3:
     brfalse _ElseIf4
     
     ldstr "n > 5"
-    call void [System.Console]System.Console::WriteLine(string)
+    call void class [System.Console]System.Console::WriteLine(string)
     
     br _EndIf6
     
@@ -121,14 +121,14 @@ _ElseIf4:
     brfalse _Else5
     
     ldstr "n > 0"
-    call void [System.Console]System.Console::WriteLine(string)
+    call void class [System.Console]System.Console::WriteLine(string)
     
     br _EndIf6
     
 _Else5:
     
     ldstr "other"
-    call void [System.Console]System.Console::WriteLine(string)
+    call void class [System.Console]System.Console::WriteLine(string)
     
 _EndIf6:
     ret

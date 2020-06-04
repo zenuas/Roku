@@ -41,7 +41,7 @@ Int型の四則演算のテスト
     stloc.0
     
     ldloc.0
-    call void [System.Console]System.Console::WriteLine(int32)
+    call void class [System.Console]System.Console::WriteLine(int32)
     
     ldc.i4.8
     ldc.i4.3
@@ -49,7 +49,7 @@ Int型の四則演算のテスト
     stloc.1
     
     ldloc.1
-    call void [System.Console]System.Console::WriteLine(int32)
+    call void class [System.Console]System.Console::WriteLine(int32)
     
     ldc.i4.2
     ldc.i4.3
@@ -57,7 +57,7 @@ Int型の四則演算のテスト
     stloc.2
     
     ldloc.2
-    call void [System.Console]System.Console::WriteLine(int32)
+    call void class [System.Console]System.Console::WriteLine(int32)
     
     ldc.i4.s 21
     ldc.i4.3
@@ -65,7 +65,7 @@ Int型の四則演算のテスト
     stloc.3
     
     ldloc.3
-    call void [System.Console]System.Console::WriteLine(int32)
+    call void class [System.Console]System.Console::WriteLine(int32)
     
     ldc.i4.s 18
     ldc.i4.s 10
@@ -73,7 +73,7 @@ Int型の四則演算のテスト
     stloc.s 4
     
     ldloc.s 4
-    call void [System.Console]System.Console::WriteLine(int32)
+    call void class [System.Console]System.Console::WriteLine(int32)
     ret
 }
 ###end

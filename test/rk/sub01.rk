@@ -45,7 +45,7 @@ sub f(x: Int)
 _EndIf1:
     
     ldarg.0
-    call void [System.Console]System.Console::WriteLine(int32)
+    call void class [System.Console]System.Console::WriteLine(int32)
     ret
 }
 ###end

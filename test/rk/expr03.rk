@@ -78,7 +78,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
     stloc.0
     
     ldloc.0
-    call void [System.Console]System.Console::WriteLine(bool)
+    call void class [System.Console]System.Console::WriteLine(bool)
     
     ldc.i4.3
     ldc.i4.1
@@ -86,7 +86,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
     stloc.1
     
     ldloc.1
-    call void [System.Console]System.Console::WriteLine(bool)
+    call void class [System.Console]System.Console::WriteLine(bool)
     
     ldc.i4.1
     ldc.i4.3
@@ -94,7 +94,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
     stloc.2
     
     ldloc.2
-    call void [System.Console]System.Console::WriteLine(bool)
+    call void class [System.Console]System.Console::WriteLine(bool)
     
     ldc.i4.3
     ldc.i4.1
@@ -102,7 +102,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
     stloc.3
     
     ldloc.3
-    call void [System.Console]System.Console::WriteLine(bool)
+    call void class [System.Console]System.Console::WriteLine(bool)
     
     ldc.i4.1
     ldc.i4.3
@@ -112,7 +112,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
     stloc.s 4
     
     ldloc.s 4
-    call void [System.Console]System.Console::WriteLine(bool)
+    call void class [System.Console]System.Console::WriteLine(bool)
     
     ldc.i4.3
     ldc.i4.1
@@ -122,7 +122,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
     stloc.s 5
     
     ldloc.s 5
-    call void [System.Console]System.Console::WriteLine(bool)
+    call void class [System.Console]System.Console::WriteLine(bool)
     
     ldc.i4.3
     ldc.i4.3
@@ -132,7 +132,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
     stloc.s 6
     
     ldloc.s 6
-    call void [System.Console]System.Console::WriteLine(bool)
+    call void class [System.Console]System.Console::WriteLine(bool)
     
     ldc.i4.1
     ldc.i4.3
@@ -142,7 +142,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
     stloc.s 7
     
     ldloc.s 7
-    call void [System.Console]System.Console::WriteLine(bool)
+    call void class [System.Console]System.Console::WriteLine(bool)
     
     ldc.i4.3
     ldc.i4.1
@@ -152,7 +152,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
     stloc.s 8
     
     ldloc.s 8
-    call void [System.Console]System.Console::WriteLine(bool)
+    call void class [System.Console]System.Console::WriteLine(bool)
     
     ldc.i4.3
     ldc.i4.3
@@ -162,7 +162,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
     stloc.s 9
     
     ldloc.s 9
-    call void [System.Console]System.Console::WriteLine(bool)
+    call void class [System.Console]System.Console::WriteLine(bool)
     
     ldc.i4.3
     ldc.i4.1
@@ -170,7 +170,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
     stloc.s 10
     
     ldloc.s 10
-    call void [System.Console]System.Console::WriteLine(bool)
+    call void class [System.Console]System.Console::WriteLine(bool)
     
     ldc.i4.3
     ldc.i4.3
@@ -178,7 +178,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
     stloc.s 11
     
     ldloc.s 11
-    call void [System.Console]System.Console::WriteLine(bool)
+    call void class [System.Console]System.Console::WriteLine(bool)
     
     ldc.i4.3
     ldc.i4.1
@@ -188,7 +188,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
     stloc.s 12
     
     ldloc.s 12
-    call void [System.Console]System.Console::WriteLine(bool)
+    call void class [System.Console]System.Console::WriteLine(bool)
     
     ldc.i4.3
     ldc.i4.3
@@ -198,7 +198,7 @@ ldloc、stlocが4以上の時にldloc.s、stloc.sになる事
     stloc.s 13
     
     ldloc.s 13
-    call void [System.Console]System.Console::WriteLine(bool)
+    call void class [System.Console]System.Console::WriteLine(bool)
     ret
 }
 ###end
