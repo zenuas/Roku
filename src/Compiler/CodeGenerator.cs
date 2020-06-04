@@ -156,10 +156,11 @@ namespace Roku.Compiler
                             il.WriteLine(args.Join('\n'));
                             var callsig = fx.Function.IsVirtual ? "callvirt instance" : "call";
                             var retvar = GetParameterName(fx.Function.ReturnType);
+                            var asmname = $"[{fx.Assembly.GetName().Name}]";
                             var classname = GetTypeName(GetType(fx), call.Caller!.GenericsMapper);
                             var fname = fx.Function.Name;
                             var param_args = fx.Function.GetParameters().Map(x => GetParameterName(x.ParameterType)).Join(", ");
-                            il.WriteLine($"{callsig} {retvar} {classname}::{fname}({param_args})");
+                            il.WriteLine($"{callsig} {retvar} class {asmname}{classname}::{fname}({param_args})");
                         }
                         else if (f.Function is FunctionBody fb)
                         {
