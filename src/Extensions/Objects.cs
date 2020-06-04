@@ -22,6 +22,9 @@ namespace Extensions
         }
 
         [DebuggerHidden]
+        public static bool In<T>(this T self, params T[] args) where T : IEquatable<T> => !args.Where(self.Equals).IsNull();
+
+        [DebuggerHidden]
         public static T Cast<T>(this object self) => (T)self;
     }
 }
