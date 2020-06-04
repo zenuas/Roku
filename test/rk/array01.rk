@@ -1,7 +1,8 @@
 
+#=>1
 var xs = System.Collections.Generic.List<Int>()
 xs.Add(1)
-print(xs[1])
+print(xs[0])
 
 
 ###start
@@ -14,13 +15,26 @@ print(xs[1])
     .entrypoint
     .maxstack 8
     .locals(
-        [0] class [System.Collections]System.Collections.Generic.List`1<int32> xs
+        [0] class [System.Collections]System.Collections.Generic.List`1<int32> xs,
+        [1] int32 $$3
     )
     
     
     
     newobj instance void class [System.Collections]System.Collections.Generic.List`1<int32>::.ctor()
     stloc.0
+    
+    ldloc.0
+    ldc.i4.1
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    
+    ldloc.0
+    ldc.i4.0
+    callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<int32>::get_Item(int32)
+    stloc.1
+    
+    ldloc.1
+    call void class [System.Console]System.Console::WriteLine(int32)
     ret
 }
 ###end
