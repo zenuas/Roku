@@ -78,7 +78,7 @@ namespace Roku.Compiler
             }
             if (ns is TypeSpecialization sp && sp.Body is ExternStruct sx)
             {
-                foreach (var m in sx.Struct.GetMethods().Where(x => x.Name == name && x.GetParameters().Length + (x.IsStatic ? 0 : 1) == args.Count))
+                foreach (var m in sx.Struct.GetMethods().Where(x => MatchMethodName(x, name) && x.GetParameters().Length + (x.IsStatic ? 0 : 1) == args.Count))
                 {
                     var g = new GenericsMapper();
 
@@ -97,6 +97,25 @@ namespace Roku.Compiler
                 }
             }
             return null;
+        }
+
+        public static bool MatchMethodName(MethodInfo mi, string name)
+        {
+            if (!mi.IsSpecialName) return mi.Name == name;
+            switch (name)
+            {
+                case "[]": return mi.Name.In("get_Item", "set_Item");
+                case "+": return mi.Name == "op_Addition";
+                case "-": return mi.Name == "op_Subtraction";
+                case "==": return mi.Name == "op_Equality";
+                case "!=": return mi.Name == "op_Inequality";
+                case "<": return mi.Name == "op_LessThan";
+                case "<=": return mi.Name == "op_LessThanOrEqual";
+                case ">": return mi.Name == "op_GreaterThan";
+                case ">=": return mi.Name == "op_GreaterThanOrEqual";
+                default: return !new string[] { "get_", "set_", "add_", "remove_" }.Where(x => mi.Name.StartsWith(x) && mi.Name.Substring(x.Length) == name).IsNull();
+            }
+            throw new Exception();
         }
 
         public static (bool Exists, GenericsMapper GenericsMapper) FunctionArgumentsEquals(INamespace ns, IFunctionBody source, List<IStructBody?> args)
