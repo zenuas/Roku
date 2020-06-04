@@ -154,7 +154,12 @@ namespace Roku.Compiler
                         if (f.Function is ExternFunction fx)
                         {
                             il.WriteLine(args.Join('\n'));
-                            il.WriteLine($"{(fx.Function.IsVirtual ? "callvirt instance" : "call")} {GetILStructName(fx.Function.ReturnType)} {(fx.Function.IsVirtual ? "class " : "")}[{fx.Assembly.GetName().Name}]{GetTypeName(GetType(fx), call.Caller!.GenericsMapper)}::{fx.Function.Name}({fx.Function.GetParameters().Map(x => GetParameterName(x.ParameterType)).Join(", ")})");
+                            var callsig = fx.Function.IsVirtual ? "callvirt instance" : "call";
+                            var retvar = GetParameterName(fx.Function.ReturnType);
+                            var classname = GetTypeName(GetType(fx), call.Caller!.GenericsMapper);
+                            var fname = fx.Function.Name;
+                            var param_args = fx.Function.GetParameters().Map(x => GetParameterName(x.ParameterType)).Join(", ");
+                            il.WriteLine($"{callsig} {retvar} {classname}::{fname}({param_args})");
                         }
                         else if (f.Function is FunctionBody fb)
                         {
