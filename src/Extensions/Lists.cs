@@ -194,16 +194,16 @@ namespace Extensions
         public static T FindFirst<T>(this IEnumerable<T> self, Func<T, int, bool> f) => self.Where(f).First();
 
         [DebuggerHidden]
-        public static T? FindFirstOrNull<T>(this IEnumerable<T> self, Func<T, bool> f) where T : class => self.Where(f).If<IEnumerable<T>, T?>(x => x.IsNull(), _ => null, x => x.First());
+        public static T? FindFirstOrNull<T>(this IEnumerable<T> self, Func<T, bool> f) where T : class => self.Where(f).If<IEnumerable<T>, T?>(IsNull, _ => null, x => x.First());
 
         [DebuggerHidden]
-        public static T? FindFirstOrNull<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : class => self.Where(f).If<IEnumerable<T>, T?>(x => x.IsNull(), _ => null, x => x.First());
+        public static T? FindFirstOrNull<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : class => self.Where(f).If<IEnumerable<T>, T?>(IsNull, _ => null, x => x.First());
 
         [DebuggerHidden]
-        public static T? FindFirstOrNullValue<T>(this IEnumerable<T> self, Func<T, bool> f) where T : struct => self.Where(f).If<IEnumerable<T>, T?>(x => x.IsNull(), _ => null, x => x.First());
+        public static T? FindFirstOrNullValue<T>(this IEnumerable<T> self, Func<T, bool> f) where T : struct => self.Where(f).If<IEnumerable<T>, T?>(IsNull, _ => null, x => x.First());
 
         [DebuggerHidden]
-        public static T? FindFirstOrNullValue<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : struct => self.Where(f).If<IEnumerable<T>, T?>(x => x.IsNull(), _ => null, x => x.First());
+        public static T? FindFirstOrNullValue<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : struct => self.Where(f).If<IEnumerable<T>, T?>(IsNull, _ => null, x => x.First());
 
         [DebuggerHidden]
         public static int FindFirstIndex<T>(this IEnumerable<T> self, Func<T, bool> f) => self.Zip(Sequence(0)).Where(x => f(x.First)).If(IsNull, _ => -1, x => x.First().Second);
@@ -218,16 +218,16 @@ namespace Extensions
         public static T FindLast<T>(this IEnumerable<T> self, Func<T, int, bool> f) => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First, x.Second)).First().First;
 
         [DebuggerHidden]
-        public static T? FindLastOrNull<T>(this IEnumerable<T> self, Func<T, bool> f) where T : class => self.Reverse().Where(f).If<IEnumerable<T>, T?>(x => x.IsNull(), _ => null, x => x.First());
+        public static T? FindLastOrNull<T>(this IEnumerable<T> self, Func<T, bool> f) where T : class => self.Reverse().Where(f).If<IEnumerable<T>, T?>(IsNull, _ => null, x => x.First());
 
         [DebuggerHidden]
-        public static T? FindLastOrNull<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : class => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First, x.Second)).If<IEnumerable<(T, int)>, T?>(x => x.IsNull(), _ => null, x => x.First().Item1);
+        public static T? FindLastOrNull<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : class => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First, x.Second)).If<IEnumerable<(T, int)>, T?>(IsNull, _ => null, x => x.First().Item1);
 
         [DebuggerHidden]
-        public static T? FindLastOrNullValue<T>(this IEnumerable<T> self, Func<T, bool> f) where T : struct => self.Reverse().Where(f).If<IEnumerable<T>, T?>(x => x.IsNull(), _ => null, x => x.First());
+        public static T? FindLastOrNullValue<T>(this IEnumerable<T> self, Func<T, bool> f) where T : struct => self.Reverse().Where(f).If<IEnumerable<T>, T?>(IsNull, _ => null, x => x.First());
 
         [DebuggerHidden]
-        public static T? FindLastOrNullValue<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : struct => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First, x.Second)).If<IEnumerable<(T, int)>, T?>(x => x.IsNull(), _ => null, x => x.First().Item1);
+        public static T? FindLastOrNullValue<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : struct => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First, x.Second)).If<IEnumerable<(T, int)>, T?>(IsNull, _ => null, x => x.First().Item1);
 
         [DebuggerHidden]
         public static int FindLastIndex<T>(this IEnumerable<T> self, Func<T, bool> f) => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First)).If(IsNull, _ => -1, x => x.First().Second);
