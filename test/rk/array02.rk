@@ -1,0 +1,54 @@
+
+#=>bc
+var xs = ["a", "b", "c"]
+print(xs[1] + xs[2])
+
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly extern System.Collections {}
+.assembly array02 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] class [System.Collections]System.Collections.Generic.List`1<string> xs,
+        [1] string $$2,
+        [2] string $$3,
+        [3] string $$1
+    )
+    
+    newobj instance void class [System.Collections]System.Collections.Generic.List`1<string>::.ctor()
+    dup
+    ldstr "a"
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+    dup
+    ldstr "b"
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+    dup
+    ldstr "c"
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+    stloc.0
+    
+    ldloc.0
+    ldc.i4.1
+    callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<string>::get_Item(int32)
+    stloc.1
+    
+    ldloc.0
+    ldc.i4.2
+    callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<string>::get_Item(int32)
+    stloc.2
+    
+    ldloc.1
+    ldloc.2
+    call string class [System.Runtime]System.String::Concat(string, string)
+    stloc.3
+    
+    ldloc.3
+    call void class [System.Console]System.Console::WriteLine(string)
+    ret
+}
+###end

@@ -349,7 +349,8 @@ namespace Roku.Compiler
 
                 case ArrayContainer x:
                     x.Values.Each(value => ToTypedValue(ns, m, value));
-                    m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "ListInt"), VariableType.PrimitiveValue);
+                    var gens = new List<IStructBody>() { m[x.Values[0]].Struct! };
+                    m[x] = CreateVariableDetail("", Lookup.FindStructOrNull(ns, new string[] { "System", "Collections", "Generic", "List" }, gens), VariableType.PrimitiveValue);
                     return m[x];
 
                 case TypeValue x:
