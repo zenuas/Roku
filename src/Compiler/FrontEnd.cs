@@ -59,6 +59,7 @@ namespace Roku.Compiler
             root.Functions.Add(new EmbeddedFunction("<=", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\ncgt\nldc.i4.0\nceq" });
             root.Functions.Add(new EmbeddedFunction(">", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\ncgt" });
             root.Functions.Add(new EmbeddedFunction(">=", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nclt\nldc.i4.0\nceq" });
+            root.Functions.Add(new EmbeddedFunction("+", type, type) { OpCode = (args) => args[0] });
             root.Functions.Add(new EmbeddedFunction("-", type, type) { OpCode = (args) => $"ldc.i4.0\n{args[0]}\nsub" });
         }
     }

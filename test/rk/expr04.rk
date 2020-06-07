@@ -5,8 +5,8 @@ print(-1)
 #=>1
 print(- -1)
 
-##=>1
-#print(+1)
+#=>2
+print(+2)
 
 ###
 Int型の単項マイナスのテスト
@@ -32,7 +32,8 @@ C言語でたまにある二重否定(!!n)と同じことをする場合
     .locals(
         [0] int32 $$1,
         [1] int32 $$3,
-        [2] int32 $$2
+        [2] int32 $$2,
+        [3] int32 $$4
     )
     
     ldc.i4.0
@@ -54,6 +55,12 @@ C言語でたまにある二重否定(!!n)と同じことをする場合
     stloc.2
     
     ldloc.2
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldc.i4.2
+    stloc.3
+    
+    ldloc.3
     call void class [System.Console]System.Console::WriteLine(int32)
     ret
 }
