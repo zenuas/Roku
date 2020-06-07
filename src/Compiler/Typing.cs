@@ -25,11 +25,9 @@ namespace Roku.Compiler
 
         public static bool TypeInference(StructBody body)
         {
-            var resolved = false;
-
-            while (StructBodyInference(body)) resolved = true;
+            var resolved = StructBodyInference(body);
             SpecializationNumericDecide(body);
-            while (StructBodyInference(body)) ;
+            _ = StructBodyInference(body);
 
             VariableValue self;
             if (body.LexicalScope.ContainsKey("$self"))
@@ -71,11 +69,9 @@ namespace Roku.Compiler
 
         public static bool TypeInference(FunctionBody body)
         {
-            var resolved = false;
-
-            while (FunctionBodyInference(body)) resolved = true;
+            var resolved = FunctionBodyInference(body);
             SpecializationNumericDecide(body);
-            while (FunctionBodyInference(body)) ;
+            _ = FunctionBodyInference(body);
 
             foreach (var mapper in body.SpecializationMapper.Values)
             {
@@ -153,7 +149,7 @@ namespace Roku.Compiler
 
         public static bool ResolveFunctionWithEffect(INamespace ns, TypeMapper m, Call call)
         {
-            if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { }) return false;
+            if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { } p && IsDecideType(p)) return false;
 
             var resolve = false;
             var lookupns = ns;
@@ -287,7 +283,7 @@ namespace Roku.Compiler
 
         public static bool ArgumentInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, TypeValue type, int index)
         {
-            if (m.ContainsKey(v) && m[v].Struct is { }) return false;
+            if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return false;
             if (type.Types == Types.Generics)
             {
                 if (!m.ContainsKey(type)) m[type] = CreateVariableDetail(type.Name, new GenericsParameter(type.Name), VariableType.TypeParameter, index);
@@ -302,7 +298,7 @@ namespace Roku.Compiler
 
         public static bool TypeInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, string type_name)
         {
-            if (m.ContainsKey(v) && m[v].Struct is { }) return false;
+            if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return false;
             m[v] = CreateVariableDetail("", Lookup.LoadStruct(ns, type_name), VariableType.Type);
             return true;
         }
@@ -311,7 +307,7 @@ namespace Roku.Compiler
         {
             if (m.ContainsKey(v))
             {
-                if (m[v].Struct is { } || b is null) return false;
+                if ((m[v].Struct is { } p && IsDecideType(p)) || b is null) return false;
                 m[v].Struct = b;
             }
             else
@@ -323,11 +319,12 @@ namespace Roku.Compiler
 
         public static VariableDetail ToTypedValue(INamespace ns, TypeMapper m, ITypedValue v)
         {
-            if (m.ContainsKey(v) && m[v].Struct is { }) return m[v];
+            if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return m[v];
 
             switch (v)
             {
                 case NumericValue x:
+                    if (m.ContainsKey(v) && m[x].Struct is NumericStruct num) return m[x];
                     m[x] = CreateNumericType(ns);
                     return m[x];
 
@@ -408,5 +405,18 @@ namespace Roku.Compiler
         }
 
         public static VariableDetail CreateVariableDetail(string name, IStructBody? b, VariableType type, int index = 0) => new VariableDetail { Name = name, Struct = b, Type = type, Index = index };
+
+        public static bool IsDecideType(IStructBody body)
+        {
+            if (body is TypeSpecialization sp)
+            {
+                return sp.GenericsMapper.And(x => x.Value is { } p && IsDecideType(p));
+            }
+            else if (body is NumericStruct num)
+            {
+                return num.Types.Count == 1;
+            }
+            return true;
+        }
     }
 }
