@@ -4,9 +4,54 @@ var xs = [1, 2, 3]
 print(xs[1] + xs[2])
 
 ###
-
+数値型は[Int | Long | Short | Byte]型になるがIntに収束する
 ###
 
 ###start
-
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly extern System.Collections {}
+.assembly array03 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] class [System.Collections]System.Collections.Generic.List`1<int32> xs,
+        [1] int32 $$2,
+        [2] int32 $$3,
+        [3] int32 $$1
+    )
+    
+    newobj instance void class [System.Collections]System.Collections.Generic.List`1<int32>::.ctor()
+    dup
+    ldc.i4.1
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    dup
+    ldc.i4.2
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    dup
+    ldc.i4.3
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    stloc.0
+    
+    ldloc.0
+    ldc.i4.1
+    callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<int32>::get_Item(int32)
+    stloc.1
+    
+    ldloc.0
+    ldc.i4.2
+    callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<int32>::get_Item(int32)
+    stloc.2
+    
+    ldloc.1
+    ldloc.2
+    add
+    stloc.3
+    
+    ldloc.3
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
 ###end
