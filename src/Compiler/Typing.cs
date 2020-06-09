@@ -91,21 +91,25 @@ namespace Roku.Compiler
             {
                 var value = body.SpecializationMapper[keys[i]];
                 body.Arguments.Each((x, i) => resolved = ArgumentInferenceWithEffect(body.Namespace, value, x.Name, x.Type, i) || resolved);
-                if (body.Return is { } x) resolved = TypeInferenceWithEffect(body.Namespace, value, x, x.Name) || resolved;
+                if (body.Return is { } x) resolved = TypeInferenceWithEffect(body.Namespace, value, x, x) || resolved;
                 body.Body.Each(x => resolved = OperandTypeInference(body.Namespace, value, x) || resolved);
             }
             return resolved;
         }
 
-        public static void SpecializationNumericDecide(ISpecialization sp)
+        public static void SpecializationNumericDecide(ISpecialization sp) => sp.SpecializationMapper.Values.Each(TypeMapperNumericDecide);
+
+        public static void TypeMapperNumericDecide(TypeMapper m)
         {
-            foreach (var value in sp.SpecializationMapper.Values)
+            var nums = m.Where(x => x.Value.Struct is NumericStruct).ToList();
+            for (var i = 0; i < nums.Count; i++)
             {
-                var nums = value.Where(x => x.Value.Struct is NumericStruct).ToList();
-                for (var i = 0; i < nums.Count; i++)
-                {
-                    nums[i].Value.Struct = nums[i].Value.Struct!.Cast<NumericStruct>().Types.First();
-                }
+                nums[i].Value.Struct = nums[i].Value.Struct!.Cast<NumericStruct>().Types.First();
+            }
+            foreach (var fm in m.Where(x => x.Value.Struct is FunctionMapper).Map(x => x.Value.Struct!.Cast<FunctionMapper>()))
+            {
+                if (fm.Function is ISpecialization sp) SpecializationNumericDecide(sp);
+                TypeMapperNumericDecide(fm.TypeMapper);
             }
         }
 
@@ -174,7 +178,6 @@ namespace Roku.Compiler
                         var ret = new EmbeddedFunction("return", null, args.Map(x => x?.Name!).ToArray()) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                         var fm = new FunctionMapper(ret);
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
-                        call.Caller = new FunctionCaller(ret, new GenericsMapper());
                         return true;
                     }
 
@@ -184,11 +187,13 @@ namespace Roku.Compiler
                         if (caller is null) break;
 
                         var fm = new FunctionMapper(caller.Body);
+                        caller.GenericsMapper.Each(p => fm.TypeMapper[p.Key] = CreateVariableDetail(p.Key.Name, p.Value, VariableType.TypeParameter));
                         IStructBody? ret = null;
                         if (caller.Body is FunctionBody fb)
                         {
-                            if (Lookup.GetTypemapperOrNull(fb.SpecializationMapper, caller.GenericsMapper) is null) fb.SpecializationMapper[caller.GenericsMapper] = GenericsMapperToTypeMapper(caller.GenericsMapper);
-                            if (fb.Return is { }) fm.TypeMapper[fb.Return] = CreateVariableDetail("", ret = Lookup.GetArgumentType(fb.Namespace, fb.Return, caller.GenericsMapper), VariableType.Type);
+                            if (Lookup.GetTypemapperOrNull(fb.SpecializationMapper, caller.GenericsMapper) is null) fb.SpecializationMapper[caller.GenericsMapper] = Lookup.GenericsMapperToTypeMapper(caller.GenericsMapper);
+                            if (fb.Return is { } && !fm.TypeMapper.ContainsKey(fb.Return)) fm.TypeMapper[fb.Return] = CreateVariableDetail("", Lookup.GetArgumentType(fb.Namespace, fb.Return, caller.GenericsMapper), VariableType.Type);
+                            if (fb.Return is { }) ret = fm.TypeMapper[fb.Return].Struct;
                             fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(x.Name.Name, Lookup.GetArgumentType(fb.Namespace, x.Type, caller.GenericsMapper), VariableType.Argument, i));
                             fb.Arguments.Each((x, i) => Feedback(args[i], fm.TypeMapper[x.Name].Struct));
                         }
@@ -198,11 +203,11 @@ namespace Roku.Compiler
                         }
                         else if (caller.Body is EmbeddedFunction ef)
                         {
-                            if (ef.Return is { }) fm.TypeMapper[ef.Return] = CreateVariableDetail("", ret = Lookup.LoadStruct(ns, ef.Return.Name), VariableType.Type);
+                            if (ef.Return is { } && !fm.TypeMapper.ContainsKey(ef.Return)) fm.TypeMapper[ef.Return] = CreateVariableDetail("", Lookup.LoadStruct(ns, ef.Return.Name), VariableType.Type);
+                            if (ef.Return is { }) ret = fm.TypeMapper[ef.Return].Struct;
                             ef.Arguments.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail($"${i}", Lookup.LoadStruct(ns, x.Name), VariableType.Argument, i));
                         }
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
-                        call.Caller = caller;
                         if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, ret);
                         resolve = true;
                     }
@@ -261,7 +266,7 @@ namespace Roku.Compiler
         public static void AppendSpecialization(ISpecialization sp, GenericsMapper g)
         {
             if (Lookup.GetGenericsTypeMapperOrNull(sp.SpecializationMapper, g).HasValue) return;
-            sp.SpecializationMapper[g] = GenericsMapperToTypeMapper(g);
+            sp.SpecializationMapper[g] = Lookup.GenericsMapperToTypeMapper(g);
         }
 
         public static void Feedback(IStructBody? left, IStructBody? right)
@@ -272,13 +277,6 @@ namespace Roku.Compiler
             {
                 if (num.Types.Contains(right)) num.Types.RemoveAll(x => x != right);
             }
-        }
-
-        public static TypeMapper GenericsMapperToTypeMapper(GenericsMapper g)
-        {
-            var mapper = new TypeMapper();
-            g.Each(kv => mapper[kv.Key] = CreateVariableDetail(kv.Key.Name, kv.Value, VariableType.TypeParameter));
-            return mapper;
         }
 
         public static bool ArgumentInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, TypeValue type, int index)
@@ -296,10 +294,17 @@ namespace Roku.Compiler
             return true;
         }
 
-        public static bool TypeInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, string type_name)
+        public static bool TypeInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, TypeValue type)
         {
             if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return false;
-            m[v] = CreateVariableDetail("", Lookup.LoadStruct(ns, type_name), VariableType.Type);
+            if (type.Types == Types.Generics)
+            {
+                m[v] = CreateVariableDetail("", m[type].Struct, VariableType.TypeParameter);
+            }
+            else
+            {
+                m[v] = CreateVariableDetail("", Lookup.LoadStruct(ns, type.Name), VariableType.Type);
+            }
             return true;
         }
 
@@ -415,6 +420,12 @@ namespace Roku.Compiler
             else if (body is NumericStruct num)
             {
                 return num.Types.Count == 1;
+            }
+            else if (body is FunctionMapper fm && fm.Function is ISpecialization sp2)
+            {
+                var g = Lookup.TypeMapperToGenericsMapper(fm.TypeMapper);
+                var mapper = Lookup.GetTypemapperOrNull(sp2.SpecializationMapper, g);
+                return mapper is { };
             }
             return true;
         }

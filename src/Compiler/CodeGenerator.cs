@@ -67,7 +67,7 @@ namespace Roku.Compiler
                 var labels = Lookup.AllLabels(body.Body).Zip(Lists.Sequence(1)).ToDictionary(x => x.First, x => $"_{x.First.Name}{x.Second}");
                 body.Body.Each(x =>
                 {
-                    if (x is Call call) CallToAddEmitFunctionList(call, fss);
+                    if (x is Call call) CallToAddEmitFunctionList(mapper, call, fss);
                     AssemblyOperandEmit(il, x, mapper, labels, g);
                 });
                 il.WriteLine("ret");
@@ -105,7 +105,7 @@ namespace Roku.Compiler
                 var labels = Lookup.AllLabels(f.Body).Zip(Lists.Sequence(1)).ToDictionary(x => x.First, x => $"_{x.First.Name}{x.Second}");
                 f.Body.Each(x =>
                 {
-                    if (x is Call call) CallToAddEmitFunctionList(call, fss);
+                    if (x is Call call) CallToAddEmitFunctionList(mapper, call, fss);
                     AssemblyOperandEmit(il, x, mapper, labels, g);
                 });
                 il.WriteLine("ret");
@@ -114,20 +114,24 @@ namespace Roku.Compiler
             }
         }
 
-        public static void CallToAddEmitFunctionList(Call call, List<FunctionCaller> fss)
+        public static void CallToAddEmitFunctionList(TypeMapper m, Call call, List<FunctionCaller> fss)
         {
-            if (call.Caller is { } caller &&
-                caller.Body is FunctionBody &&
-                fss.FindFirstIndex(x => EqualsFunctionCaller(x, caller)) < 0)
+            var f = m[call.Function.Function].Struct!.Cast<FunctionMapper>();
+
+            if (f.Function is FunctionBody body)
             {
-                fss.Add(caller);
+                var g = Lookup.TypeMapperToGenericsMapper(f.TypeMapper);
+                if (fss.FindFirstIndex(x => EqualsFunctionCaller(x, body, g)) < 0)
+                {
+                    fss.Add(new FunctionCaller(body, g));
+                }
             }
         }
 
-        public static bool EqualsFunctionCaller(FunctionCaller left, FunctionCaller right)
+        public static bool EqualsFunctionCaller(FunctionCaller left, IFunctionBody right, GenericsMapper right_g)
         {
-            if (left.Body != right.Body) return false;
-            return left.GenericsMapper.Keys.And(x => left.GenericsMapper[x] == right.GenericsMapper[x]);
+            if (left.Body != right) return false;
+            return left.GenericsMapper.Keys.And(x => left.GenericsMapper[x] == right_g[x]);
         }
 
         public static void AssemblyOperandEmit(ILWriter il, IOperand op, TypeMapper m, Dictionary<LabelCode, string> labels, GenericsMapper g)
@@ -157,7 +161,7 @@ namespace Roku.Compiler
                             var callsig = fx.Function.IsVirtual ? "callvirt instance" : "call";
                             var retvar = GetParameterName(fx.Function.ReturnType);
                             var asmname = $"[{fx.Assembly.GetName().Name}]";
-                            var classname = GetTypeName(GetType(fx), call.Caller!.GenericsMapper);
+                            var classname = GetTypeName(GetType(fx), Lookup.TypeMapperToGenericsMapper(f.TypeMapper));
                             var fname = fx.Function.Name;
                             var param_args = fx.Function.GetParameters().Map(x => GetParameterName(x.ParameterType)).Join(", ");
                             il.WriteLine($"{callsig} {retvar} class {asmname}{classname}::{fname}({param_args})");
