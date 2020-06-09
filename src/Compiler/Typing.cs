@@ -413,19 +413,18 @@ namespace Roku.Compiler
 
         public static bool IsDecideType(IStructBody body)
         {
-            if (body is TypeSpecialization sp)
+            switch (body)
             {
-                return sp.GenericsMapper.And(x => x.Value is { } p && IsDecideType(p));
-            }
-            else if (body is NumericStruct num)
-            {
-                return num.Types.Count == 1;
-            }
-            else if (body is FunctionMapper fm && fm.Function is ISpecialization sp2)
-            {
-                var g = Lookup.TypeMapperToGenericsMapper(fm.TypeMapper);
-                var mapper = Lookup.GetTypemapperOrNull(sp2.SpecializationMapper, g);
-                return mapper is { };
+                case TypeSpecialization x:
+                    return x.GenericsMapper.And(x => x.Value is { } p && IsDecideType(p));
+
+                case NumericStruct x:
+                    return x.Types.Count == 1;
+
+                case FunctionMapper x when x.Function is ISpecialization sp:
+                    var g = Lookup.TypeMapperToGenericsMapper(x.TypeMapper);
+                    var mapper = Lookup.GetTypemapperOrNull(sp.SpecializationMapper, g);
+                    return mapper is { };
             }
             return true;
         }
