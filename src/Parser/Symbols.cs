@@ -226,6 +226,9 @@ namespace Roku.Parser
         /// <summary>type</summary>
         type,
 
+        /// <summary>typeor</summary>
+        typeor,
+
         /// <summary>typev</summary>
         typev,
 

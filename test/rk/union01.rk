@@ -1,0 +1,19 @@
+
+#=>zero
+f(0)
+
+#=>1
+f(1)
+
+sub f(n: Int)
+	var x = f2(n)
+	if i: Int = x
+		print(i)
+	else if s: String = x
+		print(s)
+
+sub f2(n: Int) [Int | String]
+	if n == 0
+		return("zero")
+	else
+		return(n)

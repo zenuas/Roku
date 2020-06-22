@@ -17,7 +17,7 @@ using Roku.Node;
 %type<ListNode<DeclareNode>>    args argn
 %type<ListNode<IEvaluableNode>> list listn list2n
 %type<ITypeNode>                type gen
-%type<ListNode<ITypeNode>>      typen genn
+%type<ListNode<ITypeNode>>      typen genn typeor
 %type<TypeNode>                 nsvar typev
 %type<ITypeNode?>               typex
 %type<IIfNode>                  if ifthen elseif
@@ -119,11 +119,14 @@ argn   : decla          {$$ = CreateListNode($1);}
        | argn ',' decla {$$ = $1.Return(x => x.List.Add($3));}
 decla  : var ':' type   {$$ = new DeclareNode($1, $3).R($1);}
 type   : typev
-       | '[' type ']'   {$$ = new TypeArrayNode($2).R($1);}
+       | '[' type   ']' {$$ = new TypeArrayNode($2).R($1);}
+       | '[' typeor ']' {$$ = new UnionNode($2).R($1);}
 typev  : nsvar
 nsvar  : varx           {$$ = new TypeNode { Name = $1.Name }.R($1);}
 typex  : void
        | type
+typeor : type OR type   {$$ = CreateListNode($1, $3);}
+       | typeor OR type {$$ = $1.Return(x => x.List.Add($3));}
 
 ########## if ##########
 if     : ifthen
