@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Roku.Node
 {
@@ -6,12 +7,13 @@ namespace Roku.Node
     {
         public int? LineNumber { get; set; }
         public int? LineColumn { get; set; }
-        public IEvaluableNode Name { get; set; }
+        public IEvaluableNode Expression { get; set; }
         public List<ITypeNode> Generics { get; } = new List<ITypeNode>();
+        public string Name => throw new NotImplementedException();
 
-        public TypeGenericsNode(IEvaluableNode name)
+        public TypeGenericsNode(IEvaluableNode expr)
         {
-            Name = name;
+            Expression = expr;
         }
     }
 }

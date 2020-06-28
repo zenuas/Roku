@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Extensions;
+using System.Collections.Generic;
 
 namespace Roku.Node
 {
@@ -7,6 +8,7 @@ namespace Roku.Node
         public int? LineNumber { get; set; }
         public int? LineColumn { get; set; }
         public List<ITypeNode> Types { get; } = new List<ITypeNode>();
+        public string Name => $"[{Types.Map(x => x.Name).Join(" | ")}]";
 
         public UnionNode(ListNode<ITypeNode> types)
         {
