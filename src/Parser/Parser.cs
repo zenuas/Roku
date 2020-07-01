@@ -591,7 +591,7 @@ namespace Roku.Parser
 
                 case -58:
                     TraceAction("type : '[' typeor ']'");
-                    yy_value = new UnionNode(((ListNode<ITypeNode>)GetValue(-2))).R((GetToken(-3)));
+                    yy_value = new EnumNode(((ListNode<ITypeNode>)GetValue(-2))).R((GetToken(-3)));
                     yy_token = DoAction(Symbols.type, 3, yy_value);
                     break;
 

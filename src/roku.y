@@ -120,7 +120,7 @@ argn   : decla          {$$ = CreateListNode($1);}
 decla  : var ':' type   {$$ = new DeclareNode($1, $3).R($1);}
 type   : typev
        | '[' type   ']' {$$ = new TypeArrayNode($2).R($1);}
-       | '[' typeor ']' {$$ = new UnionNode($2).R($1);}
+       | '[' typeor ']' {$$ = new EnumNode($2).R($1);}
 typev  : nsvar
 nsvar  : varx           {$$ = new TypeNode { Name = $1.Name }.R($1);}
 typex  : void
