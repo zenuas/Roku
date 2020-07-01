@@ -65,19 +65,34 @@ namespace Roku.Compiler
             {
                 var body = MakeFunction(src, f.Name.Name);
                 var types = new Dictionary<string, TypeValue>();
-                TypeValue create_type(string s) => types.ContainsKey(s) ? types[s] : new TypeValue(s).Return(x => types[s] = x).Return(x => { if (x.Types == Types.Generics) body.Generics.Add(x); });
+                TypeValue create_type(ITypeNode s) => types.ContainsKey(s.Name) ? types[s.Name] : CreateType(s).Return(x => { if (x is TypeValue t && t.Types == Types.Generics) body.Generics.Add(types[t.Name] = t); });
 
                 f.Arguments.Each(x =>
                 {
                     var name = new VariableValue(x.Name.Name);
-                    body.Arguments.Add((name, create_type(x.Type.Name)));
+                    body.Arguments.Add((name, create_type(x.Type)));
                     body.LexicalScope.Add(x.Name.Name, name);
                 });
-                if (f.Return is { }) body.Return = create_type(f.Return.Name);
+                if (f.Return is { }) body.Return = create_type(f.Return);
 
                 if (body.Generics.Count == 0) body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
                 FunctionBodyDefinition(body, f.Statements);
             });
+        }
+
+        public static TypeValue CreateType(ITypeNode t)
+        {
+            switch (t)
+            {
+                //case EnumNode en:
+                //    return new TypeEnum();
+
+                case TypeNode tn:
+                    return new TypeValue(tn.Name);
+
+                default:
+                    throw new Exception();
+            }
         }
 
         public static void FunctionBodyDefinition(ILexicalScope scope, List<IStatementNode> stmts)
