@@ -84,8 +84,8 @@ namespace Roku.Compiler
         {
             switch (t)
             {
-                //case EnumNode en:
-                //    return new TypeEnum();
+                case EnumNode en:
+                    return new TypeEnum(en.Types.Map(CreateType));
 
                 case TypeNode tn:
                     return char.IsLower(tn.Name.First()) ? new TypeGenericsParameter(tn.Name).Cast<ITypeDefinition>() : new TypeValue(tn.Name);
