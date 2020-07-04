@@ -85,7 +85,7 @@ namespace Roku.Compiler
                     //var args_ti = m.GetParameters().Map(x => x.ParameterType.GetTypeInfo()).ToList();
                     //if (!m.IsStatic) args_ti.Insert(0, sx.Struct);
 
-                    sx.Struct.GetGenericArguments().Each(x => g.Add(new TypeValue(x.Name) { Types = Types.Generics }, sp.GenericsMapper.GetValue(x.Name)));
+                    sx.Struct.GetGenericArguments().Each(x => g.Add(new TypeGenericsParameter(x.Name), sp.GenericsMapper.GetValue(x.Name)));
                     //m.GetGenericArguments().Each(x => g.Add(new TypeValue(x.Name) { Types = Types.Generics }, null));
 
                     //ToDo: List patch
@@ -129,7 +129,7 @@ namespace Roku.Compiler
 
         public static IStructBody? GetArgumentType(INamespace ns, ITypeDefinition t, GenericsMapper gens)
         {
-            if (t is TypeValue gen && gen.Types == Types.Generics)
+            if (t is TypeGenericsParameter gen)
             {
                 return gens[gen]!;
             }
@@ -146,7 +146,7 @@ namespace Roku.Compiler
 
         public static IStructBody? GetStructType(INamespace ns, ITypeDefinition t, TypeMapper mapper)
         {
-            if (t is TypeValue gen && gen.Types == Types.Generics)
+            if (t is TypeGenericsParameter gen)
             {
                 //return mapper[gen]!;
             }
@@ -178,7 +178,7 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static IEnumerable<TypeValue> ExtractArgumentsTypeToGenericsParameter(IEnumerable<ITypeDefinition> types) => types.By<TypeValue>().Where(x => x.Types == Types.Generics).Unique();
+        public static IEnumerable<TypeGenericsParameter> ExtractArgumentsTypeToGenericsParameter(IEnumerable<ITypeDefinition> types) => types.By<TypeGenericsParameter>().Unique();
 
         public static GenericsMapper ApplyArgumentsToGenericsParameter(IFunctionBody body, List<IStructBody?> args)
         {
@@ -188,7 +188,7 @@ namespace Roku.Compiler
 
             Action<ITypeDefinition, IStructBody?> match = (p, arg) =>
             {
-                if (p is TypeValue v && v.Types == Types.Generics) gens[v] = arg;
+                if (p is TypeGenericsParameter v) gens[v] = arg;
             };
             param.Each((x, i) => match(x, args.Count > i ? args[i] : null));
 
@@ -305,7 +305,7 @@ namespace Roku.Compiler
             var t = new ExternStruct(ti, asm);
             root.Structs.Add(t);
 
-            ti.GenericTypeParameters.Each(x => t.Generics.Add(new TypeValue(x.Name) { Types = Types.Generics }));
+            ti.GenericTypeParameters.Each(x => t.Generics.Add(new TypeGenericsParameter(x.Name)));
             ti.GetMethods().Each(x => LoadFunction(root, t, x.Name, x));
 
             return t;
@@ -365,7 +365,7 @@ namespace Roku.Compiler
         public static GenericsMapper TypeMapperToGenericsMapper(TypeMapper tm)
         {
             var g = new GenericsMapper();
-            tm.Where(x => x.Value.Type == VariableType.TypeParameter).Each(x => g[x.Key.Cast<TypeValue>()] = x.Value.Struct);
+            tm.Where(x => x.Value.Type == VariableType.TypeParameter).Each(x => g[x.Key.Cast<ITypeDefinition>()] = x.Value.Struct);
             return g;
         }
 

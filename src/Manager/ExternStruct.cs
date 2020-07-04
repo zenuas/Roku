@@ -9,7 +9,7 @@ namespace Roku.Manager
         public string Name { get; set; } = "###NO-ALIAS";
         public TypeInfo Struct { get; }
         public Assembly Assembly { get; }
-        public List<TypeValue> Generics { get; } = new List<TypeValue>();
+        public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
         public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
         public List<IFunctionBody> Functions { get; } = new List<IFunctionBody>();
         public List<IStructBody> Structs { get; } = new List<IStructBody>();

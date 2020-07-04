@@ -1,12 +1,10 @@
-﻿using Extensions;
-
-namespace Roku.IntermediateCode
+﻿namespace Roku.IntermediateCode
 {
-    public class TypeValue : ITypeDefinition
+    public class TypeGenericsParameter : ITypeDefinition
     {
         public string Name { get; }
 
-        public TypeValue(string name)
+        public TypeGenericsParameter(string name)
         {
             Name = name;
         }

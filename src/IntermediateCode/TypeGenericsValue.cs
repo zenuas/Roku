@@ -5,15 +5,15 @@ namespace Roku.IntermediateCode
 {
     public class TypeGenericsValue : ITypeDefinition
     {
-        public ITypedValue Name { get; }
-        public Types Types { get; set; } = Types.Struct;
+        public string Name { get => ToString(); }
+        public ITypedValue Type { get; }
         public List<ITypeDefinition> Generics { get; } = new List<ITypeDefinition>();
 
-        public TypeGenericsValue(ITypedValue name)
+        public TypeGenericsValue(ITypedValue type)
         {
-            Name = name;
+            Type = type;
         }
 
-        public override string ToString() => $"{Name}<{Generics.Map(x => x.ToString()!).Join(", ")}>";
+        public override string ToString() => $"{Type}<{Generics.Map(x => x.ToString()!).Join(", ")}>";
     }
 }

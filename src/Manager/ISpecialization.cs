@@ -5,7 +5,7 @@ namespace Roku.Manager
 {
     public interface ISpecialization
     {
-        public List<TypeValue> Generics { get; }
+        public List<TypeGenericsParameter> Generics { get; }
         public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; }
     }
 }

@@ -129,7 +129,7 @@ namespace Roku.Compiler
                     return ResolveFunctionWithEffect(ns, m, x);
 
                 case TypeBind x:
-                    if (x.Type.Types == Types.Generics)
+                    if (x.Type is TypeGenericsParameter g)
                     {
                         return LocalValueInferenceWithEffect(ns, m, x.Name, FindTypeMapperToGenerics(m, x.Type.Name));
                     }
@@ -149,7 +149,7 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static IStructBody FindTypeMapperToGenerics(TypeMapper m, string name) => m.Where(x => x.Key is TypeValue t && t.Name == name).First().Value.Struct!;
+        public static IStructBody FindTypeMapperToGenerics(TypeMapper m, string name) => m.Where(x => x.Key is ITypeDefinition t && t.Name == name).First().Value.Struct!;
 
         public static bool ResolveFunctionWithEffect(INamespace ns, TypeMapper m, Call call)
         {
@@ -254,8 +254,8 @@ namespace Roku.Compiler
         {
             if (t is TypeGenericsValue g)
             {
-                if (g.Name is PropertyValue prop) return GetStructNames(m, prop.Left).Concat(prop.Right);
-                return new string[] { g.Name.ToString()! };
+                if (g.Type is PropertyValue prop) return GetStructNames(m, prop.Left).Concat(prop.Right);
+                return new string[] { g.Type.ToString()! };
             }
             if (m.ContainsKey(t) && m[t].Struct is NamespaceBody ns) return GetNamespaceNames(ns);
             throw new Exception();
@@ -279,31 +279,39 @@ namespace Roku.Compiler
             }
         }
 
-        public static bool ArgumentInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, TypeValue type, int index)
+        public static bool ArgumentInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, ITypeDefinition type, int index)
         {
             if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return false;
-            if (type.Types == Types.Generics)
+            if (type is TypeGenericsParameter g)
             {
-                if (!m.ContainsKey(type)) m[type] = CreateVariableDetail(type.Name, new GenericsParameter(type.Name), VariableType.TypeParameter, index);
+                if (!m.ContainsKey(type)) m[type] = CreateVariableDetail(g.Name, new GenericsParameter(g.Name), VariableType.TypeParameter, index);
                 m[v] = CreateVariableDetail($"${index}", m[type].Struct, VariableType.Argument, index);
+            }
+            else if (type is TypeValue t)
+            {
+                m[v] = CreateVariableDetail($"${index}", Lookup.LoadStruct(ns, t.Name), VariableType.Argument, index);
             }
             else
             {
-                m[v] = CreateVariableDetail($"${index}", Lookup.LoadStruct(ns, type.Name), VariableType.Argument, index);
+                throw new Exception();
             }
             return true;
         }
 
-        public static bool TypeInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, TypeValue type)
+        public static bool TypeInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, ITypeDefinition type)
         {
             if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return false;
-            if (type.Types == Types.Generics)
+            if (type is TypeGenericsParameter g)
             {
                 m[v] = CreateVariableDetail("", m[type].Struct, VariableType.TypeParameter);
             }
+            else if (type is TypeValue t)
+            {
+                m[v] = CreateVariableDetail("", Lookup.LoadStruct(ns, t.Name), VariableType.Type);
+            }
             else
             {
-                m[v] = CreateVariableDetail("", Lookup.LoadStruct(ns, type.Name), VariableType.Type);
+                throw new Exception();
             }
             return true;
         }

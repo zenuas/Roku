@@ -26,7 +26,7 @@ namespace Roku.Compiler
         public static StructBody TypeBodyDefinition(SourceCodeBody src, StructNode sn)
         {
             var body = new StructBody(src, sn.Name.Name);
-            sn.Generics.Each(x => body.Generics.Add(new TypeValue(x.Name) { Types = Types.Generics }));
+            sn.Generics.Each(x => body.Generics.Add(new TypeGenericsParameter(x.Name)));
             FunctionBodyDefinition(body, sn.Statements);
             sn.Statements.Each(let =>
             {
@@ -64,8 +64,8 @@ namespace Roku.Compiler
             pgm.Functions.Each(f =>
             {
                 var body = MakeFunction(src, f.Name.Name);
-                var types = new Dictionary<string, TypeValue>();
-                TypeValue create_type(ITypeNode s) => types.ContainsKey(s.Name) ? types[s.Name] : CreateType(s).Return(x => { if (x is TypeValue t && t.Types == Types.Generics) body.Generics.Add(types[t.Name] = t); });
+                var types = new Dictionary<string, TypeGenericsParameter>();
+                ITypeDefinition create_type(ITypeNode s) => types.ContainsKey(s.Name) ? types[s.Name] : CreateType(s).Return(x => { if (x is TypeGenericsParameter g) body.Generics.Add(types[g.Name] = g); });
 
                 f.Arguments.Each(x =>
                 {
@@ -80,7 +80,7 @@ namespace Roku.Compiler
             });
         }
 
-        public static TypeValue CreateType(ITypeNode t)
+        public static ITypeDefinition CreateType(ITypeNode t)
         {
             switch (t)
             {
@@ -88,7 +88,7 @@ namespace Roku.Compiler
                 //    return new TypeEnum();
 
                 case TypeNode tn:
-                    return new TypeValue(tn.Name);
+                    return char.IsLower(tn.Name.First()) ? new TypeGenericsParameter(tn.Name).Cast<ITypeDefinition>() : new TypeValue(tn.Name);
 
                 default:
                     throw new Exception();
@@ -121,7 +121,7 @@ namespace Roku.Compiler
                         {
                             var v = new VariableValue(let.Var.Name);
                             scope.LexicalScope.Add(let.Var.Name, v);
-                            scope.Body.Add(new TypeBind(v, new TypeValue(let.Type.Name)));
+                            scope.Body.Add(new TypeBind(v, CreateType(let.Type)));
                         }
                         break;
 
@@ -151,7 +151,7 @@ namespace Roku.Compiler
                         else
                         {
                             var ifc = if_.Cast<IfCastNode>();
-                            var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), new TypeValue(ifc.Declare.Name), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
+                            var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), CreateType(ifc.Declare), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
                             inner_scope.Body.Add(ifcast);
                             inner_scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
                         }
@@ -178,7 +178,7 @@ namespace Roku.Compiler
                             else
                             {
                                 var ifc = x.Cast<IfCastNode>();
-                                var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), new TypeValue(ifc.Declare.Name), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
+                                var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), CreateType(ifc.Declare), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
                                 inner_scope.Body.Add(ifcast);
                                 inner_scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
                             }
@@ -254,7 +254,7 @@ namespace Roku.Compiler
             var g = new TypeGenericsValue(NormalizationExpression(scope, gen.Expression));
             gen.Generics.Map(x => x switch
             {
-                TypeNode t => (ITypeDefinition)new TypeValue(t.Name),
+                TypeNode t => CreateType(t),
                 TypeGenericsNode t => CreateTypeGenerics(scope, t),
                 _ => throw new Exception(),
             }).Each(x => g.Generics.Add(x));

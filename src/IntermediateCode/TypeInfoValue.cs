@@ -4,6 +4,7 @@ namespace Roku.IntermediateCode
 {
     public class TypeInfoValue : ITypeDefinition
     {
+        public string Name { get => ToString(); }
         public Type Type { get; set; }
 
         public TypeInfoValue(Type type)

@@ -4,9 +4,9 @@
     {
         public Operator Operator { get; set; } = Operator.TypeBind;
         public ITypedValue Name { get; set; }
-        public TypeValue Type { get; set; }
+        public ITypeDefinition Type { get; set; }
 
-        public TypeBind(ITypedValue name, TypeValue type)
+        public TypeBind(ITypedValue name, ITypeDefinition type)
         {
             Name = name;
             Type = type;
