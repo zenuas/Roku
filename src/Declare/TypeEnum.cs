@@ -1,7 +1,7 @@
 ﻿using Extensions;
 using System.Collections.Generic;
 
-namespace Roku.IntermediateCode
+namespace Roku.Declare
 {
     public class TypeEnum : ITypeDefinition
     {

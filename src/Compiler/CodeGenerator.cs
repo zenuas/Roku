@@ -1,4 +1,5 @@
 ﻿using Extensions;
+using Roku.Declare;
 using Roku.IntermediateCode;
 using Roku.Manager;
 using System;

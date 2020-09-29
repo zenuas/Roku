@@ -1,12 +1,10 @@
-﻿using Extensions;
-
-namespace Roku.IntermediateCode
+﻿namespace Roku.Declare
 {
-    public class TypeValue : ITypeDefinition
+    public class VariableValue : ITypedValue
     {
         public string Name { get; }
 
-        public TypeValue(string name)
+        public VariableValue(string name)
         {
             Name = name;
         }

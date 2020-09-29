@@ -1,4 +1,4 @@
-﻿namespace Roku.IntermediateCode
+﻿namespace Roku.Declare
 {
     public class TypeGenericsParameter : ITypeDefinition
     {

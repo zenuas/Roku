@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Roku.IntermediateCode
+namespace Roku.Declare
 {
     public class FunctionCallValue : ITypedValue
     {

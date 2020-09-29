@@ -1,4 +1,4 @@
-﻿using Roku.IntermediateCode;
+﻿using Roku.Declare;
 using System.Collections.Generic;
 using System.Reflection;
 

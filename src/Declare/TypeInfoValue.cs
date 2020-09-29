@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Roku.IntermediateCode
+namespace Roku.Declare
 {
     public class TypeInfoValue : ITypeDefinition
     {

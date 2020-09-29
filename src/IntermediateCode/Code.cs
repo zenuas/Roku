@@ -1,4 +1,6 @@
-﻿namespace Roku.IntermediateCode
+﻿using Roku.Declare;
+
+namespace Roku.IntermediateCode
 {
     public class Code : IOperand, IReturnBind
     {

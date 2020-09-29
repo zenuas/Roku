@@ -1,4 +1,4 @@
-﻿using Roku.IntermediateCode;
+﻿using Roku.Declare;
 
 namespace Roku.Manager
 {

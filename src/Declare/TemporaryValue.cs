@@ -1,6 +1,6 @@
 ﻿using Roku.Manager;
 
-namespace Roku.IntermediateCode
+namespace Roku.Declare
 {
     public class TemporaryValue : ITypedValue
     {
