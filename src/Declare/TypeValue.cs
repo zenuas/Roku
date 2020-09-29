@@ -1,6 +1,4 @@
-﻿using Extensions;
-
-namespace Roku.Declare
+﻿namespace Roku.Declare
 {
     public class TypeValue : ITypeDefinition
     {
