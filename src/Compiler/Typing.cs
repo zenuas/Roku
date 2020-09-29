@@ -92,7 +92,7 @@ namespace Roku.Compiler
                 var value = body.SpecializationMapper[keys[i]];
                 body.Arguments.Each((x, i) => resolved = ArgumentInferenceWithEffect(body.Namespace, value, x.Name, x.Type, i) || resolved);
                 if (body.Return is { } x) resolved = TypeInferenceWithEffect(body.Namespace, value, x, x) || resolved;
-                body.Body.Each(x => resolved = OperandTypeInference(body.Namespace, value, x) || resolved);
+                body.Body.Each(x => resolved = OperandTypeInference(body, value, x) || resolved);
             }
             return resolved;
         }
@@ -175,8 +175,11 @@ namespace Roku.Compiler
             {
                 case VariableValue x when call.Return is null && call.Function.FirstLookup is null && x.Name == "return":
                     {
-                        var ret = new EmbeddedFunction("return", null, args.Map(x => x?.Name!).ToArray()) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
+                        //var ret = new EmbeddedFunction("return", null, args.Map(x => x?.Name!).ToArray()) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
+                        var r = ns.Cast<FunctionBody>().Return;
+                        var ret = new EmbeddedFunction("return", null, r is { } ? new ITypeDefinition[] { r } : new ITypeDefinition[] { }) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                         var fm = new FunctionMapper(ret);
+                        if (r is TypeGenericsParameter gen) fm.TypeMapper[gen] = CreateVariableDetail("", m[gen].Struct, VariableType.TypeParameter); ;
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
                         return true;
                     }
@@ -308,6 +311,10 @@ namespace Roku.Compiler
             else if (type is TypeValue t)
             {
                 m[v] = CreateVariableDetail("", Lookup.LoadStruct(ns, t.Name), VariableType.Type);
+            }
+            else if (type is TypeEnum te)
+            {
+                m[v] = CreateVariableDetail("", Lookup.LoadEnumStruct(ns, te), VariableType.Type);
             }
             else
             {

@@ -69,6 +69,8 @@ namespace Roku.Compiler
                 if (v.Exists) return new FunctionCaller(x, v.GenericsMapper);
             }
 
+            if (ns is ILexicalScope lex) return FindFunctionOrNull(lex.Namespace, name, args, find_use);
+
             if (find_use && ns is IUse body)
             {
                 foreach (var use in body.Uses)
@@ -141,6 +143,10 @@ namespace Roku.Compiler
             {
                 return LoadType(GetRootNamespace(ns), ti.Type);
             }
+            else if (t is TypeEnum te)
+            {
+                return LoadEnumStruct(ns, te);
+            }
             throw new Exception();
         }
 
@@ -148,7 +154,7 @@ namespace Roku.Compiler
         {
             if (t is TypeGenericsParameter gen)
             {
-                //return mapper[gen]!;
+                return mapper[gen]!.Struct;
             }
             else if (t is TypeValue tv)
             {
@@ -157,6 +163,10 @@ namespace Roku.Compiler
             else if (t is TypeInfoValue ti)
             {
                 return LoadType(GetRootNamespace(ns), ti.Type);
+            }
+            else if (t is TypeEnum te)
+            {
+                return LoadEnumStruct(ns, te);
             }
             throw new Exception();
         }
@@ -242,6 +252,8 @@ namespace Roku.Compiler
                 }
             }
 
+            if (ns is ILexicalScope lex) return FindStructOrNull(lex.Namespace, name, args);
+
             if (ns is RootNamespace root)
             {
                 foreach (var asm in root.Assemblies)
@@ -300,6 +312,16 @@ namespace Roku.Compiler
             return CreateExternStruct(root, ti, asmx);
         }
 
+        public static IStructBody LoadEnumStruct(INamespace ns, TypeEnum te)
+        {
+            var e = new EnumStructBody(ns);
+            foreach (var td in te.Enums)
+            {
+                e.Enums.Add(GetStructType(ns, td, new TypeMapper())!);
+            }
+            return e;
+        }
+
         public static ExternStruct CreateExternStruct(RootNamespace root, TypeInfo ti, Assembly asm)
         {
             var t = new ExternStruct(ti, asm);
@@ -334,6 +356,7 @@ namespace Roku.Compiler
 
         public static RootNamespace GetRootNamespace(INamespace ns) =>
             ns is RootNamespace root ? root
+            : ns is ILexicalScope lex ? GetRootNamespace(lex.Namespace)
             : ns is IUse use ? use.Uses.By<RootNamespace>().First()
             : throw new Exception();
 
@@ -369,6 +392,9 @@ namespace Roku.Compiler
             return g;
         }
 
-        public static bool IsValueType(IStructBody? t) => t is ExternStruct sx && sx.Struct.IsValueType;
+        public static bool IsValueType(IStructBody? body) =>
+            (body is TypeInfoValue t && t.Type.IsValueType) ||
+            (body is ExternStruct e && e.Struct.IsValueType) ||
+            (body is NumericStruct);
     }
 }

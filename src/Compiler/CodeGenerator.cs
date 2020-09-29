@@ -68,7 +68,7 @@ namespace Roku.Compiler
                 body.Body.Each(x =>
                 {
                     if (x is Call call) CallToAddEmitFunctionList(mapper, call, fss);
-                    AssemblyOperandEmit(il, x, mapper, labels, g);
+                    AssemblyOperandEmit(il, x, body.Namespace, mapper, labels, g);
                 });
                 il.WriteLine("ret");
                 il.Indent--;
@@ -106,7 +106,7 @@ namespace Roku.Compiler
                 f.Body.Each(x =>
                 {
                     if (x is Call call) CallToAddEmitFunctionList(mapper, call, fss);
-                    AssemblyOperandEmit(il, x, mapper, labels, g);
+                    AssemblyOperandEmit(il, x, f, mapper, labels, g);
                 });
                 il.WriteLine("ret");
                 il.Indent--;
@@ -134,7 +134,7 @@ namespace Roku.Compiler
             return left.GenericsMapper.Keys.And(x => left.GenericsMapper[x] == right_g[x]);
         }
 
-        public static void AssemblyOperandEmit(ILWriter il, IOperand op, TypeMapper m, Dictionary<LabelCode, string> labels, GenericsMapper g)
+        public static void AssemblyOperandEmit(ILWriter il, IOperand op, INamespace ns, TypeMapper m, Dictionary<LabelCode, string> labels, GenericsMapper g)
         {
             il.WriteLine();
             if (op is IReturnBind prop && prop.Return is { } && m[prop.Return].Type == VariableType.Property)
@@ -154,7 +154,7 @@ namespace Roku.Compiler
                     {
                         var call = op.Cast<Call>();
                         var f = m[call.Function.Function].Struct!.Cast<FunctionMapper>();
-                        var args = call.Function.Arguments.Map(x => LoadValue(m, x)).ToArray();
+                        var args = call.Function.Arguments.Map((x, i) => LoadValue(m, x, GetArgumentType(ns, f, i))).ToArray();
                         if (f.Function is ExternFunction fx)
                         {
                             il.WriteLine(args.Join('\n'));
@@ -248,7 +248,17 @@ namespace Roku.Compiler
             }
         }
 
-        public static string LoadValue(TypeMapper m, ITypedValue value)
+        public static IStructBody? GetArgumentType(INamespace caller, FunctionMapper body, int index)
+        {
+            switch (body.Function)
+            {
+                case FunctionBody fb: return Lookup.GetStructType(caller, fb.Arguments[index].Type, body.TypeMapper);
+                case EmbeddedFunction ef: return Lookup.GetStructType(caller, ef.Arguments[index], body.TypeMapper);
+            }
+            return null;
+        }
+
+        public static string LoadValue(TypeMapper m, ITypedValue value, IStructBody? target = null)
         {
             switch (value)
             {
@@ -256,39 +266,49 @@ namespace Roku.Compiler
                     return $"ldstr \"{x.Value}\"";
 
                 case NumericValue x:
-                    if (m[x].Struct is ExternStruct es && es.Struct == typeof(long).GetTypeInfo())
                     {
-                        return
-                            x.Value <= 8 ? $"ldc.i4.{x.Value}\nconv.i8"
-                            : x.Value <= sbyte.MaxValue ? $"ldc.i4.s {x.Value}\nconv.i8"
-                            : x.Value <= int.MaxValue ? $"ldc.i4 {x.Value}\nconv.i8"
-                            : $"ldc.i8 {x.Value}";
-                    }
-                    else
-                    {
-                        return
-                            x.Value <= 8 ? $"ldc.i4.{x.Value}"
-                            : x.Value <= sbyte.MaxValue ? $"ldc.i4.s {x.Value}"
-                            : x.Value <= int.MaxValue ? $"ldc.i4 {x.Value}"
-                            : $"ldc.i8 {x.Value}";
+                        var isbox = IsClassType(target);
+                        if (m[x].Struct is ExternStruct es && es.Struct == typeof(long).GetTypeInfo())
+                        {
+                            return
+                                (x.Value <= 8 ? $"ldc.i4.{x.Value}\nconv.i8"
+                                : x.Value <= sbyte.MaxValue ? $"ldc.i4.s {x.Value}\nconv.i8"
+                                : x.Value <= int.MaxValue ? $"ldc.i4 {x.Value}\nconv.i8"
+                                : $"ldc.i8 {x.Value}") +
+                                (isbox ? $"\nbox {GetStructName(m[x].Struct)}" : "");
+                        }
+                        else
+                        {
+                            return
+                                (x.Value <= 8 ? $"ldc.i4.{x.Value}"
+                                : x.Value <= sbyte.MaxValue ? $"ldc.i4.s {x.Value}"
+                                : x.Value <= int.MaxValue ? $"ldc.i4 {x.Value}"
+                                : $"ldc.i8 {x.Value}") +
+                                (isbox ? $"\nbox {GetStructName(m[x].Struct)}" : "");
+                        }
                     }
 
                 case VariableValue _:
                 case TemporaryValue _:
-                    var detail = m[value];
-                    if (detail.Type == VariableType.Argument)
                     {
-                        return
-                            detail.Index <= 3 ? $"ldarg.{detail.Index}"
-                            : detail.Index <= byte.MaxValue ? $"ldarg.s {detail.Index}"
-                            : $"ldarg {detail.Index}";
-                    }
-                    else
-                    {
-                        return
-                            detail.Index <= 3 ? $"ldloc.{detail.Index}"
-                            : detail.Index <= byte.MaxValue ? $"ldloc.s {detail.Index}"
-                            : $"ldloc {detail.Index}";
+                        var detail = m[value];
+                        var isbox = Lookup.IsValueType(detail.Struct) && IsClassType(target);
+                        if (detail.Type == VariableType.Argument)
+                        {
+                            return
+                                (detail.Index <= 3 ? $"ldarg.{detail.Index}"
+                                : detail.Index <= byte.MaxValue ? $"ldarg.s {detail.Index}"
+                                : $"ldarg {detail.Index}") +
+                                (isbox ? $"\nbox {GetStructName(detail.Struct)}" : "");
+                        }
+                        else
+                        {
+                            return
+                                (detail.Index <= 3 ? $"ldloc.{detail.Index}"
+                                : detail.Index <= byte.MaxValue ? $"ldloc.s {detail.Index}"
+                                : $"ldloc {detail.Index}") +
+                                (isbox ? $"\nbox {GetStructName(detail.Struct)}" : "");
+                        }
                     }
 
                 case PropertyValue x:
@@ -357,6 +377,7 @@ namespace Roku.Compiler
                 case StructBody x: return $"class {x.Name}";
                 case TypeSpecialization x when x.Body is ExternStruct e: return $"class [{e.Assembly.GetName().Name}]{e.Struct.FullName}{GetGenericsName(e, x.GenericsMapper)}";
                 case TypeSpecialization x when x.Body is StructBody e: return $"class {EscapeILName(x.Name, e, x.GenericsMapper)}";
+                case EnumStructBody _: return "object";
             }
             throw new Exception();
         }
@@ -379,6 +400,9 @@ namespace Roku.Compiler
             if (t == typeof(object)) return "object";
             return GetILClassName(t, asm ?? t.Assembly);
         }
+
+        public static bool IsClassType(IStructBody? body) =>
+            (body is { } && !Lookup.IsValueType(body));
 
         public static string GetILClassName(ExternStruct sx) => GetILClassName(sx.Struct, sx.Assembly);
 
