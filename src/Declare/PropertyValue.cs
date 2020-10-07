@@ -1,11 +1,11 @@
 ﻿namespace Roku.Declare
 {
-    public class PropertyValue : ITypedValue
+    public class PropertyValue : IEvaluable
     {
-        public ITypedValue Left { get; }
+        public IEvaluable Left { get; }
         public string Right { get; }
 
-        public PropertyValue(ITypedValue left, string right)
+        public PropertyValue(IEvaluable left, string right)
         {
             Left = left;
             Right = right;

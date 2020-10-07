@@ -8,7 +8,7 @@ namespace Roku.Manager
     {
         public INamespace Namespace { get; }
         public ILexicalScope? Parent { get; }
-        public Dictionary<string, ITypedValue> LexicalScope { get; }
+        public Dictionary<string, IEvaluable> LexicalScope { get; }
         public List<IOperand> Body { get; }
         public int MaxTemporaryValue { get; set; }
     }

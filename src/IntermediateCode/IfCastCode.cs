@@ -5,12 +5,12 @@ namespace Roku.IntermediateCode
     public class IfCastCode : IOperand
     {
         public Operator Operator { get; set; } = Operator.IfCast;
-        public ITypedValue Name { get; set; }
+        public IEvaluable Name { get; set; }
         public ITypeDefinition Type { get; set; }
-        public ITypedValue Condition { get; set; }
+        public IEvaluable Condition { get; set; }
         public LabelCode Else { get; set; }
 
-        public IfCastCode(ITypedValue name, ITypeDefinition type, ITypedValue cond, LabelCode else_)
+        public IfCastCode(IEvaluable name, ITypeDefinition type, IEvaluable cond, LabelCode else_)
         {
             Name = name;
             Type = type;

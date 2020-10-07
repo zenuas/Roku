@@ -5,7 +5,7 @@ namespace Roku.IntermediateCode
     public class Call : IOperand, IReturnBind
     {
         public Operator Operator { get; set; } = Operator.Call;
-        public ITypedValue? Return { get; set; }
+        public IEvaluable? Return { get; set; }
         public FunctionCallValue Function { get; }
 
         public Call(FunctionCallValue f)

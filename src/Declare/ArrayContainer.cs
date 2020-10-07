@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace Roku.Declare
 {
-    public class ArrayContainer : ITypedValue
+    public class ArrayContainer : IEvaluable
     {
-        public List<ITypedValue> Values { get; }
+        public List<IEvaluable> Values { get; }
 
-        public ArrayContainer(List<ITypedValue> values)
+        public ArrayContainer(List<IEvaluable> values)
         {
             Values = values;
         }

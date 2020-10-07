@@ -4,6 +4,6 @@ namespace Roku.IntermediateCode
 {
     public interface IReturnBind
     {
-        public ITypedValue? Return { get; set; }
+        public IEvaluable? Return { get; set; }
     }
 }

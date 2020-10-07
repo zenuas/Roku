@@ -6,7 +6,7 @@ namespace Roku.Manager
     {
         public string Name { get; set; } = "";
         public IStructBody? Struct { get; set; }
-        public ITypedValue? Reciever { get; set; }
+        public IEvaluable? Reciever { get; set; }
         public VariableType Type { get; set; }
         public int Index { get; set; }
 

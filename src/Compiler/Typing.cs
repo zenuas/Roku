@@ -254,14 +254,14 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static IEnumerable<string> GetStructNames(TypeMapper m, ITypedValue t)
+        public static IEnumerable<string> GetStructNames(TypeMapper m, IEvaluable e)
         {
-            if (t is TypeGenericsValue g)
+            if (e is TypeGenericsValue g)
             {
                 if (g.Type is PropertyValue prop) return GetStructNames(m, prop.Left).Concat(prop.Right);
                 return new string[] { g.Type.ToString()! };
             }
-            if (m.ContainsKey(t) && m[t].Struct is NamespaceBody ns) return GetNamespaceNames(ns);
+            if (m.ContainsKey(e) && m[e].Struct is NamespaceBody ns) return GetNamespaceNames(ns);
             throw new Exception();
         }
 
@@ -283,7 +283,7 @@ namespace Roku.Compiler
             }
         }
 
-        public static bool ArgumentInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, ITypeDefinition type, int index)
+        public static bool ArgumentInferenceWithEffect(INamespace ns, TypeMapper m, IEvaluable v, ITypeDefinition type, int index)
         {
             if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return false;
             if (type is TypeGenericsParameter g)
@@ -302,7 +302,7 @@ namespace Roku.Compiler
             return true;
         }
 
-        public static bool TypeInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, ITypeDefinition type)
+        public static bool TypeInferenceWithEffect(INamespace ns, TypeMapper m, IEvaluable v, ITypeDefinition type)
         {
             if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return false;
             if (type is TypeGenericsParameter g)
@@ -324,7 +324,7 @@ namespace Roku.Compiler
             return true;
         }
 
-        public static bool LocalValueInferenceWithEffect(INamespace ns, TypeMapper m, ITypedValue v, IStructBody? b = null)
+        public static bool LocalValueInferenceWithEffect(INamespace ns, TypeMapper m, IEvaluable v, IStructBody? b = null)
         {
             if (m.ContainsKey(v))
             {
@@ -338,7 +338,7 @@ namespace Roku.Compiler
             return true;
         }
 
-        public static VariableDetail ToTypedValue(INamespace ns, TypeMapper m, ITypedValue v)
+        public static VariableDetail ToTypedValue(INamespace ns, TypeMapper m, IEvaluable v)
         {
             if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return m[v];
 
@@ -378,7 +378,7 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static IStructBody? GetPropertyType(TypeMapper m, ITypedValue receiver, string property)
+        public static IStructBody? GetPropertyType(TypeMapper m, IEvaluable receiver, string property)
         {
             var left = m[receiver].Struct;
             switch (left)

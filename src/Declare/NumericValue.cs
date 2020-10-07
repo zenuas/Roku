@@ -1,6 +1,6 @@
 ﻿namespace Roku.Declare
 {
-    public class NumericValue : ITypedValue
+    public class NumericValue : IEvaluable
     {
         public uint Value { get; }
 

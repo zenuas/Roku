@@ -1,6 +1,6 @@
 ﻿namespace Roku.Declare
 {
-    public interface ITypedValue
+    public interface IEvaluable
     {
     }
 }

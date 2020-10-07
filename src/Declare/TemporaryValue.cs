@@ -2,7 +2,7 @@
 
 namespace Roku.Declare
 {
-    public class TemporaryValue : ITypedValue
+    public class TemporaryValue : IEvaluable
     {
         public string Name { get; }
         public int Index { get; }

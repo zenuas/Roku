@@ -5,10 +5,10 @@ namespace Roku.IntermediateCode
     public class IfCode : IOperand
     {
         public Operator Operator { get; set; } = Operator.If;
-        public ITypedValue Condition { get; set; }
+        public IEvaluable Condition { get; set; }
         public LabelCode Else { get; set; }
 
-        public IfCode(ITypedValue cond, LabelCode else_)
+        public IfCode(IEvaluable cond, LabelCode else_)
         {
             Condition = cond;
             Else = else_;

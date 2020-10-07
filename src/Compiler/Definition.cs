@@ -236,7 +236,7 @@ namespace Roku.Compiler
             });
         }
 
-        public static ITypedValue NormalizationExpression(ILexicalScope scope, IEvaluableNode e, bool evaluate_as_expression = false)
+        public static IEvaluable NormalizationExpression(ILexicalScope scope, IEvaluableNode e, bool evaluate_as_expression = false)
         {
             switch (e)
             {
@@ -317,7 +317,7 @@ namespace Roku.Compiler
             };
         }
 
-        public static ITypedValue CreateTemporaryVariable(ILexicalScope scope)
+        public static IEvaluable CreateTemporaryVariable(ILexicalScope scope)
         {
             var max = ++scope.MaxTemporaryValue;
             var v = new TemporaryValue($"$${max}", max, scope);
@@ -325,19 +325,19 @@ namespace Roku.Compiler
             return v;
         }
 
-        public static ITypedValue FindScopeValue(ILexicalScope scope, string name)
+        public static IEvaluable FindScopeValue(ILexicalScope scope, string name)
         {
             if (scope.LexicalScope.ContainsKey(name)) return scope.LexicalScope[name];
             if (scope.Parent is { } parent) return FindScopeValue(parent, name);
             if (scope is INamespace ns && FindNamespaceValue(ns, name) is { } p) return p;
             if (scope.Namespace is IUse src)
             {
-                return src.Uses.Map(x => FindNamespaceValue(x, name)).By<ITypedValue>().First();
+                return src.Uses.Map(x => FindNamespaceValue(x, name)).By<IEvaluable>().First();
             }
             throw new Exception();
         }
 
-        public static ITypedValue? FindNamespaceValue(INamespace ns, string name)
+        public static IEvaluable? FindNamespaceValue(INamespace ns, string name)
         {
             if (ns.Structs.FindFirstOrNull(x => x.Name == name) is { } s) return new TypeValue(s.Name);
             if (ns is RootNamespace root) return new TypeValue(name);

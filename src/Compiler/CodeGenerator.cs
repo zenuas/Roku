@@ -259,7 +259,7 @@ namespace Roku.Compiler
             return null;
         }
 
-        public static string LoadValue(TypeMapper m, ITypedValue value, IStructBody? target = null)
+        public static string LoadValue(TypeMapper m, IEvaluable value, IStructBody? target = null)
         {
             switch (value)
             {
@@ -321,7 +321,7 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static string StoreValue(TypeMapper m, ITypedValue value)
+        public static string StoreValue(TypeMapper m, IEvaluable value)
         {
             switch (value)
             {
@@ -354,7 +354,7 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static string GetTypeName(TypeMapper m, ITypedValue? t, GenericsMapper g) => t is null ? "void" : GetStructName(GetType(m[t], g));
+        public static string GetTypeName(TypeMapper m, IEvaluable? e, GenericsMapper g) => e is null ? "void" : GetStructName(GetType(m[e], g));
 
         public static string GetTypeName(VariableDetail vd, GenericsMapper g) => GetStructName(GetType(vd, g));
 

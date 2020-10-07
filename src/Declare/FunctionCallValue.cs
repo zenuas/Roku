@@ -4,14 +4,14 @@ using System.Linq;
 
 namespace Roku.Declare
 {
-    public class FunctionCallValue : ITypedValue
+    public class FunctionCallValue : IEvaluable
     {
-        public ITypedValue Function { get; }
-        public ITypedValue? FirstLookup { get; set; }
+        public IEvaluable Function { get; }
+        public IEvaluable? FirstLookup { get; set; }
         public bool ReceiverToArgumentsInserted { get; set; } = false;
-        public List<ITypedValue> Arguments { get; } = new List<ITypedValue>();
+        public List<IEvaluable> Arguments { get; } = new List<IEvaluable>();
 
-        public FunctionCallValue(ITypedValue f)
+        public FunctionCallValue(IEvaluable f)
         {
             Function = f;
         }
