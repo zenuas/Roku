@@ -27,6 +27,8 @@ namespace Roku.Parser
 
         public static LetTypeNode CreateLetNode(VariableNode v, ITypeNode t) => new LetTypeNode(v, t).R(v);
 
+        public static TupleNode CreateTupleNode(ListNode<IEvaluableNode> v) => new TupleNode().Return(x => x.Values.AddRange(v.List));
+
         public static FunctionNode CreateFunctionNode(
                 FunctionNode fn,
                 VariableNode name,

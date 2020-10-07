@@ -67,6 +67,8 @@ expr : var
      | num
      | call
      | '[' list ']'                               {$$ = $2;}
+     | '(' expr ')'                               {$$ = $2;}
+     | '(' list2n ')'                             {$$ = CreateTupleNode($2).R($1);}
      | expr '.' fvar                              {$$ = CreatePropertyNode($1, $3).R($2);}
      | ope expr %prec UNARY                       {$$ = CreateFunctionCallNode($1, $2);}
      | expr nope expr                             {$$ = CreateFunctionCallNode($2, $1, $3);}

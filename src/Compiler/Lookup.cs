@@ -136,6 +136,10 @@ namespace Roku.Compiler
             {
                 return gens[gen]!;
             }
+            else if (t is TypeGenericsValue g)
+            {
+                return FindStructOrNull(ns, new string[] { g.Name }, g.Generics.Map(x => GetArgumentType(ns, x, gens)!).ToList());
+            }
             else if (t is TypeValue tv)
             {
                 return LoadStruct(ns, tv.Name);

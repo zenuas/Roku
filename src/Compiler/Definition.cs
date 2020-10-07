@@ -53,6 +53,38 @@ namespace Roku.Compiler
             return body;
         }
 
+        public static IStructBody TupleBodyDefinition(RootNamespace root, TupleNode tuple)
+        {
+            var name = GetName(tuple);
+            var exists = root.Structs.FindFirstOrNull(x => x.Name == name);
+            if (exists is { } x) return x;
+
+            var body = new StructBody(root, name);
+            var fbody = MakeFunction(root, name);
+            var fret = new TypeGenericsValue(new VariableValue(name));
+            tuple.Values.Each((x, i) =>
+            {
+                var member_name = $"a{i + 1}";
+
+                body.Generics.Add(new TypeGenericsParameter(member_name));
+                body.Members.Add($"{i + 1}", NormalizationExpression(body, x));
+                var member = new VariableValue($"{i + 1}");
+                body.LexicalScope.Add(member.Name, member);
+                body.Body.Add(new TypeBind(member, new TypeGenericsParameter(member_name)));
+
+                var farg_var = new VariableValue($"x{i + 1}");
+                var farg = new TypeGenericsParameter(member_name);
+                fbody.Generics.Add(farg);
+                fbody.Arguments.Add((farg_var, farg));
+                fbody.LexicalScope.Add(farg_var.Name, farg_var);
+
+                fret.Generics.Add(farg);
+            });
+            fbody.Return = fret;
+            root.Structs.Add(body);
+            return body;
+        }
+
         public static void FunctionDefinition(SourceCodeBody src, ProgramNode pgm)
         {
             if (pgm.Statements.Count > 0)
@@ -246,6 +278,18 @@ namespace Roku.Compiler
 
                 case ListNode<IEvaluableNode> x:
                     return new ArrayContainer(x.List.Map(list => NormalizationExpression(scope, list, true)).ToList());
+
+                case TupleNode x:
+                    {
+                        _ = TupleBodyDefinition(Lookup.GetRootNamespace(scope.Namespace), x);
+                        var call = new FunctionCallValue(new VariableValue(GetName(x)));
+                        x.Values.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
+                        if (!evaluate_as_expression) return call;
+                        var v = CreateTemporaryVariable(scope);
+                        scope.Body.Add(new Call(call) { Return = v });
+                        return v;
+                    }
+
             }
             throw new Exception();
         }
@@ -268,6 +312,7 @@ namespace Roku.Compiler
             {
                 VariableNode x => x.Name,
                 TokenNode x => x.Token.Name,
+                TupleNode x => $"Tuple#{x.Values.Count}",
                 _ => throw new Exception(),
             };
         }

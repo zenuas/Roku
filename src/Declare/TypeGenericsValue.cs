@@ -5,7 +5,7 @@ namespace Roku.Declare
 {
     public class TypeGenericsValue : ITypeDefinition
     {
-        public string Name { get => ToString(); }
+        public string Name { get => Type.ToString()!; }
         public ITypedValue Type { get; }
         public List<ITypeDefinition> Generics { get; } = new List<ITypeDefinition>();
 
