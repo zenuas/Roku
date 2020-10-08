@@ -67,7 +67,11 @@ namespace Roku.Compiler
             foreach (var x in ns.Functions.Where(x => x.Name == name))
             {
                 var v = FunctionArgumentsEquals(ns, x, args);
-                if (v.Exists) return new FunctionCaller(x, v.GenericsMapper);
+                if (v.Exists)
+                {
+                    if (x is ISpecialization sp) AppendSpecialization(sp, v.GenericsMapper);
+                    return new FunctionCaller(x, v.GenericsMapper);
+                }
             }
 
             if (ns is ILexicalScope lex) return FindFunctionOrNull(lex.Namespace, name, args, find_use);
@@ -79,7 +83,7 @@ namespace Roku.Compiler
                     if (FindFunctionOrNull(use, name, args, false) is { } x) return x;
                 }
             }
-            if (ns is TypeSpecialization sp && sp.Body is ExternStruct sx)
+            if (ns is TypeSpecialization tsp && tsp.Body is ExternStruct sx)
             {
                 foreach (var m in sx.Struct.GetMethods().Where(x => MatchMethodName(x, name) && x.GetParameters().Length + (x.IsStatic ? 0 : 1) == args.Count))
                 {
@@ -88,7 +92,7 @@ namespace Roku.Compiler
                     //var args_ti = m.GetParameters().Map(x => x.ParameterType.GetTypeInfo()).ToList();
                     //if (!m.IsStatic) args_ti.Insert(0, sx.Struct);
 
-                    sx.Struct.GetGenericArguments().Each(x => g.Add(new TypeGenericsParameter(x.Name), sp.GenericsMapper.GetValue(x.Name)));
+                    sx.Struct.GetGenericArguments().Each(x => g.Add(new TypeGenericsParameter(x.Name), tsp.GenericsMapper.GetValue(x.Name)));
                     //m.GetGenericArguments().Each(x => g.Add(new TypeValue(x.Name) { Types = Types.Generics }, null));
 
                     //ToDo: List patch
@@ -240,6 +244,13 @@ namespace Roku.Compiler
             return false;
         }
 
+        public static void AppendSpecialization(ISpecialization sp, GenericsMapper g)
+        {
+            if (Lookup.GetGenericsTypeMapperOrNull(sp.SpecializationMapper, g).HasValue) return;
+            var mapper = sp.SpecializationMapper[g] = new TypeMapper();
+            g.Each(kv => mapper[kv.Key] = Typing.CreateVariableDetail(kv.Key.Name, kv.Value, VariableType.TypeParameter));
+        }
+
         public static TypeSpecialization? FindStructOrNull(INamespace ns, string[] name, List<IStructBody> args)
         {
             foreach (var x in ns.Structs.Where(x => TypeNameEquals(x, name)))
@@ -249,6 +260,7 @@ namespace Roku.Compiler
                     if (g.Generics.Count != args.Count) continue;
                     var gens = new GenericsMapper();
                     g.Generics.Each((x, i) => gens[x] = args[i]);
+                    AppendSpecialization(g, gens);
                     return new TypeSpecialization(x, gens);
                 }
                 else
@@ -382,13 +394,6 @@ namespace Roku.Compiler
         public static TypeMapper? GetTypemapperOrNull(Dictionary<GenericsMapper, TypeMapper> sp, GenericsMapper g) => GetGenericsTypeMapperOrNull(sp, g)?.TypeMapper;
 
         public static TypeMapper GetTypemapper(Dictionary<GenericsMapper, TypeMapper> sp, GenericsMapper g) => GetTypemapperOrNull(sp, g)!;
-
-        public static TypeMapper GenericsMapperToTypeMapper(GenericsMapper g)
-        {
-            var mapper = new TypeMapper();
-            g.Each(kv => mapper[kv.Key] = Typing.CreateVariableDetail(kv.Key.Name, kv.Value, VariableType.TypeParameter));
-            return mapper;
-        }
 
         public static GenericsMapper TypeMapperToGenericsMapper(TypeMapper tm)
         {

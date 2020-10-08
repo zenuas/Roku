@@ -195,7 +195,6 @@ namespace Roku.Compiler
                         IStructBody? ret = null;
                         if (caller.Body is FunctionBody fb)
                         {
-                            if (Lookup.GetTypemapperOrNull(fb.SpecializationMapper, caller.GenericsMapper) is null) fb.SpecializationMapper[caller.GenericsMapper] = Lookup.GenericsMapperToTypeMapper(caller.GenericsMapper);
                             if (fb.Return is { } && !fm.TypeMapper.ContainsKey(fb.Return)) fm.TypeMapper[fb.Return] = CreateVariableDetail("", Lookup.GetArgumentType(fb.Namespace, fb.Return, caller.GenericsMapper), VariableType.Type);
                             if (fb.Return is { }) ret = fm.TypeMapper[fb.Return].Struct;
                             fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(x.Name.Name, Lookup.GetArgumentType(fb.Namespace, x.Type, caller.GenericsMapper), VariableType.Argument, i));
@@ -226,7 +225,6 @@ namespace Roku.Compiler
                         var fm = new FunctionMapper(new EmbeddedFunction(x.ToString(), x.ToString()) { OpCode = (args) => $"newobj instance void {CodeGenerator.GetStructName(body)}::.ctor()" });
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
                         if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, body);
-                        if (body.Body is ISpecialization sp) AppendSpecialization(sp, body.GenericsMapper);
                         resolve = true;
                     }
                     break;
@@ -266,12 +264,6 @@ namespace Roku.Compiler
         }
 
         public static IEnumerable<string> GetNamespaceNames(NamespaceBody ns) => ns.Parent is { } p ? GetNamespaceNames(p).Concat(ns.Name) : new string[] { ns.Name };
-
-        public static void AppendSpecialization(ISpecialization sp, GenericsMapper g)
-        {
-            if (Lookup.GetGenericsTypeMapperOrNull(sp.SpecializationMapper, g).HasValue) return;
-            sp.SpecializationMapper[g] = Lookup.GenericsMapperToTypeMapper(g);
-        }
 
         public static void Feedback(IStructBody? left, IStructBody? right)
         {
