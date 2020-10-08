@@ -67,10 +67,10 @@ namespace Roku.Compiler
                 var member_name = $"a{i + 1}";
 
                 body.Generics.Add(new TypeGenericsParameter(member_name));
-                body.Members.Add($"{i + 1}", NormalizationExpression(body, x));
                 var member = new VariableValue($"{i + 1}");
                 body.LexicalScope.Add(member.Name, member);
-                body.Body.Add(new TypeBind(member, new TypeGenericsParameter(member_name)));
+                body.Members.Add(member.Name, member);
+                body.Body.Add(new Code { Operator = Operator.Bind, Return = member, Left = NormalizationExpression(body, x) });
 
                 var farg_var = new VariableValue($"x{i + 1}");
                 var farg = new TypeGenericsParameter(member_name);

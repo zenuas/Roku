@@ -9,7 +9,7 @@ namespace Roku.Compiler
 {
     public static class Typing
     {
-        public static void TypeInference(SourceCodeBody src)
+        public static void TypeInference(RootNamespace root, SourceCodeBody src)
         {
             var srcs = Lookup.AllPrograms(src).ToList();
 
@@ -17,6 +17,7 @@ namespace Roku.Compiler
             {
                 var resolved = false;
 
+                root.Structs.By<StructBody>().Each(x => resolved = TypeInference(x) || resolved);
                 Lookup.AllStructBodies(srcs).Each(x => resolved = TypeInference(x) || resolved);
                 Lookup.AllFunctionBodies(srcs).Each(x => resolved = TypeInference(x) || resolved);
 
