@@ -298,27 +298,8 @@ namespace Roku.Compiler
         public static bool TypeInferenceWithEffect(INamespace ns, TypeMapper m, IEvaluable v, ITypeDefinition type)
         {
             if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return false;
-            if (type is TypeGenericsParameter gen)
-            {
-                m[v] = CreateVariableDetail("", m[gen].Struct, VariableType.TypeParameter);
-            }
-            else if (type is TypeGenericsValue g)
-            {
-                var gens = Lookup.TypeMapperToGenericsMapper(m);
-                m[v] = CreateVariableDetail("", Lookup.GetStructType(ns, type, gens), VariableType.Type);
-            }
-            else if (type is TypeValue t)
-            {
-                m[v] = CreateVariableDetail("", Lookup.LoadStruct(ns, t.Name), VariableType.Type);
-            }
-            else if (type is TypeEnum te)
-            {
-                m[v] = CreateVariableDetail("", Lookup.LoadEnumStruct(ns, te), VariableType.Type);
-            }
-            else
-            {
-                throw new Exception();
-            }
+            var s = Lookup.GetStructType(ns, type, m);
+            m[v] = CreateVariableDetail("", s, type is TypeGenericsParameter ? VariableType.TypeParameter : VariableType.Type);
             return true;
         }
 
