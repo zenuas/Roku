@@ -19,7 +19,7 @@ namespace Roku.Compiler
 
                 root.Structs.By<StructBody>().Each(x => resolved = TypeInference(x) || resolved);
                 Lookup.AllStructBodies(srcs).Each(x => resolved = TypeInference(x) || resolved);
-                Lookup.AllFunctionBodies(srcs).Each(x => resolved = TypeInference(x) || resolved);
+                Lookup.AllFunctionBodies(srcs).Concat(Lookup.AllFunctionBodies(root)).Each(x => resolved = TypeInference(x) || resolved);
 
                 if (!resolved) break;
             }
@@ -298,9 +298,14 @@ namespace Roku.Compiler
         public static bool TypeInferenceWithEffect(INamespace ns, TypeMapper m, IEvaluable v, ITypeDefinition type)
         {
             if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return false;
-            if (type is TypeGenericsParameter g)
+            if (type is TypeGenericsParameter gen)
             {
-                m[v] = CreateVariableDetail("", m[type].Struct, VariableType.TypeParameter);
+                m[v] = CreateVariableDetail("", m[gen].Struct, VariableType.TypeParameter);
+            }
+            else if (type is TypeGenericsValue g)
+            {
+                var gens = Lookup.TypeMapperToGenericsMapper(m);
+                m[v] = CreateVariableDetail("", Lookup.GetArgumentType(ns, type, gens), VariableType.Type);
             }
             else if (type is TypeValue t)
             {

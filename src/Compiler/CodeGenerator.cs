@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Roku.Compiler
 {
@@ -170,7 +171,7 @@ namespace Roku.Compiler
                         else if (f.Function is FunctionBody fb)
                         {
                             il.WriteLine(args.Join('\n'));
-                            il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return, g)} {fb.Name}({fb.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")})");
+                            il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return, g)} {EscapeILName(fb.Name)}({fb.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")})");
                         }
                         else if (f.Function is EmbeddedFunction ef)
                         {
@@ -382,6 +383,8 @@ namespace Roku.Compiler
             }
             throw new Exception();
         }
+
+        public static string EscapeILName(string s) => Regex.IsMatch(s, "[^a-zA-Z0-9]") ? $"'{s}'" : s;
 
         public static string EscapeILName(string name, ISpecialization sp, GenericsMapper g) => g.Count == 0 ? name : $"'{name}{GetGenericsName(sp, g)}'";
 
