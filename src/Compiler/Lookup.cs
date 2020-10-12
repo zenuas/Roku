@@ -132,9 +132,9 @@ namespace Roku.Compiler
             return (fargs.Count != args.Count ? false : fargs.Zip(args).And(x => TypeEquals(x.First, x.Second)), gens);
         }
 
-        public static List<IStructBody?> GetArgumentsType(INamespace ns, IFunctionBody body, GenericsMapper gens) => FunctionToArgumentsType(body).Map(x => GetArgumentType(ns, x, gens)).ToList();
+        public static List<IStructBody?> GetArgumentsType(INamespace ns, IFunctionBody body, GenericsMapper gens) => FunctionToArgumentsType(body).Map(x => GetStructType(ns, x, gens)).ToList();
 
-        public static IStructBody? GetArgumentType(INamespace ns, ITypeDefinition t, GenericsMapper gens)
+        public static IStructBody? GetStructType(INamespace ns, ITypeDefinition t, GenericsMapper gens)
         {
             if (t is TypeGenericsParameter gen)
             {
@@ -142,7 +142,7 @@ namespace Roku.Compiler
             }
             else if (t is TypeGenericsValue g)
             {
-                return FindStructOrNull(ns, new string[] { g.Name }, g.Generics.Map(x => GetArgumentType(ns, x, gens)!).ToList());
+                return FindStructOrNull(ns, new string[] { g.Name }, g.Generics.Map(x => GetStructType(ns, x, gens)!).ToList());
             }
             else if (t is TypeValue tv)
             {
@@ -159,26 +159,7 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static IStructBody? GetStructType(INamespace ns, ITypeDefinition t, TypeMapper mapper)
-        {
-            if (t is TypeGenericsParameter gen)
-            {
-                return mapper[gen]!.Struct;
-            }
-            else if (t is TypeValue tv)
-            {
-                return LoadStruct(ns, tv.Name);
-            }
-            else if (t is TypeInfoValue ti)
-            {
-                return LoadType(GetRootNamespace(ns), ti.Type);
-            }
-            else if (t is TypeEnum te)
-            {
-                return LoadEnumStruct(ns, te);
-            }
-            throw new Exception();
-        }
+        public static IStructBody? GetStructType(INamespace ns, ITypeDefinition t, TypeMapper mapper) => GetStructType(ns, t, TypeMapperToGenericsMapper(mapper));
 
         public static IEnumerable<ITypeDefinition> FunctionToArgumentsType(IFunctionBody body)
         {

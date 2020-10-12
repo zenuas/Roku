@@ -196,9 +196,9 @@ namespace Roku.Compiler
                         IStructBody? ret = null;
                         if (caller.Body is FunctionBody fb)
                         {
-                            if (fb.Return is { } && !fm.TypeMapper.ContainsKey(fb.Return)) fm.TypeMapper[fb.Return] = CreateVariableDetail("", Lookup.GetArgumentType(fb.Namespace, fb.Return, caller.GenericsMapper), VariableType.Type);
+                            if (fb.Return is { } && !fm.TypeMapper.ContainsKey(fb.Return)) fm.TypeMapper[fb.Return] = CreateVariableDetail("", Lookup.GetStructType(fb.Namespace, fb.Return, caller.GenericsMapper), VariableType.Type);
                             if (fb.Return is { }) ret = fm.TypeMapper[fb.Return].Struct;
-                            fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(x.Name.Name, Lookup.GetArgumentType(fb.Namespace, x.Type, caller.GenericsMapper), VariableType.Argument, i));
+                            fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(x.Name.Name, Lookup.GetStructType(fb.Namespace, x.Type, caller.GenericsMapper), VariableType.Argument, i));
                             fb.Arguments.Each((x, i) => Feedback(args[i], fm.TypeMapper[x.Name].Struct));
                         }
                         else if (caller.Body is ExternFunction fx)
@@ -305,7 +305,7 @@ namespace Roku.Compiler
             else if (type is TypeGenericsValue g)
             {
                 var gens = Lookup.TypeMapperToGenericsMapper(m);
-                m[v] = CreateVariableDetail("", Lookup.GetArgumentType(ns, type, gens), VariableType.Type);
+                m[v] = CreateVariableDetail("", Lookup.GetStructType(ns, type, gens), VariableType.Type);
             }
             else if (type is TypeValue t)
             {
