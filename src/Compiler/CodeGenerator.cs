@@ -384,7 +384,7 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static string EscapeILName(string s) => Regex.IsMatch(s, "[^a-zA-Z0-9]") ? $"'{s}'" : s;
+        public static string EscapeILName(string s) => Regex.IsMatch(s, "[^a-zA-Z0-9_]") ? $"'{s}'" : s;
 
         public static string EscapeILName(string name, ISpecialization sp, GenericsMapper g) => g.Count == 0 ? name : $"'{name}{GetGenericsName(sp, g)}'";
 
