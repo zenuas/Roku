@@ -42,12 +42,17 @@ namespace Roku.Compiler
 
         public static void AssemblyStructEmit(ILWriter il, StructBody body, List<FunctionCaller> fss)
         {
+            var cache = new HashSet<string>();
             body.SpecializationMapper.Each(sp =>
             {
                 var g = sp.Key;
                 var mapper = sp.Value;
 
-                il.WriteLine($".class public {EscapeILName(body.Name, body, g)}");
+                var name = EscapeILName(body.Name, body, g);
+                if (cache.Contains(name)) return;
+                cache.Add(name);
+
+                il.WriteLine($".class public {name}");
                 il.WriteLine("{");
                 il.Indent++;
                 body.Members.Each(x => il.WriteLine($".field public {GetTypeName(mapper, x.Value, g)} {EscapeILName(x.Key)}"));
