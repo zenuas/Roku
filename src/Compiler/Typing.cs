@@ -154,7 +154,8 @@ namespace Roku.Compiler
 
         public static bool ResolveFunctionWithEffect(INamespace ns, TypeMapper m, Call call)
         {
-            if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { } p && IsDecideType(p)) return false;
+            if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { } p && IsDecideType(p) &&
+                (call.Return is null || (call.Return is { } rx && m.ContainsKey(rx) && m[rx].Struct is { } rs && IsDecideType(rs)))) return false;
 
             var resolve = false;
             var lookupns = ns;
@@ -180,7 +181,7 @@ namespace Roku.Compiler
                         var r = ns.Cast<FunctionBody>().Return;
                         var ret = new EmbeddedFunction("return", null, r is { } ? new ITypeDefinition[] { r } : new ITypeDefinition[] { }) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                         var fm = new FunctionMapper(ret);
-                        if (r is TypeGenericsParameter gen) fm.TypeMapper[gen] = CreateVariableDetail("", m[gen].Struct, VariableType.TypeParameter); ;
+                        if (r is TypeGenericsParameter gen) fm.TypeMapper[gen] = CreateVariableDetail("", m[gen].Struct, VariableType.TypeParameter);
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
                         return true;
                     }

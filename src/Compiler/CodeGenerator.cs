@@ -355,7 +355,7 @@ namespace Roku.Compiler
                     break;
 
                 case PropertyValue x:
-                    return $"stfld {GetStructName(m[x].Struct)} {GetStructName(m[x.Left].Struct)}::{x.Right}";
+                    return $"stfld {GetStructName(m[x].Struct)} {GetStructName(m[x.Left].Struct)}::{EscapeILName(x.Right)}";
             }
             throw new Exception();
         }

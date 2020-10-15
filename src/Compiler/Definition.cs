@@ -62,24 +62,32 @@ namespace Roku.Compiler
             var body = new StructBody(root, name);
             var fbody = MakeFunction(root, name);
             var fret = new TypeGenericsValue(new VariableValue(name));
+            var fcall = new TypeGenericsValue(new VariableValue(name));
+            var self = new VariableValue("$self");
+            fbody.LexicalScope.Add(self.Name, self);
+            fbody.Body.Add(new Call(new FunctionCallValue(fcall)) { Return = self });
+
             tuple.Values.Each((x, i) =>
             {
                 var member_name = $"a{i + 1}";
 
-                body.Generics.Add(new TypeGenericsParameter(member_name));
+                var gp = new TypeGenericsParameter(member_name);
+                body.Generics.Add(gp);
                 var member = new VariableValue($"{i + 1}");
                 body.LexicalScope.Add(member.Name, member);
+                body.Body.Add(new TypeBind(member, gp));
                 body.Members.Add(member.Name, member);
-                body.Body.Add(new Code { Operator = Operator.Bind, Return = member, Left = NormalizationExpression(body, x) });
 
                 var farg_var = new VariableValue($"x{i + 1}");
                 var farg = new TypeGenericsParameter(member_name);
                 fbody.Generics.Add(farg);
                 fbody.Arguments.Add((farg_var, farg));
                 fbody.LexicalScope.Add(farg_var.Name, farg_var);
-
+                fbody.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(self, member.Name), Left = NormalizationExpression(body, x) });
                 fret.Generics.Add(farg);
+                fcall.Generics.Add(farg);
             });
+            fbody.Body.Add(new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(self))));
             fbody.Return = fret;
             root.Structs.Add(body);
             return body;
