@@ -12,12 +12,12 @@ namespace Roku.Compiler
 {
     public static class CodeGenerator
     {
-        public static void Emit(SourceCodeBody body, string path)
+        public static void Emit(RootNamespace root, SourceCodeBody body, string path)
         {
             var pgms = Lookup.AllPrograms(body);
             var nss = Lookup.AllNamespaces(body);
             var entrypoint = Lookup.AllFunctionBodies(pgms).FindFirst(x => x.Name == "main");
-            var structs = Lookup.AllStructBodies(pgms);
+            var structs = Lookup.AllStructBodies(pgms).Concat(Lookup.AllStructBodies(root));
             var externs = Lookup.AllExternFunctions(nss);
             var embedded = Lookup.AllEmbeddedFunctions(nss);
             var extern_structs = Lookup.AllExternStructs(Lookup.GetRootNamespace(body));
@@ -50,7 +50,7 @@ namespace Roku.Compiler
                 il.WriteLine($".class public {EscapeILName(body.Name, body, g)}");
                 il.WriteLine("{");
                 il.Indent++;
-                body.Members.Each(x => il.WriteLine($".field public {GetTypeName(mapper, x.Value, g)} {x.Key}"));
+                body.Members.Each(x => il.WriteLine($".field public {GetTypeName(mapper, x.Value, g)} {EscapeILName(x.Key)}"));
                 il.WriteLine("");
 
                 il.WriteLine($".method public void .ctor()");
@@ -345,7 +345,7 @@ namespace Roku.Compiler
                     }
                     else if (detail.Type == VariableType.Property)
                     {
-                        return $"stfld {GetStructName(detail.Struct!)} {GetStructName(m[detail.Reciever!].Struct!)}::{detail.Name}";
+                        return $"stfld {GetStructName(detail.Struct!)} {GetStructName(m[detail.Reciever!].Struct!)}::{EscapeILName(detail.Name)}";
                     }
                     break;
 
@@ -376,7 +376,8 @@ namespace Roku.Compiler
             {
                 case null: return "void";
                 case ExternStruct x: return GetILStructName(x);
-                case StructBody x: return $"class {x.Name}";
+                case NumericStruct x: return GetStructName(x.Types.First());
+                case StructBody x: return $"class {EscapeILName(x.Name)}";
                 case TypeSpecialization x when x.Body is ExternStruct e: return $"class [{e.Assembly.GetName().Name}]{e.Struct.FullName}{GetGenericsName(e, x.GenericsMapper)}";
                 case TypeSpecialization x when x.Body is StructBody e: return $"class {EscapeILName(x.Name, e, x.GenericsMapper)}";
                 case EnumStructBody _: return "object";

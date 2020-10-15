@@ -43,7 +43,7 @@ namespace Roku.Compiler
 
             var src = Definition.LoadProgram(root, pgm);
             Typing.TypeInference(root, src);
-            CodeGenerator.Emit(src, output);
+            CodeGenerator.Emit(root, src, output);
         }
 
         public static void DefineNumericFunction(RootNamespace root, string type)
