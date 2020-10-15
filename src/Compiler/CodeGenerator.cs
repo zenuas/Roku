@@ -89,7 +89,7 @@ namespace Roku.Compiler
                 var g = fss[i].GenericsMapper;
                 var mapper = Lookup.GetTypemapper(f.SpecializationMapper, g);
 
-                il.WriteLine($".method public static {GetTypeName(mapper, f.Return, g)} {f.Name}({f.Arguments.Map(a => GetTypeName(mapper[a.Name], g)).Join(", ")})");
+                il.WriteLine($".method public static {GetTypeName(mapper, f.Return, g)} {EscapeILName(f.Name)}({f.Arguments.Map(a => GetTypeName(mapper[a.Name], g)).Join(", ")})");
                 il.WriteLine("{");
                 il.Indent++;
                 if (i == 0) il.WriteLine(".entrypoint");
@@ -314,7 +314,7 @@ namespace Roku.Compiler
                     }
 
                 case PropertyValue x:
-                    return $"{LoadValue(m, x.Left)}\nldfld {GetStructName(m[x].Struct)} {GetStructName(m[x.Left].Struct)}::{x.Right}";
+                    return $"{LoadValue(m, x.Left)}\nldfld {GetStructName(m[x].Struct)} {GetStructName(m[x.Left].Struct)}::{EscapeILName(x.Right)}";
 
                 case ArrayContainer x:
                     return $"newobj instance void {GetStructName(m[x].Struct)}::.ctor()\n{x.Values.Map(v => "dup\n" + LoadValue(m, v) + $"\ncallvirt instance void {GetStructName(m[x].Struct)}::Add(!0)").Join("\n")}";
@@ -384,7 +384,7 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static string EscapeILName(string s) => Regex.IsMatch(s, "[^a-zA-Z0-9_]") ? $"'{s}'" : s;
+        public static string EscapeILName(string s) => Regex.IsMatch(s, "^_*[a-zA-Z][_a-zA-Z0-9]*$") ? s : $"'{s}'";
 
         public static string EscapeILName(string name, ISpecialization sp, GenericsMapper g) => g.Count == 0 ? name : $"'{name}{GetGenericsName(sp, g)}'";
 
