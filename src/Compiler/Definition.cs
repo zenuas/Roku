@@ -79,13 +79,12 @@ namespace Roku.Compiler
                 body.Members.Add(member.Name, member);
 
                 var farg_var = new VariableValue($"x{i + 1}");
-                var farg = new TypeGenericsParameter(member_name);
-                fbody.Generics.Add(farg);
-                fbody.Arguments.Add((farg_var, farg));
+                fbody.Generics.Add(gp);
+                fbody.Arguments.Add((farg_var, gp));
                 fbody.LexicalScope.Add(farg_var.Name, farg_var);
                 fbody.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(self, member.Name), Left = NormalizationExpression(body, x) });
-                fret.Generics.Add(farg);
-                fcall.Generics.Add(farg);
+                fret.Generics.Add(gp);
+                fcall.Generics.Add(gp);
             });
             fbody.Body.Add(new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(self))));
             fbody.Return = fret;

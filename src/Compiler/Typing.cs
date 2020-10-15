@@ -182,6 +182,7 @@ namespace Roku.Compiler
                         var ret = new EmbeddedFunction("return", null, r is { } ? new ITypeDefinition[] { r } : new ITypeDefinition[] { }) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                         var fm = new FunctionMapper(ret);
                         if (r is TypeGenericsParameter gen) fm.TypeMapper[gen] = CreateVariableDetail("", m[gen].Struct, VariableType.TypeParameter);
+                        else if (r is TypeGenericsValue && m.ContainsKey(r) && m[r].Struct is TypeSpecialization sp) sp.GenericsMapper.Each(x => fm.TypeMapper[x.Key] = CreateVariableDetail("", x.Value, VariableType.TypeParameter));
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
                         return true;
                     }
