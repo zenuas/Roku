@@ -17,8 +17,7 @@ namespace Roku.Compiler
             {
                 var resolved = false;
 
-                root.Structs.By<StructBody>().Each(x => resolved = TypeInference(x) || resolved);
-                Lookup.AllStructBodies(srcs).Each(x => resolved = TypeInference(x) || resolved);
+                Lookup.AllStructBodies(srcs).Concat(Lookup.AllStructBodies(root)).Each(x => resolved = TypeInference(x) || resolved);
                 Lookup.AllFunctionBodies(srcs).Concat(Lookup.AllFunctionBodies(root)).Each(x => resolved = TypeInference(x) || resolved);
 
                 if (!resolved) break;
@@ -44,7 +43,7 @@ namespace Roku.Compiler
 
             foreach (var mapper in body.SpecializationMapper.Values)
             {
-                if (!mapper.ContainsKey(self)) mapper[self] = CreateVariableDetail(self.Name, body, VariableType.Argument, 0);
+                if (!mapper.ContainsKey(self)) mapper[self] = CreateVariableDetail(self.Name, new TypeSpecialization(body, Lookup.TypeMapperToGenericsMapper(mapper)), VariableType.Argument, 0);
 
                 body.Members.Values.Each(x =>
                 {
