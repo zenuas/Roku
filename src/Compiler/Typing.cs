@@ -155,7 +155,10 @@ namespace Roku.Compiler
         public static bool ResolveFunctionWithEffect(INamespace ns, TypeMapper m, Call call)
         {
             if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { } p && IsDecideType(p) &&
-                (call.Return is null || (call.Return is { } rx && m.ContainsKey(rx) && m[rx].Struct is { } rs && IsDecideType(rs)))) return false;
+                (call.Return is null || (call.Return is { } rx && m.ContainsKey(rx) && m[rx].Struct is { } rs && IsDecideType(rs))))
+            {
+                return false;
+            }
 
             var resolve = false;
             var lookupns = ns;
