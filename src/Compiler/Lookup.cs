@@ -64,7 +64,7 @@ namespace Roku.Compiler
 
         public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionBody => src is INamespaceBody ns ? ns.Functions.By<T>() : new List<T>();
 
-        public static FunctionCaller? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args, bool find_use = true)
+        public static FunctionSpecialization? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args, bool find_use = true)
         {
             if (ns is INamespaceBody nsb)
             {
@@ -74,7 +74,7 @@ namespace Roku.Compiler
                     if (v.Exists)
                     {
                         if (x is ISpecialization sp) AppendSpecialization(sp, v.GenericsMapper);
-                        return new FunctionCaller(x, v.GenericsMapper);
+                        return new FunctionSpecialization(x, v.GenericsMapper);
                     }
                 }
             }
@@ -88,7 +88,7 @@ namespace Roku.Compiler
                     if (FindFunctionOrNull(use, name, args, false) is { } x) return x;
                 }
             }
-            if (ns is TypeSpecialization tsp && tsp.Body is ExternStruct sx)
+            if (ns is StructSpecialization tsp && tsp.Body is ExternStruct sx)
             {
                 foreach (var m in sx.Struct.GetMethods().Where(x => MatchMethodName(x, name) && x.GetParameters().Length + (x.IsStatic ? 0 : 1) == args.Count))
                 {
@@ -105,7 +105,7 @@ namespace Roku.Compiler
                     var asmx = ti.Assembly;
                     if (ti == typeof(List<>).GetTypeInfo()) asmx = Assembly.Load("System.Collections");
 
-                    return new FunctionCaller(new ExternFunction(name, m, asmx), g);
+                    return new FunctionSpecialization(new ExternFunction(name, m, asmx), g);
                 }
             }
             return null;
@@ -237,7 +237,7 @@ namespace Roku.Compiler
             g.Each(kv => mapper[kv.Key] = Typing.CreateVariableDetail(kv.Key.Name, kv.Value, VariableType.TypeParameter));
         }
 
-        public static TypeSpecialization? FindStructOrNull(INamespace ns, string[] name, List<IStructBody> args)
+        public static StructSpecialization? FindStructOrNull(INamespace ns, string[] name, List<IStructBody> args)
         {
             if (ns is INamespaceBody nsb)
             {
@@ -249,11 +249,11 @@ namespace Roku.Compiler
                         var gens = new GenericsMapper();
                         g.Generics.Each((x, i) => gens[x] = args[i]);
                         AppendSpecialization(g, gens);
-                        return new TypeSpecialization(x, gens);
+                        return new StructSpecialization(x, gens);
                     }
                     else
                     {
-                        return new TypeSpecialization(x, new GenericsMapper());
+                        return new StructSpecialization(x, new GenericsMapper());
                     }
                 }
             }
@@ -276,7 +276,7 @@ namespace Roku.Compiler
 
                         var gens = new GenericsMapper();
                         t.Generics.Each((x, i) => gens[x] = args[i]);
-                        return new TypeSpecialization(t, gens);
+                        return new StructSpecialization(t, gens);
                     }
                 }
             }

@@ -29,7 +29,7 @@ namespace Roku.Compiler
             AssemblyExternEmit(il, extern_asms);
             AssemblyNameEmit(il, path);
 
-            var fss = new List<FunctionCaller>() { new FunctionCaller(entrypoint, new GenericsMapper()) };
+            var fss = new List<FunctionSpecialization>() { new FunctionSpecialization(entrypoint, new GenericsMapper()) };
             structs.Each(x => AssemblyStructEmit(il, x, fss));
             AssemblyFunctionEmit(il, fss);
         }
@@ -40,7 +40,7 @@ namespace Roku.Compiler
 
         public static void AssemblyNameEmit(ILWriter il, string path) => il.WriteLine($".assembly {Path.GetFileNameWithoutExtension(path)} {{}}");
 
-        public static void AssemblyStructEmit(ILWriter il, StructBody body, List<FunctionCaller> fss)
+        public static void AssemblyStructEmit(ILWriter il, StructBody body, List<FunctionSpecialization> fss)
         {
             var cache = new HashSet<string>();
             body.SpecializationMapper.Each(sp =>
@@ -86,7 +86,7 @@ namespace Roku.Compiler
             });
         }
 
-        public static void AssemblyFunctionEmit(ILWriter il, List<FunctionCaller> fss)
+        public static void AssemblyFunctionEmit(ILWriter il, List<FunctionSpecialization> fss)
         {
             for (var i = 0; i < fss.Count; i++)
             {
@@ -121,7 +121,7 @@ namespace Roku.Compiler
             }
         }
 
-        public static void CallToAddEmitFunctionList(TypeMapper m, Call call, List<FunctionCaller> fss)
+        public static void CallToAddEmitFunctionList(TypeMapper m, Call call, List<FunctionSpecialization> fss)
         {
             var f = m[call.Function.Function].Struct!.Cast<FunctionMapper>();
 
@@ -130,12 +130,12 @@ namespace Roku.Compiler
                 var g = Lookup.TypeMapperToGenericsMapper(f.TypeMapper);
                 if (fss.FindFirstIndex(x => EqualsFunctionCaller(x, body, g)) < 0)
                 {
-                    fss.Add(new FunctionCaller(body, g));
+                    fss.Add(new FunctionSpecialization(body, g));
                 }
             }
         }
 
-        public static bool EqualsFunctionCaller(FunctionCaller left, IFunctionBody right, GenericsMapper right_g)
+        public static bool EqualsFunctionCaller(FunctionSpecialization left, IFunctionBody right, GenericsMapper right_g)
         {
             if (left.Body != right) return false;
             return left.GenericsMapper.Keys.And(x => left.GenericsMapper[x] == right_g[x]);
@@ -383,8 +383,8 @@ namespace Roku.Compiler
                 case ExternStruct x: return GetILStructName(x);
                 case NumericStruct x: return GetStructName(x.Types.First());
                 case StructBody x: return $"class {EscapeILName(x.Name)}";
-                case TypeSpecialization x when x.Body is ExternStruct e: return $"class [{e.Assembly.GetName().Name}]{e.Struct.FullName}{GetGenericsName(e, x.GenericsMapper)}";
-                case TypeSpecialization x when x.Body is StructBody e: return $"class {EscapeILName(x.Name, e, x.GenericsMapper)}";
+                case StructSpecialization x when x.Body is ExternStruct e: return $"class [{e.Assembly.GetName().Name}]{e.Struct.FullName}{GetGenericsName(e, x.GenericsMapper)}";
+                case StructSpecialization x when x.Body is StructBody e: return $"class {EscapeILName(x.Name, e, x.GenericsMapper)}";
                 case EnumStructBody _: return "object";
             }
             throw new Exception();
