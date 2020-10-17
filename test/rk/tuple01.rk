@@ -10,6 +10,20 @@ print(x.2)
 
 ###
 2要素タプル
+
+タプルは次の通り翻訳される
+
+struct Tuple#2<a1, a2>
+	var 1: a1
+	var 2: a2
+
+sub Tuple#2#0<t1, t2>(x1: t1, x2: t2) Tuple#2<t1, t2>
+	var $self = Tuple#2<t1, t2>()
+	$self.1 = x1
+	$self.2 = x2
+	return($self)
+
+var x = Tuple#2#0(3, "hello")
 ###
 
 ###start
@@ -40,7 +54,7 @@ print(x.2)
     
     ldc.i4.3
     ldstr "hello"
-    call class 'Tuple#2<int32, string>' 'Tuple#2'(int32, string)
+    call class 'Tuple#2<int32, string>' 'Tuple#2#0'(int32, string)
     stloc.0
     
     ldloc.0
@@ -58,7 +72,7 @@ print(x.2)
     call void class [System.Console]System.Console::WriteLine(string)
     ret
 }
-.method public static class 'Tuple#2<int32, string>' 'Tuple#2'(int32, string)
+.method public static class 'Tuple#2<int32, string>' 'Tuple#2#0'(int32, string)
 {
     .maxstack 8
     .locals(

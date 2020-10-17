@@ -53,7 +53,7 @@ print(x.1 + x.3)
     ldc.i4.4
     ldstr "hello"
     ldc.i4.5
-    call class 'Tuple#3<int32, string, int32>' 'Tuple#3'(int32, string, int32)
+    call class 'Tuple#3<int32, string, int32>' 'Tuple#3#0'(int32, string, int32)
     stloc.0
     
     ldloc.0
@@ -94,7 +94,7 @@ print(x.1 + x.3)
     call void class [System.Console]System.Console::WriteLine(int32)
     ret
 }
-.method public static class 'Tuple#3<int32, string, int32>' 'Tuple#3'(int32, string, int32)
+.method public static class 'Tuple#3<int32, string, int32>' 'Tuple#3#0'(int32, string, int32)
 {
     .maxstack 8
     .locals(

@@ -53,14 +53,27 @@ namespace Roku.Compiler
             return body;
         }
 
-        public static IStructBody TupleBodyDefinition(RootNamespace root, TupleNode tuple)
+        public static FunctionBody TupleBodyDefinition(RootNamespace root, TupleNode tuple)
         {
             var name = GetName(tuple);
             var exists = root.Structs.FindFirstOrNull(x => x.Name == name);
-            if (exists is { } x) return x;
 
-            var body = new StructBody(root, name);
-            var fbody = MakeFunction(root, name);
+            if (exists is null)
+            {
+                var body = new StructBody(root, name);
+                tuple.Values.Each((x, i) =>
+                {
+                    var gp = new TypeGenericsParameter($"a{i + 1}");
+                    body.Generics.Add(gp);
+                    var member = new VariableValue($"{i + 1}");
+                    body.LexicalScope.Add(member.Name, member);
+                    body.Body.Add(new TypeBind(member, gp));
+                    body.Members.Add(member.Name, member);
+                });
+                root.Structs.Add(body);
+            }
+
+            var fbody = MakeFunction(root, $"{name}#{root.TupleUniqueCount++}");
             var fret = new TypeGenericsValue(new VariableValue(name));
             var fcall = new TypeGenericsValue(new VariableValue(name));
             var self = new VariableValue("$self");
@@ -69,27 +82,18 @@ namespace Roku.Compiler
 
             tuple.Values.Each((x, i) =>
             {
-                var member_name = $"a{i + 1}";
-
-                var gp = new TypeGenericsParameter(member_name);
-                body.Generics.Add(gp);
-                var member = new VariableValue($"{i + 1}");
-                body.LexicalScope.Add(member.Name, member);
-                body.Body.Add(new TypeBind(member, gp));
-                body.Members.Add(member.Name, member);
-
+                var gp = new TypeGenericsParameter($"t{i + 1}");
                 var farg_var = new VariableValue($"x{i + 1}");
                 fbody.Generics.Add(gp);
                 fbody.Arguments.Add((farg_var, gp));
                 fbody.LexicalScope.Add(farg_var.Name, farg_var);
-                fbody.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(self, member.Name), Left = NormalizationExpression(body, x, true) });
+                fbody.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(self, $"{i + 1}"), Left = NormalizationExpression(fbody, x, true) });
                 fret.Generics.Add(gp);
                 fcall.Generics.Add(gp);
             });
             fbody.Body.Add(new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(self))));
             fbody.Return = fret;
-            root.Structs.Add(body);
-            return body;
+            return fbody;
         }
 
         public static void FunctionDefinition(SourceCodeBody src, ProgramNode pgm)
@@ -288,8 +292,8 @@ namespace Roku.Compiler
 
                 case TupleNode x:
                     {
-                        _ = TupleBodyDefinition(Lookup.GetRootNamespace(scope.Namespace), x);
-                        var call = new FunctionCallValue(new VariableValue(GetName(x)));
+                        var f = TupleBodyDefinition(Lookup.GetRootNamespace(scope.Namespace), x);
+                        var call = new FunctionCallValue(new VariableValue(f.Name));
                         x.Values.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
                         if (!evaluate_as_expression) return call;
                         var v = CreateTemporaryVariable(scope);
