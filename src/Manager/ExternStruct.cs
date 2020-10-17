@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Roku.Manager
 {
-    public class ExternStruct : IStructBody, ISpecialization, INamespace
+    public class ExternStruct : IStructBody, ISpecialization, INamespaceBody
     {
         public string Name { get; set; } = "###NO-ALIAS";
         public TypeInfo Struct { get; }

@@ -346,12 +346,12 @@ namespace Roku.Compiler
 
         public static IEvaluable? FindNamespaceValue(INamespace ns, string name)
         {
-            if (ns.Structs.FindFirstOrNull(x => x.Name == name) is { } s) return new TypeValue(s.Name);
+            if (ns is INamespaceBody body && body.Structs.FindFirstOrNull(x => x.Name == name) is { } s) return new TypeValue(s.Name);
             if (ns is RootNamespace root) return new TypeValue(name);
             return null;
         }
 
-        public static FunctionBody MakeFunction(INamespace ns, string name)
+        public static FunctionBody MakeFunction(INamespaceBody ns, string name)
         {
             var body = new FunctionBody(ns, name);
             ns.Functions.Add(body);

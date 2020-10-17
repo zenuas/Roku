@@ -48,31 +48,34 @@ namespace Roku.Compiler
 
         public static IEnumerable<StructBody> AllStructBodies(List<SourceCodeBody> srcs) => srcs.Map(AllStructBodies).Flatten();
 
-        public static IEnumerable<StructBody> AllStructBodies(INamespace src) => src.Structs.By<StructBody>();
+        public static IEnumerable<StructBody> AllStructBodies(INamespaceBody src) => src.Structs.By<StructBody>();
 
         public static IEnumerable<ExternStruct> AllExternStructs(RootNamespace root) => AllStructs<ExternStruct>(root);
 
-        public static IEnumerable<T> AllStructs<T>(INamespace src) where T : IStructBody => src.Structs.By<T>();
+        public static IEnumerable<T> AllStructs<T>(INamespaceBody src) where T : IStructBody => src.Structs.By<T>();
 
         public static IEnumerable<FunctionBody> AllFunctionBodies(List<SourceCodeBody> srcs) => srcs.Map(AllFunctionBodies).Flatten();
 
-        public static IEnumerable<FunctionBody> AllFunctionBodies(INamespace src) => src.Functions.By<FunctionBody>();
+        public static IEnumerable<FunctionBody> AllFunctionBodies(INamespaceBody src) => src.Functions.By<FunctionBody>();
 
         public static IEnumerable<ExternFunction> AllExternFunctions(List<INamespace> srcs) => srcs.Map(AllFunctions<ExternFunction>).Flatten();
 
         public static IEnumerable<EmbeddedFunction> AllEmbeddedFunctions(List<INamespace> srcs) => srcs.Map(AllFunctions<EmbeddedFunction>).Flatten();
 
-        public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionBody => src.Functions.By<T>();
+        public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionBody => src is INamespaceBody ns ? ns.Functions.By<T>() : new List<T>();
 
         public static FunctionCaller? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args, bool find_use = true)
         {
-            foreach (var x in ns.Functions.Where(x => x.Name == name))
+            if (ns is INamespaceBody nsb)
             {
-                var v = FunctionArgumentsEquals(ns, x, args);
-                if (v.Exists)
+                foreach (var x in nsb.Functions.Where(x => x.Name == name))
                 {
-                    if (x is ISpecialization sp) AppendSpecialization(sp, v.GenericsMapper);
-                    return new FunctionCaller(x, v.GenericsMapper);
+                    var v = FunctionArgumentsEquals(ns, x, args);
+                    if (v.Exists)
+                    {
+                        if (x is ISpecialization sp) AppendSpecialization(sp, v.GenericsMapper);
+                        return new FunctionCaller(x, v.GenericsMapper);
+                    }
                 }
             }
 
@@ -236,19 +239,22 @@ namespace Roku.Compiler
 
         public static TypeSpecialization? FindStructOrNull(INamespace ns, string[] name, List<IStructBody> args)
         {
-            foreach (var x in ns.Structs.Where(x => TypeNameEquals(x, name)))
+            if (ns is INamespaceBody nsb)
             {
-                if (x is ISpecialization g)
+                foreach (var x in nsb.Structs.Where(x => TypeNameEquals(x, name)))
                 {
-                    if (g.Generics.Count != args.Count) continue;
-                    var gens = new GenericsMapper();
-                    g.Generics.Each((x, i) => gens[x] = args[i]);
-                    AppendSpecialization(g, gens);
-                    return new TypeSpecialization(x, gens);
-                }
-                else
-                {
-                    return new TypeSpecialization(x, new GenericsMapper());
+                    if (x is ISpecialization g)
+                    {
+                        if (g.Generics.Count != args.Count) continue;
+                        var gens = new GenericsMapper();
+                        g.Generics.Each((x, i) => gens[x] = args[i]);
+                        AppendSpecialization(g, gens);
+                        return new TypeSpecialization(x, gens);
+                    }
+                    else
+                    {
+                        return new TypeSpecialization(x, new GenericsMapper());
+                    }
                 }
             }
 
@@ -347,7 +353,7 @@ namespace Roku.Compiler
 
         public static ExternFunction LoadFunction(RootNamespace root, string alias, MethodInfo mi) => LoadFunction(root, root, alias, mi);
 
-        public static ExternFunction LoadFunction(RootNamespace root, INamespace ns, string alias, MethodInfo mi)
+        public static ExternFunction LoadFunction(RootNamespace root, INamespaceBody ns, string alias, MethodInfo mi)
         {
             var f = new ExternFunction(alias, mi, LoadType(root, mi.DeclaringType!).Assembly);
             ns.Functions.Add(f);

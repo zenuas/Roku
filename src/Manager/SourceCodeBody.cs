@@ -2,7 +2,7 @@
 
 namespace Roku.Manager
 {
-    public class SourceCodeBody : INamespace, IUse
+    public class SourceCodeBody : INamespaceBody, IUse
     {
         public List<IFunctionBody> Functions { get; } = new List<IFunctionBody>();
         public List<IStructBody> Structs { get; } = new List<IStructBody>();
