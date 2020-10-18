@@ -1,0 +1,24 @@
+
+struct Foo<a>
+	var x: a
+
+sub f(x: Foo<String>) Foo<Int>
+	print(x.a)
+	var v = Foo<Int>()
+	v.x = 2
+	return(v)
+
+#=>aa
+#=>2
+var w = Foo<String>()
+w.x = "aa"
+var p = f(w.x)
+print(p.x)
+
+###
+ジェネリック構造体を関数の引数、戻り値に持つ
+###
+
+###start
+
+###end

@@ -115,20 +115,23 @@ sub_begin : BEGIN              {Scopes.Push(new FunctionNode { LineNumber = $1.L
 
 fn     : var
 where  : void
-args   : void           {$$ = CreateListNode<DeclareNode>();}
+args   : void                    {$$ = CreateListNode<DeclareNode>();}
        | argn extra
-argn   : decla          {$$ = CreateListNode($1);}
-       | argn ',' decla {$$ = $1.Return(x => x.List.Add($3));}
-decla  : var ':' type   {$$ = new DeclareNode($1, $3).R($1);}
+argn   : decla                   {$$ = CreateListNode($1);}
+       | argn ',' decla          {$$ = $1.Return(x => x.List.Add($3));}
+decla  : var ':' type            {$$ = new DeclareNode($1, $3).R($1);}
 type   : typev
-       | '[' type   ']' {$$ = new TypeArrayNode($2).R($1);}
-       | '[' typeor ']' {$$ = new EnumNode($2).R($1);}
+       | '[' type   ']'          {$$ = new TypeArrayNode($2).R($1);}
+       | '[' typeor ']'          {$$ = new EnumNode($2).R($1);}
 typev  : nsvar
-nsvar  : varx           {$$ = new TypeNode { Name = $1.Name }.R($1);}
+       | nsvar LT typen extra GT {$$ = ExpressionToType($1, $3);}
+nsvar  : varx                    {$$ = new TypeNode { Name = $1.Name }.R($1);}
 typex  : void
        | type
-typeor : type OR type   {$$ = CreateListNode($1, $3);}
-       | typeor OR type {$$ = $1.Return(x => x.List.Add($3));}
+typen  : type                    {$$ = CreateListNode($1);}
+       | typen ',' type          {$$ = $1.Return(x => x.List.Add($3));}
+typeor : type OR type            {$$ = CreateListNode($1, $3);}
+       | typeor OR type          {$$ = $1.Return(x => x.List.Add($3));}
 
 ########## if ##########
 if     : ifthen

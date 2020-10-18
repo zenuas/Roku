@@ -97,9 +97,6 @@ namespace Roku.Parser
         /// <summary>TYPE_PARAM</summary>
         TYPE_PARAM,
 
-        /// <summary>typen</summary>
-        typen,
-
         /// <summary>UNARY</summary>
         UNARY,
 
@@ -225,6 +222,9 @@ namespace Roku.Parser
 
         /// <summary>type</summary>
         type,
+
+        /// <summary>typen</summary>
+        typen,
 
         /// <summary>typeor</summary>
         typeor,

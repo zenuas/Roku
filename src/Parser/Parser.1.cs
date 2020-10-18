@@ -71,6 +71,13 @@ namespace Roku.Parser
             return g;
         }
 
+        public static TypeGenericsNode ExpressionToType(IEvaluableNode expr, ListNode<ITypeNode> ts)
+        {
+            var g = new TypeGenericsNode(expr);
+            g.Generics.AddRange(ts.List);
+            return g;
+        }
+
         public void SyntaxError(Token t) => SyntaxError(t, "syntax error");
 
         public static void SyntaxError(Token t, string message) => throw new SyntaxErrorException(message) { LineNumber = t.LineNumber, LineColumn = t.LineColumn };
