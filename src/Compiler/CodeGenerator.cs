@@ -48,7 +48,7 @@ namespace Roku.Compiler
                 var g = sp.Key;
                 var mapper = sp.Value;
 
-                var name = EscapeILName(body.Name, body, g);
+                var name = GetStructName(body.Name, body, g);
                 if (cache.Contains(name)) return;
                 cache.Add(name);
 
@@ -375,7 +375,7 @@ namespace Roku.Compiler
 
         public static IStructBody? GetType(IStructBody? body, GenericsMapper g) => body is GenericsParameter gp ? g.FindFirst(x => x.Key.Name == gp.Name).Value : body;
 
-        public static string GetStructName(IStructBody? body)
+        public static string GetStructName(IStructBody? body, bool escape = true)
         {
             switch (body)
             {
@@ -384,17 +384,17 @@ namespace Roku.Compiler
                 case NumericStruct x: return GetStructName(x.Types.First());
                 case StructBody x: return $"class {EscapeILName(x.Name)}";
                 case StructSpecialization x when x.Body is ExternStruct e: return $"class [{e.Assembly.GetName().Name}]{e.Struct.FullName}{GetGenericsName(e, x.GenericsMapper)}";
-                case StructSpecialization x when x.Body is StructBody e: return $"class {EscapeILName(x.Name, e, x.GenericsMapper)}";
+                case StructSpecialization x when x.Body is StructBody e: return $"class {GetStructName(x.Name, e, x.GenericsMapper, false).To(x => escape ? EscapeILName(x) : x)}";
                 case EnumStructBody _: return "object";
             }
             throw new Exception();
         }
 
+        public static string GetStructName(string name, ISpecialization sp, GenericsMapper g, bool escape = true) => g.Count == 0 ? name : $"{name}{GetGenericsName(sp, g, false)}".To(x => escape ? EscapeILName(x) : x);
+
         public static string EscapeILName(string s) => Regex.IsMatch(s, "^_*[a-zA-Z][_a-zA-Z0-9]*$") ? s : $"'{s}'";
 
-        public static string EscapeILName(string name, ISpecialization sp, GenericsMapper g) => g.Count == 0 ? name : $"'{name}{GetGenericsName(sp, g)}'";
-
-        public static string GetGenericsName(ISpecialization sp, GenericsMapper g) => $"<{sp.Generics.Map(x => GetStructName(g[x])).Join(", ")}>";
+        public static string GetGenericsName(ISpecialization sp, GenericsMapper g, bool inner_escape = true) => $"<{sp.Generics.Map(x => GetStructName(g[x], inner_escape)).Join(", ")}>";
 
         public static string GetILStructName(ExternStruct sx) => GetILStructName(sx.Struct, sx.Assembly);
 

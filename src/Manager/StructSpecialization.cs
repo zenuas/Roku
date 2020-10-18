@@ -1,6 +1,6 @@
 ﻿namespace Roku.Manager
 {
-    public class StructSpecialization : IStructBody, INamespace
+    public class StructSpecialization : IStructBody, INamespace, IGenericsMapper
     {
         public string Name { get => Body.Name; }
         public IStructBody Body { get; }

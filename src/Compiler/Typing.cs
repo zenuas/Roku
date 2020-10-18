@@ -112,6 +112,22 @@ namespace Roku.Compiler
                 if (fm.Function is ISpecialization sp) SpecializationNumericDecide(sp);
                 TypeMapperNumericDecide(fm.TypeMapper);
             }
+            foreach (var gm in m.Where(x => x.Value.Struct is IGenericsMapper).Map(x => x.Value.Struct!.Cast<IGenericsMapper>()))
+            {
+                var keys = gm.GenericsMapper.Keys.ToList();
+                foreach (var key in keys)
+                {
+                    var g = gm.GenericsMapper[key];
+                    if (g is NumericStruct num)
+                    {
+                        gm.GenericsMapper[key] = num.Types.First();
+                    }
+                    else if (g is ISpecialization sp)
+                    {
+                        SpecializationNumericDecide(sp);
+                    }
+                }
+            }
         }
 
         public static bool OperandTypeInference(INamespace ns, TypeMapper m, IOperand op)
@@ -365,6 +381,8 @@ namespace Roku.Compiler
         public static IStructBody? GetPropertyType(TypeMapper m, IEvaluable receiver, string property)
         {
             var left = m[receiver].Struct;
+            if (left is null) return null;
+
             switch (left)
             {
                 case StructBody x:

@@ -22,6 +22,9 @@ namespace Extensions
         }
 
         [DebuggerHidden]
+        public static R To<T, R>(this T self, Func<T, R> f) => f(self);
+
+        [DebuggerHidden]
         public static bool In<T>(this T self, params T[] args) where T : IEquatable<T> => !args.Where(self.Equals).IsNull();
 
         [DebuggerHidden]

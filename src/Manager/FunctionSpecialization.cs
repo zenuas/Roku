@@ -1,6 +1,6 @@
 ﻿namespace Roku.Manager
 {
-    public class FunctionSpecialization
+    public class FunctionSpecialization : IGenericsMapper
     {
         public IFunctionBody Body { get; }
         public GenericsMapper GenericsMapper { get; }

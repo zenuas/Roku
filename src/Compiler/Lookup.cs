@@ -204,6 +204,7 @@ namespace Roku.Compiler
         {
             if (source is ExternStruct ea && arg is ExternStruct eb) return ea.Struct == eb.Struct;
             if (source is StructBody sa && arg is StructBody sb) return sa == sb;
+            if (source is StructSpecialization ssa && arg is StructSpecialization ssb) return TypeEquals(ssa.Body, ssb.Body) && ssa.GenericsMapper.And(x => TypeEquals(x.Value, ssb.GenericsMapper[x.Key]));
             if (arg is NumericStruct num) return num.Types.Or(x => TypeEquals(source, x));
             if (source is NumericStruct num2) return num2.Types.Or(x => TypeEquals(x, arg));
             return false;
