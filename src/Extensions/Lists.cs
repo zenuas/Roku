@@ -155,6 +155,14 @@ namespace Extensions
         public static R[] MapParallelAll<T, R>(this IEnumerable<T> self, Func<T, int, R> f) => Task.WhenAll(self.Select((x, i) => Task.Run(() => f(x, i)))).Result;
 
         [DebuggerHidden]
+        public static IEnumerable<(bool Completed, R? Result)> MapParallelAllWithTimeout<T, R>(this IEnumerable<T> self, Func<T, R> f, int waitms) where R : class
+        {
+            var tasks = self.Select(x => Task.Run(() => f(x))).ToArray();
+            _ = Task.WaitAll(tasks, waitms);
+            return tasks.Select(x => (x.IsCompleted, x.IsCompleted ? x.Result : null));
+        }
+
+        [DebuggerHidden]
         public static IEnumerable<T> Where<T>(this IEnumerable<T> self, Func<T, bool> f) => Enumerable.Where(self, f);
 
         [DebuggerHidden]

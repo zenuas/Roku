@@ -1,6 +1,7 @@
 ﻿using Extensions;
 using NUnit.Framework;
 using System;
+using System.Threading;
 
 namespace Roku.Tests
 {
@@ -120,6 +121,28 @@ namespace Roku.Tests
             Assert.IsTrue("a"[0..^0].ToStringByChars() == "a");
             Assert.IsTrue("a"[0..^1].ToStringByChars() == "");
             Assert.IsTrue(""[0..^0].ToStringByChars() == "");
+        }
+
+        [Test]
+        public void TimeoutTest()
+        {
+            var xs = new int[] { 1, 2, 3, 1000, 5 };
+            var r = xs.MapParallelAllWithTimeout(x =>
+            {
+                Thread.Sleep(x);
+                return $"{x}_{x}";
+            }, 100).ToArray();
+
+            Assert.IsTrue(r[0].Completed);
+            Assert.IsTrue(r[0].Result == "1_1");
+            Assert.IsTrue(r[1].Completed);
+            Assert.IsTrue(r[1].Result == "2_2");
+            Assert.IsTrue(r[2].Completed);
+            Assert.IsTrue(r[2].Result == "3_3");
+            Assert.IsTrue(!r[3].Completed);
+            Assert.IsTrue(r[3].Result is null);
+            Assert.IsTrue(r[4].Completed);
+            Assert.IsTrue(r[4].Result == "5_5");
         }
     }
 }
