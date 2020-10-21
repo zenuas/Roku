@@ -63,17 +63,17 @@ namespace Roku.Parser
             };
         }
 
-        public static TypeGenericsNode ExpressionToType(IEvaluableNode expr, IEvaluableNode t1, params ITypeNode[] ts)
+        public static SpecializationNode ExpressionToType(IEvaluableNode expr, IEvaluableNode t1, params ITypeNode[] ts)
         {
-            var g = new TypeGenericsNode(expr);
+            var g = new SpecializationNode(expr);
             g.Generics.Add(ExpressionToType(t1));
             g.Generics.AddRange(ts);
             return g;
         }
 
-        public static TypeGenericsNode ExpressionToType(IEvaluableNode expr, ListNode<ITypeNode> ts)
+        public static SpecializationNode ExpressionToType(IEvaluableNode expr, ListNode<ITypeNode> ts)
         {
-            var g = new TypeGenericsNode(expr);
+            var g = new SpecializationNode(expr);
             g.Generics.AddRange(ts.List);
             return g;
         }

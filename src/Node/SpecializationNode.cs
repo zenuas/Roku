@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Roku.Node
 {
-    public class TypeGenericsNode : INode, ITypeNode
+    public class SpecializationNode : INode, ITypeNode
     {
         public int? LineNumber { get; set; }
         public int? LineColumn { get; set; }
@@ -11,7 +11,7 @@ namespace Roku.Node
         public List<ITypeNode> Generics { get; } = new List<ITypeNode>();
         public string Name => throw new NotImplementedException();
 
-        public TypeGenericsNode(IEvaluableNode expr)
+        public SpecializationNode(IEvaluableNode expr)
         {
             Expression = expr;
         }

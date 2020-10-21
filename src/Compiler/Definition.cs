@@ -271,7 +271,7 @@ namespace Roku.Compiler
                     {
                         var call =
                             x.Expression is PropertyNode prop ? new FunctionCallValue(new VariableValue(prop.Right.Name)) { FirstLookup = NormalizationExpression(scope, prop.Left) }
-                            : x.Expression is TypeGenericsNode gen ? new FunctionCallValue(CreateTypeGenerics(scope, gen))
+                            : x.Expression is SpecializationNode gen ? new FunctionCallValue(CreateTypeGenerics(scope, gen))
                             : new FunctionCallValue(new VariableValue(GetName(x.Expression)));
 
                         x.Arguments.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
@@ -305,13 +305,13 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static TypeGenericsValue CreateTypeGenerics(ILexicalScope scope, TypeGenericsNode gen)
+        public static TypeGenericsValue CreateTypeGenerics(ILexicalScope scope, SpecializationNode gen)
         {
             var g = new TypeGenericsValue(NormalizationExpression(scope, gen.Expression));
             gen.Generics.Map(x => x switch
             {
                 TypeNode t => CreateType(t),
-                TypeGenericsNode t => CreateTypeGenerics(scope, t),
+                SpecializationNode t => CreateTypeGenerics(scope, t),
                 _ => throw new Exception(),
             }).Each(x => g.Generics.Add(x));
             return g;
