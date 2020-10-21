@@ -51,9 +51,9 @@ namespace Roku.Tests
                     var filename = Path.GetFileName(src);
                     var txt = File.ReadAllText(src);
                     var lines = txt.SplitLine();
+                    var il = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".il");
                     try
                     {
-                        var il = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".il");
                         FrontEnd.Compile(new StringReader(txt), il, new string[] { "System.Runtime" });
 
                         var valid = GetLineContent(lines, "###start", "###end");
@@ -72,6 +72,14 @@ namespace Roku.Tests
                         {
                             return (filename, ex.Message);
                         }
+                        File.WriteAllText(il, $@"
+.assembly {filename} {{}}
+.method public static void main()
+{{
+    .entrypoint
+    ret
+}}
+");
                     }
                     return (filename, "");
                 }).Where(x => x.Item2 != ""));
