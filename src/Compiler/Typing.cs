@@ -201,7 +201,7 @@ namespace Roku.Compiler
                         var ret = new EmbeddedFunction("return", null, r is { } ? new ITypeDefinition[] { r } : new ITypeDefinition[] { }) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                         var fm = new FunctionMapper(ret);
                         if (r is TypeGenericsParameter gen) fm.TypeMapper[gen] = CreateVariableDetail("", m[gen].Struct, VariableType.TypeParameter);
-                        else if (r is TypeGenericsValue gv && m.ContainsKey(r) && m[r].Struct is StructSpecialization sp && sp.Body is ISpecialization sp2) gv.Generics.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail("", sp.GenericsMapper[sp2.Generics[i]], VariableType.TypeParameter));
+                        else if (r is TypeSpecialization gv && m.ContainsKey(r) && m[r].Struct is StructSpecialization sp && sp.Body is ISpecialization sp2) gv.Generics.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail("", sp.GenericsMapper[sp2.Generics[i]], VariableType.TypeParameter));
 
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
                         return true;
@@ -238,7 +238,7 @@ namespace Roku.Compiler
                     }
                     break;
 
-                case TypeGenericsValue x:
+                case TypeSpecialization x:
                     {
                         var gens = x.Generics.Map(x => Lookup.GetStructType(ns, x, m)!).ToList();
                         var body = Lookup.FindStructOrNull(ns, GetStructNames(m, x).ToArray(), gens);
@@ -276,7 +276,7 @@ namespace Roku.Compiler
 
         public static IEnumerable<string> GetStructNames(TypeMapper m, IEvaluable e)
         {
-            if (e is TypeGenericsValue g)
+            if (e is TypeSpecialization g)
             {
                 if (g.Type is PropertyValue prop) return GetStructNames(m, prop.Left).Concat(prop.Right);
                 return new string[] { g.Type.ToString()! };

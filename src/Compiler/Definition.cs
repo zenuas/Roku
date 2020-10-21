@@ -74,8 +74,8 @@ namespace Roku.Compiler
             }
 
             var fbody = MakeFunction(root, $"{name}#{root.TupleUniqueCount++}");
-            var fret = new TypeGenericsValue(new VariableValue(name));
-            var fcall = new TypeGenericsValue(new VariableValue(name));
+            var fret = new TypeSpecialization(new VariableValue(name));
+            var fcall = new TypeSpecialization(new VariableValue(name));
             var self = new VariableValue("$self");
             fbody.LexicalScope.Add(self.Name, self);
             fbody.Body.Add(new Call(new FunctionCallValue(fcall)) { Return = self });
@@ -271,7 +271,7 @@ namespace Roku.Compiler
                     {
                         var call =
                             x.Expression is PropertyNode prop ? new FunctionCallValue(new VariableValue(prop.Right.Name)) { FirstLookup = NormalizationExpression(scope, prop.Left) }
-                            : x.Expression is SpecializationNode gen ? new FunctionCallValue(CreateTypeGenerics(scope, gen))
+                            : x.Expression is SpecializationNode gen ? new FunctionCallValue(CreateTypeSpecialization(scope, gen))
                             : new FunctionCallValue(new VariableValue(GetName(x.Expression)));
 
                         x.Arguments.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
@@ -305,13 +305,13 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static TypeGenericsValue CreateTypeGenerics(ILexicalScope scope, SpecializationNode gen)
+        public static TypeSpecialization CreateTypeSpecialization(ILexicalScope scope, SpecializationNode gen)
         {
-            var g = new TypeGenericsValue(NormalizationExpression(scope, gen.Expression));
+            var g = new TypeSpecialization(NormalizationExpression(scope, gen.Expression));
             gen.Generics.Map(x => x switch
             {
                 TypeNode t => CreateType(t),
-                SpecializationNode t => CreateTypeGenerics(scope, t),
+                SpecializationNode t => CreateTypeSpecialization(scope, t),
                 _ => throw new Exception(),
             }).Each(x => g.Generics.Add(x));
             return g;

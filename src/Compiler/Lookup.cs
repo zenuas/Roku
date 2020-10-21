@@ -145,7 +145,7 @@ namespace Roku.Compiler
             {
                 return gens[gen]!;
             }
-            else if (t is TypeGenericsValue g)
+            else if (t is TypeSpecialization g)
             {
                 return FindStructOrNull(ns, new string[] { g.Name }, g.Generics.Map(x => GetStructType(ns, x, gens)!).ToList());
             }

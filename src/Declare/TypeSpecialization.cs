@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace Roku.Declare
 {
-    public class TypeGenericsValue : ITypeDefinition
+    public class TypeSpecialization : ITypeDefinition
     {
         public string Name { get => Type.ToString()!; }
         public IEvaluable Type { get; }
         public List<ITypeDefinition> Generics { get; } = new List<ITypeDefinition>();
 
-        public TypeGenericsValue(IEvaluable type)
+        public TypeSpecialization(IEvaluable type)
         {
             Type = type;
         }
