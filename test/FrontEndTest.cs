@@ -3,6 +3,7 @@ using NUnit.Framework;
 using Roku.Compiler;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace Roku.Tests
@@ -11,6 +12,13 @@ namespace Roku.Tests
     {
         public string SourceDir = "..\\..\\..\\rk";
         public string ObjDir = "..\\..\\..\\rk\\obj";
+
+        [SetUp]
+        public void Setup()
+        {
+            Trace.Listeners.Clear();
+            Trace.Listeners.Add(new NoFailListener());
+        }
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -25,34 +33,45 @@ namespace Roku.Tests
             }
         }
 
+        public (bool Found, string Text) GetLineContent(string[] lines, string start_line, string end_line)
+        {
+            var start = lines.FindFirstIndex(x => x.StartsWith(start_line));
+            if (start < 0) return (false, $"not found {start_line}");
+            var end = lines.Drop(start + 1).FindFirstIndex(x => x.StartsWith("###end"));
+            if (end < 0) return (false, $"not found {start_line} - {end_line}");
+            return (true, lines[(start + 1)..(start + end + 1)].Join("\r\n"));
+        }
+
         [Test]
         public void CompileTest()
         {
             var failed = new List<(string Path, string Message)>(
-                Directory.GetFiles(SourceDir, "*.rk").MapParallelAll(src =>
+                Directory.GetFiles(SourceDir, "*.rk").Map(src =>
                 {
                     var filename = Path.GetFileName(src);
+                    var txt = File.ReadAllText(src);
+                    var lines = txt.SplitLine();
                     try
                     {
                         var il = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".il");
-                        var txt = File.ReadAllText(src);
                         FrontEnd.Compile(new StringReader(txt), il, new string[] { "System.Runtime" });
 
-                        var lines = txt.SplitLine();
-                        var start = lines.FindFirstIndex(x => x.StartsWith("###start"));
-                        var end = lines.FindFirstIndex(x => x.StartsWith("###end"));
-                        if (start < 0 || end < 0)
+                        var valid = GetLineContent(lines, "###start", "###end");
+                        if (!valid.Found)
                         {
                             return (filename, "test code not found ###start - ###end");
                         }
-                        var valid = lines[(start + 1)..end].Join("\r\n").Trim();
                         var il_src = File.ReadAllText(il).Trim();
 
-                        if (valid != il_src) return (filename, "il make a difference");
+                        if (valid.Text.Trim() != il_src) return (filename, "il make a difference");
                     }
                     catch (Exception ex)
                     {
-                        return (filename, ex.Message);
+                        var error = GetLineContent(lines, "###error", "###end");
+                        if (!error.Found || error.Text.Trim() != ex.Message)
+                        {
+                            return (filename, ex.Message);
+                        }
                     }
                     return (filename, "");
                 }).Where(x => x.Item2 != ""));
