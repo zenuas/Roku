@@ -309,6 +309,10 @@ namespace Roku.Compiler
             {
                 m[v] = CreateVariableDetail($"${index}", Lookup.LoadStruct(ns, t.Name), VariableType.Argument, index);
             }
+            else if (type is TypeSpecialization sp)
+            {
+                m[v] = CreateVariableDetail($"${index}", Lookup.FindStructOrNull(ns, new string[] { sp.Name }, sp.Generics.Map(x => Lookup.GetStructType(ns, x, m)!).ToList()), VariableType.Argument, index);
+            }
             else
             {
                 throw new Exception();

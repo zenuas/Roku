@@ -109,7 +109,7 @@ namespace Roku.Compiler
             {
                 var body = MakeFunction(src, f.Name.Name);
                 var types = new Dictionary<string, TypeGenericsParameter>();
-                ITypeDefinition create_type(ITypeNode s) => types.ContainsKey(s.Name) ? types[s.Name] : CreateType(s).Return(x => { if (x is TypeGenericsParameter g) body.Generics.Add(types[g.Name] = g); });
+                ITypeDefinition create_type(ITypeNode s) => types.ContainsKey(s.Name) ? types[s.Name] : CreateType(body, s).Return(x => { if (x is TypeGenericsParameter g) body.Generics.Add(types[g.Name] = g); });
 
                 f.Arguments.Each(x =>
                 {
@@ -124,15 +124,18 @@ namespace Roku.Compiler
             });
         }
 
-        public static ITypeDefinition CreateType(ITypeNode t)
+        public static ITypeDefinition CreateType(ILexicalScope scope, ITypeNode t)
         {
             switch (t)
             {
                 case EnumNode en:
-                    return new TypeEnum(en.Types.Map(CreateType));
+                    return new TypeEnum(en.Types.Map(x => CreateType(scope, x)));
 
                 case TypeNode tn:
                     return char.IsLower(tn.Name.First()) ? new TypeGenericsParameter(tn.Name).Cast<ITypeDefinition>() : new TypeValue(tn.Name);
+
+                case SpecializationNode sp:
+                    return CreateTypeSpecialization(scope, sp);
 
                 default:
                     throw new Exception();
@@ -165,7 +168,7 @@ namespace Roku.Compiler
                         {
                             var v = new VariableValue(let.Var.Name);
                             scope.LexicalScope.Add(let.Var.Name, v);
-                            scope.Body.Add(new TypeBind(v, CreateType(let.Type)));
+                            scope.Body.Add(new TypeBind(v, CreateType(scope, let.Type)));
                         }
                         break;
 
@@ -195,7 +198,7 @@ namespace Roku.Compiler
                         else
                         {
                             var ifc = if_.Cast<IfCastNode>();
-                            var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), CreateType(ifc.Declare), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
+                            var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), CreateType(inner_scope, ifc.Declare), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
                             inner_scope.Body.Add(ifcast);
                             inner_scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
                         }
@@ -222,7 +225,7 @@ namespace Roku.Compiler
                             else
                             {
                                 var ifc = x.Cast<IfCastNode>();
-                                var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), CreateType(ifc.Declare), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
+                                var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), CreateType(inner_scope, ifc.Declare), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
                                 inner_scope.Body.Add(ifcast);
                                 inner_scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
                             }
@@ -258,6 +261,9 @@ namespace Roku.Compiler
                     return new NumericValue(x.Value);
 
                 case VariableNode x:
+                    return FindScopeValue(scope, x.Name);
+
+                case TypeNode x:
                     return FindScopeValue(scope, x.Name);
 
                 case FunctionCallNode x:
@@ -310,7 +316,7 @@ namespace Roku.Compiler
             var g = new TypeSpecialization(NormalizationExpression(scope, gen.Expression));
             gen.Generics.Map(x => x switch
             {
-                TypeNode t => CreateType(t),
+                TypeNode t => CreateType(scope, t),
                 SpecializationNode t => CreateTypeSpecialization(scope, t),
                 _ => throw new Exception(),
             }).Each(x => g.Generics.Add(x));
