@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections.Generic;
 
 namespace Roku.Node
@@ -9,7 +10,7 @@ namespace Roku.Node
         public int? LineColumn { get; set; }
         public IEvaluableNode Expression { get; set; }
         public List<ITypeNode> Generics { get; } = new List<ITypeNode>();
-        public string Name => throw new NotImplementedException();
+        public string Name => NodeIterator.PropertyToList(Expression).Map(x => x is VariableNode v ? v.Name : x is TypeNode t ? t.Name : throw new Exception()).Join(".");
 
         public SpecializationNode(IEvaluableNode expr)
         {
