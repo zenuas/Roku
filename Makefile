@@ -8,7 +8,7 @@ TESTS:=$(wildcard test\rk\*.rk)
 YANP=..\Yanp\bin\Debug\yanp.exe
 YANP_OUT=src\Parser\Parser.cs
 
-.PHONY: all clean distclean release test testd parser parserd node
+.PHONY: all clean distclean release test testd parser parserd node metric
 
 all:
 	dotnet build --nologo
@@ -53,3 +53,8 @@ $(TESTS):
 	@copy rk.test.runtimeconfig.json $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.runtimeconfig.json,$@)) 1>NUL
 	-@if exist $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.dll,$@)). dotnet $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.dll,$@)) < $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.testin,$@)) > $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.stdout,$@))
 	@fc $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.testout,$@)) $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.stdout,$@)) > $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.diff,$@)) || type $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.diff,$@))
+
+metric:
+	dotnet msbuild /t:metrics src\Roku.csproj -nologo
+	metrics.xml_to_csv.bat src\Roku.Metrics.xml > src\Roku.Metrics.csv
+	start src\Roku.Metrics.csv
