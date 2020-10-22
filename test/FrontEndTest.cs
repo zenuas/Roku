@@ -46,7 +46,7 @@ namespace Roku.Tests
         public void CompileTest()
         {
             var failed = new List<(string Path, string Message)>(
-                Directory.GetFiles(SourceDir, "*.rk").Map(src =>
+                Directory.GetFiles(SourceDir, "*.rk").MapParallelAll(src =>
                 {
                     var filename = Path.GetFileName(src);
                     var txt = File.ReadAllText(src);
