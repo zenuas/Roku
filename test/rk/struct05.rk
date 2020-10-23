@@ -2,8 +2,8 @@
 struct Foo<a>
 	var x: a
 
-sub f(x: Foo<String>) Foo<Int>
-	print(x.a)
+sub f(y: Foo<String>) Foo<Int>
+	print(y.x)
 	var v = Foo<Int>()
 	v.x = 2
 	return(v)
@@ -12,7 +12,7 @@ sub f(x: Foo<String>) Foo<Int>
 #=>2
 var w = Foo<String>()
 w.x = "aa"
-var p = f(w.x)
+var p = f(w)
 print(p.x)
 
 ###
@@ -20,5 +20,82 @@ print(p.x)
 ###
 
 ###start
-
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly struct05 {}
+.class public 'Foo<string>'
+{
+    .field public string x
+    
+    .method public void .ctor()
+    {
+        
+        ret
+    }
+}
+.class public 'Foo<int32>'
+{
+    .field public int32 x
+    
+    .method public void .ctor()
+    {
+        
+        ret
+    }
+}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] class 'Foo<string>' w,
+        [1] class 'Foo<int32>' p,
+        [2] int32 $$1
+    )
+    
+    newobj instance void class 'Foo<string>'::.ctor()
+    stloc.0
+    
+    ldloc.0
+    ldstr "aa"
+    stfld string class 'Foo<string>'::x
+    
+    ldloc.0
+    call class 'Foo<int32>' f(class 'Foo<string>')
+    stloc.1
+    
+    ldloc.1
+    ldfld int32 class 'Foo<int32>'::x
+    stloc.2
+    
+    ldloc.2
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+.method public static class 'Foo<int32>' f(class 'Foo<string>')
+{
+    .maxstack 8
+    .locals(
+        [0] string $$1,
+        [1] class 'Foo<int32>' v
+    )
+    
+    ldarg.0
+    ldfld string class 'Foo<string>'::x
+    stloc.0
+    
+    ldloc.0
+    call void class [System.Console]System.Console::WriteLine(string)
+    
+    newobj instance void class 'Foo<int32>'::.ctor()
+    stloc.1
+    
+    ldloc.1
+    ldc.i4.2
+    stfld int32 class 'Foo<int32>'::x
+    
+    ldloc.1
+    ret
+    ret
+}
 ###end
