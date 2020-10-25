@@ -1,0 +1,19 @@
+
+var x = (3, "hello")
+
+sub f(y: [Int, String])
+	#=>3
+	print(x.1)
+	
+	#=>hello
+	print(x.2)
+
+f(x)
+
+###
+タプルを引数にとる
+###
+
+###start
+
+###end

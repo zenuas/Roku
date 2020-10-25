@@ -53,25 +53,33 @@ namespace Roku.Compiler
             return body;
         }
 
+        public static StructBody TupleDefinition(RootNamespace root, int count)
+        {
+            var name = GetTupleName(count);
+            var exists = root.Structs.FindFirstOrNull(x => x.Name == name);
+
+            if (exists is StructBody sb) return sb;
+
+            var body = new StructBody(root, name);
+            Lists.RangeTo(1, count).Each(i =>
+            {
+                var gp = new TypeGenericsParameter($"a{i}");
+                body.Generics.Add(gp);
+                var member = new VariableValue($"{i}");
+                body.LexicalScope.Add(member.Name, member);
+                body.Body.Add(new TypeBind(member, gp));
+                body.Members.Add(member.Name, member);
+            });
+            root.Structs.Add(body);
+            return body;
+        }
+
         public static FunctionBody TupleBodyDefinition(RootNamespace root, TupleNode tuple)
         {
             var name = GetName(tuple);
             var exists = root.Structs.FindFirstOrNull(x => x.Name == name);
 
-            if (exists is null)
-            {
-                var body = new StructBody(root, name);
-                tuple.Values.Each((x, i) =>
-                {
-                    var gp = new TypeGenericsParameter($"a{i + 1}");
-                    body.Generics.Add(gp);
-                    var member = new VariableValue($"{i + 1}");
-                    body.LexicalScope.Add(member.Name, member);
-                    body.Body.Add(new TypeBind(member, gp));
-                    body.Members.Add(member.Name, member);
-                });
-                root.Structs.Add(body);
-            }
+            if (exists is null) _ = TupleDefinition(root, tuple.Values.Count);
 
             var fbody = MakeFunction(root, $"{name}#{root.TupleUniqueCount++}");
             var fret = new TypeSpecialization(new VariableValue(name));
@@ -136,6 +144,9 @@ namespace Roku.Compiler
 
                 case SpecializationNode sp:
                     return CreateTypeSpecialization(scope, sp);
+
+                case TypeTupleNode tp:
+                    return CreateTupleSpecialization(scope, tp);
 
                 default:
                     throw new Exception();
@@ -323,16 +334,31 @@ namespace Roku.Compiler
             return g;
         }
 
+        public static TypeSpecialization CreateTupleSpecialization(ILexicalScope scope, TypeTupleNode tuple)
+        {
+            var g = new TypeSpecialization(new VariableValue(GetName(tuple)));
+            tuple.Types.Map(x => x switch
+            {
+                TypeNode t => CreateType(scope, t),
+                SpecializationNode t => CreateTypeSpecialization(scope, t),
+                _ => throw new Exception(),
+            }).Each(x => g.Generics.Add(x));
+            return g;
+        }
+
         public static string GetName(IEvaluableNode node)
         {
             return node switch
             {
                 VariableNode x => x.Name,
                 TokenNode x => x.Token.Name,
-                TupleNode x => $"Tuple#{x.Values.Count}",
+                TupleNode x => GetTupleName(x.Values.Count),
+                TypeTupleNode x => GetTupleName(x.Types.Count),
                 _ => throw new Exception(),
             };
         }
+
+        public static string GetTupleName(int count) => $"Tuple#{count}";
 
         public static IEvaluable CreateTemporaryVariable(ILexicalScope scope)
         {

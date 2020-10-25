@@ -1,0 +1,21 @@
+
+sub f(y: ) [Int, String]
+	return((3, "hello"))
+
+var x = f()
+
+#=>3
+print(x.1)
+
+#=>hello
+print(x.2)
+
+f(x)
+
+###
+タプルを戻り値にとる
+###
+
+###start
+
+###end

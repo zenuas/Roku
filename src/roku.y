@@ -17,7 +17,7 @@ using Roku.Node;
 %type<ListNode<DeclareNode>>    args argn
 %type<ListNode<IEvaluableNode>> list listn list2n
 %type<ITypeNode>                type gen
-%type<ListNode<ITypeNode>>      typen genn typeor
+%type<ListNode<ITypeNode>>      typen type2n genn typeor
 %type<TypeNode>                 nsvar typev
 %type<ITypeNode?>               typex
 %type<IIfNode>                  if ifthen elseif
@@ -122,6 +122,7 @@ argn   : decla                   {$$ = CreateListNode($1);}
 decla  : var ':' type            {$$ = new DeclareNode($1, $3).R($1);}
 type   : typev
        | '[' type   ']'          {$$ = new TypeArrayNode($2).R($1);}
+       | '[' type2n ']'          {$$ = new TypeTupleNode($2).R($1);}
        | '[' typeor ']'          {$$ = new EnumNode($2).R($1);}
 typev  : nsvar
        | nsvar LT typen extra GT {$$ = ExpressionToType($1, $3);}
@@ -130,6 +131,7 @@ typex  : void
        | type
 typen  : type                    {$$ = CreateListNode($1);}
        | typen ',' type          {$$ = $1.Return(x => x.List.Add($3));}
+type2n : type ',' typen          {$$ = $3.Return(x => x.List.Insert(0, $1));}
 typeor : type OR type            {$$ = CreateListNode($1, $3);}
        | typeor OR type          {$$ = $1.Return(x => x.List.Add($3));}
 
