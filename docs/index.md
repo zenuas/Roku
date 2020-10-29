@@ -131,7 +131,7 @@ print(a.s)
 
 ## 簡易構造体
 
-簡易構造体定義は関数の仮引数、戻り値、列挙体定義などの限られたケースでstructにて行う(未実装)。  
+簡易構造体定義は関数の仮引数、戻り値、列挙体定義などの限られたケースでstructにて行う。  
 同名、引数の名前、引数の型が全て同じ簡易構造体は同じ型として扱われる。  
 構造体名と同名の関数が用意され、インスタンス作成を行う。  
 構造体名は英大文字で始める必要がある。  
@@ -143,6 +143,25 @@ sub area(a: struct Rect(width: Int, height: Int)) Int
 
 var s = area(Rect(10, 5))
 print(s)
+```
+
+ただし、引数名だけが違う簡易構造体は作成できない。(未実装)
+
+```
+sub area(a: struct Rect(width: Int)) Int
+    return(a.width * a.width)
+
+sub area(a: struct Rect(width: Int, height: Int)) Int
+    return(a.width * a.height)
+
+# NG
+sub area(a: struct Rect(height: Int, width: Int)) Int
+
+var s = area(Rect(10))
+print(s)
+
+var t = area(Rect(10, 5))
+print(t)
 ```
 
 ## 列挙体

@@ -1,0 +1,173 @@
+
+sub area(a: struct Rect(width: Int)) Int
+    return(a.width * a.width)
+
+sub area(a: struct Rect(width: Int, height: Int)) Int
+    return(a.width * a.height)
+
+#=>100
+var s = area(Rect(10))
+print(s)
+
+#=>50
+var t = area(Rect(10, 5))
+print(t)
+
+###
+引数の異なる簡易構造体を作成する
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly struct08 {}
+.class public 'struct Rect(width: Int)'
+{
+    .field public int32 width
+    
+    .method public void .ctor()
+    {
+        
+        ret
+    }
+}
+.class public 'struct Rect(width: Int, height: Int)'
+{
+    .field public int32 width
+    .field public int32 height
+    
+    .method public void .ctor()
+    {
+        
+        
+        ret
+    }
+}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] class 'struct Rect(width: Int)' $$1,
+        [1] int32 s,
+        [2] class 'struct Rect(width: Int, height: Int)' $$2,
+        [3] int32 t
+    )
+    
+    ldc.i4.s 10
+    call class 'struct Rect(width: Int)' Rect(int32)
+    stloc.0
+    
+    ldloc.0
+    call int32 area(class 'struct Rect(width: Int)')
+    stloc.1
+    
+    ldloc.1
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldc.i4.s 10
+    ldc.i4.5
+    call class 'struct Rect(width: Int, height: Int)' Rect(int32, int32)
+    stloc.2
+    
+    ldloc.2
+    call int32 area(class 'struct Rect(width: Int, height: Int)')
+    stloc.3
+    
+    ldloc.3
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+.method public static class 'struct Rect(width: Int)' Rect(int32)
+{
+    .maxstack 8
+    .locals(
+        [0] class 'struct Rect(width: Int)' $self
+    )
+    
+    newobj instance void 'struct Rect(width: Int)'::.ctor()
+    stloc.0
+    
+    ldloc.0
+    ldarg.0
+    stfld int32 class 'struct Rect(width: Int)'::width
+    
+    ldloc.0
+    ret
+    ret
+}
+.method public static int32 area(class 'struct Rect(width: Int)')
+{
+    .maxstack 8
+    .locals(
+        [0] int32 $$2,
+        [1] int32 $$3,
+        [2] int32 $$1
+    )
+    
+    ldarg.0
+    ldfld int32 class 'struct Rect(width: Int)'::width
+    stloc.0
+    
+    ldarg.0
+    ldfld int32 class 'struct Rect(width: Int)'::width
+    stloc.1
+    
+    ldloc.0
+    ldloc.1
+    mul
+    stloc.2
+    
+    ldloc.2
+    ret
+    ret
+}
+.method public static class 'struct Rect(width: Int, height: Int)' Rect(int32, int32)
+{
+    .maxstack 8
+    .locals(
+        [0] class 'struct Rect(width: Int, height: Int)' $self
+    )
+    
+    newobj instance void 'struct Rect(width: Int, height: Int)'::.ctor()
+    stloc.0
+    
+    ldloc.0
+    ldarg.0
+    stfld int32 class 'struct Rect(width: Int, height: Int)'::width
+    
+    ldloc.0
+    ldarg.1
+    stfld int32 class 'struct Rect(width: Int, height: Int)'::height
+    
+    ldloc.0
+    ret
+    ret
+}
+.method public static int32 area(class 'struct Rect(width: Int, height: Int)')
+{
+    .maxstack 8
+    .locals(
+        [0] int32 $$2,
+        [1] int32 $$3,
+        [2] int32 $$1
+    )
+    
+    ldarg.0
+    ldfld int32 class 'struct Rect(width: Int, height: Int)'::width
+    stloc.0
+    
+    ldarg.0
+    ldfld int32 class 'struct Rect(width: Int, height: Int)'::height
+    stloc.1
+    
+    ldloc.0
+    ldloc.1
+    mul
+    stloc.2
+    
+    ldloc.2
+    ret
+    ret
+}
+###end
