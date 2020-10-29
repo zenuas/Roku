@@ -52,7 +52,7 @@ namespace Roku.Compiler
                 if (cache.Contains(name)) return;
                 cache.Add(name);
 
-                il.WriteLine($".class public {EscapeILName(name)}");
+                il.WriteLine($".class public {name}");
                 il.WriteLine("{");
                 il.Indent++;
                 body.Members.Each(x => il.WriteLine($".field public {GetTypeName(mapper, x.Value, g)} {EscapeILName(x.Key)}"));
@@ -390,7 +390,7 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static string GetStructName(string name, ISpecialization sp, GenericsMapper g, bool escape = true) => g.Count == 0 ? name : $"{name}{GetGenericsName(sp, g, false)}".To(x => escape ? EscapeILName(x) : x);
+        public static string GetStructName(string name, ISpecialization sp, GenericsMapper g, bool escape = true) => (g.Count == 0 ? name : $"{name}{GetGenericsName(sp, g, false)}").To(x => escape ? EscapeILName(x) : x);
 
         public static string EscapeILName(string s) => Regex.IsMatch(s, "^_*[a-zA-Z][_a-zA-Z0-9]*$") ? s : $"'{s}'";
 
