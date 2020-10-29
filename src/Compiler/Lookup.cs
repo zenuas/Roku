@@ -367,6 +367,12 @@ namespace Roku.Compiler
             : ns is IUse use ? use.Uses.By<RootNamespace>().First()
             : throw new Exception();
 
+        public static INamespaceBody GetTopLevelNamespace(INamespace ns) =>
+            ns is RootNamespace root ? root
+            : ns is SourceCodeBody src ? src
+            : ns is ILexicalScope lex ? GetTopLevelNamespace(lex.Namespace)
+            : throw new Exception();
+
         public static IStructBody? LoadTypeWithoutVoid(RootNamespace root, Type t, GenericsMapper g) =>
             t == typeof(void) ? null
             : t.IsGenericParameter ? g.GetValue(t.Name)
