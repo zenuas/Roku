@@ -148,6 +148,9 @@ namespace Roku.Compiler
                 case TypeTupleNode tp:
                     return CreateTupleSpecialization(scope, tp);
 
+                case TypeStructNode ts:
+                    return CreateTypeStruct(scope, ts);
+
                 default:
                     throw new Exception();
             }
@@ -346,6 +349,43 @@ namespace Roku.Compiler
             return g;
         }
 
+        public static TypeValue CreateTypeStruct(ILexicalScope scope, TypeStructNode st)
+        {
+            var top = Lookup.GetTopLevelNamespace(scope.Namespace);
+            var name = GetName(st);
+            var exists = top.Structs.FindFirstOrNull(x => x.Name == name);
+
+            if (exists is null)
+            {
+                var args = st.Arguments.Map(x => (x.Name.Name, Type: CreateType(scope, x.Type)));
+
+                var body = new StructBody(top, name);
+                top.Structs.Add(body);
+
+                var ctor = MakeFunction(top, st.StructName.Name);
+                var self = new VariableValue("$self");
+                ctor.LexicalScope.Add(self.Name, self);
+                ctor.Body.Add(new Call(new FunctionCallValue(new VariableValue(name))) { Return = self });
+                top.Functions.Add(new EmbeddedFunction(name, name) { OpCode = (args) => $"newobj instance void {CodeGenerator.EscapeILName(name)}::.ctor()" });
+                args.Each((x, i) =>
+                {
+                    var member = new VariableValue(x.Name);
+                    body.LexicalScope.Add(member.Name, member);
+                    body.Body.Add(new TypeBind(member, x.Type));
+                    body.Members.Add(member.Name, member);
+
+                    var farg_var = new VariableValue(x.Name);
+                    ctor.Arguments.Add((farg_var, x.Type));
+                    ctor.LexicalScope.Add(farg_var.Name, farg_var);
+                    ctor.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(self, farg_var.Name), Left = farg_var });
+                });
+                ctor.Body.Add(new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(self))));
+                ctor.Return = new TypeValue(name);
+            }
+
+            return new TypeValue(name);
+        }
+
         public static string GetName(IEvaluableNode node)
         {
             return node switch
@@ -354,6 +394,7 @@ namespace Roku.Compiler
                 TokenNode x => x.Token.Name,
                 TupleNode x => GetTupleName(x.Values.Count),
                 TypeTupleNode x => GetTupleName(x.Types.Count),
+                TypeStructNode x => x.Name,
                 _ => throw new Exception(),
             };
         }
