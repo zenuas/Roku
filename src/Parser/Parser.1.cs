@@ -49,6 +49,8 @@ namespace Roku.Parser
 
         public static IIfNode AddElse(IIfNode if_, IScopeNode else_) => if_.Return(x => x.Else = else_);
 
+        public static TypeStructNode CreateTypeStructNode(VariableNode name, ListNode<DeclareNode> args) => new TypeStructNode() { StructName = name }.Return(x => x.Arguments.AddRange(args.List)).R(name);
+
         public static BlockNode ToBlock(IStatementNode stmt) => new BlockNode().Return(x => x.Statements.Add(stmt)).R(stmt);
 
         public static BlockNode ToStatementBlock(IEvaluableNode expr) => ToBlock(expr.Cast<IStatementNode>());

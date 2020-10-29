@@ -126,6 +126,7 @@ type   : typev
        | '[' typeor ']'          {$$ = new EnumNode($2).R($1);}
 typev  : nsvar
        | nsvar LT typen extra GT {$$ = ExpressionToType($1, $3);}
+       | STRUCT var '(' args ')' {$$ = CreateTypeStructNode($2, $4);}
 nsvar  : varx                    {$$ = new TypeNode { Name = $1.Name }.R($1);}
 typex  : void
        | type

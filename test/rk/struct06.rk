@@ -1,0 +1,11 @@
+
+sub area(a: struct Rect(width: Int, height: Int)) Int
+    return(a.width * a.height)
+
+#=>50
+var s = area(Rect(10, 5))
+print(s)
+
+###
+簡易構造体を作成する
+###
