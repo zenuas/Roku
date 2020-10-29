@@ -52,7 +52,7 @@ namespace Roku.Compiler
                 if (cache.Contains(name)) return;
                 cache.Add(name);
 
-                il.WriteLine($".class public {name}");
+                il.WriteLine($".class public {EscapeILName(name)}");
                 il.WriteLine("{");
                 il.Indent++;
                 body.Members.Each(x => il.WriteLine($".field public {GetTypeName(mapper, x.Value, g)} {EscapeILName(x.Key)}"));
