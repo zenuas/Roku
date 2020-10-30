@@ -34,7 +34,7 @@ namespace Roku.Parser
             {
             READ_LINE_:
                 var line = BaseReader.LineNumber;
-                var ts = ReadLineTokens(BaseReader);
+                var ts = ReadLineTokens(BaseReader, Parser?.TokenStack.LastOrNull());
                 if (ts.First().Type == Symbols.EOL) goto READ_LINE_;
                 Store.AddRange(ts);
 
@@ -60,7 +60,7 @@ namespace Roku.Parser
             if (Parser is { } && first.Type == Symbols.EOL && !Parser.IsAccept(first))
             {
                 Store.Clear();
-                Store.AddRange(ReadLineTokens(BaseReader));
+                Store.AddRange(ReadLineTokens(BaseReader, Parser?.TokenStack.LastOrNull()));
                 goto READ_FIRST_;
             }
             return first;
@@ -73,7 +73,7 @@ namespace Roku.Parser
             return t;
         }
 
-        public static List<Token> ReadLineTokens(SourceCodeReader reader)
+        public static List<Token> ReadLineTokens(SourceCodeReader reader, Token? last_token)
         {
             var (indent, eof) = ReadSkipWhiteSpace(reader, true);
             if (eof is { }) return new List<Token> { eof };
@@ -81,17 +81,17 @@ namespace Roku.Parser
             var comment = ReadSkipComment(reader, indent, true);
             if (comment is { }) return new List<Token> { comment };
 
-            return ReadTokens(reader, indent);
+            return ReadTokens(reader, indent, last_token);
         }
 
-        public static List<Token> ReadTokens(SourceCodeReader reader, int indent)
+        public static List<Token> ReadTokens(SourceCodeReader reader, int indent, Token? last_token)
         {
             var ts = new List<Token>();
             while (true)
             {
                 var line = reader.LineNumber;
                 var col = reader.LineColumn;
-                var t = ReadToken(reader);
+                var t = ReadToken(reader, ts.Count > 0 ? ts.Last() : last_token);
                 t.LineNumber = line;
                 t.LineColumn = col;
                 t.Indent = indent;
@@ -171,7 +171,7 @@ namespace Roku.Parser
             return null;
         }
 
-        public static Token ReadToken(SourceCodeReader reader)
+        public static Token ReadToken(SourceCodeReader reader, Token? last_token)
         {
             var c = reader.PeekChar();
             if (ReservedChar.ContainsKey(c)) return new Token { Type = ReservedChar[c], Name = reader.ReadChar().ToString() };
@@ -226,12 +226,12 @@ namespace Roku.Parser
                             default:
                                 reader.UnRead(base_);
                                 reader.UnRead('0');
-                                return ReadDecimal(reader);
+                                return ReadDecimal(reader, "", !(last_token is { } t && t.Type == Symbols.__x2E));
                         }
                     }
 
                 default:
-                    if (IsNumber(c)) return ReadDecimal(reader);
+                    if (IsNumber(c)) return ReadDecimal(reader, "", !(last_token is { } t && t.Type == Symbols.__x2E));
                     if (IsAlphabet(c)) return ReadVariable(reader);
                     if (IsOperator(c)) return ReadOperator(reader);
                     break;
@@ -250,17 +250,17 @@ namespace Roku.Parser
             return new Token { Type = Symbols.VAR, Name = name };
         }
 
-        public static Token ReadNumber(SourceCodeReader reader, uint base_, string prefix, Func<char, bool> isnum, Func<char, uint> char_to_num)
+        public static (string Value, string Format) ReadNumberText(SourceCodeReader reader, string prefix, Func<char, bool> isnum)
         {
             var s = new StringBuilder(prefix);
-            var n = 0u;
+            var n = new StringBuilder();
             while (!reader.EndOfStream)
             {
                 var c = reader.PeekChar();
                 if (c == '_') { /* read skip */ }
                 else if (isnum(c))
                 {
-                    n = (n * base_) + char_to_num(c);
+                    _ = n.Append(c);
                 }
                 else
                 {
@@ -268,16 +268,35 @@ namespace Roku.Parser
                 }
                 _ = s.Append(reader.ReadChar());
             }
-            return new Token { Type = Symbols.NUM, Name = s.ToString(), Value = new NumericNode { Value = n, Format = s.ToString() } };
+            return (n.ToString(), s.ToString());
         }
 
-        public static Token ReadDecimal(SourceCodeReader reader, string prefix = "") => ReadNumber(reader, 10u, prefix, IsNumber, c => (uint)(c - '0'));
+        public static Token ReadNumber(SourceCodeReader reader, int base_, string prefix, Func<char, bool> isnum)
+        {
+            var (value, format) = ReadNumberText(reader, prefix, isnum);
+            return new Token { Type = Symbols.NUM, Name = format, Value = new NumericNode { Value = Convert.ToUInt32(value, base_), Format = format } };
+        }
 
-        public static Token ReadHexadecimal(SourceCodeReader reader, string prefix = "0x") => ReadNumber(reader, 16u, prefix, IsHexadecimal, c => (uint)(IsNumber(c) ? c - '0' : c - (IsLowerAlphabet(c) ? 'a' : 'A') + 10));
+        public static Token ReadNumberOrFloat(SourceCodeReader reader, string prefix, bool floating_enable)
+        {
+            var (value, format) = ReadNumberText(reader, prefix, floating_enable ? (Func<char, bool>)IsFloatingNumber : IsNumber);
+            if (floating_enable && value.FindFirstIndex(c => c == '.') >= 0)
+            {
+                return new Token { Type = Symbols.NUM, Name = format, Value = new FloatingNumericNode { Value = Convert.ToDouble(value), Format = format } };
+            }
+            else
+            {
+                return new Token { Type = Symbols.NUM, Name = format, Value = new NumericNode { Value = Convert.ToUInt32(value, 10), Format = format } };
+            }
+        }
 
-        public static Token ReadOctal(SourceCodeReader reader, string prefix = "0o") => ReadNumber(reader, 8u, prefix, IsOctal, c => (uint)(c - '0'));
+        public static Token ReadDecimal(SourceCodeReader reader, string prefix = "", bool floating_enable = true) => ReadNumberOrFloat(reader, prefix, floating_enable);
 
-        public static Token ReadBinary(SourceCodeReader reader, string prefix = "0b") => ReadNumber(reader, 2u, prefix, IsBinary, c => (uint)(c - '0'));
+        public static Token ReadHexadecimal(SourceCodeReader reader, string prefix = "0x") => ReadNumber(reader, 16, prefix, IsHexadecimal);
+
+        public static Token ReadOctal(SourceCodeReader reader, string prefix = "0o") => ReadNumber(reader, 8, prefix, IsOctal);
+
+        public static Token ReadBinary(SourceCodeReader reader, string prefix = "0b") => ReadNumber(reader, 2, prefix, IsBinary);
 
         public static Token ReadString(SourceCodeReader reader)
         {
@@ -319,6 +338,7 @@ namespace Roku.Parser
 
         public static bool IsNumber(char c) => c >= '0' && c <= '9';
 
+
         public static bool IsNoneZeroNumber(char c) => c >= '1' && c <= '9';
 
         public static bool IsBinary(char c) => c == '0' || c == '1';
@@ -326,6 +346,8 @@ namespace Roku.Parser
         public static bool IsOctal(char c) => c >= '1' && c <= '7';
 
         public static bool IsHexadecimal(char c) => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+
+        public static bool IsFloatingNumber(char c) => c == '.' || IsNumber(c);
 
         public static bool IsLowerAlphabet(char c) => c >= 'a' && c <= 'z';
 

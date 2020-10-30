@@ -150,6 +150,37 @@ namespace Roku.Tests
             Assert.AreEqual(ts4[1].Name, "0");
             Assert.AreEqual(ts4[1].Value!.Cast<NumericNode>().Value, 0u);
             Assert.AreEqual(ts4[2].Name, "p1");
+
+            var ts5 = Tokens("12_3.4_56");
+            Assert.AreEqual(ts5.Count, 5);
+            Assert.IsTrue(ts5.Zip(new Symbols[]
+                {
+                    Symbols.BEGIN,
+                    Symbols.NUM,
+                    Symbols.EOL,
+                    Symbols.END,
+                    Symbols._END,
+                }).And(x => x.First.Type == x.Second));
+            Assert.AreEqual(ts5[1].Name, "12_3.4_56");
+            Assert.AreEqual(ts5[1].Value!.Cast<FloatingNumericNode>().Value, 123.456);
+
+            var ts6 = Tokens("x.1.2");
+            Assert.AreEqual(ts6.Count, 9);
+            Assert.IsTrue(ts6.Zip(new Symbols[]
+                {
+                    Symbols.BEGIN,
+                    Symbols.VAR,
+                    Symbols.__x2E,
+                    Symbols.NUM,
+                    Symbols.__x2E,
+                    Symbols.NUM,
+                    Symbols.EOL,
+                    Symbols.END,
+                    Symbols._END,
+                }).And(x => x.First.Type == x.Second));
+            Assert.AreEqual(ts6[1].Name, "x");
+            Assert.AreEqual(ts6[3].Name, "1");
+            Assert.AreEqual(ts6[5].Name, "2");
         }
 
         public static Lexer Read(string s) => new Lexer(new SourceCodeReader(new StringReader(s)));
