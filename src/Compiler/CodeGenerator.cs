@@ -295,6 +295,16 @@ namespace Roku.Compiler
                         }
                     }
 
+                case FloatingNumericValue x:
+                    {
+                        var isbox = IsClassType(target);
+                        var r = (m[x].Struct is ExternStruct es && es.Struct == typeof(double)) ? "r8" : "r4";
+
+                        return
+                            $"ldc.{r} {x.Value}" +
+                            (isbox ? $"\nbox {GetStructName(m[x].Struct)}" : "");
+                    }
+
                 case VariableValue _:
                 case TemporaryValue _:
                     {
@@ -406,6 +416,8 @@ namespace Roku.Compiler
             if (t == typeof(long)) return "int64";
             if (t == typeof(short)) return "int16";
             if (t == typeof(byte)) return "byte";
+            if (t == typeof(double)) return "float64";
+            if (t == typeof(float)) return "float32";
             if (t == typeof(bool)) return "bool";
             if (t == typeof(object)) return "object";
             return GetILClassName(t, asm ?? t.Assembly);

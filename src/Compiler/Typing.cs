@@ -349,8 +349,13 @@ namespace Roku.Compiler
             switch (v)
             {
                 case NumericValue x:
-                    if (m.ContainsKey(v) && m[x].Struct is NumericStruct num) return m[x];
+                    if (m.ContainsKey(v) && m[x].Struct is NumericStruct) return m[x];
                     m[x] = CreateNumericType(ns);
+                    return m[x];
+
+                case FloatingNumericValue x:
+                    if (m.ContainsKey(v) && m[x].Struct is NumericStruct) return m[x];
+                    m[x] = CreateFloatingNumericType(ns);
                     return m[x];
 
                 case StringValue x:
@@ -428,6 +433,14 @@ namespace Roku.Compiler
             num.Types.Add(Lookup.LoadStruct(ns, "Long"));
             num.Types.Add(Lookup.LoadStruct(ns, "Short"));
             num.Types.Add(Lookup.LoadStruct(ns, "Byte"));
+            return CreateVariableDetail("", num, VariableType.PrimitiveValue);
+        }
+
+        public static VariableDetail CreateFloatingNumericType(INamespace ns)
+        {
+            var num = new NumericStruct();
+            num.Types.Add(Lookup.LoadStruct(ns, "Double"));
+            num.Types.Add(Lookup.LoadStruct(ns, "Float"));
             return CreateVariableDetail("", num, VariableType.PrimitiveValue);
         }
 
