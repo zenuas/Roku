@@ -31,22 +31,22 @@ namespace Roku.Compiler
             Lookup.LoadType(root, typeof(short)).Name = "Short";
             Lookup.LoadType(root, typeof(byte)).Name = "Byte";
             Lookup.LoadType(root, typeof(bool)).Name = "Bool";
-            Lookup.LoadType(root, typeof(float)).Name = "Float";
             Lookup.LoadType(root, typeof(double)).Name = "Double";
+            Lookup.LoadType(root, typeof(float)).Name = "Float";
             Lookup.LoadType(root, typeof(object)).Name = "Object";
             DefineNumericFunction(root, "Int");
             DefineNumericFunction(root, "Long");
             DefineNumericFunction(root, "Short");
             DefineNumericFunction(root, "Byte");
-            DefineNumericFunction(root, "Float", "ldc.r4 0");
             DefineNumericFunction(root, "Double", "ldc.r8 0");
+            DefineNumericFunction(root, "Float", "ldc.r4 0");
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) })!);
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(int) })!);
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(long) })!);
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(byte) })!);
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(bool) })!);
-            _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(float) })!);
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(double) })!);
+            _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(float) })!);
             _ = Lookup.LoadFunction(root, "+", typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) })!);
 
             var src = Definition.LoadProgram(root, pgm);

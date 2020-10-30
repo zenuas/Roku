@@ -1,12 +1,59 @@
 
-#=>94.985
+#=>48.3925
 var r = 5.5
-print((r * r) /3.14)
+print((5.0 - 4.1) + ((r * r * 3.14) / 2.0))
 
 ###
-Int型の単項マイナスのテスト
+小数型の四則演算テスト
 ###
 
 ###start
-
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly expr05 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] float64 r,
+        [1] float64 $$2,
+        [2] float64 $$5,
+        [3] float64 $$4,
+        [4] float64 $$3,
+        [5] float64 $$1
+    )
+    
+    ldc.r8 5.5
+    stloc.0
+    
+    ldc.r8 5
+    ldc.r8 4.1
+    sub
+    stloc.1
+    
+    ldloc.0
+    ldloc.0
+    mul
+    stloc.2
+    
+    ldloc.2
+    ldc.r8 3.14
+    mul
+    stloc.3
+    
+    ldloc.3
+    ldc.r8 2
+    div
+    stloc.s 4
+    
+    ldloc.1
+    ldloc.s 4
+    add
+    stloc.s 5
+    
+    ldloc.s 5
+    call void class [System.Console]System.Console::WriteLine(float64)
+    ret
+}
 ###end
