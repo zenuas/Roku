@@ -1,5 +1,6 @@
 ﻿using Extensions;
 using Roku.Node;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -198,18 +199,36 @@ namespace Roku.Parser
                     return new Token { Type = Symbols.EQ };
 
                 case '_':
-                    _ = reader.ReadChar();
-                    var c2 = reader.PeekChar();
-                    if (c2 != '_' && !IsAlphabet(c2)) return new Token { Type = Symbols.IGNORE };
-
-                    var s = new StringBuilder(c);
-                    while (c2 == '_')
                     {
-                        s.Append(c2);
-                        c2 = reader.PeekChar();
+                        _ = reader.ReadChar();
+                        var c2 = reader.PeekChar();
+                        if (c2 != '_' && !IsAlphabet(c2)) return new Token { Type = Symbols.IGNORE };
+
+                        var s = new StringBuilder(c);
+                        while (c2 == '_')
+                        {
+                            s.Append(c2);
+                            c2 = reader.PeekChar();
+                        }
+                        if (IsAlphabet(c2)) return ReadVariable(reader, s);
                     }
-                    if (IsAlphabet(c2)) return ReadVariable(reader, s);
                     break;
+
+                case '0':
+                    {
+                        _ = reader.ReadChar();
+                        var base_ = reader.ReadChar();
+                        switch (base_)
+                        {
+                            case 'x': return ReadHexadecimal(reader, "0x");
+                            case 'o': return ReadOctal(reader, "0o");
+                            case 'b': return ReadBinary(reader, "0b");
+                            default:
+                                reader.UnRead(base_);
+                                reader.UnRead('0');
+                                return ReadDecimal(reader);
+                        }
+                    }
 
                 default:
                     if (IsNumber(c)) return ReadDecimal(reader);
@@ -231,26 +250,34 @@ namespace Roku.Parser
             return new Token { Type = Symbols.VAR, Name = name };
         }
 
-        public static Token ReadDecimal(SourceCodeReader reader)
+        public static Token ReadNumber(SourceCodeReader reader, uint base_, string prefix, Func<char, bool> isnum, Func<char, uint> char_to_num)
         {
-            var s = new StringBuilder();
+            var s = new StringBuilder(prefix);
             var n = 0u;
             while (!reader.EndOfStream)
             {
                 var c = reader.PeekChar();
                 if (c == '_') { /* read skip */ }
-                else if (IsNumber(c))
+                else if (isnum(c))
                 {
-                    n = (n * 10u) + (uint)(c - '0');
+                    n = (n * base_) + char_to_num(c);
                 }
                 else
                 {
                     break;
                 }
-                s.Append(reader.ReadChar());
+                _ = s.Append(reader.ReadChar());
             }
             return new Token { Type = Symbols.NUM, Name = s.ToString(), Value = new NumericNode { Value = n, Format = s.ToString() } };
         }
+
+        public static Token ReadDecimal(SourceCodeReader reader, string prefix = "") => ReadNumber(reader, 10u, prefix, IsNumber, c => (uint)(c - '0'));
+
+        public static Token ReadHexadecimal(SourceCodeReader reader, string prefix = "0x") => ReadNumber(reader, 16u, prefix, IsHexadecimal, c => (uint)(IsNumber(c) ? c - '0' : c - (IsLowerAlphabet(c) ? 'a' : 'A') + 10));
+
+        public static Token ReadOctal(SourceCodeReader reader, string prefix = "0o") => ReadNumber(reader, 8u, prefix, IsOctal, c => (uint)(c - '0'));
+
+        public static Token ReadBinary(SourceCodeReader reader, string prefix = "0b") => ReadNumber(reader, 2u, prefix, IsBinary, c => (uint)(c - '0'));
 
         public static Token ReadString(SourceCodeReader reader)
         {

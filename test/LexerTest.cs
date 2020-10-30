@@ -1,5 +1,6 @@
 ﻿using Extensions;
 using NUnit.Framework;
+using Roku.Node;
 using Roku.Parser;
 using System.Collections.Generic;
 using System.IO;
@@ -91,6 +92,64 @@ namespace Roku.Tests
             Assert.AreEqual(ts[3].Name, "123_456");
             Assert.AreEqual(ts[6].Name, "b");
             Assert.AreEqual(ts[8].Name, "abc123");
+        }
+
+        [Test]
+        public void NumberTest()
+        {
+            var ts1 = Tokens("0o123_456");
+            Assert.AreEqual(ts1.Count, 5);
+            Assert.IsTrue(ts1.Zip(new Symbols[]
+                {
+                    Symbols.BEGIN,
+                    Symbols.NUM,
+                    Symbols.EOL,
+                    Symbols.END,
+                    Symbols._END,
+                }).And(x => x.First.Type == x.Second));
+            Assert.AreEqual(ts1[1].Name, "0o123_456");
+            Assert.AreEqual(ts1[1].Value!.Cast<NumericNode>().Value, 42_798u);
+
+            var ts2 = Tokens("0x123_ABC");
+            Assert.AreEqual(ts2.Count, 5);
+            Assert.IsTrue(ts2.Zip(new Symbols[]
+                {
+                    Symbols.BEGIN,
+                    Symbols.NUM,
+                    Symbols.EOL,
+                    Symbols.END,
+                    Symbols._END,
+                }).And(x => x.First.Type == x.Second));
+            Assert.AreEqual(ts2[1].Name, "0x123_ABC");
+            Assert.AreEqual(ts2[1].Value!.Cast<NumericNode>().Value, 1_194_684u);
+
+            var ts3 = Tokens("0b101_010");
+            Assert.AreEqual(ts3.Count, 5);
+            Assert.IsTrue(ts3.Zip(new Symbols[]
+                {
+                    Symbols.BEGIN,
+                    Symbols.NUM,
+                    Symbols.EOL,
+                    Symbols.END,
+                    Symbols._END,
+                }).And(x => x.First.Type == x.Second));
+            Assert.AreEqual(ts3[1].Name, "0b101_010");
+            Assert.AreEqual(ts3[1].Value!.Cast<NumericNode>().Value, 42u);
+
+            var ts4 = Tokens("0p1");
+            Assert.AreEqual(ts4.Count, 6);
+            Assert.IsTrue(ts4.Zip(new Symbols[]
+                {
+                    Symbols.BEGIN,
+                    Symbols.NUM,
+                    Symbols.VAR,
+                    Symbols.EOL,
+                    Symbols.END,
+                    Symbols._END,
+                }).And(x => x.First.Type == x.Second));
+            Assert.AreEqual(ts4[1].Name, "0");
+            Assert.AreEqual(ts4[1].Value!.Cast<NumericNode>().Value, 0u);
+            Assert.AreEqual(ts4[2].Name, "p1");
         }
 
         public static Lexer Read(string s) => new Lexer(new SourceCodeReader(new StringReader(s)));
