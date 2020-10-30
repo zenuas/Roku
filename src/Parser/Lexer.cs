@@ -34,6 +34,7 @@ namespace Roku.Parser
             table["EOL"] = Symbols.EOL;
             table["EQ"] = Symbols.EQ;
             table["FALSE"] = Symbols.FALSE;
+            table["FLOAT"] = Symbols.FLOAT;
             table["GT"] = Symbols.GT;
             table["IF"] = Symbols.IF;
             table["IGNORE"] = Symbols.IGNORE;

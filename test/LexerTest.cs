@@ -156,7 +156,7 @@ namespace Roku.Tests
             Assert.IsTrue(ts5.Zip(new Symbols[]
                 {
                     Symbols.BEGIN,
-                    Symbols.NUM,
+                    Symbols.FLOAT,
                     Symbols.EOL,
                     Symbols.END,
                     Symbols._END,

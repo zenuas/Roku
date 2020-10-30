@@ -49,6 +49,9 @@ namespace Roku.Parser
         /// <summary>FALSE</summary>
         FALSE,
 
+        /// <summary>FLOAT</summary>
+        FLOAT,
+
         /// <summary>GT</summary>
         GT,
 

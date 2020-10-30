@@ -12,7 +12,7 @@ using Roku.Node;
 %type<IStatementNode>           line
 %type<LetNode>                  let
 %type<FunctionNode>             sub sub_block
-%type<IEvaluableNode>           expr
+%type<IEvaluableNode>           expr num
 %type<DeclareNode>              decla
 %type<ListNode<DeclareNode>>    args argn
 %type<ListNode<IEvaluableNode>> list listn list2n
@@ -23,11 +23,11 @@ using Roku.Node;
 %type<IIfNode>                  if ifthen elseif
 %type<StructNode>               struct struct_block
 %type<VariableNode>             var varx fvar fn
-%type<NumericNode>              num
 %type<StringNode>               str
 
 %left  VAR STR NULL TRUE FALSE IF LET SUB IGNORE
 %token<NumericNode> NUM
+%token<FloatingNumericNode> FLOAT
 %left  EQ
 %left  OPE OR LT GT
 %left<TokenNode> ope nope
@@ -159,6 +159,7 @@ varx   : var
 fvar   : varx
        | NUM     {$$ = CreateVariableNode($1.Format).R($1);}
 num    : NUM     {$$ = $1;}
+       | FLOAT   {$$ = $1;}
 str    : STR     {$$ = new StringNode { Value = $1.Name }.R($1);}
        | str STR {$$ = $1.Return(x => x.Value += $2.Name);}
 ope    : nope

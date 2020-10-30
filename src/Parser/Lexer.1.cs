@@ -282,7 +282,7 @@ namespace Roku.Parser
             var (value, format) = ReadNumberText(reader, prefix, floating_enable ? (Func<char, bool>)IsFloatingNumber : IsNumber);
             if (floating_enable && value.FindFirstIndex(c => c == '.') >= 0)
             {
-                return new Token { Type = Symbols.NUM, Name = format, Value = new FloatingNumericNode { Value = Convert.ToDouble(value), Format = format } };
+                return new Token { Type = Symbols.FLOAT, Name = format, Value = new FloatingNumericNode { Value = Convert.ToDouble(value), Format = format } };
             }
             else
             {
