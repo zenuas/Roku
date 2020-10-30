@@ -29,11 +29,15 @@ namespace Roku.Compiler
             Lookup.LoadType(root, typeof(short)).Name = "Short";
             Lookup.LoadType(root, typeof(byte)).Name = "Byte";
             Lookup.LoadType(root, typeof(bool)).Name = "Bool";
+            Lookup.LoadType(root, typeof(float)).Name = "Float";
+            Lookup.LoadType(root, typeof(double)).Name = "Double";
             Lookup.LoadType(root, typeof(object)).Name = "Object";
             DefineNumericFunction(root, "Int");
             DefineNumericFunction(root, "Long");
             DefineNumericFunction(root, "Short");
             DefineNumericFunction(root, "Byte");
+            DefineNumericFunction(root, "Float");
+            DefineNumericFunction(root, "Double");
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) })!);
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(int) })!);
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(long) })!);
@@ -60,7 +64,7 @@ namespace Roku.Compiler
             root.Functions.Add(new EmbeddedFunction(">", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\ncgt" });
             root.Functions.Add(new EmbeddedFunction(">=", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nclt\nldc.i4.0\nceq" });
             root.Functions.Add(new EmbeddedFunction("+", type, type) { OpCode = (args) => args[0] });
-            root.Functions.Add(new EmbeddedFunction("-", type, type) { OpCode = (args) => $"ldc.i4.0\n{args[0]}\nsub" });
+            root.Functions.Add(new EmbeddedFunction("-", type, type) { OpCode = (args) => $"{args[0]}\nneg" });
         }
     }
 }

@@ -36,22 +36,19 @@ C言語でたまにある二重否定(!!n)と同じことをする場合
         [3] int32 $$4
     )
     
-    ldc.i4.0
     ldc.i4.1
-    sub
+    neg
     stloc.0
     
     ldloc.0
     call void class [System.Console]System.Console::WriteLine(int32)
     
-    ldc.i4.0
     ldc.i4.1
-    sub
+    neg
     stloc.1
     
-    ldc.i4.0
     ldloc.1
-    sub
+    neg
     stloc.2
     
     ldloc.2
