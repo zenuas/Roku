@@ -246,8 +246,9 @@ namespace Roku.Parser
         {
             while (IsWord(reader.PeekChar())) s.Append(reader.ReadChar());
             var name = s.ToString();
-            if (ReservedString.ContainsKey(name)) return new Token { Type = ReservedString[name], Name = name };
-            return new Token { Type = Symbols.VAR, Name = name };
+            return ReservedString.ContainsKey(name)
+                ? new Token { Type = ReservedString[name], Name = name }
+                : new Token { Type = Symbols.VAR, Name = name };
         }
 
         public static (string Value, string Format) ReadNumberText(SourceCodeReader reader, string prefix, Func<char, bool> isnum)
@@ -306,7 +307,7 @@ namespace Roku.Parser
             {
                 var c = reader.ReadChar();
                 if (c == start) break;
-                s.Append(c);
+                _ = s.Append(c);
             }
             return new Token { Type = Symbols.STR, Name = s.ToString() };
         }
@@ -337,7 +338,6 @@ namespace Roku.Parser
         }
 
         public static bool IsNumber(char c) => c >= '0' && c <= '9';
-
 
         public static bool IsNoneZeroNumber(char c) => c >= '1' && c <= '9';
 
