@@ -1,16 +1,14 @@
 ﻿namespace Roku.Node
 {
-    public class DeclareNode : INode, IDeclareNode
+    public class ImplicitDeclareNode : INode, IDeclareNode
     {
         public int? LineNumber { get; set; }
         public int? LineColumn { get; set; }
         public VariableNode Name { get; set; }
-        public ITypeNode Type { get; set; }
 
-        public DeclareNode(VariableNode name, ITypeNode type)
+        public ImplicitDeclareNode(VariableNode name)
         {
             Name = name;
-            Type = type;
         }
     }
 }

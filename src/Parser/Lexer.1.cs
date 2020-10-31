@@ -185,18 +185,26 @@ namespace Roku.Parser
                     return ReadString(reader);
 
                 case '=':
-                    _ = reader.ReadChar();
-                    if (reader.PeekChar() == '=')
                     {
                         _ = reader.ReadChar();
-                        if (reader.PeekChar() == '=')
+                        var c2 = reader.PeekChar();
+                        if (c2 == '=')
                         {
                             _ = reader.ReadChar();
-                            return new Token { Type = Symbols.OPE, Name = "===" };
+                            if (reader.PeekChar() == '=')
+                            {
+                                _ = reader.ReadChar();
+                                return new Token { Type = Symbols.OPE, Name = "===" };
+                            }
+                            return new Token { Type = Symbols.OPE, Name = "==" };
                         }
-                        return new Token { Type = Symbols.OPE, Name = "==" };
+                        else if (c2 == '>')
+                        {
+                            _ = reader.ReadChar();
+                            return new Token { Type = Symbols.ARROW, Name = "=>" };
+                        }
+                        return new Token { Type = Symbols.EQ };
                     }
-                    return new Token { Type = Symbols.EQ };
 
                 case '_':
                     {
@@ -207,7 +215,7 @@ namespace Roku.Parser
                         var s = new StringBuilder(c);
                         while (c2 == '_')
                         {
-                            s.Append(c2);
+                            _ = s.Append(c2);
                             c2 = reader.PeekChar();
                         }
                         if (IsAlphabet(c2)) return ReadVariable(reader, s);

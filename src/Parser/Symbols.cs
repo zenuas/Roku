@@ -28,8 +28,14 @@ namespace Roku.Parser
         /// <summary>'{'</summary>
         __x7B,
 
+        /// <summary>'}'</summary>
+        __x7D,
+
         /// <summary>AND2</summary>
         AND2,
+
+        /// <summary>ARROW</summary>
+        ARROW,
 
         /// <summary>BEGIN</summary>
         BEGIN,
@@ -160,6 +166,24 @@ namespace Roku.Parser
         /// <summary>ifthen</summary>
         ifthen,
 
+        /// <summary>lambda</summary>
+        lambda,
+
+        /// <summary>lambda_arg</summary>
+        lambda_arg,
+
+        /// <summary>lambda_argn</summary>
+        lambda_argn,
+
+        /// <summary>lambda_args</summary>
+        lambda_args,
+
+        /// <summary>lambda_begin</summary>
+        lambda_begin,
+
+        /// <summary>lambda_func</summary>
+        lambda_func,
+
         /// <summary>let</summary>
         let,
 
@@ -234,6 +258,9 @@ namespace Roku.Parser
 
         /// <summary>typeor</summary>
         typeor,
+
+        /// <summary>types</summary>
+        types,
 
         /// <summary>typev</summary>
         typev,

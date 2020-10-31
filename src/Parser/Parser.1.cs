@@ -1,6 +1,5 @@
 ﻿using Extensions;
 using Roku.Node;
-using System;
 using System.Collections.Generic;
 
 namespace Roku.Parser
@@ -43,6 +42,16 @@ namespace Roku.Parser
             return fn.R(name);
         }
 
+        public static LambdaExpressionNode CreateLambdaFunction(LambdaExpressionNode lambda, ListNode<IDeclareNode> args, ITypeNode? ret, bool isimplicit)
+        {
+            lambda.Arguments.AddRange(args.List);
+            lambda.Return = ret;
+            lambda.IsImplicit = isimplicit;
+            return lambda;
+        }
+
+        public static LambdaExpressionNode ToLambdaExpression(IEvaluableNode expr) => new LambdaExpressionNode().Return(x => x.Statements.Add(new ImplicitReturn(expr)));
+
         public static IfNode CreateIfNode(IEvaluableNode cond, IScopeNode then) => new IfNode(cond, then).R(cond);
 
         public static IfCastNode CreateIfCastNode(VariableNode name, ITypeNode declare, IEvaluableNode cond, IScopeNode then) => new IfCastNode(name, declare, cond, then).R(cond);
@@ -50,6 +59,8 @@ namespace Roku.Parser
         public static IIfNode AddElse(IIfNode if_, IScopeNode else_) => if_.Return(x => x.Else = else_);
 
         public static TypeStructNode CreateTypeStructNode(VariableNode name, ListNode<DeclareNode> args) => new TypeStructNode() { StructName = name }.Return(x => x.Arguments.AddRange(args.List)).R(name);
+
+        public static TypeFunctionNode CreateTypeFunctionNode(ListNode<ITypeNode> args, ITypeNode? ret = null) => new TypeFunctionNode() { Return = ret }.Return(x => x.Arguments.AddRange(args.List));
 
         public static BlockNode ToBlock(IStatementNode stmt) => new BlockNode().Return(x => x.Statements.Add(stmt)).R(stmt);
 

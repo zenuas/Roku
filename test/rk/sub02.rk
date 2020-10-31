@@ -1,0 +1,10 @@
+
+#=>1
+f(=> 1)
+
+sub f(x: {=> Int})
+	print(x())
+
+###start
+
+###end

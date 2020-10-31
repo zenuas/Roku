@@ -21,6 +21,7 @@ namespace Roku.Parser
             table['['] = Symbols.__x5B;
             table[']'] = Symbols.__x5D;
             table['{'] = Symbols.__x7B;
+            table['}'] = Symbols.__x7D;
             return table;
         }
 
@@ -28,6 +29,7 @@ namespace Roku.Parser
         {
             var table = new Dictionary<string, Symbols>();
             table["AND2"] = Symbols.AND2;
+            table["ARROW"] = Symbols.ARROW;
             table["BEGIN"] = Symbols.BEGIN;
             table["ELSE"] = Symbols.ELSE;
             table["END"] = Symbols.END;

@@ -12,12 +12,15 @@ using Roku.Node;
 %type<IStatementNode>           line
 %type<LetNode>                  let
 %type<FunctionNode>             sub sub_block
+%type<LambdaExpressionNode>     lambda_func
 %type<IEvaluableNode>           expr num
 %type<DeclareNode>              decla
+%type<IDeclareNode>             lambda_arg
 %type<ListNode<DeclareNode>>    args argn
+%type<ListNode<IDeclareNode>>   lambda_args lambda_argn
 %type<ListNode<IEvaluableNode>> list listn list2n
 %type<ITypeNode>                type gen
-%type<ListNode<ITypeNode>>      typen type2n genn typeor
+%type<ListNode<ITypeNode>>      types typen type2n genn typeor
 %type<TypeNode>                 nsvar typev
 %type<ITypeNode?>               typex
 %type<IIfNode>                  if ifthen elseif
@@ -25,7 +28,7 @@ using Roku.Node;
 %type<VariableNode>             var varx fvar fn
 %type<StringNode>               str
 
-%left  VAR STR NULL TRUE FALSE IF LET SUB IGNORE
+%left  VAR STR NULL TRUE FALSE IF LET SUB IGNORE ARROW
 %token<NumericNode> NUM
 %token<FloatingNumericNode> FLOAT
 %left  EQ
@@ -66,6 +69,7 @@ expr : var
      | str
      | num
      | call
+     | lambda
      | '[' list ']'                               {$$ = $2;}
      | '(' expr ')'                               {$$ = $2;}
      | '(' list2n ')'                             {$$ = CreateTupleNode($2).R($1);}
@@ -124,17 +128,35 @@ type   : typev
        | '[' type   ']'          {$$ = new TypeArrayNode($2).R($1);}
        | '[' type2n ']'          {$$ = new TypeTupleNode($2).R($1);}
        | '[' typeor ']'          {$$ = new EnumNode($2).R($1);}
+       | '{' types  '}'          {$$ = CreateTypeFunctionNode($2);}
+       | '{' types ARROW type'}' {$$ = CreateTypeFunctionNode($2, $4);}
 typev  : nsvar
        | nsvar LT typen extra GT {$$ = ExpressionToType($1, $3);}
        | STRUCT var '(' args ')' {$$ = CreateTypeStructNode($2, $4);}
 nsvar  : varx                    {$$ = new TypeNode { Name = $1.Name }.R($1);}
 typex  : void
        | type
+types  : void                    {$$ = CreateListNode<ITypeNode>();}
+       | typen extra
 typen  : type                    {$$ = CreateListNode($1);}
        | typen ',' type          {$$ = $1.Return(x => x.List.Add($3));}
 type2n : type ',' typen          {$$ = $3.Return(x => x.List.Insert(0, $1));}
 typeor : type OR type            {$$ = CreateListNode($1, $3);}
        | typeor OR type          {$$ = $1.Return(x => x.List.Add($3));}
+
+########## lambda ##########
+lambda       : '{' lambda_args               ARROW lambda_func '}' {$$ = CreateLambdaFunction($4, $2, null, true);}
+             | '{' '(' lambda_args ')' typex ARROW lambda_func '}' {$$ = CreateLambdaFunction($7, $3, $5, false);}
+             |                               ARROW lambda_func     {$$ = CreateLambdaFunction($2, CreateListNode<IDeclareNode>(), null, true);}
+lambda_func  : expr                       {$$ = ToLambdaExpression($1);}
+             | EOL lambda_begin stmt END  {$$ = $2;}
+lambda_begin : BEGIN                      {Scopes.Push(new LambdaExpressionNode().R($1));}
+lambda_arg   : var                        {$$ = new ImplicitDeclareNode($1);}
+             | decla
+lambda_args  : void                       {$$ = CreateListNode<IDeclareNode>();}
+             | lambda_argn extra
+lambda_argn  : lambda_arg                 {$$ = CreateListNode($1);}
+             | lambda_argn ',' lambda_arg {$$ = $1.Return(x => x.List.Add($3));}
 
 ########## if ##########
 if     : ifthen
