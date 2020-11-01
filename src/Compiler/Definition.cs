@@ -104,18 +104,29 @@ namespace Roku.Compiler
             return fbody;
         }
 
-        public static void FunctionDefinition(SourceCodeBody src, ProgramNode pgm)
+        public static AnonymousFunctionBody LambdaExpressionDefinition(ILexicalScope scope, LambdaExpressionNode lambda)
         {
-            if (pgm.Statements.Count > 0)
+            var root = Lookup.GetRootNamespace(scope.Namespace);
+            var fbody = MakeAnonymousFunction(root);
+            fbody.IsImplicit = lambda.IsImplicit;
+            if (lambda.Return is { } ret) fbody.Return = CreateType(scope, ret);
+            lambda.Arguments.Each(x => fbody.Arguments.Add((new VariableValue(x.Name.Name), x is DeclareNode decla ? CreateType(scope, decla.Type) : null)));
+            FunctionBodyDefinition(fbody, lambda.Statements);
+            return fbody;
+        }
+
+        public static void FunctionDefinition(INamespaceBody ns, IScopeNode scope)
+        {
+            if (scope.Statements.Count > 0)
             {
-                var body = MakeFunction(src, "main");
+                var body = MakeFunction(ns, "main");
                 body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
-                FunctionBodyDefinition(body, pgm.Statements);
+                FunctionBodyDefinition(body, scope.Statements);
             }
 
-            pgm.Functions.Each(f =>
+            scope.Functions.Each(f =>
             {
-                var body = MakeFunction(src, f.Name.Name);
+                var body = MakeFunction(ns, f.Name.Name);
                 var types = new Dictionary<string, TypeGenericsParameter>();
                 ITypeDefinition create_type(ITypeNode s) => types.ContainsKey(s.Name) ? types[s.Name] : CreateType(body, s).Return(x => { if (x is TypeGenericsParameter g) body.Generics.Add(types[g.Name] = g); });
 
@@ -324,6 +335,11 @@ namespace Roku.Compiler
                         return v;
                     }
 
+                case LambdaExpressionNode x:
+                    {
+                        var f = LambdaExpressionDefinition(scope, x);
+                        return new FunctionReferenceValue(new VariableValue(f.Name));
+                    }
             }
             throw new Exception();
         }
@@ -435,6 +451,13 @@ namespace Roku.Compiler
         {
             var body = new FunctionBody(ns, name);
             ns.Functions.Add(body);
+            return body;
+        }
+
+        public static AnonymousFunctionBody MakeAnonymousFunction(RootNamespace root)
+        {
+            var body = new AnonymousFunctionBody(root, $"anonymous#{root.AnonymousFunctionUniqueCount++}");
+            root.Functions.Add(body);
             return body;
         }
     }
