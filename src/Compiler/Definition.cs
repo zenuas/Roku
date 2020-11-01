@@ -225,6 +225,32 @@ namespace Roku.Compiler
                 elseif.Length > 0 ? elseif.First()
                 : if_.Else is { } ? else_
                 : endif;
+            IfThenDefinition(scope, if_, next_label);
+
+            if_.ElseIf.Each((x, i) =>
+            {
+                scope.Body.Add(new GotoCode(endif));
+                scope.Body.Add(elseif[i]);
+
+                var next_label =
+                    elseif.Length > i + 1 ? elseif[i + 1]
+                    : if_.Else is { } ? else_
+                    : endif;
+
+                IfThenDefinition(scope, x, next_label);
+            });
+
+            if (if_.Else is { })
+            {
+                scope.Body.Add(new GotoCode(endif));
+                scope.Body.Add(else_);
+                FunctionBodyDefinition(scope, if_.Else.Statements);
+            }
+            scope.Body.Add(endif);
+        }
+
+        private static void IfThenDefinition(ILexicalScope scope, IIfNode if_, LabelCode next_label)
+        {
             var inner_scope = new InnerScope(scope);
 
             if (if_ is IfNode ifn)
@@ -242,42 +268,6 @@ namespace Roku.Compiler
             FunctionBodyDefinition(inner_scope, if_.Then.Statements);
             scope.Body.AddRange(inner_scope.Body);
             scope.MaxTemporaryValue = inner_scope.MaxTemporaryValue;
-
-            if_.ElseIf.Each((x, i) =>
-            {
-                scope.Body.Add(new GotoCode(endif));
-                scope.Body.Add(elseif[i]);
-
-                var next_label =
-                    elseif.Length > i + 1 ? elseif[i + 1]
-                    : if_.Else is { } ? else_
-                    : endif;
-                var inner_scope = new InnerScope(scope);
-
-                if (x is IfNode ifn)
-                {
-                    inner_scope.Body.Add(new IfCode(NormalizationExpression(inner_scope, ifn.Condition, true), next_label));
-                }
-                else
-                {
-                    var ifc = x.Cast<IfCastNode>();
-                    var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), CreateType(inner_scope, ifc.Declare), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
-                    inner_scope.Body.Add(ifcast);
-                    inner_scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
-                }
-
-                FunctionBodyDefinition(inner_scope, x.Then.Statements);
-                scope.Body.AddRange(inner_scope.Body);
-                scope.MaxTemporaryValue = inner_scope.MaxTemporaryValue;
-            });
-
-            if (if_.Else is { })
-            {
-                scope.Body.Add(new GotoCode(endif));
-                scope.Body.Add(else_);
-                FunctionBodyDefinition(scope, if_.Else.Statements);
-            }
-            scope.Body.Add(endif);
         }
 
         public static IEvaluable NormalizationExpression(ILexicalScope scope, IEvaluableNode e, bool evaluate_as_expression = false)
