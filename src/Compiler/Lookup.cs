@@ -134,7 +134,7 @@ namespace Roku.Compiler
         {
             var gens = ApplyArgumentsToGenericsParameter(source, args);
             var fargs = GetArgumentsType(ns, source, gens);
-            return (fargs.Count != args.Count ? false : fargs.Zip(args).And(x => TypeEquals(x.First, x.Second)), gens);
+            return (fargs.Count == args.Count && fargs.Zip(args).And(x => TypeEquals(x.First, x.Second)), gens);
         }
 
         public static List<IStructBody?> GetArgumentsType(INamespace ns, IFunctionBody body, GenericsMapper gens) => FunctionToArgumentsType(body).Map(x => GetStructType(ns, x, gens)).ToList();
