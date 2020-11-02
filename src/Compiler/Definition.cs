@@ -209,6 +209,22 @@ namespace Roku.Compiler
                         IfBodyDefinition(scope, if_);
                         break;
 
+                    case ImplicitReturn imp:
+                        {
+                            var v = new ImplicitReturnValue();
+                            scope.LexicalScope.Add(v.Name, v);
+                            var e = NormalizationExpression(scope, imp.Expression);
+                            if (e is FunctionCallValue fcall)
+                            {
+                                scope.Body.Add(new Call(fcall) { Return = v });
+                            }
+                            else
+                            {
+                                scope.Body.Add(new Code { Operator = Operator.Bind, Return = v, Left = e });
+                            }
+                        }
+                        break;
+
                     default:
                         throw new Exception();
                 }
