@@ -141,25 +141,25 @@ namespace Roku.Compiler
 
         public static IStructBody? GetStructType(INamespace ns, ITypeDefinition t, GenericsMapper gens)
         {
-            if (t is TypeGenericsParameter gen)
+            switch (t)
             {
-                return gens[gen]!;
-            }
-            else if (t is TypeSpecialization g)
-            {
-                return FindStructOrNull(ns, new string[] { g.Name }, g.Generics.Map(x => GetStructType(ns, x, gens)!).ToList());
-            }
-            else if (t is TypeValue tv)
-            {
-                return LoadStruct(ns, tv.Name);
-            }
-            else if (t is TypeInfoValue ti)
-            {
-                return LoadType(GetRootNamespace(ns), ti.Type);
-            }
-            else if (t is TypeEnum te)
-            {
-                return LoadEnumStruct(ns, te);
+                case TypeGenericsParameter gen:
+                    return gens[gen]!;
+
+                case TypeSpecialization g:
+                    return FindStructOrNull(ns, new string[] { g.Name }, g.Generics.Map(x => GetStructType(ns, x, gens)!).ToList());
+
+                case TypeValue tv:
+                    return LoadStruct(ns, tv.Name);
+
+                case TypeInfoValue ti:
+                    return LoadType(GetRootNamespace(ns), ti.Type);
+
+                case TypeEnum te:
+                    return LoadEnumStruct(ns, te);
+
+                case TypeFunction tf:
+                    break;
             }
             throw new Exception();
         }
