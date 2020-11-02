@@ -162,6 +162,9 @@ namespace Roku.Compiler
                 case TypeStructNode ts:
                     return CreateTypeStruct(scope, ts);
 
+                case TypeFunctionNode tf:
+                    return CreateTypeFunction(scope, tf);
+
                 default:
                     throw new Exception();
             }
@@ -349,7 +352,7 @@ namespace Roku.Compiler
                 case LambdaExpressionNode x:
                     {
                         var f = LambdaExpressionDefinition(scope, x);
-                        return new FunctionReferenceValue(new VariableValue(f.Name));
+                        return new FunctionReferenceValue(f.Name);
                     }
             }
             throw new Exception();
@@ -416,6 +419,14 @@ namespace Roku.Compiler
             return new TypeValue(name);
         }
 
+        public static TypeFunction CreateTypeFunction(ILexicalScope scope, TypeFunctionNode tf)
+        {
+            var func = new TypeFunction();
+            tf.Arguments.Each(x => func.Arguments.Add(CreateType(scope, x)));
+            if (tf.Return is { } r) func.Return = CreateType(scope, r);
+            return func;
+        }
+
         public static string GetName(IEvaluableNode node)
         {
             return node switch
@@ -468,7 +479,7 @@ namespace Roku.Compiler
         public static AnonymousFunctionBody MakeAnonymousFunction(RootNamespace root)
         {
             var body = new AnonymousFunctionBody(root, $"anonymous#{root.AnonymousFunctionUniqueCount++}");
-            root.Functions.Add(body);
+            root.Structs.Add(body);
             return body;
         }
     }

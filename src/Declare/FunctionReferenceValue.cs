@@ -2,13 +2,13 @@
 {
     public class FunctionReferenceValue : IEvaluable
     {
-        public IEvaluable Function { get; }
+        public string Name { get; }
 
-        public FunctionReferenceValue(IEvaluable f)
+        public FunctionReferenceValue(string name)
         {
-            Function = f;
+            Name = name;
         }
 
-        public override string ToString() => $"{Function}";
+        public override string ToString() => $"{Name}";
     }
 }

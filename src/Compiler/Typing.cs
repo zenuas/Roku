@@ -383,6 +383,10 @@ namespace Roku.Compiler
                 case TypeValue x:
                     m[x] = CreateVariableDetail(x.Name, new NamespaceBody(x.Name), VariableType.Namespace);
                     return m[x];
+
+                case FunctionReferenceValue x:
+                    m[x] = CreateVariableDetail("", Lookup.GetRootNamespace(ns).Structs.By<AnonymousFunctionBody>().FindFirst(f => f.Name == x.Name), VariableType.PrimitiveValue);
+                    return m[x];
             }
             throw new Exception();
         }
