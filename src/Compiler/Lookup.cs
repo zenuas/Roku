@@ -159,7 +159,7 @@ namespace Roku.Compiler
                     return LoadEnumStruct(ns, te);
 
                 case TypeFunction tf:
-                    break;
+                    return LoadFunctionType(GetRootNamespace(ns), tf);
             }
             throw new Exception();
         }
@@ -317,6 +317,14 @@ namespace Roku.Compiler
             if (asmx is null) root.Assemblies.Add(asmx = ti.Assembly);
 
             return CreateExternStruct(root, ti, asmx);
+        }
+
+        public static FunctionTypeBody LoadFunctionType(RootNamespace root, TypeFunction tf)
+        {
+            var func = new FunctionTypeBody();
+            tf.Arguments.Each(x => func.Arguments.Add(x));
+            func.Return = tf.Return;
+            return func;
         }
 
         public static IStructBody LoadEnumStruct(INamespace ns, TypeEnum te)
