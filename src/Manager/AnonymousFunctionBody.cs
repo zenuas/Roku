@@ -23,6 +23,6 @@ namespace Roku.Manager
             Name = system_unique_name;
         }
 
-        public override string ToString() => $"{{{Arguments.Map(x => x.Name.ToString() + (x.Type is { } t ? $" : {t}" : "")).Join(", ")}{(Return is null ? "" : " => " + Return.ToString())}}}";
+        public override string ToString() => $"{{{Arguments.Map(x => x.Name.ToString() + (x.Type is { } t ? $" : {t}" : "")).Join(", ")}{(Return is { } r ? $" => {r}" : "")}}}";
     }
 }
