@@ -300,22 +300,27 @@ namespace Roku.Compiler
         public static bool ArgumentInferenceWithEffect(INamespace ns, TypeMapper m, IEvaluable v, ITypeDefinition type, int index)
         {
             if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return false;
-            if (type is TypeGenericsParameter g)
+            switch (type)
             {
-                if (!m.ContainsKey(type)) m[type] = CreateVariableDetail(g.Name, new GenericsParameter(g.Name), VariableType.TypeParameter, index);
-                m[v] = CreateVariableDetail($"${index}", m[type].Struct, VariableType.Argument, index);
-            }
-            else if (type is TypeValue t)
-            {
-                m[v] = CreateVariableDetail($"${index}", Lookup.LoadStruct(ns, t.Name), VariableType.Argument, index);
-            }
-            else if (type is TypeSpecialization sp)
-            {
-                m[v] = CreateVariableDetail($"${index}", Lookup.FindStructOrNull(ns, new string[] { sp.Name }, sp.Generics.Map(x => Lookup.GetStructType(ns, x, m)!).ToList()), VariableType.Argument, index);
-            }
-            else
-            {
-                throw new Exception();
+                case TypeGenericsParameter g:
+                    if (!m.ContainsKey(type)) m[type] = CreateVariableDetail(g.Name, new GenericsParameter(g.Name), VariableType.TypeParameter, index);
+                    m[v] = CreateVariableDetail($"${index}", m[type].Struct, VariableType.Argument, index);
+                    break;
+
+                case TypeValue t:
+                    m[v] = CreateVariableDetail($"${index}", Lookup.LoadStruct(ns, t.Name), VariableType.Argument, index);
+                    break;
+
+                case TypeSpecialization sp:
+                    m[v] = CreateVariableDetail($"${index}", Lookup.FindStructOrNull(ns, new string[] { sp.Name }, sp.Generics.Map(x => Lookup.GetStructType(ns, x, m)!).ToList()), VariableType.Argument, index);
+                    break;
+
+                case TypeFunction tf:
+                    m[v] = CreateVariableDetail($"${index}", Lookup.LoadFunctionType(Lookup.GetRootNamespace(ns), tf), VariableType.Argument, index);
+                    break;
+
+                default:
+                    throw new Exception();
             }
             return true;
         }
