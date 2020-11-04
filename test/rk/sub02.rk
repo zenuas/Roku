@@ -1,6 +1,6 @@
 
 #=>1
-f(:() Int => 1)
+f(() Int => 1)
 
 sub f(x: {=> Int})
 	print(x())
