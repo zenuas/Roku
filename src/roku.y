@@ -145,9 +145,10 @@ typeor : type OR type            {$$ = CreateListNode($1, $3);}
        | typeor OR type          {$$ = $1.Return(x => x.List.Add($3));}
 
 ########## lambda ##########
-lambda       : ':' lambda_arg                ARROW lambda_func {$$ = CreateLambdaFunction($4, CreateListNode($2), null, true);}
-             | ':' '(' lambda_args ')' typex ARROW lambda_func {$$ = CreateLambdaFunction($7, $3, $5, false);}
-             |                               ARROW lambda_func {$$ = CreateLambdaFunction($2, CreateListNode<IDeclareNode>(), null, true);}
+lambda       : var                       ARROW lambda_func {$$ = CreateLambdaFunction($3, CreateListNode<IDeclareNode>(new ImplicitDeclareNode($1)), null, true);}
+#             | lambda_arg                ARROW lambda_func {$$ = CreateLambdaFunction($3, CreateListNode($1), null, true);}
+#             | '(' lambda_args ')' typex ARROW lambda_func {$$ = CreateLambdaFunction($6, $3, $4, false);}
+             |                           ARROW lambda_func {$$ = CreateLambdaFunction($2, CreateListNode<IDeclareNode>(), null, true);}
 lambda_func  : expr                       {$$ = ToLambdaExpression($1);}
              | EOL lambda_begin stmt END  {$$ = $2;}
 lambda_begin : BEGIN                      {Scopes.Push(new LambdaExpressionNode().R($1));}
