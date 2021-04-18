@@ -90,7 +90,7 @@ namespace Roku.Compiler
         {
             for (var i = 0; i < fss.Count; i++)
             {
-                var f = fss[i].Body.Cast<FunctionBody>();
+                var f = fss[i].Body.Cast<IFunctionBody>();
                 var g = fss[i].GenericsMapper;
                 var mapper = Lookup.GetTypemapper(f.SpecializationMapper, g);
 
@@ -105,6 +105,7 @@ namespace Roku.Compiler
                 {
                     il.WriteLine(".locals(");
                     il.Indent++;
+                    local_vals.Map(x => x.Struct).By<AnonymousFunctionBody>().Each(x => CallToAddEmitFunctionList(mapper, x, fss));
                     il.WriteLine(local_vals.Map(x => $"[{x.Index}] {GetTypeName(x, g)} {x.Name}").Join(",\n"));
                     il.Indent--;
                     il.WriteLine(")");
@@ -135,7 +136,13 @@ namespace Roku.Compiler
             }
         }
 
-        public static bool EqualsFunctionCaller(FunctionSpecialization left, IFunctionBody right, GenericsMapper right_g)
+        public static void CallToAddEmitFunctionList(TypeMapper m, AnonymousFunctionBody anon, List<FunctionSpecialization> fss)
+        {
+            var g = new GenericsMapper();
+            fss.Add(new FunctionSpecialization(anon, g));
+        }
+
+        public static bool EqualsFunctionCaller(FunctionSpecialization left, IFunctionName right, GenericsMapper right_g)
         {
             if (left.Body != right) return false;
             return left.GenericsMapper.Keys.And(x => left.GenericsMapper[x] == right_g[x]);
@@ -333,6 +340,9 @@ namespace Roku.Compiler
 
                 case ArrayContainer x:
                     return $"newobj instance void {GetStructName(m[x].Struct)}::.ctor()\n{x.Values.Map(v => "dup\n" + LoadValue(m, v) + $"\ncallvirt instance void {GetStructName(m[x].Struct)}::Add(!0)").Join("\n")}";
+
+                case FunctionReferenceValue x:
+                    return "";
             }
             throw new Exception();
         }
@@ -396,11 +406,43 @@ namespace Roku.Compiler
                 case StructSpecialization x when x.Body is ExternStruct e: return $"class [{e.Assembly.GetName().Name}]{e.Struct.FullName}{GetGenericsName(e, x.GenericsMapper)}";
                 case StructSpecialization x when x.Body is StructBody e: return $"class {GetStructName(x.Name, e, x.GenericsMapper, false).To(x => escape ? EscapeILName(x) : x)}";
                 case EnumStructBody _: return "object";
+                case AnonymousFunctionBody x: return GetFunctionName(x);
+                case FunctionTypeBody x: return GetFunctionTypeName(x);
             }
             throw new Exception();
         }
 
         public static string GetStructName(string name, ISpecialization sp, GenericsMapper g, bool escape = true) => (g.Count == 0 ? name : $"{name}{GetGenericsName(sp, g, false)}").To(x => escape ? EscapeILName(x) : x);
+
+        public static string GetFunctionName(AnonymousFunctionBody anon)
+        {
+            var f = "";
+            if (anon.Return is { } r)
+            {
+                f = $"class [mscorlib]System.Func`{anon.Arguments.Count + 1}";
+            }
+            else
+            {
+                if (anon.Arguments.Count == 0) return "class [mscorlib]System.Action";
+                f = $"class [mscorlib]System.Action`{anon.Arguments.Count}";
+            }
+            return f;
+        }
+
+        public static string GetFunctionTypeName(FunctionTypeBody t)
+        {
+            var f = "";
+            if (t.Return is { } r)
+            {
+                f = $"class [mscorlib]System.Func`{t.Arguments.Count + 1}<{t.Arguments.Concat(r).Map(x => GetStructName(x))}>";
+            }
+            else
+            {
+                if (t.Arguments.Count == 0) return "class [mscorlib]System.Action";
+                f = $"class [mscorlib]System.Action`{t.Arguments.Count}<>";
+            }
+            return f;
+        }
 
         public static string EscapeILName(string s) => Regex.IsMatch(s, "^_*[a-zA-Z][_a-zA-Z0-9]*$") ? s : $"'{s}'";
 

@@ -1,0 +1,23 @@
+sub f() Int
+	return(1)
+
+sub g1(x: {=> Int}) Int
+	print(x())
+	print("g1")
+
+sub g2(x: {}) Int
+	x()
+	print("g2")
+
+
+g1(=> f())
+g2(=> f())
+
+###
+ラムダ式は暗黙の戻り値(ImplicitReturn)を持つ
+ラムダ式は同じ記述にかかわらずg1とg2では要求する戻り値型が異なる
+戻り値型を要求された時だけ設定する
+###
+
+###start
+###end

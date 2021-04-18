@@ -151,7 +151,7 @@ lambda       : var           ARROW lambda_func {$$ = CreateLambdaFunction($3, Cr
 #            | lambda_arg                ARROW lambda_func {$$ = CreateLambdaFunction($3, CreateListNode($1), null, true);}
 #            | '(' lambda_args ')' typex ARROW lambda_func {$$ = CreateLambdaFunction($6, $3, $4, false);}
 lambda_func  : expr                       {$$ = ToLambdaExpression($1);}
-             | EOL lambda_begin stmt END  {$$ = $2;}
+             | EOL lambda_begin stmt END  {$$ = $3;}
 lambda_begin : BEGIN                      {Scopes.Push(new LambdaExpressionNode().R($1));}
 lambda_arg   : var                        {$$ = new ImplicitDeclareNode($1);}
              | decla

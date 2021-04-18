@@ -54,15 +54,15 @@ namespace Roku.Compiler
 
         public static IEnumerable<T> AllStructs<T>(INamespaceBody src) where T : IStructBody => src.Structs.By<T>();
 
-        public static IEnumerable<FunctionBody> AllFunctionBodies(List<SourceCodeBody> srcs) => srcs.Map(AllFunctionBodies).Flatten();
+        public static IEnumerable<IFunctionBody> AllFunctionBodies(List<SourceCodeBody> srcs) => srcs.Map(AllFunctionBodies).Flatten();
 
-        public static IEnumerable<FunctionBody> AllFunctionBodies(INamespaceBody src) => src.Functions.By<FunctionBody>();
+        public static IEnumerable<IFunctionBody> AllFunctionBodies(INamespaceBody src) => src.Functions.By<IFunctionBody>();
 
         public static IEnumerable<ExternFunction> AllExternFunctions(List<INamespace> srcs) => srcs.Map(AllFunctions<ExternFunction>).Flatten();
 
         public static IEnumerable<EmbeddedFunction> AllEmbeddedFunctions(List<INamespace> srcs) => srcs.Map(AllFunctions<EmbeddedFunction>).Flatten();
 
-        public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionBody => src is INamespaceBody ns ? ns.Functions.By<T>() : new List<T>();
+        public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionName => src is INamespaceBody ns ? ns.Functions.By<T>() : new List<T>();
 
         public static FunctionSpecialization? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args, bool find_use = true)
         {
@@ -130,14 +130,14 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static (bool Exists, GenericsMapper GenericsMapper) FunctionArgumentsEquals(INamespace ns, IFunctionBody source, List<IStructBody?> args)
+        public static (bool Exists, GenericsMapper GenericsMapper) FunctionArgumentsEquals(INamespace ns, IFunctionName source, List<IStructBody?> args)
         {
             var gens = ApplyArgumentsToGenericsParameter(source, args);
             var fargs = GetArgumentsType(ns, source, gens);
             return (fargs.Count == args.Count && fargs.Zip(args).And(x => TypeEquals(x.First, x.Second)), gens);
         }
 
-        public static List<IStructBody?> GetArgumentsType(INamespace ns, IFunctionBody body, GenericsMapper gens) => FunctionToArgumentsType(body).Map(x => GetStructType(ns, x, gens)).ToList();
+        public static List<IStructBody?> GetArgumentsType(INamespace ns, IFunctionName body, GenericsMapper gens) => FunctionToArgumentsType(body).Map(x => GetStructType(ns, x, gens)).ToList();
 
         public static IStructBody? GetStructType(INamespace ns, ITypeDefinition t, GenericsMapper gens)
         {
@@ -159,14 +159,14 @@ namespace Roku.Compiler
                     return LoadEnumStruct(ns, te);
 
                 case TypeFunction tf:
-                    return LoadFunctionType(GetRootNamespace(ns), tf);
+                    return LoadFunctionType(ns, tf, gens);
             }
             throw new Exception();
         }
 
         public static IStructBody? GetStructType(INamespace ns, ITypeDefinition t, TypeMapper mapper) => GetStructType(ns, t, TypeMapperToGenericsMapper(mapper));
 
-        public static IEnumerable<ITypeDefinition> FunctionToArgumentsType(IFunctionBody body)
+        public static IEnumerable<ITypeDefinition> FunctionToArgumentsType(IFunctionName body)
         {
             if (body is FunctionBody fb)
             {
@@ -185,7 +185,7 @@ namespace Roku.Compiler
 
         public static IEnumerable<TypeGenericsParameter> ExtractArgumentsTypeToGenericsParameter(IEnumerable<ITypeDefinition> types) => types.By<TypeGenericsParameter>().Unique();
 
-        public static GenericsMapper ApplyArgumentsToGenericsParameter(IFunctionBody body, List<IStructBody?> args)
+        public static GenericsMapper ApplyArgumentsToGenericsParameter(IFunctionName body, List<IStructBody?> args)
         {
             var param = FunctionToArgumentsType(body).ToList();
             var gens = new GenericsMapper();
@@ -325,11 +325,11 @@ namespace Roku.Compiler
             return CreateExternStruct(root, ti, asmx);
         }
 
-        public static FunctionTypeBody LoadFunctionType(RootNamespace root, TypeFunction tf)
+        public static FunctionTypeBody LoadFunctionType(INamespace ns, TypeFunction tf, GenericsMapper gens)
         {
             var func = new FunctionTypeBody();
-            tf.Arguments.Each(x => func.Arguments.Add(x));
-            func.Return = tf.Return;
+            tf.Arguments.Each(x => func.Arguments.Add(GetStructType(ns, x, gens)!));
+            if (tf.Return is { }) func.Return = GetStructType(ns, tf.Return, gens);
             return func;
         }
 

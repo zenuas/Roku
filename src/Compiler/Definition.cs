@@ -110,7 +110,7 @@ namespace Roku.Compiler
             var fbody = MakeAnonymousFunction(root);
             fbody.IsImplicit = lambda.IsImplicit;
             if (lambda.Return is { } ret) fbody.Return = CreateType(scope, ret);
-            lambda.Arguments.Each(x => fbody.Arguments.Add((new VariableValue(x.Name.Name), x is DeclareNode decla ? CreateType(scope, decla.Type) : null)));
+            lambda.Arguments.Each(x => fbody.Arguments.Add((new VariableValue(x.Name.Name), x is DeclareNode decla ? CreateType(scope, decla.Type) : new TypeImplicit())));
             FunctionBodyDefinition(fbody, lambda.Statements);
             return fbody;
         }
@@ -352,7 +352,9 @@ namespace Roku.Compiler
                 case LambdaExpressionNode x:
                     {
                         var f = LambdaExpressionDefinition(scope, x);
-                        return new FunctionReferenceValue(f.Name);
+                        var v = CreateTemporaryVariable(scope);
+                        scope.Body.Add(new Code() { Operator = Operator.Bind, Left = new FunctionReferenceValue(f.Name), Return = v });
+                        return v;
                     }
             }
             throw new Exception();
@@ -480,6 +482,7 @@ namespace Roku.Compiler
         {
             var body = new AnonymousFunctionBody(root, $"anonymous#{root.AnonymousFunctionUniqueCount++}");
             root.Structs.Add(body);
+            root.Functions.Add(body);
             return body;
         }
     }

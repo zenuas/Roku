@@ -11,7 +11,7 @@ namespace Roku.Manager
         public Assembly Assembly { get; }
         public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
         public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
-        public List<IFunctionBody> Functions { get; } = new List<IFunctionBody>();
+        public List<IFunctionName> Functions { get; } = new List<IFunctionName>();
         public List<IStructBody> Structs { get; } = new List<IStructBody>();
 
         public ExternStruct(TypeInfo ti, Assembly asm)

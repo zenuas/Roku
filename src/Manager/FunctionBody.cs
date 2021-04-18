@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Roku.Manager
 {
-    public class FunctionBody : IFunctionBody, ILexicalScope, ISpecialization, INamespace
+    public class FunctionBody : IFunctionBody, ILexicalScope
     {
         public string Name { get; }
         public ITypeDefinition? Return { get; set; } = null;

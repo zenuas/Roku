@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Roku.Manager
 {
-    public class ExternFunction : IFunctionBody
+    public class ExternFunction : IFunctionName
     {
         public string Name { get; }
         public MethodInfo Function { get; }

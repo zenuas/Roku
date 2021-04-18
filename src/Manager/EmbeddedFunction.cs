@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Roku.Manager
 {
-    public class EmbeddedFunction : IFunctionBody
+    public class EmbeddedFunction : IFunctionName
     {
         public string Name { get; }
         public ITypeDefinition? Return { get; set; } = null;

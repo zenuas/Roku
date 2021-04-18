@@ -782,7 +782,7 @@ namespace Roku.Parser
 
                 case -82:
                     TraceAction("lambda_func : EOL lambda_begin stmt END");
-                    yy_value = (GetValue(-3));
+                    yy_value = ((IScopeNode)GetValue(-2));
                     yy_token = DoAction(Symbols.lambda_func, 4, yy_value);
                     break;
 

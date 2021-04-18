@@ -68,7 +68,7 @@ namespace Roku.Compiler
             return resolved;
         }
 
-        public static bool TypeInference(FunctionBody body)
+        public static bool TypeInference(IFunctionBody body)
         {
             var resolved = FunctionBodyInference(body);
             SpecializationNumericDecide(body);
@@ -84,7 +84,7 @@ namespace Roku.Compiler
             return resolved;
         }
 
-        public static bool FunctionBodyInference(FunctionBody body)
+        public static bool FunctionBodyInference(IFunctionBody body)
         {
             var resolved = false;
             var keys = body.SpecializationMapper.Keys.ToArray();
@@ -295,6 +295,10 @@ namespace Roku.Compiler
             {
                 if (num.Types.Contains(right)) num.Types.RemoveAll(x => x != right);
             }
+            else if (left is AnonymousFunctionBody anon)
+            {
+                Lookup.AppendSpecialization(anon, new GenericsMapper());
+            }
         }
 
         public static bool ArgumentInferenceWithEffect(INamespace ns, TypeMapper m, IEvaluable v, ITypeDefinition type, int index)
@@ -316,7 +320,7 @@ namespace Roku.Compiler
                     break;
 
                 case TypeFunction tf:
-                    m[v] = CreateVariableDetail($"${index}", Lookup.LoadFunctionType(Lookup.GetRootNamespace(ns), tf), VariableType.Argument, index);
+                    m[v] = CreateVariableDetail($"${index}", Lookup.LoadFunctionType(ns, tf, Lookup.TypeMapperToGenericsMapper(m)), VariableType.Argument, index);
                     break;
 
                 default:
