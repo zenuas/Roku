@@ -168,6 +168,18 @@ namespace Roku.Compiler
 
         public static IStructBody FindTypeMapperToGenerics(TypeMapper m, string name) => m.Where(x => x.Key is ITypeDefinition t && t.Name == name).First().Value.Struct!;
 
+        public static FunctionSpecialization? FindCurrentFunction(INamespace ns, TypeMapper m, VariableValue x, List<IStructBody?> args)
+        {
+            if (m.ContainsKey(x))
+            {
+                if (m.ContainsKey(x) && m[x].Struct is FunctionTypeBody ftb)
+                {
+                    return new FunctionSpecialization(ftb, Lookup.FunctionArgumentsEquals(ns, ftb, args).GenericsMapper);
+                }
+            }
+            return Lookup.FindFunctionOrNull(ns, x.Name, args);
+        }
+
         public static bool ResolveFunctionWithEffect(INamespace ns, TypeMapper m, Call call)
         {
             if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { } p && IsDecideType(p) &&
@@ -209,7 +221,7 @@ namespace Roku.Compiler
 
                 case VariableValue x:
                     {
-                        var caller = Lookup.FindFunctionOrNull(lookupns, x.Name, args);
+                        var caller = FindCurrentFunction(lookupns, m, x, args);
                         if (caller is null) break;
 
                         var fm = new FunctionMapper(caller.Body);

@@ -256,7 +256,7 @@ namespace Roku.Compiler
                     throw new Exception();
             }
 
-            if (op is IReturnBind ret && ret.Return is { })
+            if (op is IReturnBind ret && ret.Return is { } && !(ret.Return is ImplicitReturnValue))
             {
                 il.WriteLine(StoreValue(m, ret.Return));
             }

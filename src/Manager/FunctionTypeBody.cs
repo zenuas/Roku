@@ -1,10 +1,9 @@
 ﻿using Extensions;
-using Roku.Declare;
 using System.Collections.Generic;
 
 namespace Roku.Manager
 {
-    public class FunctionTypeBody : IStructBody
+    public class FunctionTypeBody : IStructBody, IFunctionName
     {
         public string Name { get => ToString(); }
         public List<IStructBody> Arguments { get; } = new List<IStructBody>();

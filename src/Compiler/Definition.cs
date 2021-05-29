@@ -320,6 +320,7 @@ namespace Roku.Compiler
                         var call =
                             x.Expression is PropertyNode prop ? new FunctionCallValue(new VariableValue(prop.Right.Name)) { FirstLookup = NormalizationExpression(scope, prop.Left) }
                             : x.Expression is SpecializationNode gen ? new FunctionCallValue(CreateTypeSpecialization(scope, gen))
+                            : x.Expression is VariableNode va && FindCurrentScopeValueOrNull(scope, va.Name) is { } v ? new FunctionCallValue(v)
                             : new FunctionCallValue(new VariableValue(GetName(x.Expression)));
 
                         x.Arguments.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
@@ -451,9 +452,11 @@ namespace Roku.Compiler
             scope.LexicalScope.Add(v.Name, v);
             return v;
         }
+        public static IEvaluable? FindCurrentScopeValueOrNull(ILexicalScope scope, string name) => scope.LexicalScope.ContainsKey(name) ? scope.LexicalScope[name] : null;
 
         public static IEvaluable FindScopeValue(ILexicalScope scope, string name)
         {
+            if (FindCurrentScopeValueOrNull(scope, name) is { } v) return v;
             if (scope.LexicalScope.ContainsKey(name)) return scope.LexicalScope[name];
             if (scope.Parent is { } parent) return FindScopeValue(parent, name);
             if (scope is INamespace ns && FindNamespaceValue(ns, name) is { } p) return p;

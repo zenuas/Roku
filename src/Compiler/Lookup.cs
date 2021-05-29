@@ -180,6 +180,10 @@ namespace Roku.Compiler
             {
                 return xf.Function.GetParameters().Map(x => new TypeInfoValue(x.ParameterType));
             }
+            else if (body is FunctionTypeBody)
+            {
+                throw new Exception();
+            }
             throw new Exception();
         }
 
