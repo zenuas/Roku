@@ -234,6 +234,10 @@ namespace Roku.Compiler
                             fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(x.Name.Name, Lookup.GetStructType(fb.Namespace, x.Type, caller.GenericsMapper), VariableType.Argument, i));
                             fb.Arguments.Each((x, i) => Feedback(args[i], fm.TypeMapper[x.Name].Struct));
                         }
+                        else if (caller.Body is FunctionTypeBody ftb)
+                        {
+                            ret = ftb.Return;
+                        }
                         else if (caller.Body is ExternFunction fx)
                         {
                             ret = Lookup.LoadTypeWithoutVoid(Lookup.GetRootNamespace(ns), fx.Function.ReturnType, caller.GenericsMapper);
