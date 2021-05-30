@@ -132,9 +132,16 @@ namespace Roku.Compiler
 
         public static (bool Exists, GenericsMapper GenericsMapper) FunctionArgumentsEquals(INamespace ns, IFunctionName source, List<IStructBody?> args)
         {
-            var gens = ApplyArgumentsToGenericsParameter(source, args);
-            var fargs = GetArgumentsType(ns, source, gens);
-            return (fargs.Count == args.Count && fargs.Zip(args).And(x => TypeEquals(x.First, x.Second)), gens);
+            if (source is FunctionTypeBody ftb)
+            {
+                return (false, new GenericsMapper());
+            }
+            else
+            {
+                var gens = ApplyArgumentsToGenericsParameter(source, args);
+                var fargs = GetArgumentsType(ns, source, gens);
+                return (fargs.Count == args.Count && fargs.Zip(args).And(x => TypeEquals(x.First, x.Second)), gens);
+            }
         }
 
         public static List<IStructBody?> GetArgumentsType(INamespace ns, IFunctionName body, GenericsMapper gens) => FunctionToArgumentsType(body).Map(x => GetStructType(ns, x, gens)).ToList();

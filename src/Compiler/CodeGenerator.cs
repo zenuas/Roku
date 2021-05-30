@@ -408,6 +408,7 @@ namespace Roku.Compiler
                 case EnumStructBody _: return "object";
                 case AnonymousFunctionBody x: return GetFunctionName(x);
                 case FunctionTypeBody x: return GetFunctionTypeName(x);
+                case FunctionMapper x when x.Function is FunctionTypeBody ftb: return GetFunctionTypeName(ftb);
             }
             throw new Exception();
         }
