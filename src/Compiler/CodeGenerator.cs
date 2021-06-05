@@ -342,7 +342,7 @@ namespace Roku.Compiler
                     return $"newobj instance void {GetStructName(m[x].Struct)}::.ctor()\n{x.Values.Map(v => "dup\n" + LoadValue(m, v) + $"\ncallvirt instance void {GetStructName(m[x].Struct)}::Add(!0)").Join("\n")}";
 
                 case FunctionReferenceValue x:
-                    return "";
+                    return $"ldnull\nldftn {GetFunctionName(x, m[x].Struct!)}\nnewobj instance void {GetStructName(m[x].Struct)}::.ctor(object, native int)\n";
             }
             throw new Exception();
         }
@@ -420,7 +420,9 @@ namespace Roku.Compiler
             var f = "";
             if (anon.Return is { } r)
             {
-                f = $"class [mscorlib]System.Func`{anon.Arguments.Count + 1}";
+                var g = new GenericsMapper();
+                var mapper = Lookup.GetTypemapper(anon.SpecializationMapper, g);
+                f = $"class [mscorlib]System.Func`{anon.Arguments.Count + 1}<{GetTypeName(mapper, anon.Return, g)}>";
             }
             else
             {
@@ -428,6 +430,17 @@ namespace Roku.Compiler
                 f = $"class [mscorlib]System.Action`{anon.Arguments.Count}";
             }
             return f;
+        }
+
+        public static string GetFunctionName(FunctionReferenceValue f, IStructBody body)
+        {
+            if (body is AnonymousFunctionBody anon)
+            {
+                var g = new GenericsMapper();
+                var mapper = Lookup.GetTypemapper(anon.SpecializationMapper, g);
+                return $"{GetTypeName(mapper, anon.Return, g)} {EscapeILName(f.Name)}()";
+            }
+            throw new Exception();
         }
 
         public static string GetFunctionTypeName(FunctionTypeBody t)

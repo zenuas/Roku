@@ -5,6 +5,24 @@ f(() Int => 1)
 sub f(x: {=> Int})
 	print(x())
 
+###
+ラムダ式は以下の通り翻訳される
+$1 = null
+$2 = ldftn anonymous1_func;
+$3 = new Func<int>($1, $2);
+f($3);
+
+int anonymous1_func()
+{
+	return 1;
+}
+void f(Func<int> x)
+{
+	var $4 = x.Invoke();
+	print($4);
+}
+###
+
 ###start
 
 ###end
