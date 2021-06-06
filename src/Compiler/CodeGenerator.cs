@@ -23,24 +23,31 @@ namespace Roku.Compiler
             var extern_structs = Lookup.AllExternStructs(Lookup.GetRootNamespace(body));
             var extern_asms = externs.Map(x => x.Assembly)
                 .Concat(extern_structs.Map(x => x.Assembly))
-                .By<Assembly>().Unique().ToArray();
+                .By<Assembly>().Unique();
+
+            var fss = new List<FunctionSpecialization>() { new FunctionSpecialization(entrypoint, new GenericsMapper()) };
+            fss = fss.Concat(StructsToFunctionList(structs)).ToList();
+            fss = FunctionsToFunctionList(fss);
+            if (fss.FindFirstOrNull(x => x.Body is AnonymousFunctionBody) is { })
+            {
+                extern_asms = extern_asms.Concat(Assembly.Load("mscorlib"));
+            }
 
             using var il = new ILWriter(path);
             AssemblyExternEmit(il, extern_asms);
             AssemblyNameEmit(il, path);
 
-            var fss = new List<FunctionSpecialization>() { new FunctionSpecialization(entrypoint, new GenericsMapper()) };
-            structs.Each(x => AssemblyStructEmit(il, x, fss));
+            structs.Each(x => AssemblyStructEmit(il, x));
             AssemblyFunctionEmit(il, fss);
         }
 
         public static Type GetType(ExternFunction e) => e.DeclaringType ?? e.Function.DeclaringType!;
 
-        public static void AssemblyExternEmit(ILWriter il, Assembly[] extern_asms) => extern_asms.Each(x => il.WriteLine($".assembly extern {x.GetName().Name} {{}}"));
+        public static void AssemblyExternEmit(ILWriter il, IEnumerable<Assembly> extern_asms) => extern_asms.Each(x => il.WriteLine($".assembly extern {x.GetName().Name} {{}}"));
 
         public static void AssemblyNameEmit(ILWriter il, string path) => il.WriteLine($".assembly {Path.GetFileNameWithoutExtension(path)} {{}}");
 
-        public static void AssemblyStructEmit(ILWriter il, StructBody body, List<FunctionSpecialization> fss)
+        public static void AssemblyStructEmit(ILWriter il, StructBody body)
         {
             var cache = new HashSet<string>();
             body.SpecializationMapper.Each(sp =>
@@ -72,11 +79,7 @@ namespace Roku.Compiler
                     il.WriteLine(")");
                 }
                 var labels = Lookup.AllLabels(body.Body).Zip(Lists.Sequence(1)).ToDictionary(x => x.First, x => $"_{x.First.Name}{x.Second}");
-                body.Body.Each(x =>
-                {
-                    if (x is Call call) CallToAddEmitFunctionList(mapper, call, fss);
-                    AssemblyOperandEmit(il, x, body.Namespace, mapper, labels, g);
-                });
+                body.Body.Each(x => AssemblyOperandEmit(il, x, body.Namespace, mapper, labels, g));
                 il.WriteLine("ret");
                 il.Indent--;
                 il.WriteLine("}");
@@ -105,21 +108,56 @@ namespace Roku.Compiler
                 {
                     il.WriteLine(".locals(");
                     il.Indent++;
-                    local_vals.Map(x => x.Struct).By<AnonymousFunctionBody>().Each(x => CallToAddEmitFunctionList(mapper, x, fss));
                     il.WriteLine(local_vals.Map(x => $"[{x.Index}] {GetTypeName(x, g)} {x.Name}").Join(",\n"));
                     il.Indent--;
                     il.WriteLine(")");
                 }
                 var labels = Lookup.AllLabels(f.Body).Zip(Lists.Sequence(1)).ToDictionary(x => x.First, x => $"_{x.First.Name}{x.Second}");
-                f.Body.Each(x =>
-                {
-                    if (x is Call call) CallToAddEmitFunctionList(mapper, call, fss);
-                    AssemblyOperandEmit(il, x, f, mapper, labels, g);
-                });
+                f.Body.Each(x => AssemblyOperandEmit(il, x, f, mapper, labels, g));
                 il.WriteLine("ret");
                 il.Indent--;
                 il.WriteLine("}");
             }
+        }
+
+        public static List<FunctionSpecialization> StructsToFunctionList(IEnumerable<StructBody> structs)
+        {
+            var fsnew = new List<FunctionSpecialization>();
+            var cache = new HashSet<string>();
+            structs.Each(body =>
+            {
+                body.SpecializationMapper.Each(sp =>
+                {
+                    var g = sp.Key;
+                    var mapper = sp.Value;
+
+                    var name = GetStructName(body.Name, body, g);
+                    if (cache.Contains(name)) return;
+                    _ = cache.Add(name);
+
+                    body.Body.By<Call>().Each(x => CallToAddEmitFunctionList(mapper, x, fsnew));
+                });
+            });
+            return fsnew;
+        }
+
+        public static List<FunctionSpecialization> FunctionsToFunctionList(List<FunctionSpecialization> fss)
+        {
+            var fsnew = fss.ToList();
+            for (var i = 0; i < fsnew.Count; i++)
+            {
+                var f = fsnew[i].Body.Cast<IFunctionBody>();
+                var g = fsnew[i].GenericsMapper;
+                var mapper = Lookup.GetTypemapper(f.SpecializationMapper, g);
+
+                var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable && !(x.Struct is NamespaceBody)).Sort((a, b) => a.Index - b.Index).ToList();
+                if (local_vals.Count > 0)
+                {
+                    local_vals.Map(x => x.Struct).By<AnonymousFunctionBody>().Each(x => CallToAddEmitFunctionList(mapper, x, fsnew));
+                }
+                f.Body.By<Call>().Each(x => CallToAddEmitFunctionList(mapper, x, fsnew));
+            }
+            return fsnew;
         }
 
         public static void CallToAddEmitFunctionList(TypeMapper m, Call call, List<FunctionSpecialization> fss)
