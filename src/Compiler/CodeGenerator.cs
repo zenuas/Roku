@@ -486,7 +486,7 @@ namespace Roku.Compiler
             var f = "";
             if (t.Return is { } r)
             {
-                f = $"class [mscorlib]System.Func`{t.Arguments.Count + 1}<{t.Arguments.Concat(r).Map(x => GetStructName(x))}>";
+                f = $"class [mscorlib]System.Func`{t.Arguments.Count + 1}<{t.Arguments.Concat(r).Map(x => GetStructName(x)).Join(", ")}>";
             }
             else
             {
