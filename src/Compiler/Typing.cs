@@ -248,7 +248,7 @@ namespace Roku.Compiler
                             if (ef.Return is { }) ret = fm.TypeMapper[ef.Return].Struct;
                             ef.Arguments.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail($"${i}", Lookup.LoadStruct(ns, x.Name), VariableType.Argument, i));
                         }
-                        m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
+                        m[x] = CreateVariableDetail("", fm, m.ContainsKey(x) ? m[x].Type : VariableType.FunctionMapper);
                         if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, ret);
                         resolve = true;
                     }

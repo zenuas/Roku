@@ -206,6 +206,10 @@ namespace Roku.Compiler
                     {
                         var call = op.Cast<Call>();
                         var f = m[call.Function.Function].Struct!.Cast<FunctionMapper>();
+                        if (f.Function is FunctionTypeBody)
+                        {
+                            il.WriteLine(LoadValue(m, call.Function.Function));
+                        }
                         var args = call.Function.Arguments.Map((x, i) => LoadValue(m, x, GetArgumentType(ns, f, i))).ToArray();
                         if (f.Function is ExternFunction fx)
                         {
@@ -222,6 +226,10 @@ namespace Roku.Compiler
                         {
                             il.WriteLine(args.Join('\n'));
                             il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return, g)} {EscapeILName(fb.Name)}({fb.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")})");
+                        }
+                        else if (f.Function is FunctionTypeBody ftb)
+                        {
+                            il.WriteLine($"callvirt instance {(ftb.Return is null ? "void" : $"!{ftb.Arguments.Count}")} {GetFunctionTypeName(ftb)}::Invoke({Lists.Range(0, ftb.Arguments.Count).Map(x => $"!{x}").Join(", ")})");
                         }
                         else if (f.Function is EmbeddedFunction ef)
                         {
