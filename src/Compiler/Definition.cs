@@ -106,11 +106,13 @@ namespace Roku.Compiler
 
         public static AnonymousFunctionBody LambdaExpressionDefinition(ILexicalScope scope, LambdaExpressionNode lambda)
         {
-            var root = Lookup.GetRootNamespace(scope.Namespace);
-            var fbody = MakeAnonymousFunction(root);
+            var fbody = MakeAnonymousFunction(scope.Namespace);
             fbody.IsImplicit = lambda.IsImplicit;
             if (lambda.Return is { } ret) fbody.Return = CreateType(scope, ret);
+            if (fbody.IsImplicit) fbody.Return = new TypeImplicit();
             lambda.Arguments.Each(x => fbody.Arguments.Add((new VariableValue(x.Name.Name), x is DeclareNode decla ? CreateType(scope, decla.Type) : new TypeImplicit())));
+
+            if (fbody.Generics.Count == 0) fbody.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
             FunctionBodyDefinition(fbody, lambda.Statements);
             return fbody;
         }
@@ -481,9 +483,10 @@ namespace Roku.Compiler
             return body;
         }
 
-        public static AnonymousFunctionBody MakeAnonymousFunction(RootNamespace root)
+        public static AnonymousFunctionBody MakeAnonymousFunction(INamespace ns)
         {
-            var body = new AnonymousFunctionBody(root, $"anonymous#{root.AnonymousFunctionUniqueCount++}");
+            var root = Lookup.GetRootNamespace(ns);
+            var body = new AnonymousFunctionBody(ns, $"anonymous#{root.AnonymousFunctionUniqueCount++}");
             root.Structs.Add(body);
             root.Functions.Add(body);
             return body;

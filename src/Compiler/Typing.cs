@@ -62,8 +62,8 @@ namespace Roku.Compiler
             var keys = body.SpecializationMapper.Keys.ToArray();
             for (var i = 0; i < keys.Length; i++)
             {
-                var value = body.SpecializationMapper[keys[i]];
-                body.Body.Each(x => resolved = OperandTypeInference(body.Namespace, value, x) || resolved);
+                var m = body.SpecializationMapper[keys[i]];
+                body.Body.Each(x => resolved = OperandTypeInference(body.Namespace, m, x) || resolved);
             }
             return resolved;
         }
@@ -90,10 +90,20 @@ namespace Roku.Compiler
             var keys = body.SpecializationMapper.Keys.ToArray();
             for (var i = 0; i < keys.Length; i++)
             {
-                var value = body.SpecializationMapper[keys[i]];
-                body.Arguments.Each((x, i) => resolved = ArgumentInferenceWithEffect(body.Namespace, value, x.Name, x.Type, i) || resolved);
-                if (body.Return is { } x) resolved = TypeInferenceWithEffect(body.Namespace, value, x, x) || resolved;
-                body.Body.Each(x => resolved = OperandTypeInference(body, value, x) || resolved);
+                var m = body.SpecializationMapper[keys[i]];
+                body.Arguments.Each((x, i) => resolved = ArgumentInferenceWithEffect(body.Namespace, m, x.Name, x.Type, i) || resolved);
+                if (body.Return is { } x && !(x is TypeImplicit)) resolved = TypeInferenceWithEffect(body.Namespace, m, x, x) || resolved;
+                body.Body.Each(x => resolved = OperandTypeInference(body, m, x) || resolved);
+
+                if (body is AnonymousFunctionBody afb && afb.IsImplicit && body.Return is TypeImplicit v)
+                {
+                    if (!(m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) &&
+                        m.Keys.FindFirstOrNull(x => x is ImplicitReturnValue) is { } imp)
+                    {
+                        m[v] = CreateVariableDetail("", m[imp].Struct, VariableType.Type);
+                        resolved = true;
+                    }
+                }
             }
             return resolved;
         }
