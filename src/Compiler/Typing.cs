@@ -180,11 +180,11 @@ namespace Roku.Compiler
 
         public static FunctionSpecialization? FindCurrentFunction(INamespace ns, TypeMapper m, VariableValue x, List<IStructBody?> args)
         {
-            if (m.ContainsKey(x))
+            if (m.ContainsKey(x) && m[x].Struct is { } p)
             {
-                if (m.ContainsKey(x) && m[x].Struct is FunctionTypeBody ftb)
+                switch (p)
                 {
-                    return new FunctionSpecialization(ftb, Lookup.FunctionArgumentsEquals(ns, ftb, args).GenericsMapper);
+                    case FunctionTypeBody ftb: return new FunctionSpecialization(ftb, Lookup.FunctionArgumentsEquals(ns, ftb, args).GenericsMapper);
                 }
             }
             return Lookup.FindFunctionOrNull(ns, x.Name, args);
@@ -192,7 +192,7 @@ namespace Roku.Compiler
 
         public static bool ResolveFunctionWithEffect(INamespace ns, TypeMapper m, Call call)
         {
-            if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { } p && IsDecideType(p) &&
+            if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { } p && IsDecideFunction(p) &&
                 (call.Return is null || (call.Return is { } rx && m.ContainsKey(rx) && m[rx].Struct is { } rs && IsDecideType(rs))))
             {
                 return false;
@@ -495,6 +495,16 @@ namespace Roku.Compiler
                 case NumericStruct x:
                     return x.Types.Count == 1;
 
+                case FunctionMapper x when x.Function is ISpecialization sp:
+                    return IsDecideFunction(x);
+            }
+            return true;
+        }
+
+        public static bool IsDecideFunction(IStructBody body)
+        {
+            switch (body)
+            {
                 case FunctionMapper x when x.Function is ISpecialization sp:
                     var g = Lookup.TypeMapperToGenericsMapper(x.TypeMapper);
                     var mapper = Lookup.GetTypemapperOrNull(sp.SpecializationMapper, g);

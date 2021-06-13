@@ -25,7 +25,9 @@ namespace Roku.Manager
             Name = system_unique_name;
         }
 
-        public override string ToString()
+        public override string ToString() => ToString(true);
+
+        public string ToString(bool need_return)
         {
             var m = SpecializationMapper.Values.FirstOrNull();
             static string type_name(TypeMapper? m, ITypeDefinition d)
@@ -37,7 +39,7 @@ namespace Roku.Manager
                 return d.ToString()!;
             }
 
-            return $"{{{Arguments.Map(x => x.Name.ToString() + (x.Type is { } t ? $" : {type_name(m, t)}" : "")).Join(", ")}{(Return is { } r ? $" => {type_name(m, r)}" : "")}}}";
+            return $"{{{Arguments.Map(x => x.Name.ToString() + (x.Type is { } t ? $" : {type_name(m, t)}" : "")).Join(", ")}{(need_return && Return is { } r ? $" => {type_name(m, r)}" : "")}}}";
         }
     }
 }

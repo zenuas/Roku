@@ -245,7 +245,7 @@ namespace Roku.Compiler
 
         public static bool TypeFunctionEquals(FunctionTypeBody ft, AnonymousFunctionBody af)
         {
-            return ft.Name == af.ToString();
+            return ft.Name == af.ToString(!(af.IsImplicit && ft.Return is null));
         }
 
         public static void AppendSpecialization(ISpecialization sp, GenericsMapper g)
