@@ -324,6 +324,12 @@ namespace Roku.Compiler
             else if (left is AnonymousFunctionBody anon)
             {
                 Lookup.AppendSpecialization(anon, new GenericsMapper());
+                if (anon.IsImplicit && anon.Return is TypeImplicit &&
+                    right is FunctionTypeBody ftb && ftb.Return is null)
+                {
+                    anon.Return = null;
+                    anon.IsImplicit = false;
+                }
             }
         }
 

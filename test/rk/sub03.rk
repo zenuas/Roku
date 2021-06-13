@@ -1,15 +1,17 @@
 sub f() Int
 	return(1)
 
-sub g1(x: {=> Int}) Int
+sub g1(x: {=> Int})
 	print(x())
 	print("g1")
 
-sub g2(y: {}) Int
+sub g2(y: {})
 	y()
 	print("g2")
 
-
+#=>1
+#=>g1
+#=>g2
 g1(=> f())
 g2(=> f())
 
@@ -20,4 +22,96 @@ g2(=> f())
 ###
 
 ###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly extern mscorlib {}
+.assembly sub03 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] class [mscorlib]System.Func`1<int32> $$1,
+        [1] class [mscorlib]System.Action $$2
+    )
+    
+    ldnull
+    ldftn int32 'anonymous#0'()
+    newobj instance void class [mscorlib]System.Func`1<int32>::.ctor(object, native int)
+    
+    stloc.0
+    
+    ldloc.0
+    call void g1(class [mscorlib]System.Func`1<int32>)
+    
+    ldnull
+    ldftn void 'anonymous#1'()
+    newobj instance void class [mscorlib]System.Action::.ctor(object, native int)
+    
+    stloc.1
+    
+    ldloc.1
+    call void g2(class [mscorlib]System.Action)
+    ret
+}
+.method public static int32 'anonymous#0'()
+{
+    .maxstack 8
+    .locals(
+        [0] int32 _
+    )
+    
+    
+    call int32 f()
+    ret
+}
+.method public static void 'anonymous#1'()
+{
+    .maxstack 8
+    .locals(
+        [0] int32 _
+    )
+    
+    
+    call int32 f()
+    pop
+    ret
+}
+.method public static void g1(class [mscorlib]System.Func`1<int32>)
+{
+    .maxstack 8
+    .locals(
+        [0] int32 $$1
+    )
+    
+    ldarg.0
+    callvirt instance !0 class [mscorlib]System.Func`1<int32>::Invoke()
+    stloc.0
+    
+    ldloc.0
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldstr "g1"
+    call void class [System.Console]System.Console::WriteLine(string)
+    ret
+}
+.method public static void g2(class [mscorlib]System.Action)
+{
+    .maxstack 8
+    
+    ldarg.0
+    callvirt instance void class [mscorlib]System.Action::Invoke()
+    
+    ldstr "g2"
+    call void class [System.Console]System.Console::WriteLine(string)
+    ret
+}
+.method public static int32 f()
+{
+    .maxstack 8
+    
+    ldc.i4.1
+    ret
+    ret
+}
 ###end

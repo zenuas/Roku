@@ -211,6 +211,7 @@ namespace Roku.Compiler
                             il.WriteLine(LoadValue(m, call.Function.Function));
                         }
                         var args = call.Function.Arguments.Map((x, i) => LoadValue(m, x, GetArgumentType(ns, f, i))).ToArray();
+                        var have_return = false;
                         if (f.Function is ExternFunction fx)
                         {
                             il.WriteLine(args.Join('\n'));
@@ -221,19 +222,29 @@ namespace Roku.Compiler
                             var fname = fx.Function.Name;
                             var param_args = fx.Function.GetParameters().Map(x => GetParameterName(x.ParameterType)).Join(", ");
                             il.WriteLine($"{callsig} {retvar} class {asmname}{classname}::{fname}({param_args})");
+                            have_return = fx.Function.ReturnType is { } p && p != typeof(void);
                         }
                         else if (f.Function is FunctionBody fb)
                         {
                             il.WriteLine(args.Join('\n'));
                             il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return, g)} {EscapeILName(fb.Name)}({fb.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")})");
+                            have_return = fb.Return is { };
                         }
                         else if (f.Function is FunctionTypeBody ftb)
                         {
                             il.WriteLine($"callvirt instance {(ftb.Return is null ? "void" : $"!{ftb.Arguments.Count}")} {GetFunctionTypeName(ftb)}::Invoke({Lists.Range(0, ftb.Arguments.Count).Map(x => $"!{x}").Join(", ")})");
+                            have_return = ftb.Return is { };
                         }
                         else if (f.Function is EmbeddedFunction ef)
                         {
                             il.WriteLine(ef.OpCode(args));
+                            have_return = ef.Return is { };
+                        }
+
+                        if (have_return && call.Return is ImplicitReturnValue &&
+                            ns.Cast<AnonymousFunctionBody>().Return is null)
+                        {
+                            il.WriteLine("pop");
                         }
                     }
                     break;
