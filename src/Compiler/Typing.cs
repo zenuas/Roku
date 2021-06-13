@@ -509,8 +509,11 @@ namespace Roku.Compiler
                     var g = Lookup.TypeMapperToGenericsMapper(x.TypeMapper);
                     var mapper = Lookup.GetTypemapperOrNull(sp.SpecializationMapper, g);
                     return mapper is { };
+
+                case FunctionMapper _:
+                    return true;
             }
-            return true;
+            return false;
         }
     }
 }
