@@ -5,8 +5,8 @@ sub g1(x: {=> Int}) Int
 	print(x())
 	print("g1")
 
-sub g2(x: {}) Int
-	x()
+sub g2(y: {}) Int
+	y()
 	print("g2")
 
 
