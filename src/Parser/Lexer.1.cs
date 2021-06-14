@@ -17,6 +17,7 @@ namespace Roku.Parser
             {
                 { "var", Symbols.LET },
                 { "struct", Symbols.STRUCT },
+                { "class", Symbols.CLASS },
                 { "sub", Symbols.SUB },
                 { "if", Symbols.IF },
                 { "then", Symbols.THEN },

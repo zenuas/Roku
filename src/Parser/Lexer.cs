@@ -31,6 +31,7 @@ namespace Roku.Parser
             table["AND2"] = Symbols.AND2;
             table["ARROW"] = Symbols.ARROW;
             table["BEGIN"] = Symbols.BEGIN;
+            table["CLASS"] = Symbols.CLASS;
             table["ELSE"] = Symbols.ELSE;
             table["END"] = Symbols.END;
             table["EOL"] = Symbols.EOL;

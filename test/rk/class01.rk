@@ -1,0 +1,5 @@
+
+class Hoge<a>
+	sub foo(a)
+
+print(1)

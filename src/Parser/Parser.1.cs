@@ -28,6 +28,14 @@ namespace Roku.Parser
 
         public static TupleNode CreateTupleNode(ListNode<IEvaluableNode> v) => new TupleNode().Return(x => x.Values.AddRange(v.List));
 
+        public static ClassNode CreateClassNode(VariableNode v, ListNode<ITypeNode> gen, ListNode<FunctionNode> condn)
+        {
+            var class_ = new ClassNode() { Name = v }.R(v);
+            class_.Generics.AddRange(gen.List);
+            class_.Functions.AddRange(condn.List);
+            return class_;
+        }
+
         public static FunctionNode CreateFunctionNode(
                 FunctionNode fn,
                 VariableNode name,
@@ -40,6 +48,26 @@ namespace Roku.Parser
             fn.Arguments.AddRange(args.List);
             fn.Return = ret;
             return fn.R(name);
+        }
+
+        public static FunctionNode CreateFunctionNode(
+                VariableNode name,
+                ListNode<DeclareNode> args,
+                ITypeNode? ret,
+                INode where
+            )
+        {
+            return CreateFunctionNode(new FunctionNode().R(name), name, args, ret, where);
+        }
+
+        public static FunctionNode CreateFunctionNode(
+                VariableNode name,
+                ListNode<ITypeNode> args,
+                ITypeNode? ret,
+                INode where
+            )
+        {
+            return CreateFunctionNode(name, new ListNode<DeclareNode>().Return(x => x.List.AddRange(args.List.Map((y, i) => new DeclareNode(CreateVariableNode($"arg{i}"), y)))), ret, where);
         }
 
         public static LambdaExpressionNode CreateLambdaFunction(LambdaExpressionNode lambda, ListNode<IDeclareNode> args, ITypeNode? ret, bool isimplicit)

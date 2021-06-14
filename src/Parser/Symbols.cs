@@ -40,6 +40,9 @@ namespace Roku.Parser
         /// <summary>BEGIN</summary>
         BEGIN,
 
+        /// <summary>CLASS</summary>
+        CLASS,
+
         /// <summary>ELSE</summary>
         ELSE,
 
@@ -132,6 +135,18 @@ namespace Roku.Parser
 
         /// <summary>call</summary>
         call,
+
+        /// <summary>class</summary>
+        @class,
+
+        /// <summary>class_block</summary>
+        class_block,
+
+        /// <summary>cond</summary>
+        cond,
+
+        /// <summary>condn</summary>
+        condn,
 
         /// <summary>decla</summary>
         decla,

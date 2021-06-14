@@ -11,7 +11,8 @@ using Roku.Node;
 %type<IScopeNode>               block stmt
 %type<IStatementNode>           line
 %type<LetNode>                  let
-%type<FunctionNode>             sub sub_block
+%type<FunctionNode>             sub sub_block cond
+%type<ListNode<FunctionNode>>   condn class_block
 %type<LambdaExpressionNode>     lambda_func
 %type<IEvaluableNode>           expr num
 %type<DeclareNode>              decla
@@ -57,6 +58,7 @@ stmt : void      {$$ = Scopes.Peek();}
 
 line : call EOL
      | let  EOL
+     | class     {}
      | struct    {Scopes.Peek().Structs.Add($1);}
      | sub       {Scopes.Peek().Functions.Add($1);}
      | if
@@ -110,6 +112,16 @@ define : void
 gen    : var                           {$$ = new TypeNode { Name = $1.Name }.R($1);}
 genn   : gen                           {$$ = CreateListNode($1);}
        | genn ',' gen                  {$$ = $1.Return(x => x.List.Add($3));}
+
+########## class ##########
+class : CLASS var LT genn GT EOL class_block {$$ = CreateClassNode($2, $4, $7);}
+
+class_block : BEGIN condn END {$$ = $2;}
+
+cond  : SUB fn where '(' args        ')' typex EOL {$$ = CreateFunctionNode($2, $5, $7, $3);}
+      | SUB fn where '(' typen extra ')' typex EOL {$$ = CreateFunctionNode($2, $5, $8, $3);}
+condn : cond                                       {$$ = CreateListNode($1);}
+      | condn cond                                 {$$ = $1.Return(x => x.List.Add($2));}
 
 ########## sub ##########
 sub    : SUB fn where '(' args ')' typex EOL sub_block {$$ = CreateFunctionNode($9, $2, $5, $7, $3);}
