@@ -16,6 +16,7 @@ namespace Roku.Compiler
             src.Uses.Add(root);
             TypeDefinition(src, pgm);
             FunctionDefinition(src, pgm);
+            ClassDefinition(src, pgm);
             return src;
         }
 
@@ -489,6 +490,17 @@ namespace Roku.Compiler
             var body = new AnonymousFunctionBody(ns, $"anonymous#{root.AnonymousFunctionUniqueCount++}");
             root.Structs.Add(body);
             root.Functions.Add(body);
+            return body;
+        }
+
+        public static void ClassDefinition(SourceCodeBody src, ProgramNode pgm)
+        {
+            pgm.Classes.Each(x => src.Classes.Add(ClassBodyDefinition(src, x)));
+        }
+
+        public static ClassBody ClassBodyDefinition(SourceCodeBody src, ClassNode cn)
+        {
+            var body = new ClassBody(src, cn.Name.Name);
             return body;
         }
     }

@@ -6,5 +6,6 @@ namespace Roku.Manager
     {
         public List<IFunctionName> Functions { get; }
         public List<IStructBody> Structs { get; }
+        public List<ClassBody> Classes { get; }
     }
 }

@@ -13,6 +13,7 @@ namespace Roku.Manager
         public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
         public List<IFunctionName> Functions { get; } = new List<IFunctionName>();
         public List<IStructBody> Structs { get; } = new List<IStructBody>();
+        public List<ClassBody> Classes { get; } = new List<ClassBody>();
 
         public ExternStruct(TypeInfo ti, Assembly asm)
         {
