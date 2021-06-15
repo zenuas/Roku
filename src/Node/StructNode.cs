@@ -11,5 +11,6 @@ namespace Roku.Node
         public List<IStatementNode> Statements { get; } = new List<IStatementNode>();
         public List<FunctionNode> Functions => throw new System.NotImplementedException();
         public List<StructNode> Structs => throw new System.NotImplementedException();
+        public List<ClassNode> Classes => throw new System.NotImplementedException();
     }
 }

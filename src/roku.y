@@ -26,6 +26,7 @@ using Roku.Node;
 %type<ITypeNode?>               typex
 %type<IIfNode>                  if ifthen elseif
 %type<StructNode>               struct struct_block
+%type<ClassNode>                class
 %type<VariableNode>             var varx fvar fn
 %type<StringNode>               str
 
@@ -58,7 +59,7 @@ stmt : void      {$$ = Scopes.Peek();}
 
 line : call EOL
      | let  EOL
-     | class     {}
+     | class     {Scopes.Peek().Classes.Add($1);}
      | struct    {Scopes.Peek().Structs.Add($1);}
      | sub       {Scopes.Peek().Functions.Add($1);}
      | if

@@ -371,7 +371,7 @@ namespace Roku.Parser
 
                 case -9:
                     TraceAction("line : class");
-                    
+                    Scopes.Peek().Classes.Add(((ClassNode)GetValue(-1)));
                     yy_token = DoAction(Symbols.line, 1, yy_value);
                     break;
 
