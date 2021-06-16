@@ -127,23 +127,7 @@ namespace Roku.Compiler
                 FunctionBodyDefinition(body, scope.Statements);
             }
 
-            scope.Functions.Each(f =>
-            {
-                var body = MakeFunction(ns, f.Name.Name);
-                var types = new Dictionary<string, TypeGenericsParameter>();
-                ITypeDefinition create_type(ITypeNode s) => types.ContainsKey(s.Name) ? types[s.Name] : CreateType(body, s).Return(x => { if (x is TypeGenericsParameter g) body.Generics.Add(types[g.Name] = g); });
-
-                f.Arguments.Each(x =>
-                {
-                    var name = new VariableValue(x.Name.Name);
-                    body.Arguments.Add((name, create_type(x.Type)));
-                    body.LexicalScope.Add(x.Name.Name, name);
-                });
-                if (f.Return is { }) body.Return = create_type(f.Return);
-
-                if (body.Generics.Count == 0) body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
-                FunctionBodyDefinition(body, f.Statements);
-            });
+            scope.Functions.Each(f => FunctionBodyDefinition(MakeFunctionDefinition(ns, f), f.Statements));
         }
 
         public static ITypeDefinition CreateType(ILexicalScope scope, ITypeNode t)
@@ -484,6 +468,24 @@ namespace Roku.Compiler
             return body;
         }
 
+        public static FunctionBody MakeFunctionDefinition(INamespaceBody ns, FunctionNode f)
+        {
+            var body = MakeFunction(ns, f.Name.Name);
+            var types = new Dictionary<string, TypeGenericsParameter>();
+            ITypeDefinition create_type(ITypeNode s) => types.ContainsKey(s.Name) ? types[s.Name] : CreateType(body, s).Return(x => { if (x is TypeGenericsParameter g) body.Generics.Add(types[g.Name] = g); });
+
+            f.Arguments.Each(x =>
+            {
+                var name = new VariableValue(x.Name.Name);
+                body.Arguments.Add((name, create_type(x.Type)));
+                body.LexicalScope.Add(x.Name.Name, name);
+            });
+            if (f.Return is { }) body.Return = create_type(f.Return);
+
+            if (body.Generics.Count == 0) body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+            return body;
+        }
+
         public static AnonymousFunctionBody MakeAnonymousFunction(INamespace ns)
         {
             var root = Lookup.GetRootNamespace(ns);
@@ -501,6 +503,8 @@ namespace Roku.Compiler
         public static ClassBody ClassBodyDefinition(SourceCodeBody src, ClassNode cn)
         {
             var body = new ClassBody(src, cn.Name.Name);
+            cn.Generics.Each(x => body.Generics.Add(new TypeGenericsParameter(x.Name)));
+            cn.Functions.Each(x => MakeFunctionDefinition(body, x));
             return body;
         }
     }
