@@ -1,0 +1,15 @@
+
+sub foo<Foo<Bar<a>>>(n: a)
+	print(1)
+
+###
+型クラス制約内にはジェネリックタイプしか書けない
+一つのジェネリックタイプに複数の制約を課す場合は
+次のように記述する
+
+sub foo<Foo<a>, Bar<a>>(n: a)
+###
+
+###error
+syntax error
+###end
