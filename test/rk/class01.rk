@@ -1,12 +1,33 @@
 
-class Hoge<a>
-	sub foo(a)
+class Hoge<a, b>
+	sub foo(a) b
 
-sub foo(p: Int)
+sub foo(p: Int) String
 	print(p)
+	return("hello")
 
-sub bar<Hoge<t>>(x: t)
-	foo(x)
+sub foo(p: String) Int
+	print(p)
+	return(2)
+
+sub bar<Hoge<t1, t2>>(x: t1) t2
+	var y = foo(x)
+	return(y)
 
 #=>1
-bar(1)
+#=>hello
+var m = bar(1)
+print(m)
+
+#=>world
+#=>2
+var n = bar("world")
+print(n)
+
+###
+通常、戻り値が独立したジェネリックタイプになっていると型解決できない
+そこで型クラス制約で型解決を行う
+###
+
+###start
+###end
