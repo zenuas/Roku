@@ -41,12 +41,13 @@ namespace Roku.Parser
                 VariableNode name,
                 ListNode<DeclareNode> args,
                 ITypeNode? ret,
-                INode where
+                ListNode<SpecializationNode> where
             )
         {
             fn.Name = name;
             fn.Arguments.AddRange(args.List);
             fn.Return = ret;
+            fn.Constraints.AddRange(where.List);
             return fn.R(name);
         }
 
@@ -54,7 +55,7 @@ namespace Roku.Parser
                 VariableNode name,
                 ListNode<DeclareNode> args,
                 ITypeNode? ret,
-                INode where
+                ListNode<SpecializationNode> where
             )
         {
             return CreateFunctionNode(new FunctionNode().R(name), name, args, ret, where);
@@ -64,7 +65,7 @@ namespace Roku.Parser
                 VariableNode name,
                 ListNode<ITypeNode> args,
                 ITypeNode? ret,
-                INode where
+                ListNode<SpecializationNode> where
             )
         {
             return CreateFunctionNode(name, new ListNode<DeclareNode>().Return(x => x.List.AddRange(args.List.Map((y, i) => new DeclareNode(CreateVariableNode($"arg{i}"), y)))), ret, where);
