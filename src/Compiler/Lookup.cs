@@ -138,7 +138,7 @@ namespace Roku.Compiler
             }
             else
             {
-                var gens = ApplyArgumentsToGenericsParameter(source, args);
+                var gens = ApplyArgumentsToGenericsParameter(ns, source, args);
                 var fargs = GetArgumentsType(ns, source, gens);
                 return (fargs.Count == args.Count && fargs.Zip(args).And(x => TypeEquals(x.First, x.Second)), gens);
             }
@@ -194,13 +194,32 @@ namespace Roku.Compiler
             throw new Exception();
         }
 
-        public static IEnumerable<TypeGenericsParameter> ExtractArgumentsTypeToGenericsParameter(IEnumerable<ITypeDefinition> types) => types.By<TypeGenericsParameter>().Unique();
+        public static IEnumerable<IEvaluable> FunctionToArgumentsName(IFunctionName body)
+        {
+            if (body is FunctionBody fb)
+            {
+                return fb.Arguments.Map(x => x.Name);
+            }
+            else if (body is EmbeddedFunction ef)
+            {
+                return ef.Arguments;
+            }
+            else if (body is ExternFunction xf)
+            {
+                throw new Exception();
+            }
+            else if (body is FunctionTypeBody)
+            {
+                throw new Exception();
+            }
+            throw new Exception();
+        }
 
-        public static GenericsMapper ApplyArgumentsToGenericsParameter(IFunctionName body, List<IStructBody?> args)
+        public static GenericsMapper ApplyArgumentsToGenericsParameter(INamespace ns, IFunctionName body, List<IStructBody?> args)
         {
             var param = FunctionToArgumentsType(body).ToList();
             var gens = new GenericsMapper();
-            ExtractArgumentsTypeToGenericsParameter(param).Each(x => gens[x] = null);
+            if (body is ISpecialization sp) sp.Generics.Each(x => gens[x] = null);
 
             Action<ITypeDefinition, IStructBody?> match = (p, arg) =>
             {
@@ -208,7 +227,81 @@ namespace Roku.Compiler
             };
             param.Each((x, i) => match(x, args.Count > i ? args[i] : null));
 
+            if (body is IConstraints constr)
+            {
+                while (gens.Or(x => x.Value is null))
+                {
+                    constr.Constraints.Each(x =>
+                    {
+                        if (FindClassOrNull(ns, x.Class.Name, x.Generics) is { } class_body)
+                        {
+                            var class_gens = new GenericsMapper();
+                            class_body.Generics.Each((g, i) => class_gens[g] = gens[x.Generics[i]]);
+                            if (ApplyClassToGenericsParameter(ns, class_body, class_gens))
+                            {
+                                class_body.Generics.Each((g, i) => gens[x.Generics[i]] = class_gens[g]);
+                            }
+                        }
+                    });
+                }
+            }
+
             return gens;
+        }
+
+        public static ClassBody? FindClassOrNull(INamespace ns, string name, List<TypeGenericsParameter> gens)
+        {
+            if (ns is INamespaceBody nsb)
+            {
+                if (nsb.Classes.FindFirstOrNull(x => x.Name == name && x.Generics.Count == gens.Count) is { } c) return c;
+            }
+            return null;
+        }
+
+        public static bool ApplyClassToGenericsParameter(INamespace ns, ClassBody class_body, GenericsMapper g)
+        {
+            Func<IStructBody?, IStructBody?, bool> feedback = (left, right) =>
+            {
+                if (right is null) return false;
+
+                if (left is null) return true;
+                if (left is NumericStruct num && num.Types.Contains(right)) return true;
+
+                return false;
+            };
+
+            var resolved = false;
+            class_body.Functions.By<FunctionBody>().Each(f =>
+            {
+                var args = f.Arguments.Map(x => g.ContainsKey(x.Type) ? g[x.Type] : LoadStruct(ns, x.Name.Name)).ToList();
+                var caller = FindFunctionOrNull(ns, f.Name, args);
+                if (caller is { })
+                {
+                    var fm = Typing.CreateFunctionMapper(ns, caller);
+                    var fargs = FunctionToArgumentsName(caller.Body).ToList();
+                    f.Arguments.Each((x, i) =>
+                    {
+                        if (g.ContainsKey(x.Type))
+                        {
+                            if (feedback(g[x.Type], fm.TypeMapper[fargs[i]].Struct))
+                            {
+                                g[x.Type] = fm.TypeMapper[fargs[i]].Struct;
+                                resolved = true;
+                            }
+                        }
+                    });
+                    if (f.Return is { } && g.ContainsKey(f.Return) && caller.Body is IFunctionReturn r && r.Return is { } ret)
+                    {
+                        if (feedback(g[f.Return], fm.TypeMapper[ret].Struct))
+                        {
+                            g[f.Return] = fm.TypeMapper[ret].Struct;
+                            resolved = true;
+                        }
+                    }
+                    resolved = true;
+                }
+            });
+            return resolved;
         }
 
         public static bool TypeEquals(IStructBody? source, IStructBody? arg)

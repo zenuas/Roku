@@ -486,6 +486,8 @@ namespace Roku.Compiler
             });
             if (f.Return is { }) body.Return = create_type(f.Return);
 
+            f.Constraints.Each(x => body.Constraints.Add((new VariableValue(x.Name), x.Generics.Map(g => create_type(g).Cast<TypeGenericsParameter>()).ToList())));
+
             if (body.Generics.Count == 0) body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
             return body;
         }

@@ -234,14 +234,11 @@ namespace Roku.Compiler
                         var caller = FindCurrentFunction(lookupns, m, x, args);
                         if (caller is null) break;
 
-                        var fm = new FunctionMapper(caller.Body);
-                        caller.GenericsMapper.Each(p => fm.TypeMapper[p.Key] = CreateVariableDetail(p.Key.Name, p.Value, VariableType.TypeParameter));
+                        var fm = CreateFunctionMapper(ns, caller);
                         IStructBody? ret = null;
                         if (caller.Body is FunctionBody fb)
                         {
-                            if (fb.Return is { } && !fm.TypeMapper.ContainsKey(fb.Return)) fm.TypeMapper[fb.Return] = CreateVariableDetail("", Lookup.GetStructType(fb.Namespace, fb.Return, caller.GenericsMapper), VariableType.Type);
                             if (fb.Return is { }) ret = fm.TypeMapper[fb.Return].Struct;
-                            fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = CreateVariableDetail(x.Name.Name, Lookup.GetStructType(fb.Namespace, x.Type, caller.GenericsMapper), VariableType.Argument, i));
                             fb.Arguments.Each((x, i) => Feedback(args[i], fm.TypeMapper[x.Name].Struct));
                         }
                         else if (caller.Body is FunctionTypeBody ftb)
@@ -254,9 +251,7 @@ namespace Roku.Compiler
                         }
                         else if (caller.Body is EmbeddedFunction ef)
                         {
-                            if (ef.Return is { } && !fm.TypeMapper.ContainsKey(ef.Return)) fm.TypeMapper[ef.Return] = CreateVariableDetail("", Lookup.LoadStruct(ns, ef.Return.Name), VariableType.Type);
                             if (ef.Return is { }) ret = fm.TypeMapper[ef.Return].Struct;
-                            ef.Arguments.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail($"${i}", Lookup.LoadStruct(ns, x.Name), VariableType.Argument, i));
                         }
                         m[x] = CreateVariableDetail("", fm, m.ContainsKey(x) ? m[x].Type : VariableType.FunctionMapper);
                         if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, ret);
@@ -282,6 +277,24 @@ namespace Roku.Compiler
 
             }
             return call.Return is { } ? LocalValueInferenceWithEffect(ns, m, call.Return!) || resolve : resolve;
+        }
+
+        public static FunctionMapper CreateFunctionMapper(INamespace ns, FunctionSpecialization caller)
+        {
+            var fm = new FunctionMapper(caller.Body);
+            caller.GenericsMapper.Each(p => fm.TypeMapper[p.Key] = Typing.CreateVariableDetail(p.Key.Name, p.Value, VariableType.TypeParameter));
+
+            if (caller.Body is FunctionBody fb)
+            {
+                if (fb.Return is { } && !fm.TypeMapper.ContainsKey(fb.Return)) fm.TypeMapper[fb.Return] = Typing.CreateVariableDetail("", Lookup.GetStructType(fb.Namespace, fb.Return, caller.GenericsMapper), VariableType.Type);
+                fb.Arguments.Each((x, i) => fm.TypeMapper[x.Name] = Typing.CreateVariableDetail(x.Name.Name, Lookup.GetStructType(fb.Namespace, x.Type, caller.GenericsMapper), VariableType.Argument, i));
+            }
+            else if (caller.Body is EmbeddedFunction ef)
+            {
+                if (ef.Return is { } && !fm.TypeMapper.ContainsKey(ef.Return)) fm.TypeMapper[ef.Return] = Typing.CreateVariableDetail("", Lookup.LoadStruct(ns, ef.Return.Name), VariableType.Type);
+                ef.Arguments.Each((x, i) => fm.TypeMapper[x] = Typing.CreateVariableDetail($"${i}", Lookup.LoadStruct(ns, x.Name), VariableType.Argument, i));
+            }
+            return fm;
         }
 
         public static INamespace GetStructNamespace(INamespace ns, IStructBody body)

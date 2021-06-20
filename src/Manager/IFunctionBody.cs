@@ -4,9 +4,8 @@ using System.Collections.Generic;
 
 namespace Roku.Manager
 {
-    public interface IFunctionBody : IFunctionName, INamespace, ISpecialization
+    public interface IFunctionBody : IFunctionName, IFunctionReturn, INamespace, ISpecialization
     {
-        public ITypeDefinition? Return { get; set; }
         public List<(VariableValue Name, ITypeDefinition Type)> Arguments { get; }
         public List<IOperand> Body { get; }
         public INamespace Namespace { get; }

@@ -30,4 +30,83 @@ print(n)
 ###
 
 ###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly class01 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] string m,
+        [1] int32 n
+    )
+    
+    ldc.i4.1
+    call string bar(int32)
+    stloc.0
+    
+    ldloc.0
+    call void class [System.Console]System.Console::WriteLine(string)
+    
+    ldstr "world"
+    call int32 bar(string)
+    stloc.1
+    
+    ldloc.1
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+.method public static string bar(int32)
+{
+    .maxstack 8
+    .locals(
+        [0] string y
+    )
+    
+    ldarg.0
+    call string foo(int32)
+    stloc.0
+    
+    ldloc.0
+    ret
+    ret
+}
+.method public static int32 bar(string)
+{
+    .maxstack 8
+    .locals(
+        [0] int32 y
+    )
+    
+    ldarg.0
+    call int32 foo(string)
+    stloc.0
+    
+    ldloc.0
+    ret
+    ret
+}
+.method public static string foo(int32)
+{
+    .maxstack 8
+    
+    ldarg.0
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldstr "hello"
+    ret
+    ret
+}
+.method public static int32 foo(string)
+{
+    .maxstack 8
+    
+    ldarg.0
+    call void class [System.Console]System.Console::WriteLine(string)
+    
+    ldc.i4.2
+    ret
+    ret
+}
 ###end

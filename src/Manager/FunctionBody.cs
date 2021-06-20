@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Roku.Manager
 {
-    public class FunctionBody : IFunctionBody, ILexicalScope
+    public class FunctionBody : IFunctionBody, ILexicalScope, IConstraints
     {
         public string Name { get; }
         public ITypeDefinition? Return { get; set; } = null;
@@ -17,6 +17,7 @@ namespace Roku.Manager
         public int MaxTemporaryValue { get; set; } = 0;
         public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
         public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
+        public List<(VariableValue Class, List<TypeGenericsParameter> Generics)> Constraints { get; } = new List<(VariableValue, List<TypeGenericsParameter>)>();
 
         public FunctionBody(INamespace ns, string name)
         {
