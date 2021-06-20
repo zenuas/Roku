@@ -127,7 +127,7 @@ namespace Roku.Compiler
                 FunctionBodyDefinition(body, scope.Statements);
             }
 
-            scope.Functions.Each(f => FunctionBodyDefinition(MakeFunctionDefinition(ns, f), f.Statements));
+            scope.Functions.Each(f => FunctionBodyDefinition(MakeFunctionDefinition(ns, null, f), f.Statements));
         }
 
         public static ITypeDefinition CreateType(ILexicalScope scope, ITypeNode t)
@@ -468,11 +468,15 @@ namespace Roku.Compiler
             return body;
         }
 
-        public static FunctionBody MakeFunctionDefinition(INamespaceBody ns, FunctionNode f)
+        public static FunctionBody MakeFunctionDefinition(INamespaceBody ns, List<TypeGenericsParameter>? gens, FunctionNode f)
         {
             var body = MakeFunction(ns, f.Name.Name);
             var types = new Dictionary<string, TypeGenericsParameter>();
-            ITypeDefinition create_type(ITypeNode s) => types.ContainsKey(s.Name) ? types[s.Name] : CreateType(body, s).Return(x => { if (x is TypeGenericsParameter g) body.Generics.Add(types[g.Name] = g); });
+
+            ITypeDefinition create_type(ITypeNode s) =>
+                types.ContainsKey(s.Name) ? types[s.Name]
+                : gens?.FindFirst(x => x.Name == s.Name) is { } p ? types[s.Name] = p.Return(x => body.Generics.Add(x))
+                : CreateType(body, s).Return(x => { if (x is TypeGenericsParameter g) body.Generics.Add(types[g.Name] = g); });
 
             f.Arguments.Each(x =>
             {
@@ -504,7 +508,7 @@ namespace Roku.Compiler
         {
             var body = new ClassBody(src, cn.Name.Name);
             cn.Generics.Each(x => body.Generics.Add(new TypeGenericsParameter(x.Name)));
-            cn.Functions.Each(x => MakeFunctionDefinition(body, x));
+            cn.Functions.Each(x => MakeFunctionDefinition(body, body.Generics, x));
             return body;
         }
     }
