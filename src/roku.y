@@ -8,27 +8,29 @@ using Roku.Node;
 %define YYNAMESPACE Roku.Parser
 %define YYTOKEN     Token
 
-%type<IScopeNode>               block stmt
-%type<IStatementNode>           line
-%type<LetNode>                  let
-%type<FunctionNode>             sub sub_block cond
-%type<ListNode<FunctionNode>>   condn class_block
-%type<LambdaExpressionNode>     lambda_func
-%type<IEvaluableNode>           expr num
-%type<DeclareNode>              decla
-%type<IDeclareNode>             lambda_arg
-%type<ListNode<DeclareNode>>    args argn
-%type<ListNode<IDeclareNode>>   lambda_args lambda_argn
-%type<ListNode<IEvaluableNode>> list listn list2n
-%type<ITypeNode>                type gen
-%type<ListNode<ITypeNode>>      types typen type2n genn typeor
-%type<TypeNode>                 nsvar typev
-%type<ITypeNode?>               typex
-%type<IIfNode>                  if ifthen elseif
-%type<StructNode>               struct struct_block
-%type<ClassNode>                class
-%type<VariableNode>             var varx fvar fn
-%type<StringNode>               str
+%type<IScopeNode>                   block stmt
+%type<IStatementNode>               line
+%type<LetNode>                      let
+%type<FunctionNode>                 sub sub_block cond
+%type<ListNode<FunctionNode>>       condn class_block
+%type<LambdaExpressionNode>         lambda_func
+%type<IEvaluableNode>               expr num
+%type<DeclareNode>                  decla
+%type<IDeclareNode>                 lambda_arg
+%type<ListNode<DeclareNode>>        args argn
+%type<ListNode<IDeclareNode>>       lambda_args lambda_argn
+%type<ListNode<IEvaluableNode>>     list listn list2n
+%type<ITypeNode>                    type gen
+%type<SpecializationNode>           spec
+%type<ListNode<SpecializationNode>> where wheren
+%type<ListNode<ITypeNode>>          types typen type2n genn typeor
+%type<TypeNode>                     nsvar typev
+%type<ITypeNode?>                   typex
+%type<IIfNode>                      if ifthen elseif
+%type<StructNode>                   struct struct_block
+%type<ClassNode>                    class
+%type<VariableNode>                 var varx fvar fn
+%type<StringNode>                   str
 
 %left  VAR STR NULL TRUE FALSE IF LET SUB IGNORE ARROW
 %token<NumericNode> NUM
@@ -81,8 +83,8 @@ expr : var
      | expr nope expr                             {$$ = CreateFunctionCallNode($2, $1, $3);}
      | expr LT expr                               {$$ = CreateFunctionCallNode($2, $1, $3);}
      | expr GT expr                               {$$ = CreateFunctionCallNode($2, $1, $3);}
-     | expr LT expr GT           %prec TYPE_PARAM {$$ = ExpressionToType($1, $3);}
-     | expr LT expr ',' typen GT %prec TYPE_PARAM {$$ = ExpressionToType($1, $3, $5.List.ToArray());}
+     | expr LT expr GT           %prec TYPE_PARAM {$$ = CreateSpecialization($1, $3);}
+     | expr LT expr ',' typen GT %prec TYPE_PARAM {$$ = CreateSpecialization($1, $3, $5.List.ToArray());}
      | expr '[' expr ']'                          {$$ = CreateFunctionCallNode(CreatePropertyNode($1, CreateVariableNode("[]")), $3);}
 
 call : expr '(' list ')' {$$ = CreateFunctionCallNode($1, $3.List.ToArray());}
@@ -131,7 +133,10 @@ sub_block : sub_begin stmt END {$$ = Scopes.Pop();}
 sub_begin : BEGIN              {Scopes.Push(new FunctionNode { LineNumber = $1.LineNumber });}
 
 fn     : var
-where  : void
+where  : void                    {$$ = CreateListNode<SpecializationNode>();}
+       | LT wheren GT            {$$ = $2;}
+wheren : spec                    {$$ = CreateListNode($1);}
+       | wheren spec             {$$ = $1.Return(x => x.List.Add($2));}
 args   : void                    {$$ = CreateListNode<DeclareNode>();}
        | argn extra
 argn   : decla                   {$$ = CreateListNode($1);}
@@ -144,9 +149,10 @@ type   : typev
        | '{' types  '}'          {$$ = CreateTypeFunctionNode($2);}
        | '{' types ARROW type'}' {$$ = CreateTypeFunctionNode($2, $4);}
 typev  : nsvar
-       | nsvar LT typen extra GT {$$ = ExpressionToType($1, $3);}
+       | spec
        | STRUCT var '(' args ')' {$$ = CreateTypeStructNode($2, $4);}
 nsvar  : varx                    {$$ = new TypeNode { Name = $1.Name }.R($1);}
+spec   : nsvar LT typen extra GT {$$ = CreateSpecialization($1, $3);}
 typex  : void
        | type
 types  : void                    {$$ = CreateListNode<ITypeNode>();}

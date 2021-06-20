@@ -235,6 +235,9 @@ namespace Roku.Parser
         /// <summary>program_begin</summary>
         program_begin,
 
+        /// <summary>spec</summary>
+        spec,
+
         /// <summary>start</summary>
         start,
 
@@ -294,6 +297,9 @@ namespace Roku.Parser
 
         /// <summary>where</summary>
         where,
+
+        /// <summary>wheren</summary>
+        wheren,
 
         /// <summary>$ACCEPT</summary>
         _ACCEPT,

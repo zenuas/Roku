@@ -2,4 +2,11 @@
 class Hoge<a>
 	sub foo(a)
 
-print(1)
+sub foo(p: Int)
+	print(p)
+
+sub bar<Hoge<t>>(x: t)
+	foo(x)
+
+#=>1
+bar(1)

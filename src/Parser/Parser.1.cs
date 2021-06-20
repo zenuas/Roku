@@ -104,7 +104,7 @@ namespace Roku.Parser
             };
         }
 
-        public static SpecializationNode ExpressionToType(IEvaluableNode expr, IEvaluableNode t1, params ITypeNode[] ts)
+        public static SpecializationNode CreateSpecialization(IEvaluableNode expr, IEvaluableNode t1, params ITypeNode[] ts)
         {
             var g = new SpecializationNode(expr);
             g.Generics.Add(ExpressionToType(t1));
@@ -112,7 +112,7 @@ namespace Roku.Parser
             return g;
         }
 
-        public static SpecializationNode ExpressionToType(IEvaluableNode expr, ListNode<ITypeNode> ts)
+        public static SpecializationNode CreateSpecialization(IEvaluableNode expr, ListNode<ITypeNode> ts)
         {
             var g = new SpecializationNode(expr);
             g.Generics.AddRange(ts.List);

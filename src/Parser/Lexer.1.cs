@@ -58,11 +58,28 @@ namespace Roku.Parser
 
         READ_FIRST_:
             var first = Store.First();
-            if (Parser is { } && first.Type == Symbols.EOL && !Parser.IsAccept(first))
+            if (Parser is { })
             {
-                Store.Clear();
-                Store.AddRange(ReadLineTokens(BaseReader, Parser?.TokenStack.LastOrNull()));
-                goto READ_FIRST_;
+                if (first.Type == Symbols.EOL && !Parser.IsAccept(first))
+                {
+                    Store.Clear();
+                    Store.AddRange(ReadLineTokens(BaseReader, Parser?.TokenStack.LastOrNull()));
+                    goto READ_FIRST_;
+                }
+                else if (first.Type == Symbols.OPE &&
+                    first.Name.And(x => x == '>') &&
+                    Parser.IsAccept(new Token() { Type = Symbols.GT }))
+                {
+                    if (first.Name.Length > 1)
+                    {
+                        first.Name = first.Name[1..];
+                    }
+                    else
+                    {
+                        Store.RemoveAt(0);
+                    }
+                    Store.Insert(0, first = new Token() { Type = Symbols.GT });
+                }
             }
             return first;
         }
