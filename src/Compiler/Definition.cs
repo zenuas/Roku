@@ -138,7 +138,11 @@ namespace Roku.Compiler
                     return new TypeEnum(en.Types.Map(x => CreateType(scope, x)));
 
                 case TypeNode tn:
-                    return char.IsLower(tn.Name.First()) ? new TypeGenericsParameter(tn.Name).Cast<ITypeDefinition>() : new TypeValue(tn.Name);
+                    if (!char.IsLower(tn.Name.First())) return new TypeValue(tn.Name);
+                    if (scope.LexicalScope.ContainsKey(tn.Name)) return scope.LexicalScope[tn.Name].Cast<ITypeDefinition>();
+                    var gen = new TypeGenericsParameter(tn.Name);
+                    scope.LexicalScope[tn.Name] = gen;
+                    return gen;
 
                 case SpecializationNode sp:
                     return CreateTypeSpecialization(scope, sp);

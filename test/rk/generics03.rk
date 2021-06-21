@@ -1,0 +1,63 @@
+
+struct Foo<b>
+	var x: b
+
+sub f(y: a)
+	var p = Foo<a>()
+	p.x = y
+	print(p.x)
+
+#=>1
+f(1)
+
+###
+関数のジェネリックパラメータで構造体のジェネリック解決を行う
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly generics03 {}
+.class public 'Foo<int32>'
+{
+    .field public int32 x
+    
+    .method public void .ctor()
+    {
+        
+        ret
+    }
+}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    
+    ldc.i4.1
+    call void f(int32)
+    ret
+}
+.method public static void f(int32)
+{
+    .maxstack 8
+    .locals(
+        [0] class 'Foo<int32>' p,
+        [1] int32 $$1
+    )
+    
+    newobj instance void class 'Foo<int32>'::.ctor()
+    stloc.0
+    
+    ldloc.0
+    ldarg.0
+    stfld int32 class 'Foo<int32>'::x
+    
+    ldloc.0
+    ldfld int32 class 'Foo<int32>'::x
+    stloc.1
+    
+    ldloc.1
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+###end
