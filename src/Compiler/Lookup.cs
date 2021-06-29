@@ -227,7 +227,7 @@ namespace Roku.Compiler
             };
             param.Each((x, i) => match(x, args.Count > i ? args[i] : null));
 
-            if (body is IConstraints constr)
+            if (body is IConstraints constr && constr.Constraints.Count > 0)
             {
                 while (gens.Or(x => x.Value is null))
                 {
