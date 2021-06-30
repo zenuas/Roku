@@ -90,7 +90,8 @@ namespace Roku.Compiler
             var keys = body.SpecializationMapper.Keys.ToArray();
             for (var i = 0; i < keys.Length; i++)
             {
-                var m = body.SpecializationMapper[keys[i]];
+                var g = keys[i];
+                var m = body.SpecializationMapper[g];
                 body.Arguments.Each((x, i) => resolved = ArgumentInferenceWithEffect(body.Namespace, m, x.Name, x.Type, i) || resolved);
                 if (body.Return is { } x && !(x is TypeImplicit)) resolved = TypeInferenceWithEffect(body.Namespace, m, x, x) || resolved;
                 body.Body.Each(x => resolved = OperandTypeInference(body, m, x) || resolved);
@@ -102,6 +103,31 @@ namespace Roku.Compiler
                     {
                         m[v] = CreateVariableDetail("", m[imp].Struct, VariableType.Type);
                         resolved = true;
+                    }
+                }
+
+                if (body.Return is TypeGenericsParameter r)
+                {
+                    if (!(m.ContainsKey(r) && m[r].Struct is { } p && IsDecideType(p)))
+                    {
+                        var rets = m.Values
+                            .Where(x => x.Struct is FunctionMapper fm && fm.Function is EmbeddedFunction && fm.Name == "return")
+                            .Map(x => x.Struct!.Cast<FunctionMapper>().TypeMapper)
+                            .Where(x => x.ContainsKey(r))
+                            .Map(x => x[r].Struct)
+                            .Unique()
+                            .ToList();
+
+                        if (rets.Count == 1)
+                        {
+                            g[r] = rets[0];
+                            m[r] = CreateVariableDetail("", rets[0], VariableType.TypeParameter);
+                            resolved = true;
+                        }
+                        else if (rets.Count > 1)
+                        {
+
+                        }
                     }
                 }
             }
@@ -222,7 +248,7 @@ namespace Roku.Compiler
                         var r = ns.Cast<FunctionBody>().Return;
                         var ret = new EmbeddedFunction("return", null, r is { } ? new ITypeDefinition[] { r } : new ITypeDefinition[] { }) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                         var fm = new FunctionMapper(ret);
-                        if (r is TypeGenericsParameter gen) fm.TypeMapper[gen] = CreateVariableDetail("", m[gen].Struct, VariableType.TypeParameter);
+                        if (r is TypeGenericsParameter gen) fm.TypeMapper[gen] = CreateVariableDetail("", m[gen].Struct ?? (args.Count > 0 ? args[0] : null), VariableType.TypeParameter);
                         else if (r is TypeSpecialization gv && m.ContainsKey(r) && m[r].Struct is StructSpecialization sp && sp.Body is ISpecialization sp2) gv.Generics.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail("", sp.GenericsMapper[sp2.Generics[i]], VariableType.TypeParameter));
 
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);

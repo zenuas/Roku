@@ -246,6 +246,12 @@ namespace Roku.Compiler
                 }
             }
 
+            if (body is ISpecialization sp2 &&
+                Lookup.GetGenericsTypeMapperOrNull(sp2.SpecializationMapper, gens) is { } gm)
+            {
+                return gm.GenericsMapper;
+            }
+
             return gens;
         }
 
@@ -500,7 +506,7 @@ namespace Roku.Compiler
         {
             foreach (var kv in sp)
             {
-                if (kv.Key.Keys.And(x => g.ContainsKey(x) && kv.Key[x] == g[x])) return (kv.Key, kv.Value);
+                if (kv.Key.Keys.And(x => g.ContainsKey(x) && (kv.Key[x] == g[x] || g[x] is null))) return (kv.Key, kv.Value);
             }
             return null;
         }

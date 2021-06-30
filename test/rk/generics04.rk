@@ -1,0 +1,42 @@
+
+sub f() a
+	return("hello")
+
+
+#=>hello
+var x = f()
+print(x)
+
+###
+戻り値が制約なしのジェネリックタイプならreturnからの推論を行う
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly generics04 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] string x
+    )
+    
+    
+    call string f()
+    stloc.0
+    
+    ldloc.0
+    call void class [System.Console]System.Console::WriteLine(string)
+    ret
+}
+.method public static string f()
+{
+    .maxstack 8
+    
+    ldstr "hello"
+    ret
+    ret
+}
+###end
