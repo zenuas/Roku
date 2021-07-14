@@ -1,0 +1,9 @@
+
+sub version() string
+	return("0.0.0")
+
+###
+class List<a, b>
+	sub next<List<x, b>>(a) [b, x]
+	sub isnull(a) Bool
+###

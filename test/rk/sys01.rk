@@ -1,0 +1,38 @@
+
+#=>0.0.0
+var s = version()
+print(s)
+
+###
+sysモジュールの関数呼び出し
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly sys01 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] string s
+    )
+    
+    
+    call string version()
+    stloc.0
+    
+    ldloc.0
+    call void class [System.Console]System.Console::WriteLine(string)
+    ret
+}
+.method public static string version()
+{
+    .maxstack 8
+    
+    ldstr "0.0.0"
+    ret
+    ret
+}
+###end

@@ -18,11 +18,6 @@ namespace Roku.Compiler
 
         public static void Compile(TextReader input, string output, string[] asms)
         {
-            var lex = new Lexer(new SourceCodeReader(input));
-            var par = new Parser.Parser();
-            lex.Parser = par;
-            var pgm = par.Parse(lex).Cast<ProgramNode>();
-
             var root = new RootNamespace();
             root.Assemblies.AddRange(asms.Map(Assembly.Load));
             Lookup.LoadType(root, typeof(string)).Name = "String";
@@ -49,9 +44,21 @@ namespace Roku.Compiler
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(float) })!);
             _ = Lookup.LoadFunction(root, "+", typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) })!);
 
-            var src = Definition.LoadProgram(root, pgm);
+            var src = Definition.LoadProgram(root, Compile(input));
+            using (var sys = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("Roku.sys.rk")!))
+            {
+                src.Uses.Add(Definition.LoadProgram(root, Compile(sys)));
+            }
             Typing.TypeInference(root, src);
             CodeGenerator.Emit(root, src, output);
+        }
+
+        public static ProgramNode Compile(TextReader input)
+        {
+            var lex = new Lexer(new SourceCodeReader(input));
+            var par = new Parser.Parser();
+            lex.Parser = par;
+            return par.Parse(lex).Cast<ProgramNode>();
         }
 
         public static void DefineNumericFunction(RootNamespace root, string type, string zero = "ldc.i4.0")

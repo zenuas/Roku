@@ -9,6 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="sys.rk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="sys.rk" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Metrics" Version="3.3.0" />
   </ItemGroup>
 
