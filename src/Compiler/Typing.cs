@@ -231,7 +231,7 @@ namespace Roku.Compiler
                 if (m.ContainsKey(receiver) && m[receiver] is { } r)
                 {
                     if (r.Struct is { }) lookupns = GetStructNamespace(ns, r.Struct);
-                    if (r.Type == VariableType.LocalVariable && !call.Function.ReceiverToArgumentsInserted)
+                    if ((r.Type == VariableType.LocalVariable || r.Type == VariableType.Argument) && !call.Function.ReceiverToArgumentsInserted)
                     {
                         call.Function.Arguments.Insert(0, receiver);
                         call.Function.ReceiverToArgumentsInserted = true;
