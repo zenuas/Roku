@@ -108,6 +108,20 @@ namespace Roku.Compiler
                     return new FunctionSpecialization(new ExternFunction(name, m, asmx), g);
                 }
             }
+            if (ns is ExternStruct sx2)
+            {
+                foreach (var m in sx2.Struct.GetMethods().Where(x => MatchMethodName(x, name) && x.GetParameters().Length + (x.IsStatic ? 0 : 1) == args.Count))
+                {
+                    var g = new GenericsMapper();
+
+                    //ToDo: String patch
+                    var ti = m.DeclaringType!;
+                    var asmx = ti.Assembly;
+                    if (ti == typeof(string).GetTypeInfo()) asmx = Assembly.Load("System.Runtime");
+
+                    return new FunctionSpecialization(new ExternFunction(name, m, asmx), g);
+                }
+            }
             return null;
         }
 
