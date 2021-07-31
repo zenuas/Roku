@@ -1,0 +1,131 @@
+
+sub f(a: Int) [Int, Int, Int]
+	var b = a + 2
+	return((a, a + 1, b))
+
+var x = f(3)
+
+#=>3
+print(x.1)
+
+#=>4
+print(x.2)
+
+#=>5
+print(x.3)
+
+###
+タプルに引数や変数を使用する
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly tuple07 {}
+.class public 'Tuple#3<int32, int32, int32>'
+{
+    .field public int32 '1'
+    .field public int32 '2'
+    .field public int32 '3'
+    
+    .method public void .ctor()
+    {
+        
+        
+        
+        ret
+    }
+}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] class 'Tuple#3<int32, int32, int32>' x,
+        [1] int32 $$1,
+        [2] int32 $$2,
+        [3] int32 $$3
+    )
+    
+    ldc.i4.3
+    call class 'Tuple#3<int32, int32, int32>' f(int32)
+    stloc.0
+    
+    ldloc.0
+    ldfld int32 class 'Tuple#3<int32, int32, int32>'::'1'
+    stloc.1
+    
+    ldloc.1
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.0
+    ldfld int32 class 'Tuple#3<int32, int32, int32>'::'2'
+    stloc.2
+    
+    ldloc.2
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.0
+    ldfld int32 class 'Tuple#3<int32, int32, int32>'::'3'
+    stloc.3
+    
+    ldloc.3
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+.method public static class 'Tuple#3<int32, int32, int32>' f(int32)
+{
+    .maxstack 8
+    .locals(
+        [0] int32 b,
+        [1] int32 $$1,
+        [2] class 'Tuple#3<int32, int32, int32>' $$2
+    )
+    
+    ldarg.0
+    ldc.i4.2
+    add
+    stloc.0
+    
+    ldarg.0
+    ldc.i4.1
+    add
+    stloc.1
+    
+    ldarg.0
+    ldloc.1
+    ldloc.0
+    call class 'Tuple#3<int32, int32, int32>' 'Tuple#3#0'(int32, int32, int32)
+    stloc.2
+    
+    ldloc.2
+    ret
+    ret
+}
+.method public static class 'Tuple#3<int32, int32, int32>' 'Tuple#3#0'(int32, int32, int32)
+{
+    .maxstack 8
+    .locals(
+        [0] class 'Tuple#3<int32, int32, int32>' $self
+    )
+    
+    newobj instance void class 'Tuple#3<int32, int32, int32>'::.ctor()
+    stloc.0
+    
+    ldloc.0
+    ldarg.0
+    stfld int32 class 'Tuple#3<int32, int32, int32>'::'1'
+    
+    ldloc.0
+    ldarg.1
+    stfld int32 class 'Tuple#3<int32, int32, int32>'::'2'
+    
+    ldloc.0
+    ldarg.2
+    stfld int32 class 'Tuple#3<int32, int32, int32>'::'3'
+    
+    ldloc.0
+    ret
+    ret
+}
+###end
