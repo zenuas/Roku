@@ -83,11 +83,11 @@ var x = Tuple#2#0(3, "hello")
     stloc.0
     
     ldloc.0
-    ldc.i4.3
+    ldarg.0
     stfld int32 class 'Tuple#2<int32, string>'::'1'
     
     ldloc.0
-    ldstr "hello"
+    ldarg.1
     stfld string class 'Tuple#2<int32, string>'::'2'
     
     ldloc.0

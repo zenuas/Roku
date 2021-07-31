@@ -96,7 +96,7 @@ namespace Roku.Compiler
                 fbody.Generics.Add(gp);
                 fbody.Arguments.Add((farg_var, gp));
                 fbody.LexicalScope.Add(farg_var.Name, farg_var);
-                fbody.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(self, $"{i + 1}"), Left = NormalizationExpression(fbody, x, true) });
+                fbody.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(self, $"{i + 1}"), Left = farg_var });
                 fret.Generics.Add(gp);
                 fcall.Generics.Add(gp);
             });

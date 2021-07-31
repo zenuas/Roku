@@ -57,7 +57,7 @@ print(x.2 + x.1.2)
     
     ldc.i4.3
     ldstr "world"
-    call class 'Tuple#2<int32, string>' 'Tuple#2#2'(int32, string)
+    call class 'Tuple#2<int32, string>' 'Tuple#2#1'(int32, string)
     stloc.0
     
     ldloc.0
@@ -97,56 +97,6 @@ print(x.2 + x.1.2)
     call void class [System.Console]System.Console::WriteLine(string)
     ret
 }
-.method public static class 'Tuple#2<int32, string>' 'Tuple#2#2'(int32, string)
-{
-    .maxstack 8
-    .locals(
-        [0] class 'Tuple#2<int32, string>' $self
-    )
-    
-    newobj instance void class 'Tuple#2<int32, string>'::.ctor()
-    stloc.0
-    
-    ldloc.0
-    ldc.i4.3
-    stfld int32 class 'Tuple#2<int32, string>'::'1'
-    
-    ldloc.0
-    ldstr "world"
-    stfld string class 'Tuple#2<int32, string>'::'2'
-    
-    ldloc.0
-    ret
-    ret
-}
-.method public static class 'Tuple#2<class Tuple#2<int32, string>, string>' 'Tuple#2#0'(class 'Tuple#2<int32, string>', string)
-{
-    .maxstack 8
-    .locals(
-        [0] class 'Tuple#2<class Tuple#2<int32, string>, string>' $self,
-        [1] class 'Tuple#2<int32, string>' $$1
-    )
-    
-    newobj instance void class 'Tuple#2<class Tuple#2<int32, string>, string>'::.ctor()
-    stloc.0
-    
-    ldc.i4.3
-    ldstr "world"
-    call class 'Tuple#2<int32, string>' 'Tuple#2#1'(int32, string)
-    stloc.1
-    
-    ldloc.0
-    ldloc.1
-    stfld class 'Tuple#2<int32, string>' class 'Tuple#2<class Tuple#2<int32, string>, string>'::'1'
-    
-    ldloc.0
-    ldstr "hello"
-    stfld string class 'Tuple#2<class Tuple#2<int32, string>, string>'::'2'
-    
-    ldloc.0
-    ret
-    ret
-}
 .method public static class 'Tuple#2<int32, string>' 'Tuple#2#1'(int32, string)
 {
     .maxstack 8
@@ -158,12 +108,34 @@ print(x.2 + x.1.2)
     stloc.0
     
     ldloc.0
-    ldc.i4.3
+    ldarg.0
     stfld int32 class 'Tuple#2<int32, string>'::'1'
     
     ldloc.0
-    ldstr "world"
+    ldarg.1
     stfld string class 'Tuple#2<int32, string>'::'2'
+    
+    ldloc.0
+    ret
+    ret
+}
+.method public static class 'Tuple#2<class Tuple#2<int32, string>, string>' 'Tuple#2#0'(class 'Tuple#2<int32, string>', string)
+{
+    .maxstack 8
+    .locals(
+        [0] class 'Tuple#2<class Tuple#2<int32, string>, string>' $self
+    )
+    
+    newobj instance void class 'Tuple#2<class Tuple#2<int32, string>, string>'::.ctor()
+    stloc.0
+    
+    ldloc.0
+    ldarg.0
+    stfld class 'Tuple#2<int32, string>' class 'Tuple#2<class Tuple#2<int32, string>, string>'::'1'
+    
+    ldloc.0
+    ldarg.1
+    stfld string class 'Tuple#2<class Tuple#2<int32, string>, string>'::'2'
     
     ldloc.0
     ret
