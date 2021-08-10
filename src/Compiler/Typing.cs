@@ -145,7 +145,7 @@ namespace Roku.Compiler
             }
             foreach (var fm in m.Where(x => x.Value.Struct is FunctionMapper).Map(x => x.Value.Struct!.Cast<FunctionMapper>()))
             {
-                if (fm.Function is ISpecialization sp) SpecializationNumericDecide(sp);
+                //if (fm.Function is ISpecialization sp) SpecializationNumericDecide(sp);
                 TypeMapperNumericDecide(fm.TypeMapper);
             }
             foreach (var gm in m.Where(x => x.Value.Struct is IGenericsMapper).Map(x => x.Value.Struct!.Cast<IGenericsMapper>()))
