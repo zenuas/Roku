@@ -34,6 +34,7 @@ using Roku.Node;
 
 %left  VAR STR NULL TRUE FALSE IF LET SUB IGNORE ARROW
 %token<NumericNode> NUM
+%token<BooleanNode> bool
 %token<FloatingNumericNode> FLOAT
 %left  EQ
 %left  OPE OR LT GT
@@ -73,6 +74,7 @@ begin : BEGIN          {Scopes.Push(new BlockNode().R($1));}
 expr : var
      | str
      | num
+     | bool
      | call
      | lambda
      | '[' list ']'                               {$$ = $2;}
@@ -206,6 +208,8 @@ fvar   : varx
        | NUM     {$$ = CreateVariableNode($1.Format).R($1);}
 num    : NUM     {$$ = $1;}
        | FLOAT   {$$ = $1;}
+bool   : TRUE    {$$ = new BooleanNode { Value = true }.R($1);}
+       | FALSE   {$$ = new BooleanNode { Value = false }.R($1);}
 str    : STR     {$$ = new StringNode { Value = $1.Name }.R($1);}
        | str STR {$$ = $1.Return(x => x.Value += $2.Name);}
 ope    : nope

@@ -35,6 +35,7 @@ namespace Roku.Compiler
             DefineNumericFunction(root, "Byte");
             DefineNumericFunction(root, "Double", "ldc.r8 0");
             DefineNumericFunction(root, "Float", "ldc.r4 0");
+            DefineBooleanFunction(root, "Bool");
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) })!);
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(int) })!);
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(long) })!);
@@ -76,6 +77,13 @@ namespace Roku.Compiler
             root.Functions.Add(new EmbeddedFunction(">=", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nclt\n{zero}\nceq" });
             root.Functions.Add(new EmbeddedFunction("+", type, type) { OpCode = (args) => args[0] });
             root.Functions.Add(new EmbeddedFunction("-", type, type) { OpCode = (args) => $"{args[0]}\nneg" });
+        }
+
+        public static void DefineBooleanFunction(RootNamespace root, string type)
+        {
+            root.Functions.Add(new EmbeddedFunction("==", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nceq" });
+            root.Functions.Add(new EmbeddedFunction("!=", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nceq\nldc.i4.0\nceq" });
+            root.Functions.Add(new EmbeddedFunction("!", "Bool", type) { OpCode = (args) => $"{args[0]}\nldc.i4.0\nceq" });
         }
     }
 }

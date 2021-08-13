@@ -359,6 +359,9 @@ namespace Roku.Compiler
                         }
                     }
 
+                case BooleanValue x:
+                    return $"ldc.i4.{(x.Value ? 1 : 0)}";
+
                 case FloatingNumericValue x:
                     {
                         var isbox = IsClassType(target);

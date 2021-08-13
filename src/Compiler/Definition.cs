@@ -293,6 +293,9 @@ namespace Roku.Compiler
                 case FloatingNumericNode x:
                     return new FloatingNumericValue(x.Value);
 
+                case BooleanNode x:
+                    return new BooleanValue(x.Value);
+
                 case VariableNode x:
                     return FindScopeValue(scope, x.Name);
 

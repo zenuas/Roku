@@ -438,6 +438,10 @@ namespace Roku.Compiler
                     m[x] = CreateFloatingNumericType(ns);
                     return m[x];
 
+                case BooleanValue x:
+                    m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "Bool"), VariableType.PrimitiveValue);
+                    return m[x];
+
                 case StringValue x:
                     m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "String"), VariableType.PrimitiveValue);
                     return m[x];

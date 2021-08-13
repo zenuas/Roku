@@ -133,6 +133,9 @@ namespace Roku.Parser
         /// <summary>block</summary>
         block,
 
+        /// <summary>bool</summary>
+        @bool,
+
         /// <summary>call</summary>
         call,
 
