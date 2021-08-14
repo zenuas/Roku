@@ -31,10 +31,10 @@ using Roku.Node;
 %type<ClassNode>                    class
 %type<VariableNode>                 var varx fvar fn
 %type<StringNode>                   str
+%type<BooleanNode>                  bool
 
 %left  VAR STR NULL TRUE FALSE IF LET SUB IGNORE ARROW
 %token<NumericNode> NUM
-%token<BooleanNode> bool
 %token<FloatingNumericNode> FLOAT
 %left  EQ
 %left  OPE OR LT GT
