@@ -45,7 +45,7 @@ parserd:
 test: testd $(TESTS)
 
 testd:
-	-@dotnet test --nologo -v q
+	-@dotnet test --nologo
 
 $(TESTS):
 	@echo $(subst test\rk\,,$(patsubst %.rk,%,$@))
