@@ -11,10 +11,10 @@ YANP_OUT=src\Parser\Parser.cs
 .PHONY: all clean distclean release test testd parser parserd node metric
 
 all:
-	dotnet build --nologo
+	dotnet build --nologo -v q
 
 clean:
-	dotnet clean --nologo
+	dotnet clean --nologo -v q
 
 distclean: clean
 	-rmdir /S /Q src\bin 2>NUL
@@ -45,7 +45,7 @@ parserd:
 test: testd $(TESTS)
 
 testd:
-	-@dotnet test --nologo
+	-@dotnet test --nologo -v q
 
 $(TESTS):
 	@echo $(subst test\rk\,,$(patsubst %.rk,%,$@))
