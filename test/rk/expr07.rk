@@ -1,0 +1,70 @@
+
+sub f(x: Int?)
+	if n: Int = x
+		print(n)
+	else
+		print("null")
+
+
+#=>0
+f(0)
+
+#=>1
+f(1)
+
+#=>null
+f(null)
+
+###
+nullのテスト
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly expr07 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    
+    ldc.i4.0
+    box int32
+    call void f(object)
+    
+    ldc.i4.1
+    box int32
+    call void f(object)
+    
+    ldnull
+    call void f(object)
+    ret
+}
+.method public static void f(object)
+{
+    .maxstack 8
+    .locals(
+        [0] int32 n
+    )
+    
+    ldarg.0
+    isinst [System.Runtime]System.Int32
+    brfalse.s _Else1
+    ldarg.0
+    unbox.any [System.Runtime]System.Int32
+    stloc.0
+    
+    ldloc.0
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    br _EndIf2
+    
+_Else1:
+    
+    ldstr "null"
+    call void class [System.Console]System.Console::WriteLine(string)
+    
+_EndIf2:
+    ret
+}
+###end

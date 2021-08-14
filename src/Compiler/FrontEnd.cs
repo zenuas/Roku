@@ -44,6 +44,7 @@ namespace Roku.Compiler
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(double) })!);
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(float) })!);
             _ = Lookup.LoadFunction(root, "+", typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) })!);
+            root.Structs.Add(new NullBody());
 
             var src = Definition.LoadProgram(root, Compile(input));
             using (var sys = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("Roku.sys.rk")!))

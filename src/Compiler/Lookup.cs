@@ -332,6 +332,15 @@ namespace Roku.Compiler
             if (arg is NumericStruct num) return num.Types.Or(x => TypeEquals(source, x));
             if (source is NumericStruct num2) return num2.Types.Or(x => TypeEquals(x, arg));
             if (source is FunctionTypeBody fta && arg is AnonymousFunctionBody afb) return TypeFunctionEquals(fta, afb);
+            if (source is EnumStructBody e)
+            {
+                if (arg is EnumStructBody arge)
+                {
+                    return false; //ToDo: e >= arge
+                }
+                return e.Enums.Or(x => TypeEquals(x, arg));
+            }
+            if (source is NullBody && arg is NullBody) return true;
             return false;
         }
 
@@ -352,6 +361,9 @@ namespace Roku.Compiler
 
                 case ExternStruct x:
                     return (name.Length == 1 && x.Name == name.First()) || TypeNameEquals(x.Struct, name);
+
+                case NullBody x:
+                    return name.Length == 1 && x.Name == name.First();
             }
             return false;
         }

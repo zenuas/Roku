@@ -19,6 +19,9 @@ namespace Roku.Parser
         /// <summary>':'</summary>
         __x3A,
 
+        /// <summary>'?'</summary>
+        __x3F,
+
         /// <summary>'['</summary>
         __x5B,
 
@@ -228,6 +231,9 @@ namespace Roku.Parser
 
         /// <summary>nsvarn</summary>
         nsvarn,
+
+        /// <summary>null</summary>
+        @null,
 
         /// <summary>num</summary>
         num,

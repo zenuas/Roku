@@ -296,6 +296,9 @@ namespace Roku.Compiler
                 case BooleanNode x:
                     return new BooleanValue(x.Value);
 
+                case NullNode x:
+                    return new NullValue();
+
                 case VariableNode x:
                     return FindScopeValue(scope, x.Name);
 

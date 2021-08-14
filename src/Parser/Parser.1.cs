@@ -120,6 +120,8 @@ namespace Roku.Parser
             return g;
         }
 
+        public static EnumNode CreateNullable(ITypeNode type) => new EnumNode(CreateListNode(type, new TypeNode() { Name = "Null" }.R(type)));
+
         public void SyntaxError(Token t) => SyntaxError(t, "syntax error");
 
         public static void SyntaxError(Token t, string message) => throw new SyntaxErrorException(message) { LineNumber = t.LineNumber, LineColumn = t.LineColumn };

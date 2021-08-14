@@ -394,6 +394,10 @@ namespace Roku.Compiler
                     m[v] = CreateVariableDetail($"${index}", Lookup.LoadFunctionType(ns, tf, Lookup.TypeMapperToGenericsMapper(m)), VariableType.Argument, index);
                     break;
 
+                case TypeEnum te:
+                    m[v] = CreateVariableDetail($"${index}", Lookup.LoadEnumStruct(ns, te), VariableType.Argument, index);
+                    break;
+
                 default:
                     throw new Exception();
             }
@@ -440,6 +444,10 @@ namespace Roku.Compiler
 
                 case BooleanValue x:
                     m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "Bool"), VariableType.PrimitiveValue);
+                    return m[x];
+
+                case NullValue x:
+                    m[x] = CreateVariableDetail("", Lookup.LoadStruct(ns, "Null"), VariableType.PrimitiveValue);
                     return m[x];
 
                 case StringValue x:

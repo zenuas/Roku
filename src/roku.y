@@ -75,6 +75,7 @@ expr : var
      | str
      | num
      | bool
+     | null
      | call
      | lambda
      | '[' list ']'                               {$$ = $2;}
@@ -147,6 +148,7 @@ argn   : decla                    {$$ = CreateListNode($1);}
        | argn ',' decla           {$$ = $1.Return(x => x.List.Add($3));}
 decla  : var ':' type             {$$ = new DeclareNode($1, $3).R($1);}
 type   : typev
+       | typev '?'                {$$ = CreateNullable($1);}
        | '[' type   ']'           {$$ = new TypeArrayNode($2).R($1);}
        | '[' type2n ']'           {$$ = new TypeTupleNode($2).R($1);}
        | '[' typeor ']'           {$$ = new EnumNode($2).R($1);}
@@ -210,6 +212,7 @@ num    : NUM     {$$ = $1;}
        | FLOAT   {$$ = $1;}
 bool   : TRUE    {$$ = new BooleanNode { Value = true }.R($1);}
        | FALSE   {$$ = new BooleanNode { Value = false }.R($1);}
+null   : NULL    {$$ = new NullNode().R($1);}
 str    : STR     {$$ = new StringNode { Value = $1.Name }.R($1);}
        | str STR {$$ = $1.Return(x => x.Value += $2.Name);}
 ope    : nope
