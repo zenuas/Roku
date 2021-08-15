@@ -306,6 +306,14 @@ namespace Roku.Compiler
                                 il.WriteLine($"brfalse.s {labels[ifcast.Else]}");
                             }
                         }
+                        else if (m[ifcast.Name].Struct is NullBody)
+                        {
+                            il.WriteLine($"ldnull");
+                            il.WriteLine($"ceq");
+                            il.WriteLine($"brfalse.s {labels[ifcast.Else]}");
+                            il.WriteLine($"ldnull");
+                            il.WriteLine(StoreValue(m, ifcast.Name));
+                        }
                     }
                     break;
 
@@ -469,6 +477,7 @@ namespace Roku.Compiler
                 case StructSpecialization x when x.Body is ExternStruct e: return $"class [{e.Assembly.GetName().Name}]{e.Struct.FullName}{GetGenericsName(e, x.GenericsMapper)}";
                 case StructSpecialization x when x.Body is StructBody e: return $"class {GetStructName(x.Name, e, x.GenericsMapper, false).To(x => escape ? EscapeILName(x) : x)}";
                 case EnumStructBody _: return "object";
+                case NullBody _: return "object";
                 case AnonymousFunctionBody x: return GetFunctionName(x);
                 case FunctionTypeBody x: return GetFunctionTypeName(x);
                 case FunctionMapper x when x.Function is FunctionTypeBody ftb: return GetFunctionTypeName(ftb);

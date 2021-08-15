@@ -1,0 +1,64 @@
+
+sub f(x: Int?)
+	if p: Null = x
+		print("null")
+	else
+		print("not null")
+
+
+#=>not null
+f(0)
+
+#=>null
+f(null)
+
+###
+null判定のテスト
+実際には変数pは不要であるがnull判定用の専用構文を別に設けるまでのものである
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly expr08 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    
+    ldc.i4.0
+    box int32
+    call void f(object)
+    
+    ldnull
+    call void f(object)
+    ret
+}
+.method public static void f(object)
+{
+    .maxstack 8
+    .locals(
+        [0] object p
+    )
+    
+    ldarg.0
+    ldnull
+    ceq
+    brfalse.s _Else1
+    ldnull
+    stloc.0
+    
+    ldstr "null"
+    call void class [System.Console]System.Console::WriteLine(string)
+    
+    br _EndIf2
+    
+_Else1:
+    
+    ldstr "not null"
+    call void class [System.Console]System.Console::WriteLine(string)
+    
+_EndIf2:
+    ret
+}
+###end
