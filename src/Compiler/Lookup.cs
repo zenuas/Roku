@@ -269,7 +269,7 @@ namespace Roku.Compiler
             return gens;
         }
 
-        public static ClassBody? FindClassOrNull(INamespace ns, string name, List<TypeGenericsParameter> gens)
+        public static ClassBody? FindClassOrNull(INamespace ns, string name, List<ITypeDefinition> gens)
         {
             if (ns is INamespaceBody nsb)
             {

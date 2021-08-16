@@ -1,0 +1,65 @@
+
+sub f(xs: [Int])
+	print(xs[1] + xs[2])
+
+#=>5
+f([1, 2, 3])
+
+###
+配列を引数にとる
+配列はListのシンタックスシュガーである
+sub f<List<a, Int>>(xs: a) となる
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly extern System.Collections {}
+.assembly array05 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    
+    newobj instance void class [System.Collections]System.Collections.Generic.List`1<int32>::.ctor()
+    dup
+    ldc.i4.1
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    dup
+    ldc.i4.2
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    dup
+    ldc.i4.3
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    call void f(class [System.Collections]System.Collections.Generic.List`1<int32>)
+    ret
+}
+.method public static void f(class [System.Collections]System.Collections.Generic.List`1<int32>)
+{
+    .maxstack 8
+    .locals(
+        [0] int32 $$2,
+        [1] int32 $$3,
+        [2] int32 $$1
+    )
+    
+    ldarg.0
+    ldc.i4.1
+    callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<int32>::get_Item(int32)
+    stloc.0
+    
+    ldarg.0
+    ldc.i4.2
+    callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<int32>::get_Item(int32)
+    stloc.1
+    
+    ldloc.0
+    ldloc.1
+    add
+    stloc.2
+    
+    ldloc.2
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+###end

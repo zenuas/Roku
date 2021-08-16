@@ -483,10 +483,24 @@ namespace Roku.Compiler
             var body = MakeFunction(ns, f.Name.Name);
             var types = new Dictionary<string, TypeGenericsParameter>();
 
-            ITypeDefinition create_type(ITypeNode s) =>
-                types.ContainsKey(s.Name) ? types[s.Name]
-                : gens?.FindFirstOrNull(x => x.Name == s.Name) is { } p ? types[s.Name] = p.Return(x => body.Generics.Add(x))
-                : CreateType(body, s).Return(x => { if (x is TypeGenericsParameter g) body.Generics.Add(types[g.Name] = g); });
+            ITypeDefinition create_type(ITypeNode s)
+            {
+                if (s is TypeArrayNode ta)
+                {
+                    var xs_type = CreateType(body, new TypeNode() { Name = $"xs${body.Generics.Count}" }).Cast<TypeGenericsParameter>();
+                    body.Generics.Add(xs_type);
+
+                    var x_type = create_type(ta.Item);
+                    body.Constraints.Add((new VariableValue("List"), new ITypeDefinition[] { xs_type, x_type }.ToList()));
+                    return xs_type;
+                }
+                else
+                {
+                    return types.ContainsKey(s.Name) ? types[s.Name]
+                        : gens?.FindFirstOrNull(x => x.Name == s.Name) is { } p ? types[s.Name] = p.Return(x => body.Generics.Add(x))
+                        : CreateType(body, s).Return(x => { if (x is TypeGenericsParameter g) body.Generics.Add(types[g.Name] = g); });
+                }
+            }
 
             f.Arguments.Each(x =>
             {
@@ -496,7 +510,7 @@ namespace Roku.Compiler
             });
             if (f.Return is { }) body.Return = create_type(f.Return);
 
-            f.Constraints.Each(x => body.Constraints.Add((new VariableValue(x.Name), x.Generics.Map(g => create_type(g).Cast<TypeGenericsParameter>()).ToList())));
+            f.Constraints.Each(x => body.Constraints.Add((new VariableValue(x.Name), x.Generics.Map(g => create_type(g)).ToList())));
 
             if (body.Generics.Count == 0) body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
             return body;

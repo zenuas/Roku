@@ -17,7 +17,7 @@ namespace Roku.Manager
         public int MaxTemporaryValue { get; set; } = 0;
         public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
         public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
-        public List<(VariableValue Class, List<TypeGenericsParameter> Generics)> Constraints { get; } = new List<(VariableValue, List<TypeGenericsParameter>)>();
+        public List<(VariableValue Class, List<ITypeDefinition> Generics)> Constraints { get; } = new List<(VariableValue, List<ITypeDefinition>)>();
 
         public FunctionBody(INamespace ns, string name)
         {
