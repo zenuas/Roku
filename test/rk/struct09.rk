@@ -1,0 +1,205 @@
+
+struct Reserved
+	var var = 1
+	var struct = 2
+	var class = 3
+	var sub = 4
+	var if = 5
+	var then = 6
+	var else = 7
+	var true = 8
+	var false = 9
+	var null = 10
+
+var x = Reserved()
+
+#=>1
+print(x.var)
+
+#=>2
+print(x.struct)
+
+#=>3
+print(x.class)
+
+#=>4
+print(x.sub)
+
+#=>5
+print(x.if)
+
+#=>6
+print(x.then)
+
+#=>7
+print(x.else)
+
+#=>8
+print(x.true)
+
+#=>9
+print(x.false)
+
+#=>10
+print(x.null)
+
+###
+予約語は文脈次第で変数名に使用できる
+構造体メンバに使用可能
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly struct09 {}
+.class public Reserved
+{
+    .field public int32 var
+    .field public int32 'struct'
+    .field public int32 'class'
+    .field public int32 'sub'
+    .field public int32 if
+    .field public int32 then
+    .field public int32 else
+    .field public int32 'true'
+    .field public int32 'false'
+    .field public int32 'null'
+    
+    .method public void .ctor()
+    {
+        
+        ldarg.0
+        ldc.i4.1
+        stfld int32 class Reserved::var
+        
+        ldarg.0
+        ldc.i4.2
+        stfld int32 class Reserved::'struct'
+        
+        ldarg.0
+        ldc.i4.3
+        stfld int32 class Reserved::'class'
+        
+        ldarg.0
+        ldc.i4.4
+        stfld int32 class Reserved::'sub'
+        
+        ldarg.0
+        ldc.i4.5
+        stfld int32 class Reserved::if
+        
+        ldarg.0
+        ldc.i4.6
+        stfld int32 class Reserved::then
+        
+        ldarg.0
+        ldc.i4.7
+        stfld int32 class Reserved::else
+        
+        ldarg.0
+        ldc.i4.8
+        stfld int32 class Reserved::'true'
+        
+        ldarg.0
+        ldc.i4.s 9
+        stfld int32 class Reserved::'false'
+        
+        ldarg.0
+        ldc.i4.s 10
+        stfld int32 class Reserved::'null'
+        ret
+    }
+}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] class Reserved x,
+        [1] int32 $$1,
+        [2] int32 $$2,
+        [3] int32 $$3,
+        [4] int32 $$4,
+        [5] int32 $$5,
+        [6] int32 $$6,
+        [7] int32 $$7,
+        [8] int32 $$8,
+        [9] int32 $$9,
+        [10] int32 $$10
+    )
+    
+    newobj instance void Reserved::.ctor()
+    stloc.0
+    
+    ldloc.0
+    ldfld int32 class Reserved::var
+    stloc.1
+    
+    ldloc.1
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.0
+    ldfld int32 class Reserved::'struct'
+    stloc.2
+    
+    ldloc.2
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.0
+    ldfld int32 class Reserved::'class'
+    stloc.3
+    
+    ldloc.3
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.0
+    ldfld int32 class Reserved::'sub'
+    stloc.s 4
+    
+    ldloc.s 4
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.0
+    ldfld int32 class Reserved::if
+    stloc.s 5
+    
+    ldloc.s 5
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.0
+    ldfld int32 class Reserved::then
+    stloc.s 6
+    
+    ldloc.s 6
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.0
+    ldfld int32 class Reserved::else
+    stloc.s 7
+    
+    ldloc.s 7
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.0
+    ldfld int32 class Reserved::'true'
+    stloc.s 8
+    
+    ldloc.s 8
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.0
+    ldfld int32 class Reserved::'false'
+    stloc.s 9
+    
+    ldloc.s 9
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.0
+    ldfld int32 class Reserved::'null'
+    stloc.s 10
+    
+    ldloc.s 10
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+###end

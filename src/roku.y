@@ -111,8 +111,8 @@ struct_block : struct_begin define END {$$ = Scopes.Pop();}
 struct_begin : BEGIN                   {Scopes.Push(new StructNode().R($1));}
 
 define : void
-       | define LET var ':' type EOL   {Scopes.Peek().Statements.Add(CreateLetNode($3, $5));}
-       | define LET var EQ  expr EOL   {Scopes.Peek().Statements.Add(CreateLetNode($3, $5));}
+       | define LET varx ':' type EOL  {Scopes.Peek().Statements.Add(CreateLetNode($3, $5));}
+       | define LET varx EQ  expr EOL  {Scopes.Peek().Statements.Add(CreateLetNode($3, $5));}
 #       | define sub
 
 gen    : var                           {$$ = new TypeNode { Name = $1.Name }.R($1);}
@@ -201,11 +201,16 @@ elseif : ifthen ELSE ifthen                           {$$ = $1.Return(x => x.Els
 ########## other ##########
 var    : VAR     {$$ = CreateVariableNode($1);}
 varx   : var
-       | SUB     {$$ = CreateVariableNode($1);}
        | LET     {$$ = CreateVariableNode($1);}
+       | STRUCT  {$$ = CreateVariableNode($1);}
+       | CLASS   {$$ = CreateVariableNode($1);}
+       | SUB     {$$ = CreateVariableNode($1);}
        | IF      {$$ = CreateVariableNode($1);}
        | THEN    {$$ = CreateVariableNode($1);}
        | ELSE    {$$ = CreateVariableNode($1);}
+       | TRUE    {$$ = CreateVariableNode($1);}
+       | FALSE   {$$ = CreateVariableNode($1);}
+       | NULL    {$$ = CreateVariableNode($1);}
 fvar   : varx
        | NUM     {$$ = CreateVariableNode($1.Format).R($1);}
 num    : NUM     {$$ = $1;}
