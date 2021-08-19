@@ -26,7 +26,7 @@ f(3)
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 1
     
     ldc.i4.3
     call void f(int32)
@@ -34,7 +34,7 @@ f(3)
 }
 .method public static void f(int32)
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] bool $$1,
         [1] int32 $$2

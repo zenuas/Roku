@@ -21,7 +21,7 @@ sub f<List<a, Int>>() a となる
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] class [System.Collections]System.Collections.Generic.List`1<int32> xs,
         [1] int32 $$2,
@@ -54,7 +54,7 @@ sub f<List<a, Int>>() a となる
 }
 .method public static class [System.Collections]System.Collections.Generic.List`1<int32> f()
 {
-    .maxstack 8
+    .maxstack 3
     
     newobj instance void class [System.Collections]System.Collections.Generic.List`1<int32>::.ctor()
     dup

@@ -101,7 +101,7 @@ namespace Roku.Compiler
                 il.WriteLine("{");
                 il.Indent++;
                 if (i == 0) il.WriteLine(".entrypoint");
-                il.WriteLine(".maxstack 8");
+                il.WriteLine($".maxstack {f.Body.Map(x => GetMaxstack(x, mapper)).Max()}");
                 var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable && !(x.Struct is NamespaceBody)).Sort((a, b) => a.Index - b.Index).ToList();
                 local_vals.Each((x, i) => x.Index = i);
                 if (local_vals.Count > 0)
@@ -119,6 +119,38 @@ namespace Roku.Compiler
                 il.WriteLine("}");
             }
         }
+
+        public static int GetMaxstack(IOperand op, TypeMapper m)
+        {
+            var stack_size = 1;
+            switch (op.Operator)
+            {
+                case Operator.Call:
+                    {
+                        var call = op.Cast<Call>();
+                        stack_size = Math.Max(1, call.Function.Arguments.Map(x => GetMaxstack(x)).Sum());
+                        break;
+                    }
+
+                case Operator.Bind:
+                    {
+                        var bind = op.Cast<Code>();
+                        stack_size = GetMaxstack(bind.Left!);
+                        break;
+                    }
+
+                case Operator.If:
+                case Operator.IfCast:
+                    stack_size = 2;
+                    break;
+            }
+            return stack_size + (op is IReturnBind prop && prop.Return is { } && m[prop.Return].Type == VariableType.Property ? 1 : 0);
+        }
+
+        public static int GetMaxstack(IEvaluable e) =>
+            e is ArrayContainer ? 3
+            : e is FunctionReferenceValue ? 2
+            : 1;
 
         public static List<FunctionSpecialization> StructsToFunctionList(IEnumerable<StructBody> structs)
         {

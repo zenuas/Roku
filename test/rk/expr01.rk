@@ -10,7 +10,7 @@ print(1 + 2)
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] int32 $$1
     )

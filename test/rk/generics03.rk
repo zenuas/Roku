@@ -31,7 +31,7 @@ f(1)
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 1
     
     ldc.i4.1
     call void f(int32)
@@ -39,7 +39,7 @@ f(1)
 }
 .method public static void f(int32)
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] class 'Foo<int32>' p,
         [1] int32 $$1

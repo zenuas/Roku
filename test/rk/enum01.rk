@@ -30,7 +30,7 @@ f2の戻り値はCIL上ではObject型になる
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 1
     
     ldc.i4.0
     call void f(int32)
@@ -41,7 +41,7 @@ f2の戻り値はCIL上ではObject型になる
 }
 .method public static void f(int32)
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] object x,
         [1] int32 i,
@@ -82,7 +82,7 @@ _EndIf2:
 }
 .method public static object f2(int32)
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] bool $$1
     )

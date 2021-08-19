@@ -44,7 +44,7 @@ print(x.2 + y.1)
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] class 'Tuple#2<int32, string>' x,
         [1] class 'Tuple#2<string, int32>' y,
@@ -101,7 +101,7 @@ print(x.2 + y.1)
 }
 .method public static class 'Tuple#2<int32, string>' 'Tuple#2#0'(int32, string)
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] class 'Tuple#2<int32, string>' $self
     )
@@ -123,7 +123,7 @@ print(x.2 + y.1)
 }
 .method public static class 'Tuple#2<string, int32>' 'Tuple#2#1'(string, int32)
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] class 'Tuple#2<string, int32>' $self
     )

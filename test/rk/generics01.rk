@@ -15,7 +15,7 @@ sub f(x: a)
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 1
     
     ldc.i4.1
     call void f(int32)
@@ -26,7 +26,7 @@ sub f(x: a)
 }
 .method public static void f(int32)
 {
-    .maxstack 8
+    .maxstack 1
     
     ldarg.0
     call void class [System.Console]System.Console::WriteLine(int32)
@@ -34,7 +34,7 @@ sub f(x: a)
 }
 .method public static void f(string)
 {
-    .maxstack 8
+    .maxstack 1
     
     ldarg.0
     call void class [System.Console]System.Console::WriteLine(string)

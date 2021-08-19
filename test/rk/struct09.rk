@@ -113,7 +113,7 @@ print(x.null)
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 1
     .locals(
         [0] class Reserved x,
         [1] int32 $$1,

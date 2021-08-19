@@ -1,0 +1,112 @@
+sub f(
+	a1: Int,
+	a2: Int,
+	a3: Int,
+	a4: Int,
+	a5: Int,
+	a6: Int,
+	a7: Int,
+	a8: Int,
+	a9: Int,
+	)
+	
+	print(
+		a1 +
+		a2 +
+		a3 +
+		a4 +
+		a5 +
+		a6 +
+		a7 +
+		a8 +
+		a9
+		)
+
+#=>45
+f(1, 2, 3, 4, 5, 6, 7, 8, 9)
+
+###
+maxstackの導出
+引数9個以上の関数呼び出し
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly sub04 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 9
+    
+    ldc.i4.1
+    ldc.i4.2
+    ldc.i4.3
+    ldc.i4.4
+    ldc.i4.5
+    ldc.i4.6
+    ldc.i4.7
+    ldc.i4.8
+    ldc.i4.s 9
+    call void f(int32, int32, int32, int32, int32, int32, int32, int32, int32)
+    ret
+}
+.method public static void f(int32, int32, int32, int32, int32, int32, int32, int32, int32)
+{
+    .maxstack 2
+    .locals(
+        [0] int32 $$8,
+        [1] int32 $$7,
+        [2] int32 $$6,
+        [3] int32 $$5,
+        [4] int32 $$4,
+        [5] int32 $$3,
+        [6] int32 $$2,
+        [7] int32 $$1
+    )
+    
+    ldarg.0
+    ldarg.1
+    add
+    stloc.0
+    
+    ldloc.0
+    ldarg.2
+    add
+    stloc.1
+    
+    ldloc.1
+    ldarg.3
+    add
+    stloc.2
+    
+    ldloc.2
+    ldarg.s 4
+    add
+    stloc.3
+    
+    ldloc.3
+    ldarg.s 5
+    add
+    stloc.s 4
+    
+    ldloc.s 4
+    ldarg.s 6
+    add
+    stloc.s 5
+    
+    ldloc.s 5
+    ldarg.s 7
+    add
+    stloc.s 6
+    
+    ldloc.s 6
+    ldarg.s 8
+    add
+    stloc.s 7
+    
+    ldloc.s 7
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+###end

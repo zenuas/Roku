@@ -46,7 +46,7 @@ print(p.x)
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] class 'Foo<string>' w,
         [1] class 'Foo<int32>' p,
@@ -74,7 +74,7 @@ print(p.x)
 }
 .method public static class 'Foo<int32>' f(class 'Foo<string>')
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] string $$1,
         [1] class 'Foo<int32>' v

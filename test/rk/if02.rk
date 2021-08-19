@@ -37,7 +37,7 @@ sub f(n: Int)
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 1
     
     ldc.i4.s 21
     call void f(int32)
@@ -57,7 +57,7 @@ sub f(n: Int)
 }
 .method public static void f(int32)
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] bool $$1,
         [1] bool $$2,

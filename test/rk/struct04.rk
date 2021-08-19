@@ -44,7 +44,7 @@ print(w.x)
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] class 'Foo<int32>' v,
         [1] int32 $$1,

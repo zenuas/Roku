@@ -29,7 +29,7 @@ print(s)
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] class 'struct Rect(width: Int, height: Int)' $$1,
         [1] int32 s
@@ -50,7 +50,7 @@ print(s)
 }
 .method public static class 'struct Rect(width: Int, height: Int)' Rect(int32, int32)
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] class 'struct Rect(width: Int, height: Int)' $self
     )
@@ -72,7 +72,7 @@ print(s)
 }
 .method public static int32 area(class 'struct Rect(width: Int, height: Int)')
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] int32 $$2,
         [1] int32 $$3,

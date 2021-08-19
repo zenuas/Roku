@@ -21,7 +21,7 @@ sub f(x: a) a
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 1
     .locals(
         [0] int32 $$1,
         [1] string $$2
@@ -44,7 +44,7 @@ sub f(x: a) a
 }
 .method public static int32 f(int32)
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] int32 y
     )
@@ -60,7 +60,7 @@ sub f(x: a) a
 }
 .method public static string f(string)
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] string y
     )

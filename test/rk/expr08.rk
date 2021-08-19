@@ -24,7 +24,7 @@ null判定のテスト
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 1
     
     ldc.i4.0
     box int32
@@ -36,7 +36,7 @@ null判定のテスト
 }
 .method public static void f(object)
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] object p
     )

@@ -14,7 +14,7 @@ print((5.0 - 4.1) + ((r * r * 3.14) / 2.0))
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] float64 r,
         [1] float64 $$2,

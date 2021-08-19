@@ -28,7 +28,7 @@ C言語でたまにある二重否定(!!n)と同じことをする場合
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 1
     .locals(
         [0] int32 $$1,
         [1] int32 $$3,

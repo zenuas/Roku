@@ -29,7 +29,7 @@ g2(=> f())
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] class [mscorlib]System.Func`1<int32> $$1,
         [1] class [mscorlib]System.Action $$2
@@ -56,7 +56,7 @@ g2(=> f())
 }
 .method public static int32 'anonymous#0'()
 {
-    .maxstack 8
+    .maxstack 1
     .locals(
         [0] int32 _
     )
@@ -67,7 +67,7 @@ g2(=> f())
 }
 .method public static void 'anonymous#1'()
 {
-    .maxstack 8
+    .maxstack 1
     .locals(
         [0] int32 _
     )
@@ -79,7 +79,7 @@ g2(=> f())
 }
 .method public static void g1(class [mscorlib]System.Func`1<int32>)
 {
-    .maxstack 8
+    .maxstack 1
     .locals(
         [0] int32 $$1
     )
@@ -97,7 +97,7 @@ g2(=> f())
 }
 .method public static void g2(class [mscorlib]System.Action)
 {
-    .maxstack 8
+    .maxstack 1
     
     ldarg.0
     callvirt instance void class [mscorlib]System.Action::Invoke()
@@ -108,7 +108,7 @@ g2(=> f())
 }
 .method public static int32 f()
 {
-    .maxstack 8
+    .maxstack 1
     
     ldc.i4.1
     ret

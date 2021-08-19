@@ -14,7 +14,7 @@ else if x: String = a + a + a
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] string a,
         [1] string $$1,

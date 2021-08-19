@@ -31,7 +31,7 @@ print(b) がWriteLine(int64)を呼び出すこと
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 1
     .locals(
         [0] int32 a,
         [1] int64 b
@@ -59,7 +59,7 @@ print(b) がWriteLine(int64)を呼び出すこと
 }
 .method public static void print_int(int32)
 {
-    .maxstack 8
+    .maxstack 1
     
     ldstr "Int"
     call void class [System.Console]System.Console::WriteLine(string)
@@ -67,7 +67,7 @@ print(b) がWriteLine(int64)を呼び出すこと
 }
 .method public static void print_long(int64)
 {
-    .maxstack 8
+    .maxstack 1
     
     ldstr "Long"
     call void class [System.Console]System.Console::WriteLine(string)

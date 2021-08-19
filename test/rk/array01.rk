@@ -13,7 +13,7 @@ print(xs[0])
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] class [System.Collections]System.Collections.Generic.List`1<int32> xs,
         [1] int32 $$3

@@ -33,7 +33,7 @@ f(x)
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] class 'Tuple#2<int32, string>' x
     )
@@ -49,7 +49,7 @@ f(x)
 }
 .method public static class 'Tuple#2<int32, string>' 'Tuple#2#0'(int32, string)
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] class 'Tuple#2<int32, string>' $self
     )
@@ -71,7 +71,7 @@ f(x)
 }
 .method public static void f(class 'Tuple#2<int32, string>')
 {
-    .maxstack 8
+    .maxstack 1
     .locals(
         [0] int32 $$1,
         [1] string $$2

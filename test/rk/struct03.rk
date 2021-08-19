@@ -43,7 +43,7 @@ print(v.y)
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 1
     .locals(
         [0] class Foo v,
         [1] int32 $$1,
@@ -70,7 +70,7 @@ print(v.y)
 }
 .method public static int32 f(int32)
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] int32 $$1
     )
@@ -86,7 +86,7 @@ print(v.y)
 }
 .method public static string f(string)
 {
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] string $$1
     )

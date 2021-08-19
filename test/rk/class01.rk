@@ -36,7 +36,7 @@ print(n)
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 1
     .locals(
         [0] string m,
         [1] int32 n
@@ -59,7 +59,7 @@ print(n)
 }
 .method public static string bar(int32)
 {
-    .maxstack 8
+    .maxstack 1
     .locals(
         [0] string y
     )
@@ -74,7 +74,7 @@ print(n)
 }
 .method public static int32 bar(string)
 {
-    .maxstack 8
+    .maxstack 1
     .locals(
         [0] int32 y
     )
@@ -89,7 +89,7 @@ print(n)
 }
 .method public static string foo(int32)
 {
-    .maxstack 8
+    .maxstack 1
     
     ldarg.0
     call void class [System.Console]System.Console::WriteLine(int32)
@@ -100,7 +100,7 @@ print(n)
 }
 .method public static int32 foo(string)
 {
-    .maxstack 8
+    .maxstack 1
     
     ldarg.0
     call void class [System.Console]System.Console::WriteLine(string)

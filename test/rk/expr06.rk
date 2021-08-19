@@ -25,7 +25,7 @@ boolの否定演算子
 .method public static void main()
 {
     .entrypoint
-    .maxstack 8
+    .maxstack 2
     .locals(
         [0] bool f,
         [1] bool t,
