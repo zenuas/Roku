@@ -1,0 +1,72 @@
+
+sub f() [Int]
+	return([1, 2, 3])
+
+#=>5
+var xs = f()
+print(xs[1] + xs[2])
+
+###
+配列を戻り値にとる
+配列はListのシンタックスシュガーである
+sub f<List<a, Int>>() a となる
+戻り値がジェネリックタイプでは型解決できないが、returnの推論で可能となる
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly extern System.Collections {}
+.assembly array06 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 8
+    .locals(
+        [0] class [System.Collections]System.Collections.Generic.List`1<int32> xs,
+        [1] int32 $$2,
+        [2] int32 $$3,
+        [3] int32 $$1
+    )
+    
+    
+    call class [System.Collections]System.Collections.Generic.List`1<int32> f()
+    stloc.0
+    
+    ldloc.0
+    ldc.i4.1
+    callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<int32>::get_Item(int32)
+    stloc.1
+    
+    ldloc.0
+    ldc.i4.2
+    callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<int32>::get_Item(int32)
+    stloc.2
+    
+    ldloc.1
+    ldloc.2
+    add
+    stloc.3
+    
+    ldloc.3
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+.method public static class [System.Collections]System.Collections.Generic.List`1<int32> f()
+{
+    .maxstack 8
+    
+    newobj instance void class [System.Collections]System.Collections.Generic.List`1<int32>::.ctor()
+    dup
+    ldc.i4.1
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    dup
+    ldc.i4.2
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    dup
+    ldc.i4.3
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    ret
+    ret
+}
+###end

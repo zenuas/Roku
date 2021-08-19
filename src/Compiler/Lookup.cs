@@ -243,8 +243,11 @@ namespace Roku.Compiler
 
             if (body is IConstraints constr && constr.Constraints.Count > 0)
             {
-                while (gens.Or(x => x.Value is null))
+                var effected = gens.Or(x => x.Value is null);
+                while (effected)
                 {
+                    effected = false;
+
                     constr.Constraints.Each(x =>
                     {
                         if (FindClassOrNull(ns, x.Class.Name, x.Generics) is { } class_body)
@@ -253,7 +256,14 @@ namespace Roku.Compiler
                             class_body.Generics.Each((g, i) => class_gens[g] = gens[x.Generics[i]]);
                             if (ApplyClassToGenericsParameter(ns, class_body, class_gens))
                             {
-                                class_body.Generics.Each((g, i) => gens[x.Generics[i]] = class_gens[g]);
+                                class_body.Generics.Each((g, i) =>
+                                {
+                                    if (gens[x.Generics[i]] != class_gens[g])
+                                    {
+                                        effected = true;
+                                        gens[x.Generics[i]] = class_gens[g];
+                                    }
+                                });
                             }
                         }
                     });
