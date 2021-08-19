@@ -1,0 +1,34 @@
+
+sub f()
+	print("hello")
+
+#=>hello
+f()
+
+###
+maxstackの導出
+引数なし、戻り値無しの関数呼び出しでmaxstack=0となる
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly sub05 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 0
+    
+    
+    call void f()
+    ret
+}
+.method public static void f()
+{
+    .maxstack 1
+    
+    ldstr "hello"
+    call void class [System.Console]System.Console::WriteLine(string)
+    ret
+}
+###end

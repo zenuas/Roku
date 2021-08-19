@@ -122,13 +122,13 @@ namespace Roku.Compiler
 
         public static int GetMaxstack(IOperand op, TypeMapper m)
         {
-            var stack_size = 1;
+            var stack_size = 0;
             switch (op.Operator)
             {
                 case Operator.Call:
                     {
                         var call = op.Cast<Call>();
-                        stack_size = Math.Max(1, call.Function.Arguments.Map(x => GetMaxstack(x)).Sum());
+                        stack_size = call.Function.Arguments.Map(x => GetMaxstack(x)).Sum();
                         break;
                     }
 
@@ -144,7 +144,8 @@ namespace Roku.Compiler
                     stack_size = 2;
                     break;
             }
-            return stack_size + (op is IReturnBind prop && prop.Return is { } && m[prop.Return].Type == VariableType.Property ? 1 : 0);
+            stack_size = Math.Max(stack_size, op is IReturnBind prop && prop.Return is { } ? 1 : 0);
+            return stack_size + (op is IReturnBind prop2 && prop2.Return is { } && m[prop2.Return].Type == VariableType.Property ? 1 : 0);
         }
 
         public static int GetMaxstack(IEvaluable e) =>
