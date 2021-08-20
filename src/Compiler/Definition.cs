@@ -49,7 +49,7 @@ namespace Roku.Compiler
             if (sn.Generics.Count == 0)
             {
                 body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
-                src.Functions.Add(new EmbeddedFunction(sn.Name.Name, sn.Name.Name) { OpCode = (args) => $"newobj instance void {sn.Name.Name}::.ctor()" });
+                src.Functions.Add(new EmbeddedFunction(sn.Name.Name, sn.Name.Name) { OpCode = (_, args) => $"newobj instance void {sn.Name.Name}::.ctor()" });
             }
             return body;
         }
@@ -414,7 +414,7 @@ namespace Roku.Compiler
                 var self = new VariableValue("$self");
                 ctor.LexicalScope.Add(self.Name, self);
                 ctor.Body.Add(new Call(new FunctionCallValue(new VariableValue(name))) { Return = self });
-                top.Functions.Add(new EmbeddedFunction(name, name) { OpCode = (args) => $"newobj instance void {CodeGenerator.EscapeILName(name)}::.ctor()" });
+                top.Functions.Add(new EmbeddedFunction(name, name) { OpCode = (_, args) => $"newobj instance void {CodeGenerator.EscapeILName(name)}::.ctor()" });
                 args.Each((x, i) =>
                 {
                     var member = new VariableValue(x.Name);

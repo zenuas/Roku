@@ -25,7 +25,7 @@ using Roku.Node;
 %type<SpecializationNode>           spec
 %type<ListNode<SpecializationNode>> where wheren
 %type<ListNode<ITypeNode>>          types typen type2n genn typeor nsvarn
-%type<TypeNode>                     nsvar typev
+%type<ITypeNode>                    nsvar typev
 %type<ITypeNode?>                   typex
 %type<IIfNode>                      if ifthen elseif
 %type<StructNode>                   struct struct_block
@@ -34,7 +34,7 @@ using Roku.Node;
 %type<StringNode>                   str
 %type<BooleanNode>                  bool
 
-%left  VAR STR NULL TRUE FALSE IF LET SUB IGNORE ARROW
+%left  VAR STR NULL TRUE FALSE IF LET SUB IGNORE ARROW IS
 %token<NumericNode> NUM
 %token<FloatingNumericNode> FLOAT
 %left  EQ
@@ -90,6 +90,7 @@ expr : var
      | expr LT expr GT           %prec TYPE_PARAM {$$ = CreateSpecialization($1, $3);}
      | expr LT expr ',' typen GT %prec TYPE_PARAM {$$ = CreateSpecialization($1, $3, $5.List.ToArray());}
      | expr '[' expr ']'                          {$$ = CreateFunctionCallNode(CreatePropertyNode($1, CreateVariableNode("[]")), $3);}
+     | expr IS type                               {$$ = CreateFunctionCallNode($2, $1, $3);}
 
 call : expr '(' list ')' {$$ = CreateFunctionCallNode($1, $3.List.ToArray());}
 
@@ -156,14 +157,14 @@ argn   : decla                    {$$ = CreateListNode($1);}
 decla  : var ':' type             {$$ = new DeclareNode($1, $3).R($1);}
 type   : typev
        | typev '?'                {$$ = CreateNullable($1);}
+typev  : nsvar
+       | nsvar LT typen extra GT  {$$ = CreateSpecialization($1, $3);}
+       | STRUCT var '(' args ')'  {$$ = CreateTypeStructNode($2, $4);}
        | '[' type   ']'           {$$ = new TypeArrayNode($2).R($1);}
        | '[' type2n ']'           {$$ = new TypeTupleNode($2).R($1);}
        | '[' typeor ']'           {$$ = new EnumNode($2).R($1);}
        | '{' types  '}'           {$$ = CreateTypeFunctionNode($2);}
        | '{' types ARROW type'}'  {$$ = CreateTypeFunctionNode($2, $4);}
-typev  : nsvar
-       | nsvar LT typen extra GT  {$$ = CreateSpecialization($1, $3);}
-       | STRUCT var '(' args ')'  {$$ = CreateTypeStructNode($2, $4);}
 nsvar  : varx                     {$$ = new TypeNode { Name = $1.Name }.R($1);}
 nsvarn : nsvar                    {$$ = CreateListNode<ITypeNode>($1);}
        | nsvarn ',' nsvar         {$$ = $1.Return(x => x.List.Add($3));}
@@ -218,6 +219,7 @@ varx   : var
        | TRUE    {$$ = CreateVariableNode($1);}
        | FALSE   {$$ = CreateVariableNode($1);}
        | NULL    {$$ = CreateVariableNode($1);}
+       | IS      {$$ = CreateVariableNode($1);}
 fvar   : varx
        | NUM     {$$ = CreateVariableNode($1.Format).R($1);}
 num    : NUM     {$$ = $1;}

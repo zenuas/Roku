@@ -270,7 +270,7 @@ namespace Roku.Compiler
                         }
                         else if (f.Function is EmbeddedFunction ef)
                         {
-                            il.WriteLine(ef.OpCode(args));
+                            il.WriteLine(ef.OpCode(f, args));
                             have_return = ef.Return is { };
                         }
 
@@ -447,6 +447,9 @@ namespace Roku.Compiler
 
                 case FunctionReferenceValue x:
                     return $"ldnull\nldftn {GetFunctionName(x, m[x].Struct!)}\nnewobj instance void {GetStructName(m[x].Struct)}::.ctor(object, native int)\n";
+
+                case TypeValue x:
+                    return GetStructName(m[x].Struct);
             }
             throw new Exception();
         }

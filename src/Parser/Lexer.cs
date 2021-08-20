@@ -42,6 +42,7 @@ namespace Roku.Parser
             table["GT"] = Symbols.GT;
             table["IF"] = Symbols.IF;
             table["IGNORE"] = Symbols.IGNORE;
+            table["IS"] = Symbols.IS;
             table["LET"] = Symbols.LET;
             table["LT"] = Symbols.LT;
             table["NULL"] = Symbols.NULL;

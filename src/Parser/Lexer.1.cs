@@ -25,6 +25,7 @@ namespace Roku.Parser
                 { "true", Symbols.TRUE },
                 { "false", Symbols.FALSE },
                 { "null", Symbols.NULL },
+                { "is", Symbols.IS },
             };
 
         public Lexer(SourceCodeReader reader)

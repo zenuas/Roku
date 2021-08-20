@@ -344,13 +344,11 @@ namespace Roku.Compiler
             if (source is FunctionTypeBody fta && arg is AnonymousFunctionBody afb) return TypeFunctionEquals(fta, afb);
             if (source is EnumStructBody e)
             {
-                if (arg is EnumStructBody arge)
-                {
-                    return false; //ToDo: e >= arge
-                }
+                if (arg is EnumStructBody arge) return arge.Enums.And(x => TypeEquals(e, x)); // e >= arge
                 return e.Enums.Or(x => TypeEquals(x, arg));
             }
             if (source is NullBody && arg is NullBody) return true;
+            if (source is NamespaceBody nsa && arg is NamespaceBody nsb) return nsa == nsb;
             return false;
         }
 

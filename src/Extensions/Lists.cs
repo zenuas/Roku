@@ -244,6 +244,12 @@ namespace Extensions
         public static int FindLastIndex<T>(this IEnumerable<T> self, Func<T, int, bool> f) => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First, x.Second)).If(IsNull, _ => -1, x => x.First().Second);
 
         [DebuggerHidden]
+        public static bool Contains<T>(this IEnumerable<T> self, Func<T, bool> f) => self.FindFirstIndex(f) >= 0;
+
+        [DebuggerHidden]
+        public static bool Contains<T>(this IEnumerable<T> self, Func<T, int, bool> f) => self.FindFirstIndex(f) >= 0;
+
+        [DebuggerHidden]
         public static int Sum(this IEnumerable<int> self) => Enumerable.Sum(self);
 
         [DebuggerHidden]

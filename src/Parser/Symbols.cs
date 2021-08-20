@@ -73,6 +73,9 @@ namespace Roku.Parser
         /// <summary>IGNORE</summary>
         IGNORE,
 
+        /// <summary>IS</summary>
+        IS,
+
         /// <summary>LET</summary>
         LET,
 

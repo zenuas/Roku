@@ -238,7 +238,7 @@ namespace Roku.Compiler
                     }
                 }
             }
-            var args = call.Function.Arguments.Map(x => ToTypedValue(ns, m, x).Struct).ToList();
+            var args = call.Function.Arguments.Map(x => ToTypedValue(ns, m, x, true).Struct).ToList();
 
             switch (call.Function.Function)
             {
@@ -246,7 +246,8 @@ namespace Roku.Compiler
                     {
                         //var ret = new EmbeddedFunction("return", null, args.Map(x => x?.Name!).ToArray()) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                         var r = ns.Cast<FunctionBody>().Return;
-                        var ret = new EmbeddedFunction("return", null, r is { } ? new ITypeDefinition[] { r } : new ITypeDefinition[] { }) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
+                        var ret = new EmbeddedFunction("return", null, r is { } ? new ITypeDefinition[] { r } : new ITypeDefinition[] { }) { OpCode = (_, args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
+                        Lookup.AppendSpecialization(ret, new GenericsMapper());
                         var fm = new FunctionMapper(ret);
                         if (r is TypeGenericsParameter gen) fm.TypeMapper[gen] = CreateVariableDetail("", m[gen].Struct ?? (args.Count > 0 ? args[0] : null), VariableType.TypeParameter);
                         else if (r is TypeSpecialization gv && m.ContainsKey(r) && m[r].Struct is StructSpecialization sp && sp.Body is ISpecialization sp2) gv.Generics.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail("", sp.GenericsMapper[sp2.Generics[i]], VariableType.TypeParameter));
@@ -291,7 +292,9 @@ namespace Roku.Compiler
                         var body = Lookup.FindStructOrNull(ns, GetStructNames(m, x).ToArray(), gens);
                         if (body is null) break;
 
-                        var fm = new FunctionMapper(new EmbeddedFunction(x.ToString(), x.ToString()) { OpCode = (args) => $"newobj instance void {CodeGenerator.GetStructName(body)}::.ctor()" });
+                        var em = new EmbeddedFunction(x.ToString(), x.ToString()) { OpCode = (_, args) => $"newobj instance void {CodeGenerator.GetStructName(body)}::.ctor()" };
+                        Lookup.AppendSpecialization(em, new GenericsMapper());
+                        var fm = new FunctionMapper(em);
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
                         if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, body);
                         resolve = true;
@@ -318,7 +321,7 @@ namespace Roku.Compiler
             else if (caller.Body is EmbeddedFunction ef)
             {
                 if (ef.Return is { } && !fm.TypeMapper.ContainsKey(ef.Return)) fm.TypeMapper[ef.Return] = Typing.CreateVariableDetail("", Lookup.LoadStruct(ns, ef.Return.Name), VariableType.Type);
-                ef.Arguments.Each((x, i) => fm.TypeMapper[x] = Typing.CreateVariableDetail($"${i}", Lookup.LoadStruct(ns, x.Name), VariableType.Argument, i));
+                ef.Arguments.Each((x, i) => fm.TypeMapper[new VariableValue($"${i}")] = Typing.CreateVariableDetail($"${i}", Lookup.GetStructType(ns, x, caller.GenericsMapper), VariableType.Argument, i));
             }
             return fm;
         }
@@ -426,7 +429,7 @@ namespace Roku.Compiler
             return true;
         }
 
-        public static VariableDetail ToTypedValue(INamespace ns, TypeMapper m, IEvaluable v)
+        public static VariableDetail ToTypedValue(INamespace ns, TypeMapper m, IEvaluable v, bool nonamespace = false)
         {
             if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return m[v];
 
@@ -473,7 +476,14 @@ namespace Roku.Compiler
                     return m[x];
 
                 case TypeValue x:
-                    m[x] = CreateVariableDetail(x.Name, new NamespaceBody(x.Name), VariableType.Namespace);
+                    if (nonamespace)
+                    {
+                        m[x] = CreateVariableDetail(x.Name, Lookup.LoadStruct(ns, x.Name), VariableType.PrimitiveValue);
+                    }
+                    else
+                    {
+                        m[x] = CreateVariableDetail(x.Name, new NamespaceBody(x.Name), VariableType.Namespace);
+                    }
                     return m[x];
 
                 case FunctionReferenceValue x:

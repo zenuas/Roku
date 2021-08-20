@@ -1,4 +1,5 @@
 ﻿using Extensions;
+using Roku.Declare;
 using Roku.Manager;
 using Roku.Node;
 using Roku.Parser;
@@ -45,6 +46,10 @@ namespace Roku.Compiler
             _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(float) })!);
             _ = Lookup.LoadFunction(root, "+", typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) })!);
             root.Structs.Add(new NullBody());
+            root.Functions.Add(CreateEmbeddedFunction("is", "Bool", "a", "b").Return(x => x.OpCode = (m, args) =>
+                m.TypeMapper[x.Arguments[1]].Struct is NullBody
+                ? $"{args[0]}\nldnull\nceq"
+                : $"{args[0]}\nisinst {args[1]}"));
 
             var src = Definition.LoadProgram(root, Compile(input));
             using (var sys = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("Roku.sys.rk")!))
@@ -65,26 +70,47 @@ namespace Roku.Compiler
 
         public static void DefineNumericFunction(RootNamespace root, string type, string zero = "ldc.i4.0")
         {
-            root.Functions.Add(new EmbeddedFunction("+", type, type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nadd" });
-            root.Functions.Add(new EmbeddedFunction("-", type, type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nsub" });
-            root.Functions.Add(new EmbeddedFunction("*", type, type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nmul" });
-            root.Functions.Add(new EmbeddedFunction("/", type, type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\ndiv" });
-            root.Functions.Add(new EmbeddedFunction("%", type, type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nrem" });
-            root.Functions.Add(new EmbeddedFunction("==", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nceq" });
-            root.Functions.Add(new EmbeddedFunction("!=", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nceq\n{zero}\nceq" });
-            root.Functions.Add(new EmbeddedFunction("<", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nclt" });
-            root.Functions.Add(new EmbeddedFunction("<=", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\ncgt\n{zero}\nceq" });
-            root.Functions.Add(new EmbeddedFunction(">", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\ncgt" });
-            root.Functions.Add(new EmbeddedFunction(">=", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nclt\n{zero}\nceq" });
-            root.Functions.Add(new EmbeddedFunction("+", type, type) { OpCode = (args) => args[0] });
-            root.Functions.Add(new EmbeddedFunction("-", type, type) { OpCode = (args) => $"{args[0]}\nneg" });
+            root.Functions.Add(new EmbeddedFunction("+", type, type, type) { OpCode = (_, args) => $"{args[0]}\n{args[1]}\nadd" });
+            root.Functions.Add(new EmbeddedFunction("-", type, type, type) { OpCode = (_, args) => $"{args[0]}\n{args[1]}\nsub" });
+            root.Functions.Add(new EmbeddedFunction("*", type, type, type) { OpCode = (_, args) => $"{args[0]}\n{args[1]}\nmul" });
+            root.Functions.Add(new EmbeddedFunction("/", type, type, type) { OpCode = (_, args) => $"{args[0]}\n{args[1]}\ndiv" });
+            root.Functions.Add(new EmbeddedFunction("%", type, type, type) { OpCode = (_, args) => $"{args[0]}\n{args[1]}\nrem" });
+            root.Functions.Add(new EmbeddedFunction("==", "Bool", type, type) { OpCode = (_, args) => $"{args[0]}\n{args[1]}\nceq" });
+            root.Functions.Add(new EmbeddedFunction("!=", "Bool", type, type) { OpCode = (_, args) => $"{args[0]}\n{args[1]}\nceq\n{zero}\nceq" });
+            root.Functions.Add(new EmbeddedFunction("<", "Bool", type, type) { OpCode = (_, args) => $"{args[0]}\n{args[1]}\nclt" });
+            root.Functions.Add(new EmbeddedFunction("<=", "Bool", type, type) { OpCode = (_, args) => $"{args[0]}\n{args[1]}\ncgt\n{zero}\nceq" });
+            root.Functions.Add(new EmbeddedFunction(">", "Bool", type, type) { OpCode = (_, args) => $"{args[0]}\n{args[1]}\ncgt" });
+            root.Functions.Add(new EmbeddedFunction(">=", "Bool", type, type) { OpCode = (_, args) => $"{args[0]}\n{args[1]}\nclt\n{zero}\nceq" });
+            root.Functions.Add(new EmbeddedFunction("+", type, type) { OpCode = (_, args) => args[0] });
+            root.Functions.Add(new EmbeddedFunction("-", type, type) { OpCode = (_, args) => $"{args[0]}\nneg" });
         }
 
         public static void DefineBooleanFunction(RootNamespace root, string type)
         {
-            root.Functions.Add(new EmbeddedFunction("==", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nceq" });
-            root.Functions.Add(new EmbeddedFunction("!=", "Bool", type, type) { OpCode = (args) => $"{args[0]}\n{args[1]}\nceq\nldc.i4.0\nceq" });
-            root.Functions.Add(new EmbeddedFunction("!", "Bool", type) { OpCode = (args) => $"{args[0]}\nldc.i4.0\nceq" });
+            root.Functions.Add(new EmbeddedFunction("==", "Bool", type, type) { OpCode = (_, args) => $"{args[0]}\n{args[1]}\nceq" });
+            root.Functions.Add(new EmbeddedFunction("!=", "Bool", type, type) { OpCode = (_, args) => $"{args[0]}\n{args[1]}\nceq\nldc.i4.0\nceq" });
+            root.Functions.Add(new EmbeddedFunction("!", "Bool", type) { OpCode = (_, args) => $"{args[0]}\nldc.i4.0\nceq" });
+        }
+
+        public static EmbeddedFunction CreateEmbeddedFunction(string name, string? ret, params string[] args)
+        {
+            var ef = new EmbeddedFunction(name);
+            Func<string, ITypeDefinition> create_type = (x) =>
+            {
+                if (char.IsLower(x.First()))
+                {
+                    if (ef.Generics.FindFirstOrNull(g => g.Name == x) is { } p) return p;
+
+                    var g = new TypeGenericsParameter(x);
+                    ef.Generics.Add(g);
+                    return g;
+                }
+                return new TypeValue(x);
+            };
+
+            args.Each(x => ef.Arguments.Add(create_type(x)));
+            if (ret is { } r) ef.Return = create_type(r);
+            return ef;
         }
     }
 }

@@ -126,7 +126,10 @@ namespace Roku.Parser
             return g;
         }
 
-        public static EnumNode CreateNullable(ITypeNode type) => new EnumNode(CreateListNode(type, new TypeNode() { Name = "Null" }.R(type)));
+        public static EnumNode CreateNullable(ITypeNode type) =>
+            type is EnumNode e
+            ? e.Return(x => x.Types.Add(new TypeNode() { Name = "Null" }.R(type)))
+            : new EnumNode(CreateListNode(type, new TypeNode() { Name = "Null" }.R(type)));
 
         public void SyntaxError(Token t) => SyntaxError(t, "syntax error");
 

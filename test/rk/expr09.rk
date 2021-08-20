@@ -1,0 +1,96 @@
+
+sub f(x: [Int | String]?)
+	if x is Int
+		print("Int")
+	else if x is Null
+		print("Null")
+	else if x is String
+		print("String")
+
+#=>Int
+f(0)
+
+#=>Null
+f(null)
+
+#=>String
+f("")
+
+###
+型判定のテスト
+値型、参照型、nullの型判定を検証
+isは sub is(e: a, t: Type) のシンタックスシュガーである
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly expr09 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 1
+    
+    ldc.i4.0
+    box int32
+    call void f(object)
+    
+    ldnull
+    call void f(object)
+    
+    ldstr ""
+    call void f(object)
+    ret
+}
+.method public static void f(object)
+{
+    .maxstack 2
+    .locals(
+        [0] bool $$1,
+        [1] bool $$2,
+        [2] bool $$3
+    )
+    
+    ldarg.0
+    isinst int32
+    stloc.0
+    
+    ldloc.0
+    brfalse _ElseIf1
+    
+    ldstr "Int"
+    call void class [System.Console]System.Console::WriteLine(string)
+    
+    br _EndIf3
+    
+_ElseIf1:
+    
+    ldarg.0
+    ldnull
+    ceq
+    stloc.1
+    
+    ldloc.1
+    brfalse _ElseIf2
+    
+    ldstr "Null"
+    call void class [System.Console]System.Console::WriteLine(string)
+    
+    br _EndIf3
+    
+_ElseIf2:
+    
+    ldarg.0
+    isinst string
+    stloc.2
+    
+    ldloc.2
+    brfalse _EndIf3
+    
+    ldstr "String"
+    call void class [System.Console]System.Console::WriteLine(string)
+    
+_EndIf3:
+    ret
+}
+###end
