@@ -9,8 +9,9 @@ using Roku.Node;
 %define YYTOKEN     Token
 
 %type<IScopeNode>                   block stmt
-%type<IStatementNode>               line
-%type<LetNode>                      let
+%type<IStatementNode>               line let
+%type<ITupleBind>                   tuplevar
+%type<ListNode<ITupleBind>>         tuplevar2n
 %type<FunctionNode>                 sub sub_block cond
 %type<ListNode<FunctionNode>>       condn class_block
 %type<LambdaExpressionNode>         lambda_func
@@ -100,8 +101,15 @@ list2n : expr ',' expr   {$$ = CreateListNode($1, $3);}
        | list2n ',' expr {$$ = $1.Return(x => x.List.Add($3));}
 
 ########## let ##########
-let : LET var EQ expr       {$$ = CreateLetNode($2, $4);}
-    | expr '.' fvar EQ expr {$$ = CreateLetNode($1, $3, $5);}
+let : LET var EQ expr        {$$ = CreateLetNode($2, $4);}
+    | expr '.' fvar EQ expr  {$$ = CreateLetNode($1, $3, $5);}
+    | LET tuplevar2n EQ expr {$$ = CreateLetTupleNode($2, $4);}
+
+tuplevar2n : tuplevar   ',' tuplevar {$$ = CreateListNode($1, $3);}
+           | tuplevar2n ',' tuplevar {$$ = $1.Return(x => x.List.Add($3));}
+tuplevar   : var                     {$$ = CreateLetNode($1);}
+           | var ':' type            {$$ = CreateLetNode($1, $3);}
+           | IGNORE                  {$$ = CreateLetIgnoreNode($1);}
 
 ########## struct ##########
 struct : STRUCT var            EOL struct_block {$$ = $4.Return(x => x.Name = $2);}

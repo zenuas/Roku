@@ -1,16 +1,14 @@
 ﻿namespace Roku.Node
 {
-    public class LetTypeNode : INode, IStatementNode, ITupleBind
+    public class LetVarNode : INode, ITupleBind
     {
         public int? LineNumber { get; set; }
         public int? LineColumn { get; set; }
         public VariableNode Var { get; }
-        public ITypeNode Type { get; set; }
 
-        public LetTypeNode(VariableNode v, ITypeNode t)
+        public LetVarNode(VariableNode v)
         {
             Var = v;
-            Type = t;
         }
     }
 }

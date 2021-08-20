@@ -1,0 +1,16 @@
+
+var n, s = (1, "hello")
+
+#=>1
+print(n)
+
+#=>hello
+print(s)
+
+###
+タプルを個別に受け取る
+###
+
+###start
+
+###end

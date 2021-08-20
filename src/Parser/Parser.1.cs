@@ -20,11 +20,17 @@ namespace Roku.Parser
 
         public static FunctionCallNode CreateFunctionCallNode(IEvaluableNode expr, params IEvaluableNode[] args) => new FunctionCallNode(expr).Return(x => x.Arguments.AddRange(args)).R(expr);
 
+        public static LetIgnoreNode CreateLetIgnoreNode(Token t) => new LetIgnoreNode().R(t);
+
+        public static LetVarNode CreateLetNode(VariableNode v) => new LetVarNode(v).R(v);
+
         public static LetNode CreateLetNode(VariableNode v, IEvaluableNode e) => new LetNode(v, e).R(v);
 
         public static LetPropertyNode CreateLetNode(IEvaluableNode left, VariableNode right, IEvaluableNode e) => new LetPropertyNode(left, right, e).R(right);
 
         public static LetTypeNode CreateLetNode(VariableNode v, ITypeNode t) => new LetTypeNode(v, t).R(v);
+
+        public static LetTupleAssignmentNode CreateLetTupleNode(ListNode<ITupleBind> v, IEvaluableNode e) => new LetTupleAssignmentNode(e).Return(x => x.Assignment.AddRange(v.List)).R(v);
 
         public static TupleNode CreateTupleNode(ListNode<IEvaluableNode> v) => new TupleNode().Return(x => x.Values.AddRange(v.List));
 

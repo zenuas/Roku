@@ -277,6 +277,12 @@ namespace Roku.Parser
         /// <summary>sub_block</summary>
         sub_block,
 
+        /// <summary>tuplevar</summary>
+        tuplevar,
+
+        /// <summary>tuplevar2n</summary>
+        tuplevar2n,
+
         /// <summary>type</summary>
         type,
 
