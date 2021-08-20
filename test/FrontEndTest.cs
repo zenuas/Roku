@@ -46,7 +46,7 @@ namespace Roku.Tests
         public void CompileTest()
         {
             var failed = new List<(string Path, string Message)>(
-                Directory.GetFiles(SourceDir, "*.rk").MapParallelAll(src =>
+                Directory.GetFiles(SourceDir, "*.rk").MapParallelAllWithTimeout(src =>
                 {
                     var filename = Path.GetFileName(src);
                     var txt = File.ReadAllText(src);
@@ -59,18 +59,18 @@ namespace Roku.Tests
                         var valid = GetLineContent(lines, "###start", "###end");
                         if (!valid.Found)
                         {
-                            return (filename, "test code not found ###start - ###end");
+                            return Tuple.Create(filename, "test code not found ###start - ###end");
                         }
                         var il_src = File.ReadAllText(il).Trim();
 
-                        if (valid.Text.Trim() != il_src) return (filename, "il make a difference");
+                        if (valid.Text.Trim() != il_src) return Tuple.Create(filename, "il make a difference");
                     }
                     catch (Exception ex)
                     {
                         var error = GetLineContent(lines, "###error", "###end");
                         if (!error.Found || error.Text.Trim() != ex.Message)
                         {
-                            return (filename, ex.Message);
+                            return Tuple.Create(filename, ex.Message);
                         }
                         File.WriteAllText(il, $@"
 .assembly {filename} {{}}
@@ -81,8 +81,10 @@ namespace Roku.Tests
 }}
 ");
                     }
-                    return (filename, "");
-                }).Where(x => x.Item2 != ""));
+                    return Tuple.Create(filename, "");
+                }, 1000 * 10)
+                .Where(x => x.Completed && x.Result!.Item2 != "")
+                .Map(x => (x.Result!.Item1, x.Result!.Item2)));
 
             if (failed.Count > 0) Assert.Fail(failed.Map(x => $"{x.Path}: {x.Message}").Join("\n"));
         }
