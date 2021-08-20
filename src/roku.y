@@ -108,7 +108,6 @@ let : LET var EQ expr        {$$ = CreateLetNode($2, $4);}
 tuplevar2n : tuplevar   ',' tuplevar {$$ = CreateListNode($1, $3);}
            | tuplevar2n ',' tuplevar {$$ = $1.Return(x => x.List.Add($3));}
 tuplevar   : var                     {$$ = CreateLetNode($1);}
-           | var ':' type            {$$ = CreateLetNode($1, $3);}
            | IGNORE                  {$$ = CreateLetIgnoreNode($1);}
 
 ########## struct ##########

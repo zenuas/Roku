@@ -195,6 +195,21 @@ namespace Roku.Compiler
                         scope.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(NormalizationExpression(scope, let.Reciever, true), let.Name.Name), Left = NormalizationExpression(scope, let.Expression, true) });
                         break;
 
+                    case LetTupleAssignmentNode let:
+                        {
+                            var e = NormalizationExpression(scope, let.Expression, true);
+                            let.Assignment.Each((x, i) =>
+                            {
+                                if (x is LetVarNode letv)
+                                {
+                                    var v = new VariableValue(letv.Var.Name);
+                                    scope.LexicalScope.Add(letv.Var.Name, v);
+                                    scope.Body.Add(new Code { Operator = Operator.Bind, Return = v, Left = new PropertyValue(e, $"{i + 1}") });
+                                }
+                            });
+                        }
+                        break;
+
                     case FunctionCallNode call:
                         scope.Body.Add(new Call(NormalizationExpression(scope, call).Cast<FunctionCallValue>()));
                         break;

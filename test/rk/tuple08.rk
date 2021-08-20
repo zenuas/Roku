@@ -12,5 +12,71 @@ print(s)
 ###
 
 ###start
-
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly tuple08 {}
+.class public 'Tuple#2<int32, string>'
+{
+    .field public int32 '1'
+    .field public string '2'
+    
+    .method public void .ctor()
+    {
+        
+        
+        ret
+    }
+}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 2
+    .locals(
+        [0] class 'Tuple#2<int32, string>' $$1,
+        [1] int32 n,
+        [2] string s
+    )
+    
+    ldc.i4.1
+    ldstr "hello"
+    call class 'Tuple#2<int32, string>' 'Tuple#2#0'(int32, string)
+    stloc.0
+    
+    ldloc.0
+    ldfld int32 class 'Tuple#2<int32, string>'::'1'
+    stloc.1
+    
+    ldloc.0
+    ldfld string class 'Tuple#2<int32, string>'::'2'
+    stloc.2
+    
+    ldloc.1
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.2
+    call void class [System.Console]System.Console::WriteLine(string)
+    ret
+}
+.method public static class 'Tuple#2<int32, string>' 'Tuple#2#0'(int32, string)
+{
+    .maxstack 2
+    .locals(
+        [0] class 'Tuple#2<int32, string>' $self
+    )
+    
+    newobj instance void class 'Tuple#2<int32, string>'::.ctor()
+    stloc.0
+    
+    ldloc.0
+    ldarg.0
+    stfld int32 class 'Tuple#2<int32, string>'::'1'
+    
+    ldloc.0
+    ldarg.1
+    stfld string class 'Tuple#2<int32, string>'::'2'
+    
+    ldloc.0
+    ret
+    ret
+}
 ###end

@@ -1,6 +1,6 @@
 ﻿namespace Roku.Node
 {
-    public class LetTypeNode : INode, IStatementNode, ITupleBind
+    public class LetTypeNode : INode, IStatementNode
     {
         public int? LineNumber { get; set; }
         public int? LineColumn { get; set; }
