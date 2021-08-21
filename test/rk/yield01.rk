@@ -1,0 +1,73 @@
+
+sub co() [String]
+	yield("one")
+	yield("two")
+	yield("three")
+
+var xs = co()
+
+#=>one
+#=>two
+#=>three
+var p1 = next(xs)
+print(p1.1)
+var p2 = next(p1.2)
+print(p2.1)
+var p3 = next(p2.2)
+print(p3.1)
+
+###
+コルーチンは以下の通り変換する
+
+struct Co$struct
+	var state = 0
+	var value: String
+	var next: Co$struct?
+
+sub next(self: Co$struct) [String, Co$struct]
+	if self.next is Co$struct then return((self.value, self.next))
+	if self.state == 1 then goto state1_
+	if self.state == 2 then goto state2_
+	if self.state == 3 then goto state3_
+	if self.state == -1 then goto end_
+	
+	# yield("one")
+	self.next = Co$struct()
+	self.next.state = 1
+	return(("one", $1))
+	
+	# yield("two")
+	state1_:
+	self.next = Co$struct()
+	self.next.state = 2
+	return(("two", $2))
+	
+	# yield("three")
+	state1_:
+	self.next = Co$struct()
+	self.next.state = 3
+	return(("three", $3))
+	
+	state3_:
+	end_:
+	self.state = -1
+	return((_, self))
+
+sub isnull(self: co) Bool
+	_ = next(xs) # ゼロ件判定のためにまずnextを呼び出す必要がある
+	return(self.state == -1)
+
+sub co() [String]
+	return(Co$struct())
+
+# 以下は呼び出し側のイメージ
+var xs = co()
+while(! isnull(xs))
+	var p = next(xs)
+	print(p.1)
+	xs = p.2
+
+###
+
+###start
+###end

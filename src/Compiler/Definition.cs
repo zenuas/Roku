@@ -75,12 +75,12 @@ namespace Roku.Compiler
             return body;
         }
 
-        public static FunctionBody TupleBodyDefinition(RootNamespace root, TupleNode tuple)
+        public static FunctionBody TupleBodyDefinition(RootNamespace root, int count)
         {
-            var name = GetName(tuple);
+            var name = GetTupleName(count);
             var exists = root.Structs.FindFirstOrNull(x => x.Name == name);
 
-            if (exists is null) _ = TupleDefinition(root, tuple.Values.Count);
+            if (exists is null) _ = TupleDefinition(root, count);
 
             var fbody = MakeFunction(root, $"{name}#{root.TupleUniqueCount++}");
             var fret = new TypeSpecialization(new VariableValue(name));
@@ -89,7 +89,7 @@ namespace Roku.Compiler
             fbody.LexicalScope.Add(self.Name, self);
             fbody.Body.Add(new Call(new FunctionCallValue(fcall)) { Return = self });
 
-            tuple.Values.Each((x, i) =>
+            Lists.Range(0, count).Each(i =>
             {
                 var gp = new TypeGenericsParameter($"t{i + 1}");
                 var farg_var = new VariableValue($"x{i + 1}");
@@ -118,16 +118,22 @@ namespace Roku.Compiler
             return fbody;
         }
 
-        public static void FunctionDefinition(INamespaceBody ns, IScopeNode scope)
+        public static void FunctionDefinition(SourceCodeBody src, IScopeNode scope)
         {
             if (scope.Statements.Count > 0)
             {
-                var body = MakeFunction(ns, "main");
+                var body = MakeFunction(src, "main");
                 body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
                 FunctionBodyDefinition(body, scope.Statements);
             }
 
-            scope.Functions.Each(f => FunctionBodyDefinition(MakeFunctionDefinition(ns, null, f), f.Statements));
+            scope.Functions.Each(f =>
+            {
+                var body = MakeFunctionDefinition(src, null, f);
+                FunctionBodyDefinition(body, f.Statements);
+
+                if (body.Body.Contains(IsYield)) ConvertCoroutine(src, scope, body);
+            });
         }
 
         public static ITypeDefinition CreateType(ILexicalScope scope, ITypeNode t)
@@ -353,7 +359,7 @@ namespace Roku.Compiler
 
                 case TupleNode x:
                     {
-                        var f = TupleBodyDefinition(Lookup.GetRootNamespace(scope.Namespace), x);
+                        var f = TupleBodyDefinition(Lookup.GetRootNamespace(scope.Namespace), x.Values.Count);
                         var call = new FunctionCallValue(new VariableValue(f.Name));
                         x.Values.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
                         if (!evaluate_as_expression) return call;
@@ -372,6 +378,76 @@ namespace Roku.Compiler
             }
             throw new Exception();
         }
+
+        public static void ConvertCoroutine(SourceCodeBody src, IScopeNode scope, FunctionBody body)
+        {
+            /*
+                struct Co$0
+                    var state = 0
+                    var value: a
+                    var next: [Co$0 | Null]
+            */
+            var list_a = body.Constraints.FindFirst(x => x.Class.Name == "List" && x.Generics.Count == 2 && x.Generics[0] == body.Return).Generics[1];
+            var co_struct = new StructBody(src, $"Co${src.CoroutineUniqueCount++}");
+            var co_struct_typename = new TypeValue(co_struct.Name);
+            var state = new VariableValue("state");
+            var value = new VariableValue("value");
+            var next = new VariableValue("next");
+            co_struct.Members.Add("state", co_struct.LexicalScope["state"] = state);
+            co_struct.Members.Add("value", co_struct.LexicalScope["value"] = value);
+            co_struct.Members.Add("next", co_struct.LexicalScope["next"] = next);
+            co_struct.Body.Add(new Code { Operator = Operator.Bind, Return = state, Left = new NumericValue(0) });
+            co_struct.Body.Add(new TypeBind(value, list_a));
+            co_struct.Body.Add(new TypeBind(next, new TypeEnum(new ITypeDefinition[] { co_struct_typename, new TypeValue("Null") })));
+            src.Structs.Add(co_struct);
+
+            var tuple2 = TupleBodyDefinition(Lookup.GetRootNamespace(src), 2);
+
+            // sub next($self: Co$0) [a, Co$0]
+            var next_body = new FunctionBody(src, "next");
+            var self = new VariableValue("$self");
+            next_body.Arguments.Add((self, co_struct_typename));
+            next_body.LexicalScope["$self"] = self;
+            var tuple2sp = new TypeSpecialization(new VariableValue(GetTupleName(2)));
+            tuple2sp.Generics.Add(list_a);
+            tuple2sp.Generics.Add(co_struct_typename);
+            next_body.Return = tuple2sp;
+            next_body.Body.AddRange(body.Body);
+            src.Functions.Add(next_body);
+
+            /*
+                sub co<List<x, a>>() x
+                    var $ret = Co$0()
+                    return($ret)
+            */
+            var ret = new VariableValue("$ret");
+            body.Body.Clear();
+            next_body.LexicalScope["$ret"] = ret;
+            body.Body.Add(new Call(new FunctionCallValue(new VariableValue(co_struct.Name))) { Return = ret });
+            body.Body.Add(new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(ret))));
+
+            /*
+                sub isnull($self: Co$0) Bool
+                    next($self)
+                    var m1 = - 1
+                    var $ret = $self.state == m1
+                    return($ret)
+            */
+            var isnull_body = new FunctionBody(src, "isnull");
+            isnull_body.Arguments.Add((self, co_struct_typename));
+            next_body.Return = new TypeValue("Bool");
+            var m1 = new VariableValue("m1");
+            isnull_body.LexicalScope["$self"] = self;
+            isnull_body.LexicalScope["m1"] = m1;
+            isnull_body.LexicalScope["$ret"] = ret;
+            isnull_body.Body.Add(new Call(new FunctionCallValue(next).Return(x => x.Arguments.Add(self))));
+            isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue("-")).Return(x => x.Arguments.Add(new NumericValue(1)))) { Return = m1 });
+            isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue("==")).Return(x => x.Arguments.AddRange(new IEvaluable[] { new PropertyValue(self, "state"), m1 }))) { Return = ret });
+            isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(ret))));
+            src.Functions.Add(isnull_body);
+        }
+
+        public static bool IsYield(IOperand x) => x is Call call && call.Function.Function is VariableValue name && name.Name == "yield";
 
         public static TypeSpecialization CreateTypeSpecialization(ILexicalScope scope, SpecializationNode gen)
         {

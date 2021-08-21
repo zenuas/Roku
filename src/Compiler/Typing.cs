@@ -186,6 +186,10 @@ namespace Roku.Compiler
                     {
                         return LocalValueInferenceWithEffect(ns, m, x.Name, FindTypeMapperToGenerics(m, x.Type.Name));
                     }
+                    else if (x.Type is TypeEnum te)
+                    {
+                        return LocalValueInferenceWithEffect(ns, m, x.Name, Lookup.LoadEnumStruct(ns, te));
+                    }
                     else
                     {
                         return LocalValueInferenceWithEffect(ns, m, x.Name, Lookup.LoadStruct(ns, x.Type.Name));
