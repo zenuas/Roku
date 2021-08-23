@@ -401,6 +401,12 @@ namespace Roku.Compiler
             co_struct.Body.Add(new TypeBind(next, new TypeEnum(new ITypeDefinition[] { co_struct_typename, new TypeValue("Null") })));
             src.Structs.Add(co_struct);
 
+            /*
+                sub Co$0() Co$0
+                    return(newobj Co$0.ctor())
+             */
+            src.Functions.Add(new EmbeddedFunction(co_struct.Name, co_struct.Name) { OpCode = (_, args) => $"newobj instance void {co_struct.Name}::.ctor()" });
+
             var tuple2 = TupleBodyDefinition(Lookup.GetRootNamespace(src), 2);
 
             // sub next($self: Co$0) [a, Co$0]
@@ -422,7 +428,8 @@ namespace Roku.Compiler
             */
             var ret = new VariableValue("$ret");
             body.Body.Clear();
-            next_body.LexicalScope["$ret"] = ret;
+            body.LexicalScope["$ret"] = ret;
+            body.Return = co_struct_typename;
             body.Body.Add(new Call(new FunctionCallValue(new VariableValue(co_struct.Name))) { Return = ret });
             body.Body.Add(new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(ret))));
 
@@ -435,7 +442,7 @@ namespace Roku.Compiler
             */
             var isnull_body = new FunctionBody(src, "isnull");
             isnull_body.Arguments.Add((self, co_struct_typename));
-            next_body.Return = new TypeValue("Bool");
+            isnull_body.Return = new TypeValue("Bool");
             var m1 = new VariableValue("m1");
             isnull_body.LexicalScope["$self"] = self;
             isnull_body.LexicalScope["m1"] = m1;
