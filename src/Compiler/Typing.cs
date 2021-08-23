@@ -421,6 +421,7 @@ namespace Roku.Compiler
 
         public static bool LocalValueInferenceWithEffect(INamespace ns, TypeMapper m, IEvaluable v, IStructBody? b = null)
         {
+            if (v is PropertyValue) return false;
             if (m.ContainsKey(v))
             {
                 if ((m[v].Struct is { } p && IsDecideType(p)) || b is null) return false;
