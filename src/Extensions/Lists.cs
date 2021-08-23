@@ -178,6 +178,29 @@ namespace Extensions
         public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> self) => self.SelectMany(x => x);
 
         [DebuggerHidden]
+        public static IEnumerable<IEnumerable<T>> SplitBefore<T>(this IEnumerable<T> self, Func<T, bool> f)
+        {
+            var list = self.ToList();
+            var start = 0;
+            var skip = 0;
+            while (true)
+            {
+                var index = list.FindIndex(skip, x => f(x));
+                if (index < 0)
+                {
+                    yield return list.GetRange(start, list.Count - start);
+                    break;
+                }
+                else
+                {
+                    yield return list.GetRange(start, index - start);
+                    start = index;
+                    skip = index + 1;
+                }
+            }
+        }
+
+        [DebuggerHidden]
         public static IEnumerable<(T1 First, T2 Second)> Zip<T1, T2>(this IEnumerable<T1> self, IEnumerable<T2> xs) => Enumerable.Zip(self, xs);
 
         [DebuggerHidden]
@@ -254,6 +277,9 @@ namespace Extensions
 
         [DebuggerHidden]
         public static T Sum<T>(this IEnumerable<T> self) => self.FoldLeft((x, y) => Expressions.Add<T>()(x, y));
+
+        [DebuggerHidden]
+        public static int Count<T>(this IEnumerable<T> self, Func<T, bool> f) => Enumerable.Count(self, f);
 
         [DebuggerHidden]
         public static T Max<T>(this IEnumerable<T> self) where T : IComparable<T> => self.FoldLeft((x, y) => x.CompareTo(y) >= 0 ? x : y);
