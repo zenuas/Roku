@@ -509,7 +509,7 @@ namespace Roku.Compiler
                 case null: return "void";
                 case ExternStruct x: return GetILStructName(x);
                 case NumericStruct x: return GetStructName(x.Types.First());
-                case StructBody x: return $"class {EscapeILName(x.Name)}";
+                case StructBody x: return $"class {(escape ? EscapeILName(x.Name) : x.Name)}";
                 case StructSpecialization x when x.Body is ExternStruct e: return $"class [{e.Assembly.GetName().Name}]{e.Struct.FullName}{GetGenericsName(e, x.GenericsMapper)}";
                 case StructSpecialization x when x.Body is StructBody e: return $"class {GetStructName(x.Name, e, x.GenericsMapper, false).To(x => escape ? EscapeILName(x) : x)}";
                 case EnumStructBody _: return "object";
