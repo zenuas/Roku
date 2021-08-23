@@ -404,53 +404,148 @@ namespace Roku.Compiler
             /*
                 sub Co$0() Co$0
                     return(newobj Co$0.ctor())
-             */
+            */
             src.Functions.Add(new EmbeddedFunction(co_struct.Name, co_struct.Name) { OpCode = (_, args) => $"newobj instance void {co_struct.Name}::.ctor()" });
 
-            var tuple2 = TupleBodyDefinition(Lookup.GetRootNamespace(src), 2);
+            /*
+                sub next($self: Co$0) [a, Co$0]
+                    var $next = $self.next
+                    var $cond = $next is Co$0
+                    if $cond then
+                        var $value = $self.value
+                        var $ret = Tuple#2($value, $next)
+                        return($ret)
+                    var $state = $self.state
+                    $cond =  $state == N
+                    if $cond then goto stateN_
+                    var $m1 = - 1
+                    $cond = $state == $m1
+                    if $cond then goto end_
 
-            // sub next($self: Co$0) [a, Co$0]
+                    yield(x) ->
+                        $self.value = x
+                        $next = Co$0()
+                        $next.state = N
+                        $self.next = $next
+                        $ret = Tuple#2(x, $next)
+                        return($ret)
+                        stateN_:
+
+                    end_:
+                    $m1 = - 1
+                    $self.state = $m1
+                    $ret = Tuple#2(null, $self)
+                    return($ret)
+            */
             var next_body = new FunctionBody(src, "next");
-            var self = new VariableValue("$self");
-            next_body.Arguments.Add((self, co_struct_typename));
-            next_body.LexicalScope["$self"] = self;
+            var _self = new VariableValue("$self");
+            next_body.Arguments.Add((_self, co_struct_typename));
+            next_body.LexicalScope["$self"] = _self;
             var tuple2sp = new TypeSpecialization(new VariableValue(GetTupleName(2)));
             tuple2sp.Generics.Add(list_a);
             tuple2sp.Generics.Add(co_struct_typename);
             next_body.Return = tuple2sp;
-            next_body.Body.AddRange(body.Body);
             src.Functions.Add(next_body);
+
+            var yield_count = body.Body.Count(IsYield);
+            var labels_jump = Lists.Sequence(1).Take(yield_count + 1).Map(n => new LabelCode() { Name = n > yield_count ? "end_" : $"state{n}_" }).ToList();
+            var labels_cond = Lists.Sequence(0).Take(yield_count + 2).Map(n => new LabelCode() { Name = $"cond{n}_" }).ToList();
+
+            var tuple2_body = TupleBodyDefinition(Lookup.GetRootNamespace(src), 2);
+            var tuple2 = new VariableValue(tuple2_body.Name);
+            var _next = new VariableValue("$next");
+            var co_struct_name = new VariableValue(co_struct.Name);
+            var _cond = new VariableValue("$cond");
+            var _value = new VariableValue("$value");
+            var _ret = new VariableValue("$ret");
+            var _state = new VariableValue("$state");
+            var _m1 = new VariableValue("$m1");
+            next_body.LexicalScope["$next"] = _next;
+            next_body.LexicalScope["$value"] = _value;
+            next_body.LexicalScope["$ret"] = _ret;
+            next_body.LexicalScope["$state"] = _state;
+            next_body.LexicalScope["$m1"] = _m1;
+
+            next_body.Body.AddRange(new List<IOperand> {
+                new Code { Operator = Operator.Bind, Return = _next, Left = new PropertyValue(_self, "next") },
+                new Call(new FunctionCallValue(new VariableValue("is")).Return(x => x.Arguments.AddRange(new IEvaluable[] { _next, co_struct_typename }))) { Return = _cond },
+                new IfCode(_cond, labels_cond[0]),
+                new Code { Operator = Operator.Bind, Return = _value, Left = new PropertyValue(_self, "value") },
+                new Call(new FunctionCallValue(tuple2).Return(x => x.Arguments.AddRange(new IEvaluable[] { _value, _next }))) { Return = _ret },
+                new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(_ret))),
+                labels_cond[0],
+                new Code { Operator = Operator.Bind, Return = _state, Left = new PropertyValue(_self, "state") },
+            });
+            next_body.Body.AddRange(Lists.Sequence(1).Take(yield_count).Map(n => new IOperand[] {
+                new Call(new FunctionCallValue(new VariableValue("==")).Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, new NumericValue((uint)n) }))) { Return = _cond },
+                new IfCode(_cond, labels_cond[n]),
+                new GotoCode(labels_jump[n - 1]),
+                labels_cond[n],
+            }).Flatten());
+            next_body.Body.AddRange(new IOperand[] {
+                new Call(new FunctionCallValue(new VariableValue("-")).Return(x => x.Arguments.Add(new NumericValue(1)))) { Return = _m1 },
+                new Call(new FunctionCallValue(new VariableValue("==")).Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, _m1 }))) { Return = _cond },
+                new IfCode(_cond, labels_cond[^1]),
+                new GotoCode(labels_jump[^1]),
+                labels_cond[^1],
+            });
+
+            next_body.Body.AddRange(body.Body.SplitBefore(IsYield).Map((chunk, i) =>
+            {
+                if (i == 0) return chunk;
+
+                var yield_line = chunk.First().Cast<Call>();
+
+                return new IOperand[] {
+                    new Code { Operator = Operator.Bind, Return = new PropertyValue(_self, "value"), Left =  yield_line.Function.Arguments[0] },
+                    new Call(new FunctionCallValue(co_struct_name)) { Return = _next },
+                    new Code { Operator = Operator.Bind, Return = new PropertyValue(_next, "state"), Left = new NumericValue((uint)i) },
+                    new Code { Operator = Operator.Bind, Return = new PropertyValue(_self, "next"), Left = _next },
+                    new Call(new FunctionCallValue(tuple2).Return(x => x.Arguments.AddRange(new IEvaluable[] { yield_line.Function.Arguments[0], _next }))) { Return = _ret },
+                    new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(_ret))),
+                    labels_jump[i - 1],
+                }.Concat(chunk.Drop(1));
+            }).Flatten());
+
+            next_body.Body.AddRange(new IOperand[] {
+                labels_jump[^1],
+                new Call(new FunctionCallValue(new VariableValue("-")).Return(x => x.Arguments.Add(new NumericValue(1)))) { Return = _m1 },
+                new Code { Operator = Operator.Bind, Return = new PropertyValue(_self, "state"), Left = _m1 },
+                new Call(new FunctionCallValue(tuple2).Return(x => x.Arguments.AddRange(new IEvaluable[] { new NullValue(), _self }))) { Return = _ret },
+                new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(_ret))),
+            });
 
             /*
                 sub co<List<x, a>>() x
                     var $ret = Co$0()
                     return($ret)
             */
-            var ret = new VariableValue("$ret");
             body.Body.Clear();
-            body.LexicalScope["$ret"] = ret;
+            body.LexicalScope["$ret"] = _ret;
             body.Return = co_struct_typename;
-            body.Body.Add(new Call(new FunctionCallValue(new VariableValue(co_struct.Name))) { Return = ret });
-            body.Body.Add(new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(ret))));
+            body.Body.Add(new Call(new FunctionCallValue(new VariableValue(co_struct.Name))) { Return = _ret });
+            body.Body.Add(new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(_ret))));
 
             /*
                 sub isnull($self: Co$0) Bool
                     next($self)
-                    var m1 = - 1
-                    var $ret = $self.state == m1
+                    var $m1 = - 1
+                    var $state = $self.state
+                    var $ret = $state == $m1
                     return($ret)
             */
             var isnull_body = new FunctionBody(src, "isnull");
-            isnull_body.Arguments.Add((self, co_struct_typename));
+            isnull_body.Arguments.Add((_self, co_struct_typename));
             isnull_body.Return = new TypeValue("Bool");
-            var m1 = new VariableValue("m1");
-            isnull_body.LexicalScope["$self"] = self;
-            isnull_body.LexicalScope["m1"] = m1;
-            isnull_body.LexicalScope["$ret"] = ret;
-            isnull_body.Body.Add(new Call(new FunctionCallValue(next).Return(x => x.Arguments.Add(self))));
-            isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue("-")).Return(x => x.Arguments.Add(new NumericValue(1)))) { Return = m1 });
-            isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue("==")).Return(x => x.Arguments.AddRange(new IEvaluable[] { new PropertyValue(self, "state"), m1 }))) { Return = ret });
-            isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(ret))));
+            isnull_body.LexicalScope["$self"] = _self;
+            isnull_body.LexicalScope["$m1"] = _m1;
+            isnull_body.LexicalScope["$state"] = _state;
+            isnull_body.LexicalScope["$ret"] = _ret;
+            isnull_body.Body.Add(new Call(new FunctionCallValue(next).Return(x => x.Arguments.Add(_self))));
+            isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue("-")).Return(x => x.Arguments.Add(new NumericValue(1)))) { Return = _m1 });
+            isnull_body.Body.Add(new Code { Operator = Operator.Bind, Return = _state, Left = new PropertyValue(_self, "state") });
+            isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue("==")).Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, _m1 }))) { Return = _ret });
+            isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(_ret))));
             src.Functions.Add(isnull_body);
         }
 
