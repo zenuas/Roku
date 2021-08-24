@@ -36,22 +36,22 @@ sub next(self: Co$struct) [String, Co$struct]
 	self.next = Co$struct()
 	self.next.state = 1
 	return((self.value, self.next))
+	state1_:
 	
 	# yield("two")
-	state1_:
 	self.value = "two"
 	self.next = Co$struct()
 	self.next.state = 2
 	return((self.value, self.next))
+	state2_:
 	
 	# yield("three")
-	state1_:
 	self.value = "three"
 	self.next = Co$struct()
 	self.next.state = 3
 	return((self.value, self.next))
-	
 	state3_:
+	
 	end_:
 	self.state = -1
 	return((_, self))
