@@ -15,6 +15,7 @@ namespace Roku.Manager
         public int MaxTemporaryValue { get; set; } = 0;
         public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
         public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
+        public bool IsCoroutineLocal { get; set; } = false;
 
         public StructBody(INamespace ns, string name)
         {
