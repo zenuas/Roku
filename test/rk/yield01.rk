@@ -185,12 +185,13 @@ while(! isnull(xs))
 {
     .maxstack 2
     .locals(
-        [0] class 'Co$0' $next,
-        [1] bool $cond,
+        [0] object $next_or_null,
+        [1] class 'Co$0' $next,
         [2] string $value,
         [3] class 'Tuple#2<string, class Co$0>' $ret,
         [4] int32 $state,
-        [5] int32 $m1
+        [5] bool $cond,
+        [6] int32 $m1
     )
     
     ldarg.0
@@ -199,17 +200,18 @@ while(! isnull(xs))
     
     ldloc.0
     isinst class 'Co$0'
+    ldnull
+    cgt.un
+    brfalse.s _cond0_1
+    ldloc.0
     stloc.1
-    
-    ldloc.1
-    brfalse _cond0_1
     
     ldarg.0
     ldfld string class 'Co$0'::'value'
     stloc.2
     
     ldloc.2
-    ldloc.0
+    ldloc.1
     call class 'Tuple#2<string, class Co$0>' 'Tuple#2#0'(string, class 'Co$0')
     stloc.3
     
@@ -225,9 +227,9 @@ _cond0_1:
     ldloc.s 4
     ldc.i4.1
     ceq
-    stloc.1
+    stloc.s 5
     
-    ldloc.1
+    ldloc.s 5
     brfalse _cond1_2
     
     br _state1_6
@@ -237,9 +239,9 @@ _cond1_2:
     ldloc.s 4
     ldc.i4.2
     ceq
-    stloc.1
+    stloc.s 5
     
-    ldloc.1
+    ldloc.s 5
     brfalse _cond2_3
     
     br _state2_7
@@ -249,9 +251,9 @@ _cond2_3:
     ldloc.s 4
     ldc.i4.3
     ceq
-    stloc.1
+    stloc.s 5
     
-    ldloc.1
+    ldloc.s 5
     brfalse _cond3_4
     
     br _state3_8
@@ -260,14 +262,14 @@ _cond3_4:
     
     ldc.i4.1
     neg
-    stloc.s 5
+    stloc.s 6
     
     ldloc.s 4
-    ldloc.s 5
+    ldloc.s 6
     ceq
-    stloc.1
+    stloc.s 5
     
-    ldloc.1
+    ldloc.s 5
     brfalse _cond4_5
     
     br _end_9
@@ -279,18 +281,18 @@ _cond4_5:
     stfld string class 'Co$0'::'value'
     
     newobj instance void Co$0::.ctor()
-    stloc.0
+    stloc.1
     
-    ldloc.0
+    ldloc.1
     ldc.i4.1
     stfld int32 class 'Co$0'::state
     
     ldarg.0
-    ldloc.0
+    ldloc.1
     stfld object class 'Co$0'::next
     
     ldstr "one"
-    ldloc.0
+    ldloc.1
     call class 'Tuple#2<string, class Co$0>' 'Tuple#2#0'(string, class 'Co$0')
     stloc.3
     
@@ -304,18 +306,18 @@ _state1_6:
     stfld string class 'Co$0'::'value'
     
     newobj instance void Co$0::.ctor()
-    stloc.0
+    stloc.1
     
-    ldloc.0
+    ldloc.1
     ldc.i4.2
     stfld int32 class 'Co$0'::state
     
     ldarg.0
-    ldloc.0
+    ldloc.1
     stfld object class 'Co$0'::next
     
     ldstr "two"
-    ldloc.0
+    ldloc.1
     call class 'Tuple#2<string, class Co$0>' 'Tuple#2#0'(string, class 'Co$0')
     stloc.3
     
@@ -329,18 +331,18 @@ _state2_7:
     stfld string class 'Co$0'::'value'
     
     newobj instance void Co$0::.ctor()
-    stloc.0
+    stloc.1
     
-    ldloc.0
+    ldloc.1
     ldc.i4.3
     stfld int32 class 'Co$0'::state
     
     ldarg.0
-    ldloc.0
+    ldloc.1
     stfld object class 'Co$0'::next
     
     ldstr "three"
-    ldloc.0
+    ldloc.1
     call class 'Tuple#2<string, class Co$0>' 'Tuple#2#0'(string, class 'Co$0')
     stloc.3
     
@@ -353,10 +355,10 @@ _end_9:
     
     ldc.i4.1
     neg
-    stloc.s 5
+    stloc.s 6
     
     ldarg.0
-    ldloc.s 5
+    ldloc.s 6
     stfld int32 class 'Co$0'::state
     
     ldnull

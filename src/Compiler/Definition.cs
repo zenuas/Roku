@@ -394,13 +394,14 @@ namespace Roku.Compiler
             var state = new VariableValue("state");
             var value = new VariableValue("value");
             var next = new VariableValue("next");
-            var locals = new VariableValue("locals");
+            var local = new VariableValue("local");
             co_struct.Members.Add("state", co_struct.LexicalScope["state"] = state);
             co_struct.Members.Add("value", co_struct.LexicalScope["value"] = value);
             co_struct.Members.Add("next", co_struct.LexicalScope["next"] = next);
             co_struct.Body.Add(new Code { Operator = Operator.Bind, Return = state, Left = new NumericValue(0) });
             co_struct.Body.Add(new TypeBind(value, list_a));
             co_struct.Body.Add(new TypeBind(next, new TypeEnum(new ITypeDefinition[] { co_struct_typename, new TypeValue("Null") })));
+            co_struct.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
             src.Structs.Add(co_struct);
 
             /*
@@ -414,8 +415,8 @@ namespace Roku.Compiler
             var co_local_typename = new TypeValue(co_local.Name);
             if (local_value_exist)
             {
-                co_struct.Members.Add("locals", co_struct.LexicalScope["locals"] = locals);
-                co_struct.Body.Add(new TypeBind(locals, co_local_typename));
+                co_struct.Members.Add("local", co_struct.LexicalScope["local"] = local);
+                co_struct.Body.Add(new TypeBind(local, co_local_typename));
 
                 /*
                     struct CoLocal$0
@@ -424,6 +425,7 @@ namespace Roku.Compiler
                 */
                 body.LexicalScope.Where(x => x.Value is VariableValue).Each(x => co_local.Members.Add(x.Key, co_local.LexicalScope[x.Key] = x.Value));
                 body.Arguments.Each(x => co_local.Body.Add(new TypeBind(x.Name, x.Type)));
+                co_local.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
                 src.Structs.Add(co_local);
 
                 /*
@@ -435,15 +437,14 @@ namespace Roku.Compiler
 
             /*
                 sub next($self: Co$0) [a, Co$0]
-                    var $next = $self.next
-                    var $cond = $next is Co$0
-                    if $cond then
+                    var $next_or_null = $self.next
+                    if var $next: Co$0 = $next_or_null
                         var $value = $self.value
                         var $ret = Tuple#2($value, $next)
                         return($ret)
                     var $state = $self.state
                     var $local = $self.local # local value exist
-                    $cond =  $state == N
+                    var $cond =  $state == N
                     if $cond then goto stateN_
                     var $m1 = - 1
                     $cond = $state == $m1
@@ -481,6 +482,7 @@ namespace Roku.Compiler
 
             var tuple2_body = TupleBodyDefinition(Lookup.GetRootNamespace(src), 2);
             var tuple2 = new VariableValue(tuple2_body.Name);
+            var _next_or_null = new VariableValue("$next_or_null");
             var _next = new VariableValue("$next");
             var co_struct_name = new VariableValue(co_struct.Name);
             var _cond = new VariableValue("$cond");
@@ -489,6 +491,7 @@ namespace Roku.Compiler
             var _state = new VariableValue("$state");
             var _m1 = new VariableValue("$m1");
             var _local = new VariableValue("$local");
+            next_body.LexicalScope["$next_or_null"] = _next_or_null;
             next_body.LexicalScope["$next"] = _next;
             next_body.LexicalScope["$value"] = _value;
             next_body.LexicalScope["$ret"] = _ret;
@@ -497,9 +500,8 @@ namespace Roku.Compiler
             body.LexicalScope.Where(x => x.Value is VariableValue).Each(x => next_body.LexicalScope[x.Key] = x.Value);
 
             next_body.Body.AddRange(new List<IOperand> {
-                new Code { Operator = Operator.Bind, Return = _next, Left = new PropertyValue(_self, "next") },
-                new Call(new FunctionCallValue(new VariableValue("is")).Return(x => x.Arguments.AddRange(new IEvaluable[] { _next, co_struct_typename }))) { Return = _cond },
-                new IfCode(_cond, labels_cond[0]),
+                new Code { Operator = Operator.Bind, Return = _next_or_null, Left = new PropertyValue(_self, "next") },
+                new IfCastCode(_next, co_struct_typename, _next_or_null, labels_cond[0]),
                 new Code { Operator = Operator.Bind, Return = _value, Left = new PropertyValue(_self, "value") },
                 new Call(new FunctionCallValue(tuple2).Return(x => x.Arguments.AddRange(new IEvaluable[] { _value, _next }))) { Return = _ret },
                 new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(_ret))),

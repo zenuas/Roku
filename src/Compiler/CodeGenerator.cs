@@ -339,6 +339,15 @@ namespace Roku.Compiler
                                 il.WriteLine($"brfalse.s {labels[ifcast.Else]}");
                             }
                         }
+                        else if (m[ifcast.Name].Struct is StructBody sb)
+                        {
+                            il.WriteLine($"isinst {GetStructName(sb)}");
+                            il.WriteLine($"ldnull");
+                            il.WriteLine($"cgt.un");
+                            il.WriteLine($"brfalse.s {labels[ifcast.Else]}");
+                            il.WriteLine(load_cond);
+                            il.WriteLine(StoreValue(m, ifcast.Name));
+                        }
                         else if (m[ifcast.Name].Struct is NullBody)
                         {
                             il.WriteLine($"ldnull");
