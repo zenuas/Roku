@@ -47,10 +47,13 @@ namespace Roku.Compiler
 
                 body.Members.Values.Each(x =>
                 {
-                    var d = mapper[x];
-                    d.Type = VariableType.Property;
-                    d.Reciever = self;
-                    d.Index = 0;
+                    if (mapper.ContainsKey(x))
+                    {
+                        var d = mapper[x];
+                        d.Type = VariableType.Property;
+                        d.Reciever = self;
+                        d.Index = 0;
+                    }
                 });
             }
             return resolved;
@@ -421,11 +424,18 @@ namespace Roku.Compiler
 
         public static bool LocalValueInferenceWithEffect(INamespace ns, TypeMapper m, IEvaluable v, IStructBody? b = null)
         {
-            if (v is PropertyValue) return false;
             if (m.ContainsKey(v))
             {
                 if ((m[v].Struct is { } p && IsDecideType(p)) || b is null) return false;
                 m[v].Struct = b;
+
+                if (v is PropertyValue prop)
+                {
+                    if (m[prop.Left].Struct is StructBody sb && sb.IsCoroutineLocal)
+                    {
+                        sb.Body.Add(new TypeBind(sb.LexicalScope[prop.Right], new TypeValue(b.Name)));
+                    }
+                }
             }
             else
             {
