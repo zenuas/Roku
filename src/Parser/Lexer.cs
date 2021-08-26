@@ -53,6 +53,7 @@ namespace Roku.Parser
             table["STR"] = Symbols.STR;
             table["STRUCT"] = Symbols.STRUCT;
             table["SUB"] = Symbols.SUB;
+            table["SWITCH"] = Symbols.SWITCH;
             table["THEN"] = Symbols.THEN;
             table["TRUE"] = Symbols.TRUE;
             table["TYPE_PARAM"] = Symbols.TYPE_PARAM;

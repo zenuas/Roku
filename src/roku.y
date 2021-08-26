@@ -206,6 +206,25 @@ ifthen : IF expr EOL block                            {$$ = CreateIfNode($2, $4)
 elseif : ifthen ELSE ifthen                           {$$ = $1.Return(x => x.ElseIf.Add($3));}
        | elseif ELSE ifthen                           {$$ = $1.Return(x => x.ElseIf.Add($3));}
 
+########## switch ##########
+switch     : SWITCH expr EOL case_block
+case_block : BEGIN casen END
+casen      : case
+           | casen case
+case       : case_expr ARROW expr EOL
+           | case_expr ARROW EOL block
+case_expr  : var ':' type
+           | '[' array_pattern ']'
+           | '(' tuple_pattern ')'
+           | ELSE
+
+array_pattern : void
+              | patternn extra
+tuple_pattern : pattern ',' patternn extra
+patternn      : pattern
+              | patternn ',' pattern
+pattern       : var
+
 ########## other ##########
 var    : VAR     {$$ = CreateVariableNode($1);}
 varx   : var
@@ -216,6 +235,7 @@ varx   : var
        | IF      {$$ = CreateVariableNode($1);}
        | THEN    {$$ = CreateVariableNode($1);}
        | ELSE    {$$ = CreateVariableNode($1);}
+       | SWITCH  {$$ = CreateVariableNode($1);}
        | TRUE    {$$ = CreateVariableNode($1);}
        | FALSE   {$$ = CreateVariableNode($1);}
        | NULL    {$$ = CreateVariableNode($1);}

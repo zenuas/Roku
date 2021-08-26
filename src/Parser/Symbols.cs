@@ -106,6 +106,9 @@ namespace Roku.Parser
         /// <summary>SUB</summary>
         SUB,
 
+        /// <summary>SWITCH</summary>
+        SWITCH,
+
         /// <summary>THEN</summary>
         THEN,
 
@@ -133,6 +136,9 @@ namespace Roku.Parser
         /// <summary>args</summary>
         args,
 
+        /// <summary>array_pattern</summary>
+        array_pattern,
+
         /// <summary>begin</summary>
         begin,
 
@@ -144,6 +150,18 @@ namespace Roku.Parser
 
         /// <summary>call</summary>
         call,
+
+        /// <summary>case</summary>
+        @case,
+
+        /// <summary>case_block</summary>
+        case_block,
+
+        /// <summary>case_expr</summary>
+        case_expr,
+
+        /// <summary>casen</summary>
+        casen,
 
         /// <summary>class</summary>
         @class,
@@ -247,6 +265,12 @@ namespace Roku.Parser
         /// <summary>or</summary>
         or,
 
+        /// <summary>pattern</summary>
+        pattern,
+
+        /// <summary>patternn</summary>
+        patternn,
+
         /// <summary>program_begin</summary>
         program_begin,
 
@@ -279,6 +303,12 @@ namespace Roku.Parser
 
         /// <summary>sub_block</summary>
         sub_block,
+
+        /// <summary>switch</summary>
+        @switch,
+
+        /// <summary>tuple_pattern</summary>
+        tuple_pattern,
 
         /// <summary>tuplevar</summary>
         tuplevar,

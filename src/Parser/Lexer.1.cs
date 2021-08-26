@@ -22,6 +22,7 @@ namespace Roku.Parser
                 { "if", Symbols.IF },
                 { "then", Symbols.THEN },
                 { "else", Symbols.ELSE },
+                { "switch", Symbols.SWITCH },
                 { "true", Symbols.TRUE },
                 { "false", Symbols.FALSE },
                 { "null", Symbols.NULL },
