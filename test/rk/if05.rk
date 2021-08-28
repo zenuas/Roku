@@ -1,0 +1,38 @@
+
+sub f(xs: [Int])
+	
+	if [] = xs
+		print("none")
+	else if [y] = xs
+		print("length=1")
+		print(y)
+	else if [z1, z2, zs] = xs
+		print("length>=3")
+		print(z1)
+		print(z2)
+	else if [w, ws] = xs
+		print("length>=2")
+		print(w)
+
+#=>none
+#f([])
+
+#=>length=1
+#=>5
+f([5])
+
+#=>length>=2
+#=>6
+f([6, 7])
+
+#=>length>=3
+#=>8
+#=>9
+f([8, 9, 10])
+
+###
+配列パターンのテスト
+###
+
+###start
+###end

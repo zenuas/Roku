@@ -288,12 +288,119 @@ namespace Roku.Compiler
             {
                 inner_scope.Body.Add(new IfCode(NormalizationExpression(inner_scope, ifn.Condition, true), next_label));
             }
-            else
+            else if (if_ is IfCastNode ifc)
             {
-                var ifc = if_.Cast<IfCastNode>();
                 var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), CreateType(inner_scope, ifc.Declare), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
                 inner_scope.Body.Add(ifcast);
                 inner_scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
+            }
+            else
+            {
+                var ifa = if_.Cast<IfArrayCastNode>();
+                var cond = NormalizationExpression(inner_scope, ifa.Condition, true);
+                var _v0 = CreateTemporaryVariable(inner_scope);
+                inner_scope.Body.Add(new Call(new FunctionCallValue(new VariableValue("isnull")).Return(x => x.Arguments.Add(cond))) { Return = _v0 });
+
+                switch (ifa.ArrayPattern.List.Count)
+                {
+                    case 0:
+                        {
+                            /*
+                                if [] = cond ->
+                                    var $0 = isnull(cond)
+                                    var $1 = ! $0
+                                    if $1 else goto next
+                            */
+                            var _v1 = CreateTemporaryVariable(inner_scope);
+                            inner_scope.Body.AddRange(new IOperand[] {
+                                new Call(new FunctionCallValue(new VariableValue("!")).Return(x=>x.Arguments.Add(_v0))) { Return = _v1 },
+                                new IfCode(_v1, next_label),
+                            });
+                        }
+                        break;
+
+                    case 1:
+                        {
+                            /*
+                                if [y] = cond ->
+                                    var $0 = isnull(cond)
+                                    if $0 else goto next
+                                    var $1 = next(cond)
+                                    var $2 = $1.2
+                                    var $3 = isnull($2)
+                                    var $4 = ! $3
+                                    if $4 else goto next
+                                    var y = $1.1
+                            */
+                            var _v1 = CreateTemporaryVariable(inner_scope);
+                            var _v2 = CreateTemporaryVariable(inner_scope);
+                            var _v3 = CreateTemporaryVariable(inner_scope);
+                            var _v4 = CreateTemporaryVariable(inner_scope);
+                            var y = new VariableValue(ifa.ArrayPattern.List[0].Name);
+                            inner_scope.LexicalScope.Add(y.Name, y);
+                            inner_scope.Body.AddRange(new IOperand[] {
+                                new IfCode(_v0, next_label),
+                                new Call(new FunctionCallValue(new VariableValue("next")).Return(x => x.Arguments.Add(cond))) { Return = _v1 },
+                                new Code{ Operator = Operator.Bind, Return = _v2, Left = new PropertyValue(_v1, "2") },
+                                new Call(new FunctionCallValue(new VariableValue("isnull")).Return(x => x.Arguments.Add(_v2))) { Return = _v3 },
+                                new Call(new FunctionCallValue(new VariableValue("!")).Return(x => x.Arguments.Add(_v3))) { Return = _v4 },
+                                new IfCode(_v4, next_label),
+                                new Code{ Operator = Operator.Bind, Return = y, Left = new PropertyValue(_v1, "1") },
+                            });
+                        }
+                        break;
+
+                    case >= 2:
+                        {
+                            /*
+                                if [y1, y2, ..., y[n - 1], y[n], ys] = cond ->
+                                    var $0 = isnull(cond)
+                                    if $0 else goto next
+
+                                    # y1 .. y[n - 1]
+                                    var $[index * 3 + 1] = next($[(index - 1) * 3 + 2])
+                                    var y[index] = $[index * 3 + 1].1
+                                    var $[index * 3 + 2] = $[index * 3 + 1].2
+                                    var $[index * 3 + 3] = isnull($[index * 3 + 2])
+                                    if $[index * 3 + 3] else goto next
+
+                                    # y[n]
+                                    var $[index * 3 + 1] = next($[(index - 1) * 3 + 2])
+                                    var y[index] = $[index * 3 + 1].1
+                                    var ys = $[index * 3 + 1].2
+
+                            */
+                            inner_scope.Body.Add(new IfCode(_v0, next_label));
+                            var prev_cond = cond;
+                            for (var index = 0; index < ifa.ArrayPattern.List.Count - 2; index++)
+                            {
+                                var _v3_x_index_add_1 = CreateTemporaryVariable(inner_scope);
+                                var _v3_x_index_add_2 = CreateTemporaryVariable(inner_scope);
+                                var _v3_x_index_add_3 = CreateTemporaryVariable(inner_scope);
+                                var y = new VariableValue(ifa.ArrayPattern.List[index].Name);
+                                inner_scope.LexicalScope.Add(y.Name, y);
+                                inner_scope.Body.AddRange(new IOperand[] {
+                                    new Call(new FunctionCallValue(new VariableValue("next")).Return(x => x.Arguments.Add(prev_cond))) { Return = _v3_x_index_add_1 },
+                                    new Code{ Operator = Operator.Bind, Return = y, Left = new PropertyValue(_v3_x_index_add_1, "1") },
+                                    new Code{ Operator = Operator.Bind, Return = _v3_x_index_add_2, Left = new PropertyValue(_v3_x_index_add_1, "2") },
+                                    new Call(new FunctionCallValue(new VariableValue("isnull")).Return(x => x.Arguments.Add(_v3_x_index_add_2))) { Return = _v3_x_index_add_3 },
+                                    new IfCode(_v3_x_index_add_3, next_label),
+                                });
+                                prev_cond = _v3_x_index_add_2;
+                            }
+                            var _v3_x_last_add_1 = CreateTemporaryVariable(inner_scope);
+                            var yn = new VariableValue(ifa.ArrayPattern.List[ifa.ArrayPattern.List.Count - 2].Name);
+                            var ys = new VariableValue(ifa.ArrayPattern.List[ifa.ArrayPattern.List.Count - 1].Name);
+                            inner_scope.LexicalScope.Add(yn.Name, yn);
+                            inner_scope.LexicalScope.Add(ys.Name, ys);
+                            inner_scope.Body.AddRange(new IOperand[] {
+                                new Call(new FunctionCallValue(new VariableValue("next")).Return(x => x.Arguments.Add(prev_cond))) { Return = _v3_x_last_add_1 },
+                                new Code{ Operator = Operator.Bind, Return = yn, Left = new PropertyValue(_v3_x_last_add_1, "1") },
+                                new Code{ Operator = Operator.Bind, Return = ys, Left = new PropertyValue(_v3_x_last_add_1, "2") },
+                            });
+                        }
+                        break;
+                }
             }
 
             FunctionBodyDefinition(inner_scope, if_.Then.Statements);
