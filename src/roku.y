@@ -201,8 +201,10 @@ if     : ifthen
        | elseif ELSE EOL block                        {$$ = AddElse($1, $4);}
        | IF expr                 THEN NOTEOL expr EOL {$$ = CreateIfNode($2, ToStatementBlock($5));}
        | IF var ':' type EQ expr THEN NOTEOL expr EOL {$$ = CreateIfCastNode($2, $4, $6, ToStatementBlock($9));}
+       | IF '[' list ']' EQ expr THEN NOTEOL expr EOL {$$ = CreateIfArrayCastNode(ToArrayPattern($3), $6, ToStatementBlock($9));}
 ifthen : IF expr EOL block                            {$$ = CreateIfNode($2, $4);}
        | IF var ':' type EQ expr EOL block            {$$ = CreateIfCastNode($2, $4, $6, $8);}
+       | IF '[' list ']' EQ expr EOL block            {$$ = CreateIfArrayCastNode(ToArrayPattern($3), $6, $8);}
 elseif : ifthen ELSE ifthen                           {$$ = $1.Return(x => x.ElseIf.Add($3));}
        | elseif ELSE ifthen                           {$$ = $1.Return(x => x.ElseIf.Add($3));}
 

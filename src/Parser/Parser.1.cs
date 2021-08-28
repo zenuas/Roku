@@ -91,6 +91,8 @@ namespace Roku.Parser
 
         public static IfCastNode CreateIfCastNode(VariableNode name, ITypeNode declare, IEvaluableNode cond, IScopeNode then) => new IfCastNode(name, declare, cond, then).R(cond);
 
+        public static IfArrayCastNode CreateIfArrayCastNode(ListNode<VariableNode> array_pattern, IEvaluableNode cond, IScopeNode then) => new IfArrayCastNode(array_pattern, cond, then).R(cond);
+
         public static IIfNode AddElse(IIfNode if_, IScopeNode else_) => if_.Return(x => x.Else = else_);
 
         public static TypeStructNode CreateTypeStructNode(VariableNode name, ListNode<DeclareNode> args) => new TypeStructNode() { StructName = name }.Return(x => x.Arguments.AddRange(args.List)).R(name);
@@ -100,6 +102,8 @@ namespace Roku.Parser
         public static BlockNode ToBlock(IStatementNode stmt) => new BlockNode().Return(x => x.Statements.Add(stmt)).R(stmt);
 
         public static BlockNode ToStatementBlock(IEvaluableNode expr) => ToBlock(expr.Cast<IStatementNode>());
+
+        public static ListNode<VariableNode> ToArrayPattern(ListNode<IEvaluableNode> list) => list.List.And(x => x is VariableNode) ? CreateListNode(list.List.By<VariableNode>().ToArray()) : throw new SyntaxErrorException("not array-pattern");
 
         public static ITypeNode ExpressionToType(IEvaluableNode expr)
         {
