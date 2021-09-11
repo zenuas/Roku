@@ -1,0 +1,77 @@
+
+#=>1
+var a = 1
+print(a)
+
+if true
+	
+	#=>2
+	var a = 2
+	print(a)
+	
+	if true
+		
+		#=>3
+		var a = 3
+		print(a)
+	
+	#=>2
+	print(a)
+
+#=>1
+print(a)
+
+###
+レキシカルスコープ毎に同名の別変数を参照するテスト
+###
+
+###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly var03 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 2
+    .locals(
+        [0] int32 a,
+        [1] int32 a,
+        [2] int32 a
+    )
+    
+    ldc.i4.1
+    stloc.0
+    
+    ldloc.0
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldc.i4.1
+    brfalse _EndIf2
+    
+    ldc.i4.2
+    stloc.1
+    
+    ldloc.1
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldc.i4.1
+    brfalse _EndIf1
+    
+    ldc.i4.3
+    stloc.2
+    
+    ldloc.2
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+_EndIf1:
+    
+    ldloc.1
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+_EndIf2:
+    
+    ldloc.0
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+###end
