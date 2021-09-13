@@ -48,11 +48,14 @@ testd:
 	-@dotnet test --nologo
 
 $(TESTS):
-	@echo $(subst test\rk\,,$(patsubst %.rk,%,$@))
-	-@if exist $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.il,$@)). ilasm $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.il,$@)) /out:$(subst \rk\,\rk\obj\,$(patsubst %.rk,%.dll,$@)) /quit /dll
-	@copy rk.test.runtimeconfig.json $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.runtimeconfig.json,$@)) 1>NUL
-	-@if exist $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.dll,$@)). dotnet $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.dll,$@)) < $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.testin,$@)) > $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.stdout,$@))
-	@fc $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.testout,$@)) $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.stdout,$@)) > $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.diff,$@)) || type $(subst \rk\,\rk\obj\,$(patsubst %.rk,%.diff,$@))
+	@$(set RK_TESTNAME=$(subst test\rk\,,$(patsubst %.rk,%,$@)))
+	@$(set RK_OBJ=$(subst \rk\,\rk\obj\,$(patsubst %.rk,%,$@)))
+	
+	@echo $(RK_TESTNAME)
+	-@if exist $(RK_OBJ).il. ilasm $(RK_OBJ).il /out:$(RK_OBJ).dll /quit /dll
+	@copy rk.test.runtimeconfig.json $(RK_OBJ).runtimeconfig.json 1>NUL
+	-@if exist $(RK_OBJ).dll. dotnet $(RK_OBJ).dll < $(RK_OBJ).testin > $(RK_OBJ).stdout
+	@fc $(RK_OBJ).testout $(RK_OBJ).stdout > $(RK_OBJ).diff || type $(RK_OBJ).diff
 
 metric:
 	dotnet msbuild /t:metrics src\Roku.csproj -nologo

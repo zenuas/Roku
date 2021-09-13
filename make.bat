@@ -335,6 +335,18 @@ function expand(env, s, i, quote)
 					}
 					r.value += xxs.join(" ");
 				}
+				else if(xs[0] == "set")
+				{
+					// $(set OUT=abc)
+					
+					var expand_index = xs[1].indexOf("=");
+					if(expand_index >= 0)
+					{
+						var key   = xs[1].substring(0, expand_index).trim();
+						var value = xs[1].substring(expand_index + 1).trim();
+						env.set_val(key, value);
+					}
+				}
 				else
 				{
 					throw new Error("unknown command [" + s + "]");
