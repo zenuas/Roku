@@ -161,7 +161,7 @@ function parse(makefile, env)
 				line = "";
 			}
 		}
-		if(line != "") {parse_line();}
+		if(line != "") {parse_line(line);}
 	}
 	finally
 	{
