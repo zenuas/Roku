@@ -33,14 +33,16 @@ namespace Roku.Tests
             }
         }
 
-        public (bool Found, string Text) GetLineContent(string[] lines, string start_line, string end_line)
+        public (bool Found, string Text) GetLineContent(string[] lines, Func<string, bool> start_line, Func<string, bool> end_line)
         {
-            var start = lines.FindFirstIndex(x => x.StartsWith(start_line));
-            if (start < 0) return (false, $"not found {start_line}");
-            var end = lines.Drop(start + 1).FindFirstIndex(x => x.StartsWith("###end"));
-            if (end < 0) return (false, $"not found {start_line} - {end_line}");
+            var start = lines.FindFirstIndex(x => start_line(x));
+            if (start < 0) return (false, "not found start_line");
+            var end = lines.Drop(start + 1).FindFirstIndex(x => end_line(x));
+            if (end < 0) return (false, "not found start_line - end_line");
             return (true, lines[(start + 1)..(start + end + 1)].Join("\r\n"));
         }
+
+        public (bool Found, string Text) GetLineContent(string[] lines, string start_line, string end_line) => GetLineContent(lines, x => x.StartsWith(start_line), x => x.StartsWith(end_line));
 
         [Test]
         public void CompileTest()
@@ -98,6 +100,7 @@ namespace Roku.Tests
                 var out_ = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".testout");
                 var err_ = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".testerr");
                 var args_ = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".testargs");
+                var name_ = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".testname");
 
                 var txt = File.ReadAllText(src);
                 var lines = txt.SplitLine().Map(x => x.TrimStart()).ToArray();
@@ -106,16 +109,19 @@ namespace Roku.Tests
                 var out_p = lines.Where(x => x.StartsWith("#=>")).Map(x => x[3..] + "\r\n").Join();
                 var err_p = lines.Where(x => x.StartsWith("#=2>")).Map(x => x[4..] + "\r\n").Join();
                 var args_p = lines.Where(x => x.StartsWith("##*")).Map(x => x[3..]).Join(" ");
+                var name_p = GetLineContent(lines, x => x == "###", x => x == "###");
 
                 File.Delete(in_);
                 File.Delete(out_);
                 File.Delete(err_);
                 File.Delete(args_);
+                File.Delete(name_);
 
                 File.WriteAllText(in_, in_p);
                 File.WriteAllText(out_, out_p);
                 File.WriteAllText(err_, err_p);
                 File.WriteAllText(args_, args_p);
+                File.WriteAllText(name_, Path.GetFileNameWithoutExtension(src) + (name_p.Found ? $" {name_p.Text.SplitLine().Take(2).Join(" ").Take(30).ToStringByChars()}" : ""));
             });
             Assert.Pass();
         }
