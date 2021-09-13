@@ -347,6 +347,19 @@ function expand(env, s, i, quote)
 						env.set_val(key, value);
 					}
 				}
+				else if(xs[0] == "echo")
+				{
+					// $(echo a b | c)
+					
+					WScript.Echo(xs[1]);
+				}
+				else if(xs[0] == "cat")
+				{
+					// $(cat a.txt utf-8)
+					
+					var param = command_split(xs[1], " ");
+					r.value += read(param[0], param[1]);
+				}
 				else
 				{
 					throw new Error("unknown command [" + s + "]");
@@ -537,5 +550,24 @@ function exec(s, subshell)
 				WScript.Quit(p.ExitCode);
 			}
 		}
+	}
+}
+
+function read(filename, charset)
+{
+	charset = charset || "_autodetect_all";
+	
+	var stream = WScript.CreateObject("ADODB.Stream");
+	stream.Type = 2; // adTypeText
+	stream.charset = charset;
+	stream.Open();
+	try
+	{
+		stream.LoadFromFile(filename);
+		return(stream.ReadText(-1)); // adReadAll
+	}
+	finally
+	{
+		stream.Close();
 	}
 }

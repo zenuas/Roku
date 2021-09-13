@@ -48,10 +48,9 @@ testd:
 	-@dotnet test --nologo
 
 $(TESTS):
-	@$(set RK_TESTNAME=$(subst test\rk\,,$(patsubst %.rk,%,$@)))
 	@$(set RK_OBJ=$(subst \rk\,\rk\obj\,$(patsubst %.rk,%,$@)))
 	
-	@echo $(RK_TESTNAME)
+	@$(echo $(cat $(RK_OBJ).testname utf-8))
 	-@if exist $(RK_OBJ).il. ilasm $(RK_OBJ).il /out:$(RK_OBJ).dll /quit /dll
 	@copy rk.test.runtimeconfig.json $(RK_OBJ).runtimeconfig.json 1>NUL
 	-@if exist $(RK_OBJ).dll. dotnet $(RK_OBJ).dll < $(RK_OBJ).testin > $(RK_OBJ).stdout
