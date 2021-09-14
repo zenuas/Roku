@@ -237,10 +237,17 @@ namespace Roku.Compiler
             var gens = new GenericsMapper();
             if (body is ISpecialization sp) sp.Generics.Each(x => gens[x] = null);
 
+            IStructBody? get_gen(IStructBody? arg, IGenericsMapper gm, int index)
+            {
+                if (arg is StructSpecialization ssp) return get_gen(ssp.Body, ssp, index);
+                if (arg is ISpecialization sp && sp.Generics.Count > index) return gm.GenericsMapper[sp.Generics[index]];
+                return null;
+            }
+
             void match(ITypeDefinition p, IStructBody? arg)
             {
                 if (p is TypeGenericsParameter v) gens[v] = arg;
-                if (p is TypeSpecialization sp) sp.Generics.Each(x => match(x, null));
+                if (p is TypeSpecialization sp && arg is IGenericsMapper gm) sp.Generics.Each((x, i) => match(x, get_gen(arg, gm, i)));
             }
             param.Each((x, i) => match(x, args.Count > i ? args[i] : null));
 
