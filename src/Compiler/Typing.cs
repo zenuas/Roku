@@ -185,18 +185,7 @@ namespace Roku.Compiler
                     return ResolveFunctionWithEffect(ns, m, x);
 
                 case TypeBind x:
-                    if (x.Type is TypeGenericsParameter g)
-                    {
-                        return LocalValueInferenceWithEffect(ns, m, x.Name, FindTypeMapperToGenerics(m, x.Type.Name));
-                    }
-                    else if (x.Type is TypeEnum te)
-                    {
-                        return LocalValueInferenceWithEffect(ns, m, x.Name, Lookup.LoadEnumStruct(ns, te));
-                    }
-                    else
-                    {
-                        return LocalValueInferenceWithEffect(ns, m, x.Name, Lookup.LoadStruct(ns, x.Type.Name));
-                    }
+                    return LocalValueInferenceWithEffect(ns, m, x.Name, TypeDefinitionToStructBody(ns, m, x.Type));
 
                 case IfCastCode x:
                     return LocalValueInferenceWithEffect(ns, m, x.Name, Lookup.LoadStruct(ns, x.Type.Name));
@@ -207,6 +196,31 @@ namespace Roku.Compiler
                     return false;
             }
             throw new Exception();
+        }
+
+        public static IStructBody TypeDefinitionToStructBody(INamespace ns, TypeMapper m, ITypeDefinition t)
+        {
+            switch (t)
+            {
+                case TypeGenericsParameter:
+                    return FindTypeMapperToGenerics(m, t.Name);
+
+                case TypeEnum te:
+                    return Lookup.LoadEnumStruct(ns, te);
+
+                case TypeValue tv:
+                    return Lookup.LoadStruct(ns, tv.Namespace.Concat(tv.Name).ToArray());
+
+                case TypeSpecialization ts:
+                    {
+                        var args = ts.Generics.Map(g => TypeDefinitionToStructBody(ns, m, g));
+                        var name = ts.Type is TypeValue tv ? tv.Namespace.Concat(tv.Name) : new string[] { ts.Name };
+                        return Lookup.FindStructOrNull(ns, name.ToArray(), args.ToList())?.Body ?? throw new Exception();
+                    }
+
+                default:
+                    return Lookup.LoadStruct(ns, t.Name);
+            }
         }
 
         public static IStructBody FindTypeMapperToGenerics(TypeMapper m, string name) => m.Where(x => x.Key is ITypeDefinition t && t.Name == name).First().Value.Struct!;

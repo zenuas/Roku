@@ -431,7 +431,14 @@ namespace Roku.Compiler
                     return FindScopeValue(scope, x.Name);
 
                 case TypeNode x:
-                    return FindScopeValue(scope, x.Name);
+                    if (x.Namespace.Count > 0)
+                    {
+                        return new TypeValue(x.Name).Return(t => t.Namespace.AddRange(x.Namespace));
+                    }
+                    else
+                    {
+                        return FindScopeValue(scope, x.Name);
+                    }
 
                 case FunctionCallNode x:
                     if (evaluate_as_expression)
@@ -930,12 +937,13 @@ namespace Roku.Compiler
                     body.Constraints.Add((new VariableValue("List"), new ITypeDefinition[] { xs_type, x_type }.ToList()));
                     return xs_type;
                 }
-                else
+                else if (s is SpecializationNode sp)
                 {
-                    return types.ContainsKey(s.Name) ? types[s.Name]
-                        : gens?.FindFirstOrNull(x => x.Name == s.Name) is { } p ? types[s.Name] = p.Return(x => body.Generics.Add(x))
-                        : CreateType(body, s).Return(x => { if (x is TypeGenericsParameter g) body.Generics.Add(types[g.Name] = g); });
+                    sp.Generics.Each(x => create_type(x));
                 }
+                return types.ContainsKey(s.Name) ? types[s.Name]
+                    : gens?.FindFirstOrNull(x => x.Name == s.Name) is { } p ? types[s.Name] = p.Return(x => body.Generics.Add(x))
+                    : CreateType(body, s).Return(x => { if (x is TypeGenericsParameter g) body.Generics.Add(types[g.Name] = g); });
             }
 
             f.Arguments.Each(x =>

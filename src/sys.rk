@@ -3,6 +3,28 @@ sub version() string
 	return("0.0.0")
 
 ###
+struct ListIndex<a>
+	var index: Int
+	var list: System.Collections.Generic.List<a>
+	
+sub ListIndex(index: Int, xs: System.Collections.Generic.List<a>) ListIndex<a>
+	var e = ListIndex<a>()
+	e.index = index
+	e.list = xs
+	return(e)
+
+sub next(xs: System.Collections.Generic.List<a>) ListIndex<a>
+	return(ListIndex(1, xs))
+
+sub next(xs: ListIndex<a>) ListIndex<a>
+	return(ListIndex(xs.index + 1, xs.list))
+
+sub isnull(xs: System.Collections.Generic.List<a>) Bool
+	return(xs.Count() == 0)
+
+sub isnull(xs: ListIndex<a>) Bool
+	return(xs.index >= xs.list.Count())
+
 class List<a, b>
 	sub next<List<x, b>>(a) [b, x]
 	sub isnull(a) Bool

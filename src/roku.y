@@ -25,7 +25,8 @@ using Roku.Node;
 %type<SpecializationNode>           spec
 %type<ListNode<SpecializationNode>> where wheren
 %type<ListNode<ITypeNode>>          types typen type2n genn typeor nsvarn
-%type<ITypeNode>                    nsvar typev
+%type<TypeNode>                     nsvar
+%type<ITypeNode>                    typev
 %type<ITypeNode?>                   typex
 %type<IIfNode>                      if ifthen elseif
 %type<StructNode>                   struct struct_block
@@ -166,6 +167,7 @@ typev  : nsvar
        | '{' types  '}'           {$$ = CreateTypeFunctionNode($2);}
        | '{' types ARROW type'}'  {$$ = CreateTypeFunctionNode($2, $4);}
 nsvar  : varx                     {$$ = new TypeNode { Name = $1.Name }.R($1);}
+       | nsvar '.' varx           {$$ = $1.Return(x => { x.Namespace.Add(x.Name); x.Name = $3.Name; });}
 nsvarn : nsvar                    {$$ = CreateListNode<ITypeNode>($1);}
        | nsvarn ',' nsvar         {$$ = $1.Return(x => x.List.Add($3));}
 typex  : void
