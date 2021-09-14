@@ -2,7 +2,6 @@
 sub version() string
 	return("0.0.0")
 
-###
 struct ListIndex<a>
 	var index: Int
 	var list: System.Collections.Generic.List<a>
@@ -25,6 +24,7 @@ sub isnull(xs: System.Collections.Generic.List<a>) Bool
 sub isnull(xs: ListIndex<a>) Bool
 	return(xs.index >= xs.list.Count())
 
+###
 class List<a, b>
 	sub next<List<x, b>>(a) [b, x]
 	sub isnull(a) Bool

@@ -168,7 +168,9 @@ namespace Roku.Compiler
                     return gens[gen]!;
 
                 case TypeSpecialization g:
-                    return FindStructOrNull(ns, new string[] { g.Name }, g.Generics.Map(x => GetStructType(ns, x, gens)!).ToList());
+                    var gx = g.Generics.Map(x => GetStructType(ns, x, gens));
+                    if (gx.Contains(x => x is null)) return null;
+                    return FindStructOrNull(ns, new string[] { g.Name }, gx.Map(x => x!).ToList());
 
                 case TypeValue tv:
                     return LoadStruct(ns, tv.Name);
