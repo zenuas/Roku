@@ -411,7 +411,7 @@ namespace Roku.Compiler
                     break;
 
                 case TypeSpecialization sp:
-                    m[v] = CreateVariableDetail($"${index}", Lookup.FindStructOrNull(ns, new string[] { sp.Name }, sp.Generics.Map(x => Lookup.GetStructType(ns, x, m)!).ToList()), VariableType.Argument, index);
+                    m[v] = CreateVariableDetail($"${index}", Lookup.FindStructOrNull(ns, Lookup.GetTypeNames(sp.Type), sp.Generics.Map(x => Lookup.GetStructType(ns, x, m)!).ToList()), VariableType.Argument, index);
                     break;
 
                 case TypeFunction tf:

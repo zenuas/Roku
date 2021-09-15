@@ -160,6 +160,11 @@ namespace Roku.Compiler
 
         public static List<IStructBody?> GetArgumentsType(INamespace ns, IFunctionName body, GenericsMapper gens) => FunctionToArgumentsType(body).Map(x => GetStructType(ns, x, gens)).ToList();
 
+        public static string[] GetTypeNames(IEvaluable e) =>
+            e is TypeValue tv ? tv.Namespace.Concat(tv.Name).ToArray()
+            : e is VariableValue v ? new string[] { v.Name }
+            : throw new Exception();
+
         public static IStructBody? GetStructType(INamespace ns, ITypeDefinition t, GenericsMapper gens)
         {
             switch (t)
@@ -168,9 +173,11 @@ namespace Roku.Compiler
                     return gens[gen]!;
 
                 case TypeSpecialization g:
-                    var gx = g.Generics.Map(x => GetStructType(ns, x, gens));
-                    if (gx.Contains(x => x is null)) return null;
-                    return FindStructOrNull(ns, new string[] { g.Name }, gx.Map(x => x!).ToList());
+                    {
+                        var gx = g.Generics.Map(x => GetStructType(ns, x, gens));
+                        if (gx.Contains(x => x is null)) return null;
+                        return FindStructOrNull(ns, GetTypeNames(g.Type), gx.Map(x => x!).ToList());
+                    }
 
                 case TypeValue tv:
                     return LoadStruct(ns, tv.Name);
