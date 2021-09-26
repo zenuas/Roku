@@ -227,6 +227,27 @@ sub foo(a: [Int | String])
         print(s)
 ```
 
+## 配列のパターンマッチ
+
+配列は `[y, ys] = xs` にてパターンマッチを行う  
+パターンマッチが空の場合、空配列にマッチする `[] = xs`  
+パターンマッチが1変数の場合、長さ1の配列にマッチする `[y] = xs`  
+パターンマッチがn個の変数の場合(n>1)、長さn-1個以上の配列にマッチする `[y1, y2, ys] = xs`  
+この時n番目の変数はn個目以降の部分配列となる
+
+```
+if [] = xs
+    print("list.length == 0")
+else if [y] = xs
+    print("list.length == 1")
+else if [y1, y2, y3, ys] = xs
+    print("list.length >= 3")
+else if [y1, y2, ys] = xs
+    print("list.length >= 2")
+else if [y, ys] = xs
+    print("list.length >= 1")
+```
+
 ## 複数の分岐
 
 複数の分岐はswitch文にて行う(未実装)。  
