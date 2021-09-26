@@ -12,11 +12,11 @@ sub ListIndex(index: Int, xs: System.Collections.Generic.List<a>) ListIndex<a>
 	e.list = xs
 	return(e)
 
-sub next(xs: System.Collections.Generic.List<a>) ListIndex<a>
-	return(ListIndex(1, xs))
+sub next(xs: System.Collections.Generic.List<a>) [a, ListIndex<a>]
+	return(xs[0], ListIndex(1, xs))
 
-sub next(xs: ListIndex<a>) ListIndex<a>
-	return(ListIndex(xs.index + 1, xs.list))
+sub next(xs: ListIndex<a>) [a, ListIndex<a>]
+	return(xs.list[index], ListIndex(xs.index + 1, xs.list))
 
 sub isnull(xs: System.Collections.Generic.List<a>) Bool
 	return(xs.Count() == 0)
