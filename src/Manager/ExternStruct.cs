@@ -1,4 +1,5 @@
 ﻿using Roku.Declare;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -12,8 +13,8 @@ namespace Roku.Manager
         public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
         public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
         public List<IFunctionName> Functions { get; } = new List<IFunctionName>();
-        public List<IStructBody> Structs { get; } = new List<IStructBody>();
-        public List<ClassBody> Classes { get; } = new List<ClassBody>();
+        public List<IStructBody> Structs => throw new NotImplementedException();
+        public List<ClassBody> Classes => throw new NotImplementedException();
 
         public ExternStruct(TypeInfo ti, Assembly asm)
         {
