@@ -13,10 +13,10 @@ sub ListIndex(index: Int, xs: System.Collections.Generic.List<a>) ListIndex<a>
 	return(e)
 
 sub next(xs: System.Collections.Generic.List<a>) [a, ListIndex<a>]
-	return(xs[0], ListIndex(1, xs))
+	return((xs[0], ListIndex(1, xs)))
 
 sub next(xs: ListIndex<a>) [a, ListIndex<a>]
-	return(xs.list[xs.index], ListIndex(xs.index + 1, xs.list))
+	return((xs.list[xs.index], ListIndex(xs.index + 1, xs.list)))
 
 sub isnull(xs: System.Collections.Generic.List<a>) Bool
 	return(xs.Count() == 0)
