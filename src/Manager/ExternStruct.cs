@@ -6,7 +6,7 @@ namespace Roku.Manager
 {
     public class ExternStruct : IStructBody, ISpecialization, INamespaceBody
     {
-        public string Name { get; set; } = "###NO-ALIAS";
+        public string Name { get; set; }
         public TypeInfo Struct { get; }
         public Assembly Assembly { get; }
         public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
@@ -19,6 +19,7 @@ namespace Roku.Manager
         {
             Struct = ti;
             Assembly = asm;
+            Name = $"###{ti.FullName}";
         }
 
         public override string ToString() => Name;
