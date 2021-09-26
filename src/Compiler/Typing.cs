@@ -215,7 +215,7 @@ namespace Roku.Compiler
                     {
                         var args = ts.Generics.Map(g => TypeDefinitionToStructBody(ns, m, g));
                         var name = Lookup.GetTypeNames(ts.Type);
-                        return Lookup.FindStructOrNull(ns, name, args.ToList())?.Body ?? throw new Exception();
+                        return Lookup.FindStructOrNull(ns, name, args.ToList()) ?? throw new Exception();
                     }
 
                 default:
