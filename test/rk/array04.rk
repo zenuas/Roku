@@ -123,14 +123,14 @@ _EndIf1:
     
     ldarg.0
     ldloc.0
-    call class 'Tuple#2<int32, int32>' 'Tuple#2#0'(int32, int32)
+    call class 'Tuple#2<int32, int32>' 'Tuple#2#1'(int32, int32)
     stloc.1
     
     ldloc.1
     ret
     ret
 }
-.method public static class 'Tuple#2<int32, int32>' 'Tuple#2#0'(int32, int32)
+.method public static class 'Tuple#2<int32, int32>' 'Tuple#2#1'(int32, int32)
 {
     .maxstack 2
     .locals(

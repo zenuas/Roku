@@ -815,6 +815,7 @@ namespace Roku.Compiler
 
         public static TypeSpecialization CreateTupleSpecialization(ILexicalScope scope, TypeTupleNode tuple)
         {
+            _ = TupleBodyDefinition(Lookup.GetRootNamespace(scope.Namespace), tuple.Types.Count);
             var g = new TypeSpecialization(new VariableValue(GetName(tuple)));
             tuple.Types.Map(x => x switch
             {
