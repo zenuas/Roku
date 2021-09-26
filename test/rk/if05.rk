@@ -6,15 +6,17 @@ sub f(xs: [Int])
 	else if [y] = xs
 		print("length=1")
 		print(y)
-	else if [z1, z2, zs] = xs
+	else if [z1, z2, z3, zs] = xs
 		print("length>=3")
 		print(z1)
 		print(z2)
-	else if [w, ws] = xs
+		print(z3)
+	else if [w1, w2, ws] = xs
 		print("length>=2")
-		print(w)
+		print(w1)
+		print(w2)
 
-#=>none
+##=>none
 #f([])
 
 #=>length=1
@@ -23,11 +25,13 @@ f([5])
 
 #=>length>=2
 #=>6
+#=>7
 f([6, 7])
 
 #=>length>=3
 #=>8
 #=>9
+#=>10
 f([8, 9, 10])
 
 ###
