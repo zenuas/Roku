@@ -557,7 +557,7 @@ namespace Roku.Compiler
         {
             foreach (var kv in sp)
             {
-                if (kv.Key.Keys.And(x => g.ContainsKey(x) && (kv.Key[x] == g[x] || g[x] is null))) return (kv.Key, kv.Value);
+                if (kv.Key.Keys.And(x => g.ContainsKey(x) && (TypeEquals(kv.Key[x], g[x]) || g[x] is null))) return (kv.Key, kv.Value);
             }
             return null;
         }
