@@ -209,13 +209,13 @@ namespace Roku.Compiler
                     return Lookup.LoadEnumStruct(ns, te);
 
                 case TypeValue tv:
-                    return Lookup.LoadStruct(ns, tv.Namespace.Concat(tv.Name).ToArray());
+                    return Lookup.LoadStruct(ns, Lookup.GetTypeNames(tv));
 
                 case TypeSpecialization ts:
                     {
                         var args = ts.Generics.Map(g => TypeDefinitionToStructBody(ns, m, g));
-                        var name = ts.Type is TypeValue tv ? tv.Namespace.Concat(tv.Name) : new string[] { ts.Name };
-                        return Lookup.FindStructOrNull(ns, name.ToArray(), args.ToList())?.Body ?? throw new Exception();
+                        var name = Lookup.GetTypeNames(ts.Type);
+                        return Lookup.FindStructOrNull(ns, name, args.ToList())?.Body ?? throw new Exception();
                     }
 
                 default:
