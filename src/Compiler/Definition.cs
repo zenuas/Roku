@@ -54,13 +54,9 @@ namespace Roku.Compiler
             return body;
         }
 
-        public static StructBody TupleDefinition(RootNamespace root, int count)
+        public static StructBody TupleStructDefinition(RootNamespace root, int count)
         {
             var name = GetTupleName(count);
-            var exists = root.Structs.FindFirstOrNull(x => x.Name == name);
-
-            if (exists is StructBody sb) return sb;
-
             var body = new StructBody(root, name);
             Lists.RangeTo(1, count).Each(i =>
             {
@@ -75,14 +71,10 @@ namespace Roku.Compiler
             return body;
         }
 
-        public static FunctionBody TupleBodyDefinition(RootNamespace root, int count)
+        public static FunctionBody TupleFunctionDefinition(RootNamespace root, int count)
         {
             var name = GetTupleName(count);
-            var exists = root.Structs.FindFirstOrNull(x => x.Name == name);
-
-            if (exists is null) _ = TupleDefinition(root, count);
-
-            var fbody = MakeFunction(root, $"{name}#{root.TupleUniqueCount++}");
+            var fbody = MakeFunction(root, name);
             var fret = new TypeSpecialization(new VariableValue(name));
             var fcall = new TypeSpecialization(new VariableValue(name));
             var self = new VariableValue("$self");
@@ -103,6 +95,17 @@ namespace Roku.Compiler
             fbody.Body.Add(new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(self))));
             fbody.Return = fret;
             return fbody;
+        }
+
+        public static FunctionBody TupleBodyDefinition(RootNamespace root, int count)
+        {
+            var name = GetTupleName(count);
+            var exists = root.Functions.FindFirstOrNull(x => x.Name == name);
+
+            if (exists is FunctionBody fb) return fb;
+
+            _ = TupleStructDefinition(root, count);
+            return TupleFunctionDefinition(root, count);
         }
 
         public static AnonymousFunctionBody LambdaExpressionDefinition(ILexicalScope scope, LambdaExpressionNode lambda)

@@ -39,4 +39,486 @@ f([8, 9, 10])
 ###
 
 ###start
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly extern System.Collections {}
+.assembly if05 {}
+.class public 'ListIndex<int32>'
+{
+    .field public int32 index
+    .field public class [System.Collections]System.Collections.Generic.List`1<int32> list
+    
+    .method public void .ctor()
+    {
+        
+        
+        ret
+    }
+}
+.class public 'Tuple#2<int32, class ListIndex<int32>>'
+{
+    .field public int32 '1'
+    .field public class 'ListIndex<int32>' '2'
+    
+    .method public void .ctor()
+    {
+        
+        
+        ret
+    }
+}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 3
+    
+    newobj instance void class [System.Collections]System.Collections.Generic.List`1<int32>::.ctor()
+    dup
+    ldc.i4.5
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    call void f(class [System.Collections]System.Collections.Generic.List`1<int32>)
+    
+    newobj instance void class [System.Collections]System.Collections.Generic.List`1<int32>::.ctor()
+    dup
+    ldc.i4.6
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    dup
+    ldc.i4.7
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    call void f(class [System.Collections]System.Collections.Generic.List`1<int32>)
+    
+    newobj instance void class [System.Collections]System.Collections.Generic.List`1<int32>::.ctor()
+    dup
+    ldc.i4.8
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    dup
+    ldc.i4.s 9
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    dup
+    ldc.i4.s 10
+    callvirt instance void class [System.Collections]System.Collections.Generic.List`1<int32>::Add(!0)
+    call void f(class [System.Collections]System.Collections.Generic.List`1<int32>)
+    ret
+}
+.method public static void f(class [System.Collections]System.Collections.Generic.List`1<int32>)
+{
+    .maxstack 2
+    .locals(
+        [0] bool $$1,
+        [1] bool $$2,
+        [2] bool $$3,
+        [3] class 'Tuple#2<int32, class ListIndex<int32>>' $$4,
+        [4] class 'ListIndex<int32>' $$5,
+        [5] bool $$6,
+        [6] int32 y,
+        [7] bool $$7,
+        [8] bool $$8,
+        [9] class 'Tuple#2<int32, class ListIndex<int32>>' $$9,
+        [10] int32 z1,
+        [11] class 'ListIndex<int32>' $$10,
+        [12] bool $$11,
+        [13] bool $$12,
+        [14] class 'Tuple#2<int32, class ListIndex<int32>>' $$13,
+        [15] int32 z2,
+        [16] class 'ListIndex<int32>' $$14,
+        [17] bool $$15,
+        [18] bool $$16,
+        [19] class 'Tuple#2<int32, class ListIndex<int32>>' $$17,
+        [20] int32 z3,
+        [21] class 'ListIndex<int32>' zs,
+        [22] bool $$18,
+        [23] bool $$19,
+        [24] class 'Tuple#2<int32, class ListIndex<int32>>' $$20,
+        [25] int32 w1,
+        [26] class 'ListIndex<int32>' $$21,
+        [27] bool $$22,
+        [28] bool $$23,
+        [29] class 'Tuple#2<int32, class ListIndex<int32>>' $$24,
+        [30] int32 w2,
+        [31] class 'ListIndex<int32>' ws
+    )
+    
+    ldarg.0
+    call bool isnull(class [System.Collections]System.Collections.Generic.List`1<int32>)
+    stloc.0
+    
+    ldloc.0
+    brfalse _ElseIf1
+    
+    ldstr "none"
+    call void class [System.Console]System.Console::WriteLine(string)
+    
+    br _EndIf4
+    
+_ElseIf1:
+    
+    ldarg.0
+    call bool isnull(class [System.Collections]System.Collections.Generic.List`1<int32>)
+    stloc.1
+    
+    ldloc.1
+    ldc.i4.0
+    ceq
+    stloc.2
+    
+    ldloc.2
+    brfalse _ElseIf2
+    
+    ldarg.0
+    call class 'Tuple#2<int32, class ListIndex<int32>>' next(class [System.Collections]System.Collections.Generic.List`1<int32>)
+    stloc.3
+    
+    ldloc.3
+    ldfld class 'ListIndex<int32>' class 'Tuple#2<int32, class ListIndex<int32>>'::'2'
+    stloc.s 4
+    
+    ldloc.s 4
+    call bool isnull(class 'ListIndex<int32>')
+    stloc.s 5
+    
+    ldloc.s 5
+    brfalse _ElseIf2
+    
+    ldloc.3
+    ldfld int32 class 'Tuple#2<int32, class ListIndex<int32>>'::'1'
+    stloc.s 6
+    
+    ldstr "length=1"
+    call void class [System.Console]System.Console::WriteLine(string)
+    
+    ldloc.s 6
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    br _EndIf4
+    
+_ElseIf2:
+    
+    ldarg.0
+    call bool isnull(class [System.Collections]System.Collections.Generic.List`1<int32>)
+    stloc.s 7
+    
+    ldloc.s 7
+    ldc.i4.0
+    ceq
+    stloc.s 8
+    
+    ldloc.s 8
+    brfalse _ElseIf3
+    
+    ldarg.0
+    call class 'Tuple#2<int32, class ListIndex<int32>>' next(class [System.Collections]System.Collections.Generic.List`1<int32>)
+    stloc.s 9
+    
+    ldloc.s 9
+    ldfld int32 class 'Tuple#2<int32, class ListIndex<int32>>'::'1'
+    stloc.s 10
+    
+    ldloc.s 9
+    ldfld class 'ListIndex<int32>' class 'Tuple#2<int32, class ListIndex<int32>>'::'2'
+    stloc.s 11
+    
+    ldloc.s 11
+    call bool isnull(class 'ListIndex<int32>')
+    stloc.s 12
+    
+    ldloc.s 12
+    ldc.i4.0
+    ceq
+    stloc.s 13
+    
+    ldloc.s 13
+    brfalse _ElseIf3
+    
+    ldloc.s 11
+    call class 'Tuple#2<int32, class ListIndex<int32>>' next(class 'ListIndex<int32>')
+    stloc.s 14
+    
+    ldloc.s 14
+    ldfld int32 class 'Tuple#2<int32, class ListIndex<int32>>'::'1'
+    stloc.s 15
+    
+    ldloc.s 14
+    ldfld class 'ListIndex<int32>' class 'Tuple#2<int32, class ListIndex<int32>>'::'2'
+    stloc.s 16
+    
+    ldloc.s 16
+    call bool isnull(class 'ListIndex<int32>')
+    stloc.s 17
+    
+    ldloc.s 17
+    ldc.i4.0
+    ceq
+    stloc.s 18
+    
+    ldloc.s 18
+    brfalse _ElseIf3
+    
+    ldloc.s 16
+    call class 'Tuple#2<int32, class ListIndex<int32>>' next(class 'ListIndex<int32>')
+    stloc.s 19
+    
+    ldloc.s 19
+    ldfld int32 class 'Tuple#2<int32, class ListIndex<int32>>'::'1'
+    stloc.s 20
+    
+    ldloc.s 19
+    ldfld class 'ListIndex<int32>' class 'Tuple#2<int32, class ListIndex<int32>>'::'2'
+    stloc.s 21
+    
+    ldstr "length>=3"
+    call void class [System.Console]System.Console::WriteLine(string)
+    
+    ldloc.s 10
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.s 15
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.s 20
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    br _EndIf4
+    
+_ElseIf3:
+    
+    ldarg.0
+    call bool isnull(class [System.Collections]System.Collections.Generic.List`1<int32>)
+    stloc.s 22
+    
+    ldloc.s 22
+    ldc.i4.0
+    ceq
+    stloc.s 23
+    
+    ldloc.s 23
+    brfalse _EndIf4
+    
+    ldarg.0
+    call class 'Tuple#2<int32, class ListIndex<int32>>' next(class [System.Collections]System.Collections.Generic.List`1<int32>)
+    stloc.s 24
+    
+    ldloc.s 24
+    ldfld int32 class 'Tuple#2<int32, class ListIndex<int32>>'::'1'
+    stloc.s 25
+    
+    ldloc.s 24
+    ldfld class 'ListIndex<int32>' class 'Tuple#2<int32, class ListIndex<int32>>'::'2'
+    stloc.s 26
+    
+    ldloc.s 26
+    call bool isnull(class 'ListIndex<int32>')
+    stloc.s 27
+    
+    ldloc.s 27
+    ldc.i4.0
+    ceq
+    stloc.s 28
+    
+    ldloc.s 28
+    brfalse _EndIf4
+    
+    ldloc.s 26
+    call class 'Tuple#2<int32, class ListIndex<int32>>' next(class 'ListIndex<int32>')
+    stloc.s 29
+    
+    ldloc.s 29
+    ldfld int32 class 'Tuple#2<int32, class ListIndex<int32>>'::'1'
+    stloc.s 30
+    
+    ldloc.s 29
+    ldfld class 'ListIndex<int32>' class 'Tuple#2<int32, class ListIndex<int32>>'::'2'
+    stloc.s 31
+    
+    ldstr "length>=2"
+    call void class [System.Console]System.Console::WriteLine(string)
+    
+    ldloc.s 25
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldloc.s 30
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+_EndIf4:
+    ret
+}
+.method public static bool isnull(class [System.Collections]System.Collections.Generic.List`1<int32>)
+{
+    .maxstack 2
+    .locals(
+        [0] int32 $$2,
+        [1] bool $$1
+    )
+    
+    ldarg.0
+    callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<int32>::get_Count()
+    stloc.0
+    
+    ldloc.0
+    ldc.i4.0
+    ceq
+    stloc.1
+    
+    ldloc.1
+    ret
+    ret
+}
+.method public static class 'Tuple#2<int32, class ListIndex<int32>>' next(class [System.Collections]System.Collections.Generic.List`1<int32>)
+{
+    .maxstack 2
+    .locals(
+        [0] int32 $$1,
+        [1] class 'ListIndex<int32>' $$2,
+        [2] class 'Tuple#2<int32, class ListIndex<int32>>' $$3
+    )
+    
+    ldarg.0
+    ldc.i4.0
+    callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<int32>::get_Item(int32)
+    stloc.0
+    
+    ldc.i4.1
+    ldarg.0
+    call class 'ListIndex<int32>' ListIndex(int32, class [System.Collections]System.Collections.Generic.List`1<int32>)
+    stloc.1
+    
+    ldloc.0
+    ldloc.1
+    call class 'Tuple#2<int32, class ListIndex<int32>>' 'Tuple#2'(int32, class 'ListIndex<int32>')
+    stloc.2
+    
+    ldloc.2
+    ret
+    ret
+}
+.method public static bool isnull(class 'ListIndex<int32>')
+{
+    .maxstack 2
+    .locals(
+        [0] int32 $$2,
+        [1] class [System.Collections]System.Collections.Generic.List`1<int32> $$4,
+        [2] int32 $$3,
+        [3] bool $$1
+    )
+    
+    ldarg.0
+    ldfld int32 class 'ListIndex<int32>'::index
+    stloc.0
+    
+    ldarg.0
+    ldfld class [System.Collections]System.Collections.Generic.List`1<int32> class 'ListIndex<int32>'::list
+    stloc.1
+    
+    ldloc.1
+    callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<int32>::get_Count()
+    stloc.2
+    
+    ldloc.0
+    ldloc.2
+    clt
+    ldc.i4.0
+    ceq
+    stloc.3
+    
+    ldloc.3
+    ret
+    ret
+}
+.method public static class 'Tuple#2<int32, class ListIndex<int32>>' next(class 'ListIndex<int32>')
+{
+    .maxstack 2
+    .locals(
+        [0] class [System.Collections]System.Collections.Generic.List`1<int32> $$2,
+        [1] int32 $$3,
+        [2] int32 $$1,
+        [3] int32 $$6,
+        [4] int32 $$5,
+        [5] class [System.Collections]System.Collections.Generic.List`1<int32> $$7,
+        [6] class 'ListIndex<int32>' $$4,
+        [7] class 'Tuple#2<int32, class ListIndex<int32>>' $$8
+    )
+    
+    ldarg.0
+    ldfld class [System.Collections]System.Collections.Generic.List`1<int32> class 'ListIndex<int32>'::list
+    stloc.0
+    
+    ldarg.0
+    ldfld int32 class 'ListIndex<int32>'::index
+    stloc.1
+    
+    ldloc.0
+    ldloc.1
+    callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<int32>::get_Item(int32)
+    stloc.2
+    
+    ldarg.0
+    ldfld int32 class 'ListIndex<int32>'::index
+    stloc.3
+    
+    ldloc.3
+    ldc.i4.1
+    add
+    stloc.s 4
+    
+    ldarg.0
+    ldfld class [System.Collections]System.Collections.Generic.List`1<int32> class 'ListIndex<int32>'::list
+    stloc.s 5
+    
+    ldloc.s 4
+    ldloc.s 5
+    call class 'ListIndex<int32>' ListIndex(int32, class [System.Collections]System.Collections.Generic.List`1<int32>)
+    stloc.s 6
+    
+    ldloc.2
+    ldloc.s 6
+    call class 'Tuple#2<int32, class ListIndex<int32>>' 'Tuple#2'(int32, class 'ListIndex<int32>')
+    stloc.s 7
+    
+    ldloc.s 7
+    ret
+    ret
+}
+.method public static class 'ListIndex<int32>' ListIndex(int32, class [System.Collections]System.Collections.Generic.List`1<int32>)
+{
+    .maxstack 2
+    .locals(
+        [0] class 'ListIndex<int32>' e
+    )
+    
+    newobj instance void class 'ListIndex<int32>'::.ctor()
+    stloc.0
+    
+    ldloc.0
+    ldarg.0
+    stfld int32 class 'ListIndex<int32>'::index
+    
+    ldloc.0
+    ldarg.1
+    stfld class [System.Collections]System.Collections.Generic.List`1<int32> class 'ListIndex<int32>'::list
+    
+    ldloc.0
+    ret
+    ret
+}
+.method public static class 'Tuple#2<int32, class ListIndex<int32>>' 'Tuple#2'(int32, class 'ListIndex<int32>')
+{
+    .maxstack 2
+    .locals(
+        [0] class 'Tuple#2<int32, class ListIndex<int32>>' $self
+    )
+    
+    newobj instance void class 'Tuple#2<int32, class ListIndex<int32>>'::.ctor()
+    stloc.0
+    
+    ldloc.0
+    ldarg.0
+    stfld int32 class 'Tuple#2<int32, class ListIndex<int32>>'::'1'
+    
+    ldloc.0
+    ldarg.1
+    stfld class 'ListIndex<int32>' class 'Tuple#2<int32, class ListIndex<int32>>'::'2'
+    
+    ldloc.0
+    ret
+    ret
+}
 ###end
