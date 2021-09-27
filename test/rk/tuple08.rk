@@ -39,7 +39,7 @@ print(s)
     
     ldc.i4.1
     ldstr "hello"
-    call class 'Tuple#2<int32, string>' 'Tuple#2#0'(int32, string)
+    call class 'Tuple#2<int32, string>' 'Tuple#2'(int32, string)
     stloc.0
     
     ldloc.0
@@ -57,7 +57,7 @@ print(s)
     call void class [System.Console]System.Console::WriteLine(string)
     ret
 }
-.method public static class 'Tuple#2<int32, string>' 'Tuple#2#0'(int32, string)
+.method public static class 'Tuple#2<int32, string>' 'Tuple#2'(int32, string)
 {
     .maxstack 2
     .locals(

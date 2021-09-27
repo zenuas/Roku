@@ -95,14 +95,14 @@ print(x.3)
     ldarg.0
     ldloc.1
     ldloc.0
-    call class 'Tuple#3<int32, int32, int32>' 'Tuple#3#1'(int32, int32, int32)
+    call class 'Tuple#3<int32, int32, int32>' 'Tuple#3'(int32, int32, int32)
     stloc.2
     
     ldloc.2
     ret
     ret
 }
-.method public static class 'Tuple#3<int32, int32, int32>' 'Tuple#3#1'(int32, int32, int32)
+.method public static class 'Tuple#3<int32, int32, int32>' 'Tuple#3'(int32, int32, int32)
 {
     .maxstack 2
     .locals(

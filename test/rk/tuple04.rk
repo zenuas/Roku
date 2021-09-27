@@ -57,12 +57,12 @@ print(x.2 + x.1.2)
     
     ldc.i4.3
     ldstr "world"
-    call class 'Tuple#2<int32, string>' 'Tuple#2#1'(int32, string)
+    call class 'Tuple#2<int32, string>' 'Tuple#2'(int32, string)
     stloc.0
     
     ldloc.0
     ldstr "hello"
-    call class 'Tuple#2<class Tuple#2<int32, string>, string>' 'Tuple#2#0'(class 'Tuple#2<int32, string>', string)
+    call class 'Tuple#2<class Tuple#2<int32, string>, string>' 'Tuple#2'(class 'Tuple#2<int32, string>', string)
     stloc.1
     
     ldloc.1
@@ -97,7 +97,7 @@ print(x.2 + x.1.2)
     call void class [System.Console]System.Console::WriteLine(string)
     ret
 }
-.method public static class 'Tuple#2<int32, string>' 'Tuple#2#1'(int32, string)
+.method public static class 'Tuple#2<int32, string>' 'Tuple#2'(int32, string)
 {
     .maxstack 2
     .locals(
@@ -119,7 +119,7 @@ print(x.2 + x.1.2)
     ret
     ret
 }
-.method public static class 'Tuple#2<class Tuple#2<int32, string>, string>' 'Tuple#2#0'(class 'Tuple#2<int32, string>', string)
+.method public static class 'Tuple#2<class Tuple#2<int32, string>, string>' 'Tuple#2'(class 'Tuple#2<int32, string>', string)
 {
     .maxstack 2
     .locals(

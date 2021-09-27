@@ -238,7 +238,7 @@ sub co(two: String) [String]
     
     ldloc.2
     ldloc.1
-    call class 'Tuple#2<string, class Co$0>' 'Tuple#2#0'(string, class 'Co$0')
+    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class 'Co$0')
     stloc.3
     
     ldloc.3
@@ -327,7 +327,7 @@ _cond4_5:
     
     ldstr "one"
     ldloc.1
-    call class 'Tuple#2<string, class Co$0>' 'Tuple#2#0'(string, class 'Co$0')
+    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class 'Co$0')
     stloc.3
     
     ldloc.3
@@ -360,7 +360,7 @@ _state1_6:
     
     ldloc.s 8
     ldloc.1
-    call class 'Tuple#2<string, class Co$0>' 'Tuple#2#0'(string, class 'Co$0')
+    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class 'Co$0')
     stloc.3
     
     ldloc.3
@@ -389,7 +389,7 @@ _state2_7:
     
     ldstr "three"
     ldloc.1
-    call class 'Tuple#2<string, class Co$0>' 'Tuple#2#0'(string, class 'Co$0')
+    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class 'Co$0')
     stloc.3
     
     ldloc.3
@@ -409,14 +409,14 @@ _end_9:
     
     ldnull
     ldarg.0
-    call class 'Tuple#2<string, class Co$0>' 'Tuple#2#0'(string, class 'Co$0')
+    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class 'Co$0')
     stloc.3
     
     ldloc.3
     ret
     ret
 }
-.method public static class 'Tuple#2<string, class Co$0>' 'Tuple#2#0'(string, class 'Co$0')
+.method public static class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class 'Co$0')
 {
     .maxstack 2
     .locals(

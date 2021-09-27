@@ -40,14 +40,14 @@ f(x)
     
     ldc.i4.3
     ldstr "hello"
-    call class 'Tuple#2<int32, string>' 'Tuple#2#0'(int32, string)
+    call class 'Tuple#2<int32, string>' 'Tuple#2'(int32, string)
     stloc.0
     
     ldloc.0
     call void f(class 'Tuple#2<int32, string>')
     ret
 }
-.method public static class 'Tuple#2<int32, string>' 'Tuple#2#0'(int32, string)
+.method public static class 'Tuple#2<int32, string>' 'Tuple#2'(int32, string)
 {
     .maxstack 2
     .locals(
