@@ -8,7 +8,7 @@ TESTS:=$(wildcard test\rk\*.rk)
 YANP=..\Yanp\bin\Debug\yanp.exe
 YANP_OUT=src\Parser\Parser.cs
 
-.PHONY: all clean distclean release test testd parser parserd node metric
+.PHONY: all clean distclean release test testd parser parserd fetchil metric
 
 all:
 	dotnet build --nologo -v q
@@ -55,6 +55,9 @@ $(TESTS):
 	@copy rk.test.runtimeconfig.json $(RK_OBJ).runtimeconfig.json 1>NUL
 	-@if exist $(RK_OBJ).dll. dotnet $(RK_OBJ).dll < $(RK_OBJ).testin > $(RK_OBJ).stdout
 	@fc $(RK_OBJ).testout $(RK_OBJ).stdout > $(RK_OBJ).diff || type $(RK_OBJ).diff
+
+fetchil:
+	@echo $(TESTS) | xargs -n 1 -t cscript /nologo fetchil.js
 
 metric:
 	dotnet msbuild /t:metrics src\Roku.csproj -nologo
