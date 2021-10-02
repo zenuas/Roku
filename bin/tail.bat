@@ -42,15 +42,15 @@ function main(args)
 	else
 	{
 		var max = -opt.num;
-		var buffer = [];
+		var current = 0;
+		while(!stdin.AtEndOfStream && current < max)
+		{
+			stdin.ReadLine();
+			current++;
+		}
 		while(!stdin.AtEndOfStream)
 		{
-			buffer.push(stdin.ReadLine());
-		}
-		
-		for(var i = max; i < buffer.length; i++)
-		{
-			WScript.Echo(buffer[i]);
+			WScript.Echo(stdin.ReadLine());
 		}
 	}
 	return(0);
