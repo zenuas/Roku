@@ -2,7 +2,7 @@
 # usage: make.bat
 #
 
-PATH:=$(WINDIR)\Microsoft.NET\Framework64\v4.0.30319;$(PATH)
+PATH:=bin;$(WINDIR)\Microsoft.NET\Framework64\v4.0.30319;$(PATH)
 TESTS:=$(wildcard test\rk\*.rk)
 
 YANP=..\Yanp\bin\Debug\yanp.exe
@@ -59,7 +59,7 @@ $(TESTS):
 	endif
 
 fetchil:
-	@echo $(TESTS) | xargs -n 1 -t cscript /nologo fetchil.js
+	@echo $(TESTS) | xargs -n 1 -t cscript /nologo bin\fetchil.js
 
 metric:
 	dotnet msbuild /t:metrics src\Roku.csproj -nologo
