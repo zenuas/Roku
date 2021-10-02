@@ -45,7 +45,7 @@ parserd:
 test: testd $(TESTS)
 
 testd:
-	-@dotnet test --nologo
+	-@dotnet test --nologo | tail -n +7 | head -n -3
 
 $(TESTS):
 	@$(set RK_OBJ=$(subst \rk\,\rk\obj\,$(patsubst %.rk,%,$@)))
