@@ -51,10 +51,12 @@ $(TESTS):
 	@$(set RK_OBJ=$(subst \rk\,\rk\obj\,$(patsubst %.rk,%,$@)))
 	
 	@$(echo $(cat $(RK_OBJ).testname utf-8))
-	-@if exist $(RK_OBJ).il. ilasm $(RK_OBJ).il /out:$(RK_OBJ).dll /quit /dll
-	@copy rk.test.runtimeconfig.json $(RK_OBJ).runtimeconfig.json 1>NUL
-	-@if exist $(RK_OBJ).dll. dotnet $(RK_OBJ).dll < $(RK_OBJ).testin > $(RK_OBJ).stdout
-	@fc $(RK_OBJ).testout $(RK_OBJ).stdout > $(RK_OBJ).diff || type $(RK_OBJ).diff
+	ifeq $(exists $(RK_OBJ).testskip) 0
+		-@if exist $(RK_OBJ).il. ilasm $(RK_OBJ).il /out:$(RK_OBJ).dll /quit /dll
+		@copy rk.test.runtimeconfig.json $(RK_OBJ).runtimeconfig.json 1>NUL
+		-@if exist $(RK_OBJ).dll. dotnet $(RK_OBJ).dll < $(RK_OBJ).testin > $(RK_OBJ).stdout
+		@fc $(RK_OBJ).testout $(RK_OBJ).stdout > $(RK_OBJ).diff || type $(RK_OBJ).diff
+	endif
 
 fetchil:
 	@echo $(TESTS) | xargs -n 1 -t cscript /nologo fetchil.js
