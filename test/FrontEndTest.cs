@@ -94,13 +94,17 @@ namespace Roku.Tests
         [Test]
         public void MakeTestCaseTest()
         {
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            var sjis = System.Text.Encoding.GetEncoding(932);
+
             Directory.GetFiles(SourceDir, "*.rk").AsParallel().Each(src =>
             {
-                var in_ = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".testin");
-                var out_ = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".testout");
-                var err_ = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".testerr");
-                var args_ = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".testargs");
-                var name_ = Path.Combine(ObjDir, Path.GetFileNameWithoutExtension(src) + ".testname");
+                var testname = Path.GetFileNameWithoutExtension(src);
+                var in_ = Path.Combine(ObjDir, testname + ".testin");
+                var out_ = Path.Combine(ObjDir, testname + ".testout");
+                var err_ = Path.Combine(ObjDir, testname + ".testerr");
+                var args_ = Path.Combine(ObjDir, testname + ".testargs");
+                var name_ = Path.Combine(ObjDir, testname + ".testname");
 
                 var txt = File.ReadAllText(src);
                 var lines = txt.SplitLine().Map(x => x.TrimStart()).ToArray();
@@ -121,9 +125,15 @@ namespace Roku.Tests
                 File.WriteAllText(out_, out_p);
                 File.WriteAllText(err_, err_p);
                 File.WriteAllText(args_, args_p);
-                File.WriteAllText(name_, Path.GetFileNameWithoutExtension(src) + (name_p.Found ? $" {name_p.Text.SplitLine().Take(2).Join(" ").Take(30).ToStringByChars()}" : ""));
+                File.WriteAllText(name_, Path.GetFileNameWithoutExtension(src) + (name_p.Found ? $" {SubstringAsByte(name_p.Text.SplitLine().Take(2).Join(" "), 79 - testname.Length, sjis)}" : ""));
             });
             Assert.Pass();
         }
+
+        public static string SubstringAsByte(string self, int length, System.Text.Encoding enc) =>
+            self.Substring(0,
+                self.Map(x => enc.GetByteCount(new char[] { x })).
+                Take((x, acc, index) => x + acc > length ? (0, false) : (x + acc, true)).
+                Count());
     }
 }

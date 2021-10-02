@@ -172,6 +172,27 @@ namespace Extensions
         public static IEnumerable<T> Take<T>(this IEnumerable<T> self, int count) => Enumerable.Take(self, count);
 
         [DebuggerHidden]
+        public static IEnumerable<T> Take<T>(this IEnumerable<T> self, Func<T, bool> f) => Enumerable.TakeWhile(self, f);
+
+        [DebuggerHidden]
+        public static IEnumerable<T> Take<T>(this IEnumerable<T> self, Func<T, int, bool> f) => Enumerable.TakeWhile(self, f);
+
+        [DebuggerHidden]
+        public static IEnumerable<T> Take<T>(this IEnumerable<T> self, Func<T, T, int, (T, bool)> f)
+        {
+            if (self.IsNull()) yield break;
+
+            var acc = self.First();
+            foreach (var x in self.Zip(Sequence(0), (Value, Index) => (Value, Index)))
+            {
+                var p = f(x.Value, acc, x.Index);
+                if (!p.Item2) yield break;
+                yield return x.Value;
+                acc = p.Item1;
+            }
+        }
+
+        [DebuggerHidden]
         public static IEnumerable<T> Drop<T>(this IEnumerable<T> self, int count) => Enumerable.Skip(self, count);
 
         [DebuggerHidden]
@@ -279,7 +300,7 @@ namespace Extensions
         public static T Sum<T>(this IEnumerable<T> self) => self.FoldLeft((x, y) => Expressions.Add<T>()(x, y));
 
         [DebuggerHidden]
-        public static int Count<T>(this IEnumerable<T> self, Func<T, bool> f) => Enumerable.Count(self, f);
+        public static int Count<T>(this IEnumerable<T> self) => Enumerable.Count(self);
 
         [DebuggerHidden]
         public static T Max<T>(this IEnumerable<T> self) where T : IComparable<T> => self.FoldLeft((x, y) => x.CompareTo(y) >= 0 ? x : y);

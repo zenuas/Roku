@@ -596,7 +596,7 @@ namespace Roku.Compiler
             next_body.Return = tuple2sp;
             src.Functions.Add(next_body);
 
-            var yield_count = body.Body.Count(IsYield);
+            var yield_count = body.Body.Where(IsYield).Count();
             var labels_jump = Lists.Sequence(1).Take(yield_count + 1).Map(n => new LabelCode() { Name = n > yield_count ? "end_" : $"state{n}_" }).ToList();
             var labels_cond = Lists.Sequence(0).Take(yield_count + 2).Map(n => new LabelCode() { Name = $"cond{n}_" }).ToList();
 
