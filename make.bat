@@ -222,6 +222,7 @@ function run(env, target)
 		if(need)
 		{
 			if(opt.print) {WScript.Echo(target + " : ");}
+			var ifnest = [{current: "if", cond: true}];
 			for(var i = 0; i < p.commands.length; i++)
 			{
 				var cmd = p.commands[i];
@@ -237,8 +238,30 @@ function run(env, target)
 						}
 					});
 				
-				exec(expand(env, cmd).value);
+				var cmdexpand = expand(env, cmd).value;
+				var cmds = command_split(cmdexpand, " ");
+				if(cmds[0] == "ifeq")
+				{
+					ifnest.push({current: "if", cond: cmds[1] == cmds[2]});
+				}
+				else if(cmds[0] == "else")
+				{
+					if(ifnest.lengh <= 1 || ifnest[ifnest.length - 1].current != "if") {throw new Error("parse error else");}
+					ifnest[ifnest.length - 1].current = "else";
+				}
+				else if(cmds[0] == "endif")
+				{
+					if(ifnest.length <= 1) {throw new Error("parse error endif");}
+					ifnest.pop();
+				}
+				else if(
+					(ifnest[ifnest.length - 1].current == "if"   &&  ifnest[ifnest.length - 1].cond) ||
+					(ifnest[ifnest.length - 1].current == "else" && !ifnest[ifnest.length - 1].cond))
+				{
+					exec(cmdexpand);
+				}
 			}
+			if(ifnest.length != 1) {throw new Error("parse error ifeq/else");}
 			t = fs.FileExists(target) ? fs.GetFile(target).DateLastModified : 0;
 		}
 	}
@@ -359,6 +382,13 @@ function expand(env, s, i, quote)
 					
 					var param = command_split(xs[1], " ");
 					r.value += read(param[0], param[1]);
+				}
+				else if(xs[0] == "exists")
+				{
+					// $(exists a.txt)
+					
+					var param = command_split(xs[1], " ");
+					r.value += fs.FileExists(param[0]) ? "1" : "0";
 				}
 				else
 				{
