@@ -406,13 +406,14 @@ namespace Roku.Compiler
             g.Each(kv => mapper[kv.Key] = Typing.CreateVariableDetail(kv.Key.Name, kv.Value, VariableType.TypeParameter));
         }
 
-        public static StructSpecialization? FindStructOrNull(INamespace ns, string[] name, List<IStructBody> args)
+        public static IStructBody? FindStructOrNull(INamespace ns, string[] name, List<IStructBody> args)
         {
             if (ns is INamespaceBody nsb)
             {
                 foreach (var x in nsb.Structs.Where(x => TypeNameEquals(x, name)))
                 {
-                    if (x is ISpecialization g)
+                    //ToDo: g.Generics.Count > 0 ExternStruct patch
+                    if (x is ISpecialization g && g.Generics.Count > 0)
                     {
                         if (g.Generics.Count != args.Count) continue;
                         var gens = new GenericsMapper();
@@ -422,7 +423,7 @@ namespace Roku.Compiler
                     }
                     else
                     {
-                        return new StructSpecialization(x, new GenericsMapper());
+                        return x;
                     }
                 }
             }
@@ -459,7 +460,7 @@ namespace Roku.Compiler
             return null;
         }
 
-        public static IStructBody LoadStruct(INamespace ns, string[] name) => FindStructOrNull(ns, name, new List<IStructBody>())?.Body ?? throw new Exception();
+        public static IStructBody LoadStruct(INamespace ns, string[] name) => FindStructOrNull(ns, name, new List<IStructBody>()) ?? throw new Exception();
 
         public static IStructBody LoadStruct(INamespace ns, string name) => LoadStruct(ns, new string[] { name });
 
