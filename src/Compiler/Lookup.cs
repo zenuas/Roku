@@ -366,6 +366,7 @@ namespace Roku.Compiler
             }
             if (source is NullBody && arg is NullBody) return true;
             if (source is NamespaceBody nsa && arg is NamespaceBody nsb) return nsa == nsb;
+            if (source is IndefiniteBody) return true;
             return false;
         }
 

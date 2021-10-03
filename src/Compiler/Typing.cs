@@ -500,7 +500,7 @@ namespace Roku.Compiler
 
                 case ArrayContainer x:
                     x.Values.Each(value => ToTypedValue(ns, m, value));
-                    var gens = new List<IStructBody>() { m[x.Values[0]].Struct! };
+                    var gens = new List<IStructBody>() { x.Values.Count > 0 ? m[x.Values[0]].Struct! : new IndefiniteBody() };
                     m[x] = CreateVariableDetail("", Lookup.FindStructOrNull(ns, new string[] { "System", "Collections", "Generic", "List" }, gens), VariableType.PrimitiveValue);
                     return m[x];
 
