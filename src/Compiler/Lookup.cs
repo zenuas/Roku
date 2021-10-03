@@ -539,14 +539,14 @@ namespace Roku.Compiler
 
         public static RootNamespace GetRootNamespace(INamespace ns) =>
             ns is RootNamespace root ? root
-            : ns is ILexicalScope lex ? GetRootNamespace(lex.Namespace)
+            : ns is IAttachedNamespace lex ? GetRootNamespace(lex.Namespace)
             : ns is IUse use ? use.Uses.By<RootNamespace>().First()
             : throw new Exception();
 
         public static INamespaceBody GetTopLevelNamespace(INamespace ns) =>
             ns is RootNamespace root ? root
             : ns is SourceCodeBody src ? src
-            : ns is ILexicalScope lex ? GetTopLevelNamespace(lex.Namespace)
+            : ns is IAttachedNamespace lex ? GetTopLevelNamespace(lex.Namespace)
             : throw new Exception();
 
         public static IStructBody? LoadTypeWithoutVoid(RootNamespace root, Type t, GenericsMapper g) =>

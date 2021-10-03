@@ -4,9 +4,8 @@ using System.Collections.Generic;
 
 namespace Roku.Manager
 {
-    public interface ILexicalScope
+    public interface ILexicalScope : IAttachedNamespace
     {
-        public INamespace Namespace { get; }
         public ILexicalScope? Parent { get; }
         public Dictionary<string, IEvaluable> LexicalScope { get; }
         public List<IOperand> Body { get; }
