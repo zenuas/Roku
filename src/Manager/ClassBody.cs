@@ -7,7 +7,6 @@ namespace Roku.Manager
     {
         public string Name { get; }
         public INamespace Namespace { get; }
-        public ILexicalScope? Parent { get; } = null;
         public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
         public List<IFunctionName> Functions { get; } = new List<IFunctionName>();
         public List<IStructBody> Structs { get; } = new List<IStructBody>();
