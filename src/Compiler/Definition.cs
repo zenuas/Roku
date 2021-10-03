@@ -864,6 +864,7 @@ namespace Roku.Compiler
                 });
                 ctor.Body.Add(new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(self))));
                 ctor.Return = new TypeValue(name);
+                body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
             }
 
             return new TypeValue(name);
