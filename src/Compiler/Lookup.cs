@@ -260,7 +260,7 @@ namespace Roku.Compiler
 
             if (body is IConstraints constr && constr.Constraints.Count > 0)
             {
-                var effected = gens.Or(x => x.Value is null);
+                var effected = gens.Or(x => !IsFixedStruct(x.Value));
                 while (effected)
                 {
                     effected = false;
@@ -270,12 +270,12 @@ namespace Roku.Compiler
                         if (FindClassOrNull(ns, x.Class.Name, x.Generics) is { } class_body)
                         {
                             var class_gens = new GenericsMapper();
-                            class_body.Generics.Each((g, i) => class_gens[g] = gens[x.Generics[i]]);
+                            class_body.Generics.Each((g, i) => class_gens[g] = GetStructType(ns, x.Generics[i], gens));
                             if (ApplyClassToGenericsParameter(ns, class_body, class_gens))
                             {
                                 class_body.Generics.Each((g, i) =>
                                 {
-                                    if (gens[x.Generics[i]] != class_gens[g])
+                                    if (GetStructType(ns, x.Generics[i], gens) != class_gens[g])
                                     {
                                         effected = true;
                                         gens[x.Generics[i]] = class_gens[g];
@@ -296,11 +296,24 @@ namespace Roku.Compiler
             return gens;
         }
 
+        public static bool IsFixedStruct(IStructBody? sb) =>
+            sb is null ? false :
+            sb is IndefiniteBody ? false :
+            sb is IGenericsMapper gm ? gm.GenericsMapper.And(x => IsFixedStruct(x.Value)) :
+            true;
+
         public static ClassBody? FindClassOrNull(INamespace ns, string name, List<ITypeDefinition> gens)
         {
             if (ns is INamespaceBody nsb)
             {
                 if (nsb.Classes.FindFirstOrNull(x => x.Name == name && x.Generics.Count == gens.Count) is { } c) return c;
+            }
+            if (ns is IUse body)
+            {
+                foreach (var use in body.Uses)
+                {
+                    if (FindClassOrNull(use, name, gens) is { } x) return x;
+                }
             }
             return null;
         }
