@@ -238,11 +238,11 @@ function run(env, target)
 						}
 					});
 				
-				var cmdexpand = expand(env, cmd).value;
-				var cmds = command_split(cmdexpand, " ");
+				var cmds = command_split(cmd, " ", 1);
 				if(cmds[0] == "ifeq")
 				{
-					ifnest.push({current: "if", cond: cmds[1] == cmds[2]});
+					var cmdexpands = command_split(expand(env, cmd).value, " ");
+					ifnest.push({current: "if", cond: cmdexpands[1] == cmdexpands[2]});
 				}
 				else if(cmds[0] == "else")
 				{
@@ -258,7 +258,7 @@ function run(env, target)
 					(ifnest[ifnest.length - 1].current == "if"   &&  ifnest[ifnest.length - 1].cond) ||
 					(ifnest[ifnest.length - 1].current == "else" && !ifnest[ifnest.length - 1].cond))
 				{
-					exec(cmdexpand);
+					exec(expand(env, cmd).value);
 				}
 			}
 			if(ifnest.length != 1) {throw new Error("parse error ifeq/else");}
