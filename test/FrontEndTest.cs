@@ -23,6 +23,7 @@ namespace Roku.Tests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             if (Directory.Exists(ObjDir))
             {
                 Directory.GetFiles(ObjDir, "*.*").Each(File.Delete);
@@ -100,7 +101,6 @@ namespace Roku.Tests
         [Test, Order(2)]
         public void MakeTestCaseTest()
         {
-            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             var sjis = System.Text.Encoding.GetEncoding(932);
 
             Directory.GetFiles(SourceDir, "*.rk").AsParallel().Each(src =>
@@ -136,16 +136,9 @@ namespace Roku.Tests
                 }
 
                 var name_p = GetLineContent(lines, x => x == "###", x => x == "###");
-                File.WriteAllText(name_, Path.GetFileNameWithoutExtension(src) + (name_p.Found ? $" {SubstringAsByte(name_p.Text.SplitLine().Take(2).Join(" "), 78 - testname.Length, sjis)}" : ""));
+                File.WriteAllText(name_, Path.GetFileNameWithoutExtension(src) + (name_p.Found ? $" {name_p.Text.SplitLine().Take(2).Join(" ").SubstringAsByte(78 - testname.Length, sjis)}" : ""));
             });
             Assert.Pass();
         }
-
-        public static string SubstringAsByte(string self, int length, System.Text.Encoding enc) =>
-            self.Substring(0,
-                self.Map(x => enc.GetByteCount(new char[] { x })).
-                Accumulator((acc, x) => acc + x).
-                Take(x => x <= length).
-                Count());
     }
 }
