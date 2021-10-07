@@ -56,7 +56,7 @@ namespace Roku.Tests
                     var lines = txt.SplitLine();
                     var testname = Path.GetFileNameWithoutExtension(src);
                     var il = Path.Combine(ObjDir, testname + ".il");
-                    var skip = Path.Combine(ObjDir, testname + ".testskip");
+                    var skip = Path.Combine(ObjDir, testname + ".skip");
 
                     File.Delete(skip);
                     try
@@ -72,7 +72,8 @@ namespace Roku.Tests
 
                         if (valid.Text.Trim() != il_src) return Tuple.Create(filename, "il make a difference");
 
-                        File.WriteAllText(skip, "true");
+                        File.Delete(il);
+                        File.Create(skip).Close();
                     }
                     catch (Exception ex)
                     {
@@ -111,7 +112,7 @@ namespace Roku.Tests
                 var err_ = Path.Combine(ObjDir, testname + ".testerr");
                 var args_ = Path.Combine(ObjDir, testname + ".testargs");
                 var name_ = Path.Combine(ObjDir, testname + ".testname");
-                var skip = Path.Combine(ObjDir, testname + ".testskip");
+                var skip = Path.Combine(ObjDir, testname + ".skip");
 
                 File.Delete(in_);
                 File.Delete(out_);
@@ -121,6 +122,8 @@ namespace Roku.Tests
 
                 var txt = File.ReadAllText(src);
                 var lines = txt.SplitLine().Map(x => x.TrimStart()).ToArray();
+                var name_p = GetLineContent(lines, x => x == "###", x => x == "###");
+                var comment = Path.GetFileNameWithoutExtension(src) + (name_p.Found ? $" {name_p.Text.SplitLine().Take(2).Join(" ").SubstringAsByte(0, 78 - testname.Length, sjis)}" : "");
 
                 if (!File.Exists(skip))
                 {
@@ -133,10 +136,13 @@ namespace Roku.Tests
                     File.WriteAllText(out_, out_p);
                     File.WriteAllText(err_, err_p);
                     File.WriteAllText(args_, args_p);
+                    File.WriteAllText(name_, comment);
+                }
+                else
+                {
+                    File.WriteAllText(skip, comment);
                 }
 
-                var name_p = GetLineContent(lines, x => x == "###", x => x == "###");
-                File.WriteAllText(name_, Path.GetFileNameWithoutExtension(src) + (name_p.Found ? $" {name_p.Text.SplitLine().Take(2).Join(" ").SubstringAsByte(0, 78 - testname.Length, sjis)}" : ""));
             });
             Assert.Pass();
         }
