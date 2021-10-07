@@ -273,6 +273,19 @@ namespace Roku.Compiler
                             class_body.Generics.Each((g, i) => class_gens[g] = GetStructType(ns, x.Generics[i], gens));
                             if (ApplyClassToGenericsParameter(ns, class_body, class_gens))
                             {
+                                //ToDo: List patch
+                                if (class_body.Name == "List" && class_body.Generics.Count == 2 &&
+                                    IsFixedStruct(class_gens[class_body.Generics[1]]) &&
+                                    class_gens[class_body.Generics[0]] is StructSpecialization ssp &&
+                                    ssp.Body is ExternStruct es &&
+                                    es.Struct == typeof(List<>) &&
+                                    ssp.GenericsMapper[es.Generics[0]] is IndefiniteBody)
+                                {
+                                    var gm = new GenericsMapper();
+                                    gm[es.Generics[0]] = class_gens[class_body.Generics[1]];
+                                    class_gens[class_body.Generics[0]] = new StructSpecialization(es, gm);
+                                }
+
                                 class_body.Generics.Each((g, i) =>
                                 {
                                     if (GetStructType(ns, x.Generics[i], gens) != class_gens[g])
@@ -379,7 +392,7 @@ namespace Roku.Compiler
             }
             if (source is NullBody && arg is NullBody) return true;
             if (source is NamespaceBody nsa && arg is NamespaceBody nsb) return nsa == nsb;
-            if (source is IndefiniteBody) return true;
+            if (source is IndefiniteBody || arg is IndefiniteBody) return true;
             return false;
         }
 
