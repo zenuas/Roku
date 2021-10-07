@@ -47,7 +47,7 @@ namespace Roku.Tests
         }
 
         [Test]
-        public void ByteTest()
+        public void SubstringTest()
         {
             var s = "abcあいうアイウ亜伊宇ｱｲｳ";
             var sjis = System.Text.Encoding.GetEncoding(932);
