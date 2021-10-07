@@ -1,4 +1,6 @@
 
+var fs = WScript.CreateObject("Scripting.FileSystemObject");
+
 var args = [];
 for(var i = 0; i < WScript.Arguments.Length; i++)
 {
@@ -14,6 +16,10 @@ function run(args)
 	var middle = "";
 	var end    = "";
 	
+	var sep = args[0].lastIndexOf("\\");
+	var dir = args[0].substr(0, 1 + sep) + "obj\\";
+	var il  = args[0].substr(sep + 1, args[0].length - sep - 4) + ".il";
+	if(!fs.FileExists(dir + il)) return;
 	
 	var rk = read(args[0], "UTF-8").split("\r\n");
 	var current = 0;
@@ -31,10 +37,6 @@ function run(args)
 		
 		if(current == 2) end += s + "\r\n";
 	}
-	
-	var sep = args[0].lastIndexOf("\\");
-	var dir = args[0].substr(0, 1 + sep) + "obj\\";
-	var il  = args[0].substr(sep + 1, args[0].length - sep - 4) + ".il";
 	
 	middle = read(dir + il, "UTF-8");
 	write(args[0], "UTF-8", front + middle + end);
