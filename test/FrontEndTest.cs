@@ -136,7 +136,7 @@ namespace Roku.Tests
                 }
 
                 var name_p = GetLineContent(lines, x => x == "###", x => x == "###");
-                File.WriteAllText(name_, Path.GetFileNameWithoutExtension(src) + (name_p.Found ? $" {name_p.Text.SplitLine().Take(2).Join(" ").SubstringAsByte(78 - testname.Length, sjis)}" : ""));
+                File.WriteAllText(name_, Path.GetFileNameWithoutExtension(src) + (name_p.Found ? $" {name_p.Text.SplitLine().Take(2).Join(" ").SubstringAsByte(0, 78 - testname.Length, sjis)}" : ""));
             });
             Assert.Pass();
         }
