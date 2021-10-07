@@ -438,7 +438,6 @@ namespace Roku.Compiler
             {
                 foreach (var x in nsb.Structs.Where(x => TypeNameEquals(x, name)))
                 {
-                    //ToDo: g.Generics.Count > 0 ExternStruct patch
                     if (x is ISpecialization g && g.Generics.Count > 0)
                     {
                         if (g.Generics.Count != args.Count) continue;
