@@ -136,7 +136,7 @@ namespace Roku.Tests
                 }
 
                 var name_p = GetLineContent(lines, x => x == "###", x => x == "###");
-                File.WriteAllText(name_, Path.GetFileNameWithoutExtension(src) + (name_p.Found ? $" {SubstringAsByte(name_p.Text.SplitLine().Take(2).Join(" "), 79 - testname.Length, sjis)}" : ""));
+                File.WriteAllText(name_, Path.GetFileNameWithoutExtension(src) + (name_p.Found ? $" {SubstringAsByte(name_p.Text.SplitLine().Take(2).Join(" "), 78 - testname.Length, sjis)}" : ""));
             });
             Assert.Pass();
         }
@@ -144,7 +144,8 @@ namespace Roku.Tests
         public static string SubstringAsByte(string self, int length, System.Text.Encoding enc) =>
             self.Substring(0,
                 self.Map(x => enc.GetByteCount(new char[] { x })).
-                Take((x, acc, index) => x + acc > length ? (0, false) : (x + acc, true)).
+                Accumulator((acc, x) => acc + x).
+                Take(x => x <= length).
                 Count());
     }
 }

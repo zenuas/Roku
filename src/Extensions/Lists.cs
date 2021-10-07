@@ -85,35 +85,31 @@ namespace Extensions
         }
 
         [DebuggerHidden]
-        public static R FoldLeft<T, R>(this IEnumerable<T> self, Func<R, T, R> f, R acc)
+        public static IEnumerable<R> Accumulator<T, R>(this IEnumerable<T> self, Func<R, T, R> f, R acc)
         {
-            self.Each(x => acc = f(acc, x));
-            return acc;
+            foreach (var v in self) yield return acc = f(acc, v);
         }
 
         [DebuggerHidden]
-        public static R FoldRight<T, R>(this IEnumerable<T> self, Func<T, R, R> f, R acc)
+        public static IEnumerable<T> Accumulator<T>(this IEnumerable<T> self, Func<T, T, T> f)
         {
-            self.Reverse().Each(x => acc = f(x, acc));
-            return acc;
-        }
-
-        [DebuggerHidden]
-        public static T FoldLeft<T>(this IEnumerable<T> self, Func<T, T, T> f)
-        {
+            if (self.IsNull()) yield break;
             var acc = self.First();
-            self.Drop(1).Each(x => acc = f(acc, x));
-            return acc;
+            yield return acc;
+            foreach (var v in self.Drop(1)) yield return acc = f(acc, v);
         }
 
         [DebuggerHidden]
-        public static T FoldRight<T>(this IEnumerable<T> self, Func<T, T, T> f)
-        {
-            var rev = self.Reverse();
-            var acc = rev.First();
-            rev.Drop(1).Each(x => acc = f(x, acc));
-            return acc;
-        }
+        public static R FoldLeft<T, R>(this IEnumerable<T> self, Func<R, T, R> f, R acc) => self.IsNull() ? acc : self.Accumulator(f, acc).Last();
+
+        [DebuggerHidden]
+        public static R FoldRight<T, R>(this IEnumerable<T> self, Func<T, R, R> f, R acc) => self.IsNull() ? acc : self.Reverse().Accumulator((x, a) => f(a, x), acc).Last();
+
+        [DebuggerHidden]
+        public static T FoldLeft<T>(this IEnumerable<T> self, Func<T, T, T> f) => self.Accumulator(f).Last();
+
+        [DebuggerHidden]
+        public static T FoldRight<T>(this IEnumerable<T> self, Func<T, T, T> f) => self.Reverse().Accumulator((x, a) => f(a, x)).Last();
 
         [DebuggerHidden]
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> self, T x) => Enumerable.Concat(self, new T[] { x });
@@ -176,21 +172,6 @@ namespace Extensions
 
         [DebuggerHidden]
         public static IEnumerable<T> Take<T>(this IEnumerable<T> self, Func<T, int, bool> f) => Enumerable.TakeWhile(self, f);
-
-        [DebuggerHidden]
-        public static IEnumerable<T> Take<T>(this IEnumerable<T> self, Func<T, T, int, (T, bool)> f)
-        {
-            if (self.IsNull()) yield break;
-
-            var acc = self.First();
-            foreach (var x in self.Zip(Sequence(0), (Value, Index) => (Value, Index)))
-            {
-                var p = f(x.Value, acc, x.Index);
-                if (!p.Item2) yield break;
-                yield return x.Value;
-                acc = p.Item1;
-            }
-        }
 
         [DebuggerHidden]
         public static IEnumerable<T> Drop<T>(this IEnumerable<T> self, int count) => Enumerable.Skip(self, count);
