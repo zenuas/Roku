@@ -160,5 +160,35 @@ namespace Roku.Tests
             Assert.AreEqual(xs2[3], new int[] { -3, 6 });
             Assert.AreEqual(xs2[4], new int[] { -4 });
         }
+
+        [Test]
+        public void FirstLastTest()
+        {
+            var xs1 = new string[] { "one", "two", "three" };
+            var xs2 = new string[] { };
+
+            Assert.IsTrue(xs1.First() == "one");
+            Assert.IsTrue(xs1.Last() == "three");
+            Assert.IsTrue(xs1.FirstOrNull() == "one");
+            Assert.IsTrue(xs1.LastOrNull() == "three");
+
+            _ = Assert.Throws<InvalidOperationException>(() => xs2.First());
+            _ = Assert.Throws<InvalidOperationException>(() => xs2.Last());
+            Assert.IsTrue(xs2.FirstOrNull() is null);
+            Assert.IsTrue(xs2.LastOrNull() is null);
+
+            var xs3 = new int[] { 1, 2, 3 };
+            var xs4 = new int[] { };
+
+            Assert.IsTrue(xs3.First() == 1);
+            Assert.IsTrue(xs3.Last() == 3);
+            Assert.IsTrue(xs3.FirstOrNullValue() == 1);
+            Assert.IsTrue(xs3.LastOrNullValue() == 3);
+
+            _ = Assert.Throws<InvalidOperationException>(() => xs4.First());
+            _ = Assert.Throws<InvalidOperationException>(() => xs4.Last());
+            Assert.IsTrue(xs4.FirstOrNullValue() is null);
+            Assert.IsTrue(xs4.LastOrNullValue() is null);
+        }
     }
 }
