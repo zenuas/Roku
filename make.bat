@@ -321,7 +321,7 @@ function expand(env, s, i, quote)
 					// $(OUT)
 					// $(DEPEND.INC)
 					// $("ProgramFiles(x86)")
-					r.value += expand(env, env.get_val(p.value.replace(/^(['"])(.*)\1$/, "$2"))).value; // '
+					r.value += expand(env, env.get_val(string_unescape(p.value))).value;
 				}
 				else if(xs[0] == "shell")
 				{
@@ -389,6 +389,16 @@ function expand(env, s, i, quote)
 					
 					var param = command_split(xs[1], " ");
 					r.value += fs.FileExists(param[0]) ? "1" : "0";
+				}
+				else if(xs[0] == "regex")
+				{
+					// $(regex abcbcd "^a[bc+]d$")
+					// $(regex "$(cat a.txt)" "^a[bc+]d$" m)
+					
+					var param = command_split(xs[1], " ");
+					var reg = new RegExp(string_unescape(param[1]), param[2] || "");
+					r.value += reg.test(string_unescape(param[0])) ? "1" : "0";
+					env.set_val("$&", RegExp.lastMatch);
 				}
 				else
 				{
@@ -462,6 +472,13 @@ function command_split(s, splitter, maxsplit)
 function escape(s)
 {
 	return(s.replace(/[.*+?^$\[\](){}\\]/g, "\\$&"));
+}
+
+function string_unescape(s)
+{
+	var c = s.charAt(0);
+	if((c == "'" || c == '"') && c == s.charAt(s.length - 1)) {return(s.substr(1, s.length - 2));}
+	return(s);
 }
 
 function meta_match(target, meta)
