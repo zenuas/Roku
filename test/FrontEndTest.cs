@@ -10,8 +10,8 @@ namespace Roku.Tests
 {
     public class FrontEndTest
     {
-        public string SourceDir = "..\\..\\..\\rk";
-        public string ObjDir = "..\\..\\..\\rk\\obj";
+        public static string SourceDir = "..\\..\\..\\rk";
+        public static string ObjDir = "..\\..\\..\\rk\\obj";
 
         [SetUp]
         public void Setup()
@@ -34,7 +34,7 @@ namespace Roku.Tests
             }
         }
 
-        public (bool Found, string Text) GetLineContent(string[] lines, Func<string, bool> start_line, Func<string, bool> end_line)
+        public static (bool Found, string Text) GetLineContent(string[] lines, Func<string, bool> start_line, Func<string, bool> end_line)
         {
             var start = lines.FindFirstIndex(x => start_line(x));
             if (start < 0) return (false, "not found start_line");
@@ -43,46 +43,39 @@ namespace Roku.Tests
             return (true, lines[(start + 1)..(start + end + 1)].Join("\r\n"));
         }
 
-        public (bool Found, string Text) GetLineContent(string[] lines, string start_line, string end_line) => GetLineContent(lines, x => x.StartsWith(start_line), x => x.StartsWith(end_line));
+        public static (bool Found, string Text) GetLineContent(string[] lines, string start_line, string end_line) => GetLineContent(lines, x => x.StartsWith(start_line), x => x.StartsWith(end_line));
 
-        [Test, Order(1)]
-        public void CompileTest()
+        public static (string Path, string TestName, string ErrorMessage) Compile(string src)
         {
-            var failed = new List<(string Path, string Message)>(
-                Directory.GetFiles(SourceDir, "*.rk").MapParallelAllWithTimeout(src =>
+            var filename = Path.GetFileName(src);
+            var txt = File.ReadAllText(src);
+            var lines = txt.SplitLine();
+            var testname = Path.GetFileNameWithoutExtension(src);
+            var il = Path.Combine(ObjDir, testname + ".il");
+
+            try
+            {
+                FrontEnd.Compile(new StringReader(txt), il, new string[] { "System.Runtime" });
+
+                var valid = GetLineContent(lines, "###start", "###end");
+                if (!valid.Found)
                 {
-                    var filename = Path.GetFileName(src);
-                    var txt = File.ReadAllText(src);
-                    var lines = txt.SplitLine();
-                    var testname = Path.GetFileNameWithoutExtension(src);
-                    var il = Path.Combine(ObjDir, testname + ".il");
-                    var skip = Path.Combine(ObjDir, testname + ".skip");
+                    return (src, filename, "test code not found ###start - ###end");
+                }
+                var il_src = File.ReadAllText(il).Trim();
 
-                    File.Delete(skip);
-                    try
-                    {
-                        FrontEnd.Compile(new StringReader(txt), il, new string[] { "System.Runtime" });
+                if (valid.Text.Trim() != il_src) return (src, filename, "il make a difference");
 
-                        var valid = GetLineContent(lines, "###start", "###end");
-                        if (!valid.Found)
-                        {
-                            return Tuple.Create(filename, "test code not found ###start - ###end");
-                        }
-                        var il_src = File.ReadAllText(il).Trim();
-
-                        if (valid.Text.Trim() != il_src) return Tuple.Create(filename, "il make a difference");
-
-                        File.Delete(il);
-                        File.Create(skip).Close();
-                    }
-                    catch (Exception ex)
-                    {
-                        var error = GetLineContent(lines, "###error", "###end");
-                        if (!error.Found || error.Text.Trim() != ex.Message)
-                        {
-                            return Tuple.Create(filename, ex.Message);
-                        }
-                        File.WriteAllText(il, $@"
+                File.Delete(il);
+            }
+            catch (Exception ex)
+            {
+                var error = GetLineContent(lines, "###error", "###end");
+                if (!error.Found || error.Text.Trim() != ex.Message)
+                {
+                    return (src, filename, ex.Message);
+                }
+                File.WriteAllText(il, $@"
 .assembly {filename} {{}}
 .method public static void main()
 {{
@@ -90,29 +83,25 @@ namespace Roku.Tests
     ret
 }}
 ");
-                    }
-                    return Tuple.Create(filename, "");
-                }, 1000 * 10)
-                .Where(x => x.Completed && x.Result!.Item2 != "")
-                .Map(x => (x.Result!.Item1, x.Result!.Item2)));
-
-            if (failed.Count > 0) Assert.Fail(failed.Map(x => $"{x.Path}: {x.Message}").Join("\n"));
+            }
+            return (src, filename, "");
         }
 
-        [Test, Order(2)]
-        public void MakeTestCaseTest()
+        [Test]
+        public void CompileTest()
         {
-            var sjis = System.Text.Encoding.GetEncoding(932);
+            var compile_result = Directory.GetFiles(SourceDir, "*.rk").MapParallelAllWithTimeout(Compile, 1000 * 10).ToList();
 
-            Directory.GetFiles(SourceDir, "*.rk").AsParallel().Each(src =>
+            var sjis = System.Text.Encoding.GetEncoding(932);
+            var success = new List<string>();
+            foreach (var result in compile_result)
             {
-                var testname = Path.GetFileNameWithoutExtension(src);
+                var testname = Path.GetFileNameWithoutExtension(result.Result.Path);
                 var in_ = Path.Combine(ObjDir, testname + ".testin");
                 var out_ = Path.Combine(ObjDir, testname + ".testout");
                 var err_ = Path.Combine(ObjDir, testname + ".testerr");
                 var args_ = Path.Combine(ObjDir, testname + ".testargs");
                 var name_ = Path.Combine(ObjDir, testname + ".testname");
-                var skip = Path.Combine(ObjDir, testname + ".skip");
 
                 File.Delete(in_);
                 File.Delete(out_);
@@ -120,12 +109,16 @@ namespace Roku.Tests
                 File.Delete(args_);
                 File.Delete(name_);
 
-                var txt = File.ReadAllText(src);
+                var txt = File.ReadAllText(result.Result.Path);
                 var lines = txt.SplitLine().Map(x => x.TrimStart()).ToArray();
                 var name_p = GetLineContent(lines, x => x == "###", x => x == "###");
-                var comment = Path.GetFileNameWithoutExtension(src) + (name_p.Found ? $" {name_p.Text.SplitLine().Take(2).Join(" ").SubstringAsByte(0, 78 - testname.Length, sjis)}" : "");
+                var comment = testname + (name_p.Found ? $" {name_p.Text.SplitLine().Take(2).Join(" ").SubstringAsByte(0, 78 - testname.Length, sjis)}" : "");
 
-                if (!File.Exists(skip))
+                if (result.Completed && result.Result!.ErrorMessage == "")
+                {
+                    success.Add(comment);
+                }
+                else
                 {
                     var in_p = lines.Where(x => x.StartsWith("#<=")).Map(x => x[3..] + "\r\n").Join();
                     var out_p = lines.Where(x => x.StartsWith("#=>")).Map(x => x[3..] + "\r\n").Join();
@@ -138,13 +131,14 @@ namespace Roku.Tests
                     File.WriteAllText(args_, args_p);
                     File.WriteAllText(name_, comment);
                 }
-                else
-                {
-                    File.WriteAllText(skip, comment);
-                }
+            }
 
-            });
-            Assert.Pass();
+            var skip = Path.Combine(ObjDir, ".success");
+            File.Delete(skip);
+            File.WriteAllText(skip, success.Count > 0 ? success.Join("\r\n") : "");
+
+            var failed = compile_result.Where(x => x.Completed && x.Result!.ErrorMessage != "").ToList();
+            if (failed.Count > 0) Assert.Fail(failed.Map(x => $"{x.Result.TestName}: {x.Result.ErrorMessage}").Join("\n"));
         }
     }
 }

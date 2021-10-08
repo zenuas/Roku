@@ -46,18 +46,20 @@ test: testd $(TESTS)
 
 testd:
 	-@dotnet test --nologo | tail -n +7 | head -n -3
+	@$(set RK_SKIP=$(cat test\rk\obj\.success utf-8))
 
 $(TESTS):
 	@$(set RK_OBJ=$(subst \rk\,\rk\obj\,$(patsubst %.rk,%,$@)))
+	@$(set RK_NAME=$(subst test\rk\,,$(patsubst %.rk,%,$@)))
 	
-	ifeq $(exists $(RK_OBJ).skip) 0
+	ifeq $(regex "$(RK_SKIP)" "^$(RK_NAME)\b.*$" m) 0
 		@$(echo $(cat $(RK_OBJ).testname utf-8))
 		-@if exist $(RK_OBJ).il. ilasm $(RK_OBJ).il /out:$(RK_OBJ).dll /quit /dll
 		@copy rk.test.runtimeconfig.json $(RK_OBJ).runtimeconfig.json 1>NUL
 		-@if exist $(RK_OBJ).dll. dotnet $(RK_OBJ).dll < $(RK_OBJ).testin > $(RK_OBJ).stdout
 		@fc $(RK_OBJ).testout $(RK_OBJ).stdout > $(RK_OBJ).diff || type $(RK_OBJ).diff
 	else
-		@$(echo $(cat $(RK_OBJ).skip utf-8))
+		@$(echo $("$&"))
 	endif
 
 fetchil:

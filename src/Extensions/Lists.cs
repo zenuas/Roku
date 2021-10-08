@@ -151,11 +151,11 @@ namespace Extensions
         public static R[] MapParallelAll<T, R>(this IEnumerable<T> self, Func<T, int, R> f) => Task.WhenAll(self.Select((x, i) => Task.Run(() => f(x, i)))).Result;
 
         [DebuggerHidden]
-        public static IEnumerable<(bool Completed, R? Result)> MapParallelAllWithTimeout<T, R>(this IEnumerable<T> self, Func<T, R> f, int waitms) where R : class
+        public static IEnumerable<(bool Completed, R? Result)> MapParallelAllWithTimeout<T, R>(this IEnumerable<T> self, Func<T, R> f, int waitms)
         {
             var tasks = self.Select(x => Task.Run(() => f(x))).ToArray();
             _ = Task.WaitAll(tasks, waitms);
-            return tasks.Select(x => (x.IsCompleted, x.IsCompleted ? x.Result : null));
+            return tasks.Select(x => (x.IsCompleted, x.IsCompleted ? x.Result : default));
         }
 
         [DebuggerHidden]
