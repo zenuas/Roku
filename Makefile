@@ -8,7 +8,7 @@ TESTS:=$(wildcard test\rk\*.rk)
 YANP=..\Yanp\bin\Debug\yanp.exe
 YANP_OUT=src\Parser\Parser.cs
 
-.PHONY: all clean distclean release test testd parser parserd fetchil metric
+.PHONY: all clean distclean release test testd testf parser parserd fetchil metric
 
 all:
 	dotnet build --nologo -v q
@@ -47,6 +47,9 @@ test: testd $(TESTS)
 testd:
 	-@dotnet test --nologo | tail -n +7 | head -n -3
 	@$(set RK_SKIP=$(cat test\rk\obj\.success utf-8))
+
+testf:
+	-@dotnet test --nologo -s test\none-skip.runsettings | tail -n +7 | head -n -3
 
 $(TESTS):
 	@$(set RK_OBJ=$(subst \rk\,\rk\obj\,$(patsubst %.rk,%,$@)))

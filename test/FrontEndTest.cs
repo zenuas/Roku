@@ -45,7 +45,7 @@ namespace Roku.Tests
 
         public static (bool Found, string Text) GetLineContent(string[] lines, string start_line, string end_line) => GetLineContent(lines, x => x.StartsWith(start_line), x => x.StartsWith(end_line));
 
-        public static (string Path, string TestName, string ErrorMessage) Compile(string src)
+        public static (string Path, string TestName, string ErrorMessage) Compile(string src, bool none_skip)
         {
             var filename = Path.GetFileName(src);
             var txt = File.ReadAllText(src);
@@ -66,7 +66,7 @@ namespace Roku.Tests
 
                 if (valid.Text.Trim() != il_src) return (src, filename, "il make a difference");
 
-                File.Delete(il);
+                if (!none_skip) File.Delete(il);
             }
             catch (Exception ex)
             {
@@ -90,7 +90,8 @@ namespace Roku.Tests
         [Test]
         public void CompileTest()
         {
-            var compile_result = Directory.GetFiles(SourceDir, "*.rk").MapParallelAllWithTimeout(Compile, 1000 * 10).ToList();
+            var none_skip = TestContext.Parameters.Get("none-skip", false);
+            var compile_result = Directory.GetFiles(SourceDir, "*.rk").MapParallelAllWithTimeout(x => Compile(x, none_skip), 1000 * 10).ToList();
 
             var sjis = System.Text.Encoding.GetEncoding(932);
             var success = new List<string>();
@@ -114,7 +115,7 @@ namespace Roku.Tests
                 var name_p = GetLineContent(lines, x => x == "###", x => x == "###");
                 var comment = testname + (name_p.Found ? $" {name_p.Text.SplitLine().Take(2).Join(" ").SubstringAsByte(0, 78 - testname.Length, sjis)}" : "");
 
-                if (result.Completed && result.Result!.ErrorMessage == "")
+                if (!none_skip && result.Completed && result.Result!.ErrorMessage == "")
                 {
                     success.Add(comment);
                 }
