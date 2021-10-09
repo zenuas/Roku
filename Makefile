@@ -8,7 +8,7 @@ TESTS:=$(wildcard test\rk\*.rk)
 YANP=..\Yanp\bin\Debug\yanp.exe
 YANP_OUT=src\Parser\Parser.cs
 
-.PHONY: all clean distclean release test testd testf parser parserd fetchil metric
+.PHONY: all clean distclean release test testf testd testdf testa parser parserd fetchil metric
 
 all:
 	dotnet build --nologo -v q
@@ -42,14 +42,17 @@ parserd:
 	
 	-find /n "/reduce" < src\roku.txt
 
-test: testd $(TESTS)
+test:  testd  testa
+testf: testdf testa
 
 testd:
 	-@dotnet test --nologo | tail -n +7 | head -n -3
 	@$(set RK_SKIP=$(cat test\rk\obj\.success utf-8))
 
-testf:
+testdf:
 	-@dotnet test --nologo -s test\none-skip.runsettings | tail -n +7 | head -n -3
+
+testa: $(TESTS)
 
 $(TESTS):
 	@$(set RK_OBJ=$(subst \rk\,\rk\obj\,$(patsubst %.rk,%,$@)))
