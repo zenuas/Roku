@@ -312,8 +312,10 @@ namespace Roku.Compiler
         public static bool IsFixedStruct(IStructBody? sb) =>
             sb is null ? false :
             sb is IndefiniteBody ? false :
-            sb is IGenericsMapper gm ? gm.GenericsMapper.And(x => IsFixedStruct(x.Value)) :
+            sb is IGenericsMapper gm ? IsFixedGenericsMapper(gm.GenericsMapper) :
             true;
+
+        public static bool IsFixedGenericsMapper(GenericsMapper gm) => gm.And(x => IsFixedStruct(x.Value));
 
         public static ClassBody? FindClassOrNull(INamespace ns, string name, List<ITypeDefinition> gens)
         {

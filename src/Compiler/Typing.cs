@@ -384,6 +384,18 @@ namespace Roku.Compiler
             {
                 if (num.Types.Contains(right)) num.Types.RemoveAll(x => x != right);
             }
+            else if (left is IGenericsMapper lgm &&
+                !Lookup.IsFixedStruct(left) &&
+                right is IGenericsMapper rgm)
+            {
+                foreach (var kvv in lgm.GenericsMapper.Keys.Map(x => (Key: x, Left: lgm.GenericsMapper[x], Right: rgm.GenericsMapper[x])).ToArray())
+                {
+                    if (kvv.Left is IndefiniteBody && !(kvv.Right is IndefiniteBody))
+                    {
+                        lgm.GenericsMapper[kvv.Key] = kvv.Right;
+                    }
+                }
+            }
             else if (left is AnonymousFunctionBody anon)
             {
                 Lookup.AppendSpecialization(anon, new GenericsMapper());
