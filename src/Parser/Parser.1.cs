@@ -91,6 +91,8 @@ namespace Roku.Parser
 
         public static IfCastNode CreateIfCastNode(VariableNode name, ITypeNode declare, IEvaluableNode cond, IScopeNode then) => new IfCastNode(name, declare, cond, then).R(cond);
 
+        public static IfConstraintCastNode CreateIfConstraintCastNode(VariableNode name, ListNode<SpecializationNode> specials, VariableNode gene, IEvaluableNode cond, IScopeNode then) => new IfConstraintCastNode(name, specials, gene, cond, then).R(cond);
+
         public static IfArrayCastNode CreateIfArrayCastNode(ListNode<VariableNode> array_pattern, IEvaluableNode cond, IScopeNode then) => new IfArrayCastNode(array_pattern, cond, then).R(cond);
 
         public static IIfNode AddElse(IIfNode if_, IScopeNode else_) => if_.Return(x => x.Else = else_);

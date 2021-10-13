@@ -148,7 +148,7 @@ fn     : var
 where  : void                     {$$ = CreateListNode<SpecializationNode>();}
        | LT wheren GT             {$$ = $2;}
 wheren : spec                     {$$ = CreateListNode($1);}
-       | wheren spec              {$$ = $1.Return(x => x.List.Add($2));}
+       | wheren ',' spec          {$$ = $1.Return(x => x.List.Add($3));}
 spec   : nsvar LT nsvarn extra GT {$$ = CreateSpecialization($1, $3);}
 
 args   : void                     {$$ = CreateListNode<DeclareNode>();}
@@ -199,16 +199,18 @@ lambda_argn  : lambda_arg                 {$$ = CreateListNode($1);}
 ########## if ##########
 if     : ifthen
        | elseif
-       | ifthen ELSE EOL block                        {$$ = AddElse($1, $4);}
-       | elseif ELSE EOL block                        {$$ = AddElse($1, $4);}
-       | IF expr                 THEN NOTEOL expr EOL {$$ = CreateIfNode($2, ToStatementBlock($5));}
-       | IF var ':' type EQ expr THEN NOTEOL expr EOL {$$ = CreateIfCastNode($2, $4, $6, ToStatementBlock($9));}
-       | IF '[' list ']' EQ expr THEN NOTEOL expr EOL {$$ = CreateIfArrayCastNode(ToArrayPattern($3), $6, ToStatementBlock($9));}
-ifthen : IF expr EOL block                            {$$ = CreateIfNode($2, $4);}
-       | IF var ':' type EQ expr EOL block            {$$ = CreateIfCastNode($2, $4, $6, $8);}
-       | IF '[' list ']' EQ expr EOL block            {$$ = CreateIfArrayCastNode(ToArrayPattern($3), $6, $8);}
-elseif : ifthen ELSE ifthen                           {$$ = $1.Return(x => x.ElseIf.Add($3));}
-       | elseif ELSE ifthen                           {$$ = $1.Return(x => x.ElseIf.Add($3));}
+       | ifthen ELSE EOL block                               {$$ = AddElse($1, $4);}
+       | elseif ELSE EOL block                               {$$ = AddElse($1, $4);}
+       | IF expr                        THEN NOTEOL expr EOL {$$ = CreateIfNode($2, ToStatementBlock($5));}
+       | IF var ':' type        EQ expr THEN NOTEOL expr EOL {$$ = CreateIfCastNode($2, $4, $6, ToStatementBlock($9));}
+       | IF var ':' wheren varx EQ expr THEN NOTEOL expr EOL {$$ = CreateIfConstraintCastNode($2, $4, $5, $7, ToStatementBlock($10));}
+       | IF '[' list ']'        EQ expr THEN NOTEOL expr EOL {$$ = CreateIfArrayCastNode(ToArrayPattern($3), $6, ToStatementBlock($9));}
+ifthen : IF expr EOL block                                   {$$ = CreateIfNode($2, $4);}
+       | IF var ':' type        EQ expr EOL block            {$$ = CreateIfCastNode($2, $4, $6, $8);}
+       | IF var ':' wheren varx EQ expr EOL block            {$$ = CreateIfConstraintCastNode($2, $4, $5, $7, $9);}
+       | IF '[' list ']'        EQ expr EOL block            {$$ = CreateIfArrayCastNode(ToArrayPattern($3), $6, $8);}
+elseif : ifthen ELSE ifthen                                  {$$ = $1.Return(x => x.ElseIf.Add($3));}
+       | elseif ELSE ifthen                                  {$$ = $1.Return(x => x.ElseIf.Add($3));}
 
 ########## switch ##########
 switch     : SWITCH expr EOL case_block
