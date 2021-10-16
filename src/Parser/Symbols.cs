@@ -250,9 +250,6 @@ namespace Roku.Parser
         /// <summary>nsvar</summary>
         nsvar,
 
-        /// <summary>nsvarn</summary>
-        nsvarn,
-
         /// <summary>null</summary>
         @null,
 

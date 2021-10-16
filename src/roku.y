@@ -24,7 +24,7 @@ using Roku.Node;
 %type<ITypeNode>                    type gen
 %type<SpecializationNode>           spec
 %type<ListNode<SpecializationNode>> where wheren
-%type<ListNode<ITypeNode>>          types typen type2n genn typeor nsvarn
+%type<ListNode<ITypeNode>>          types typen type2n genn typeor
 %type<TypeNode>                     nsvar
 %type<ITypeNode>                    typev
 %type<ITypeNode?>                   typex
@@ -145,40 +145,38 @@ sub_block : sub_begin stmt END {$$ = Scopes.Pop();}
 sub_begin : BEGIN              {Scopes.Push(new FunctionNode { LineNumber = $1.LineNumber });}
 
 fn     : var
-where  : void                     {$$ = CreateListNode<SpecializationNode>();}
-       | LT wheren GT             {$$ = $2;}
-wheren : spec                     {$$ = CreateListNode($1);}
-       | wheren ',' spec          {$$ = $1.Return(x => x.List.Add($3));}
-spec   : nsvar LT nsvarn extra GT {$$ = CreateSpecialization($1, $3);}
+where  : void                    {$$ = CreateListNode<SpecializationNode>();}
+       | LT wheren GT            {$$ = $2;}
+wheren : spec                    {$$ = CreateListNode($1);}
+       | wheren ',' spec         {$$ = $1.Return(x => x.List.Add($3));}
+spec   : varx LT genn extra GT   {$$ = CreateSpecialization($1, $3);}
 
-args   : void                     {$$ = CreateListNode<DeclareNode>();}
+args   : void                    {$$ = CreateListNode<DeclareNode>();}
        | argn extra
-argn   : decla                    {$$ = CreateListNode($1);}
-       | argn ',' decla           {$$ = $1.Return(x => x.List.Add($3));}
-decla  : var ':' type             {$$ = new DeclareNode($1, $3).R($1);}
+argn   : decla                   {$$ = CreateListNode($1);}
+       | argn ',' decla          {$$ = $1.Return(x => x.List.Add($3));}
+decla  : var ':' type            {$$ = new DeclareNode($1, $3).R($1);}
 type   : typev
-       | typev '?'                {$$ = CreateNullable($1);}
+       | typev '?'               {$$ = CreateNullable($1);}
 typev  : nsvar
-       | nsvar LT typen extra GT  {$$ = CreateSpecialization($1, $3);}
-       | STRUCT var '(' args ')'  {$$ = CreateTypeStructNode($2, $4);}
-       | '[' type   ']'           {$$ = new TypeArrayNode($2).R($1);}
-       | '[' type2n ']'           {$$ = new TypeTupleNode($2).R($1);}
-       | '[' typeor ']'           {$$ = new EnumNode($2).R($1);}
-       | '{' types  '}'           {$$ = CreateTypeFunctionNode($2);}
-       | '{' types ARROW type'}'  {$$ = CreateTypeFunctionNode($2, $4);}
-nsvar  : varx                     {$$ = new TypeNode { Name = $1.Name }.R($1);}
-       | nsvar '.' varx           {$$ = $1.Return(x => { x.Namespace.Add(x.Name); x.Name = $3.Name; });}
-nsvarn : nsvar                    {$$ = CreateListNode<ITypeNode>($1);}
-       | nsvarn ',' nsvar         {$$ = $1.Return(x => x.List.Add($3));}
+       | nsvar LT typen extra GT {$$ = CreateSpecialization($1, $3);}
+       | STRUCT var '(' args ')' {$$ = CreateTypeStructNode($2, $4);}
+       | '[' type   ']'          {$$ = new TypeArrayNode($2).R($1);}
+       | '[' type2n ']'          {$$ = new TypeTupleNode($2).R($1);}
+       | '[' typeor ']'          {$$ = new EnumNode($2).R($1);}
+       | '{' types  '}'          {$$ = CreateTypeFunctionNode($2);}
+       | '{' types ARROW type'}' {$$ = CreateTypeFunctionNode($2, $4);}
+nsvar  : varx                    {$$ = new TypeNode { Name = $1.Name }.R($1);}
+       | nsvar '.' varx          {$$ = $1.Return(x => { x.Namespace.Add(x.Name); x.Name = $3.Name; });}
 typex  : void
        | type
-types  : void                     {$$ = CreateListNode<ITypeNode>();}
+types  : void                    {$$ = CreateListNode<ITypeNode>();}
        | typen extra
-typen  : type                     {$$ = CreateListNode($1);}
-       | typen ',' type           {$$ = $1.Return(x => x.List.Add($3));}
-type2n : type ',' typen           {$$ = $3.Return(x => x.List.Insert(0, $1));}
-typeor : type OR type             {$$ = CreateListNode($1, $3);}
-       | typeor OR type           {$$ = $1.Return(x => x.List.Add($3));}
+typen  : type                    {$$ = CreateListNode($1);}
+       | typen ',' type          {$$ = $1.Return(x => x.List.Add($3));}
+type2n : type ',' typen          {$$ = $3.Return(x => x.List.Insert(0, $1));}
+typeor : type OR type            {$$ = CreateListNode($1, $3);}
+       | typeor OR type          {$$ = $1.Return(x => x.List.Add($3));}
 
 ########## lambda ##########
 lambda       : var           ARROW lambda_func {$$ = CreateLambdaFunction($3, CreateListNode<IDeclareNode>(new ImplicitDeclareNode($1)), null, true);}
