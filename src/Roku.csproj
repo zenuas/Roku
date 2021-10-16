@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="cd $(ProjectDir).. &amp; make.bat parser" />
+    <Exec Command="cd $(ProjectDir).. &amp; make parser" />
   </Target>
 
 </Project>
