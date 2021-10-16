@@ -10,8 +10,8 @@ namespace Roku.Tests
 {
     public class FrontEndTest
     {
-        public static string SourceDir = "..\\..\\..\\rk";
-        public static string ObjDir = "..\\..\\..\\rk\\obj";
+        public static string SourceDir = Path.Combine("..", "..", "..", "rk");
+        public static string ObjDir = Path.Combine("..", "..", "..", "rk", "obj");
 
         [SetUp]
         public void Setup()
