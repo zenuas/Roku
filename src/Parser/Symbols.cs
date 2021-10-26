@@ -73,6 +73,9 @@ namespace Roku.Parser
         /// <summary>IGNORE</summary>
         IGNORE,
 
+        /// <summary>INSTANCE</summary>
+        INSTANCE,
+
         /// <summary>IS</summary>
         IS,
 
@@ -208,6 +211,15 @@ namespace Roku.Parser
         /// <summary>ifthen</summary>
         ifthen,
 
+        /// <summary>instance</summary>
+        instance,
+
+        /// <summary>instance_begin</summary>
+        instance_begin,
+
+        /// <summary>instance_block</summary>
+        instance_block,
+
         /// <summary>lambda</summary>
         lambda,
 
@@ -240,6 +252,12 @@ namespace Roku.Parser
 
         /// <summary>listn</summary>
         listn,
+
+        /// <summary>map</summary>
+        map,
+
+        /// <summary>mapn</summary>
+        mapn,
 
         /// <summary>nope</summary>
         nope,

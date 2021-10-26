@@ -67,6 +67,7 @@ line : call EOL
      | class     {Scopes.Peek().Classes.Add($1);}
      | struct    {Scopes.Peek().Structs.Add($1);}
      | sub       {Scopes.Peek().Functions.Add($1);}
+     | instance  {}
      | if
 
 block : begin stmt END {$$ = Scopes.Pop();}
@@ -137,6 +138,16 @@ cond  : SUB fn where '(' args        ')' typex EOL {$$ = CreateFunctionNode($2, 
       | SUB fn where '(' typen extra ')' typex EOL {$$ = CreateFunctionNode($2, $5, $8, $3);}
 condn : cond                                       {$$ = CreateListNode($1);}
       | condn cond                                 {$$ = $1.Return(x => x.List.Add($2));}
+
+########## instance ##########
+instance : INSTANCE type ':' spec EOL instance_block
+
+instance_block : instance_begin mapn END
+instance_begin : BEGIN
+
+mapn : map
+     | mapn map
+map  : fn EQ expr EOL
 
 ########## sub ##########
 sub    : SUB fn where '(' args ')' typex EOL sub_block {$$ = CreateFunctionNode($9, $2, $5, $7, $3);}
