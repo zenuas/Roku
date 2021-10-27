@@ -48,6 +48,7 @@ using Roku.Node;
 %right UNARY
 %left  '.'
 
+%left  '?'
 %left  ','
 %left  '(' '[' '{'
 %left  EOL
@@ -140,7 +141,7 @@ condn : cond                                       {$$ = CreateListNode($1);}
       | condn cond                                 {$$ = $1.Return(x => x.List.Add($2));}
 
 ########## instance ##########
-instance : INSTANCE type ':' spec EOL instance_block
+instance : INSTANCE type var ':' spec EOL instance_block
 
 instance_block : instance_begin mapn END
 instance_begin : BEGIN

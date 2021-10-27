@@ -1,0 +1,19 @@
+
+class Hoge<a>
+	sub foo(a) Int
+
+sub foo(p: String) Int
+	return(1)
+
+instance String a: Hoge<a>
+	foo = foo(a)
+
+print("dummy")
+
+###
+インスタンス宣言の構文テスト
+###
+
+###start
+
+###end
