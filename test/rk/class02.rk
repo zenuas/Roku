@@ -8,6 +8,7 @@ sub foo(p: String) Int
 instance String a: Hoge<a>
 	foo = foo(a)
 
+#=>dummy
 print("dummy")
 
 ###
