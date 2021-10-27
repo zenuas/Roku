@@ -6,6 +6,10 @@ struct Foo
 var v = Foo()
 print(v.x)
 
+###
+構造体の初期値テスト
+###
+
 ###start
 .assembly extern System.Console {}
 .assembly extern System.Runtime {}

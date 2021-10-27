@@ -2,6 +2,9 @@
 #=>3
 print(1 + 2)
 
+###
+数値出力テスト
+###
 
 ###start
 .assembly extern System.Console {}

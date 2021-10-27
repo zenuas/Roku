@@ -4,6 +4,9 @@ var xs = System.Collections.Generic.List<Int>()
 xs.Add(1)
 print(xs[0])
 
+###
+CListの使用
+###
 
 ###start
 .assembly extern System.Console {}

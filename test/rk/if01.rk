@@ -3,6 +3,9 @@
 if 1 == 1
 	print("then")
 
+###
+then部のみのifテスト
+###
 
 ###start
 .assembly extern System.Console {}

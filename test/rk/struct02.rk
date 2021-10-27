@@ -7,6 +7,10 @@ var v = Foo()
 v.x = 6
 print(v.x)
 
+###
+構造体メンバへの代入テスト
+###
+
 ###start
 .assembly extern System.Console {}
 .assembly extern System.Runtime {}

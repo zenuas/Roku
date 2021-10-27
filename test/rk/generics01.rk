@@ -8,6 +8,10 @@ f("hello")
 sub f(x: a)
 	print(x)
 
+###
+ジェネリック関数のテスト
+###
+
 ###start
 .assembly extern System.Console {}
 .assembly extern System.Runtime {}

@@ -6,6 +6,9 @@ if x: Int = a + a
 else if x: String = a + a + a
 	print(x)
 
+###
+型検証失敗のifテスト
+###
 
 ###start
 .assembly extern System.Console {}

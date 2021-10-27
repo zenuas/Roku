@@ -3,6 +3,9 @@
 var xs = ["a", "b", "c"]
 print(xs[1] + xs[2])
 
+###
+[a, b, c]形式の配列作成
+###
 
 ###start
 .assembly extern System.Console {}

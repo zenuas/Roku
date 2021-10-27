@@ -9,6 +9,11 @@ sub f(x: Int)
 		return()
 	print(x)
 
+###
+関数のテスト
+returnによる関数終了
+###
+
 ###start
 .assembly extern System.Console {}
 .assembly extern System.Runtime {}

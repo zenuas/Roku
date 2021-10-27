@@ -30,6 +30,11 @@ sub f(n: Int)
 		print("other")
 
 
+###
+else、else ifのあるテスト
+ifの入れ子も検証
+###
+
 ###start
 .assembly extern System.Console {}
 .assembly extern System.Runtime {}

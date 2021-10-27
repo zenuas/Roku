@@ -3,6 +3,9 @@
 var a = "hello"
 print(a)
 
+###
+文字列を変数へバインド
+###
 
 ###start
 .assembly extern System.Console {}
