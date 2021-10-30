@@ -214,9 +214,6 @@ namespace Roku.Parser
         /// <summary>instance</summary>
         instance,
 
-        /// <summary>instance_begin</summary>
-        instance_begin,
-
         /// <summary>instance_block</summary>
         instance_block,
 

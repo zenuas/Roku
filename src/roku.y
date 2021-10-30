@@ -31,6 +31,9 @@ using Roku.Node;
 %type<IIfNode>                      if ifthen elseif
 %type<StructNode>                   struct struct_block
 %type<ClassNode>                    class
+%type<InstanceNode>                 instance
+%type<InstanceMapNode>              map
+%type<ListNode<InstanceMapNode>>    mapn instance_block
 %type<VariableNode>                 var varx fvar fn
 %type<StringNode>                   str
 %type<BooleanNode>                  bool
@@ -141,14 +144,13 @@ condn : cond                                       {$$ = CreateListNode($1);}
       | condn cond                                 {$$ = $1.Return(x => x.List.Add($2));}
 
 ########## instance ##########
-instance : INSTANCE type var ':' spec EOL instance_block
+instance : INSTANCE type ':' spec EOL instance_block {$$ = CreateInstanceNode($2, $4, $6);}
 
-instance_block : instance_begin mapn END
-instance_begin : BEGIN
+instance_block : BEGIN mapn END {$$ = $2;}
 
-mapn : map
-     | mapn map
-map  : fn EQ expr EOL
+mapn : map                                       {$$ = CreateListNode($1);}
+     | mapn map                                  {$$ = $1.Return(x => x.List.Add($2));}
+map  : fn '(' lambda_args ')' EQ lambda_func EOL {$$ = CreateInstanceMapNode($1, $3, $6);}
 
 ########## sub ##########
 sub    : SUB fn where '(' args ')' typex EOL sub_block {$$ = CreateFunctionNode($9, $2, $5, $7, $3);}

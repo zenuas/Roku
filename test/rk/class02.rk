@@ -2,11 +2,11 @@
 class Hoge<a>
 	sub foo(a) Int
 
-sub foo(p: String) Int
+sub bar(p: String) Int
 	return(1)
 
-instance String a: Hoge<a>
-	foo = foo(a)
+instance String: Hoge<String>
+	foo(a) = bar(a)
 
 #=>dummy
 print("dummy")

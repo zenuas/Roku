@@ -42,6 +42,28 @@ namespace Roku.Parser
             return class_;
         }
 
+        public static InstanceNode CreateInstanceNode(
+                ITypeNode type,
+                SpecializationNode spec,
+                ListNode<InstanceMapNode> maps
+            )
+        {
+            return new InstanceNode(type, spec, maps).R(type);
+        }
+
+        public static InstanceMapNode CreateInstanceMapNode(
+                VariableNode name,
+                ListNode<IDeclareNode> args,
+                LambdaExpressionNode stmt
+            )
+        {
+            var m = new InstanceMapNode().R(name);
+            m.Name = name;
+            m.Arguments.AddRange(args.List);
+            m.Statements.AddRange(stmt.Statements);
+            return m;
+        }
+
         public static FunctionNode CreateFunctionNode(
                 FunctionNode fn,
                 VariableNode name,
