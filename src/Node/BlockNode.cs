@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Roku.Node
 {
@@ -10,5 +11,6 @@ namespace Roku.Node
         public List<FunctionNode> Functions { get; } = new List<FunctionNode>();
         public List<StructNode> Structs { get; } = new List<StructNode>();
         public List<ClassNode> Classes { get; } = new List<ClassNode>();
+        public List<InstanceNode> Instances => throw new NotImplementedException();
     }
 }

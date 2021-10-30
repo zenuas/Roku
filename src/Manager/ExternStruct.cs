@@ -15,6 +15,7 @@ namespace Roku.Manager
         public List<IFunctionName> Functions { get; } = new List<IFunctionName>();
         public List<IStructBody> Structs => throw new NotImplementedException();
         public List<ClassBody> Classes => throw new NotImplementedException();
+        public List<InstanceBody> Instances => throw new NotImplementedException();
 
         public ExternStruct(TypeInfo ti, Assembly asm)
         {

@@ -1,4 +1,5 @@
 ﻿using Roku.Declare;
+using System;
 using System.Collections.Generic;
 
 namespace Roku.Manager
@@ -11,6 +12,7 @@ namespace Roku.Manager
         public List<IFunctionName> Functions { get; } = new List<IFunctionName>();
         public List<IStructBody> Structs { get; } = new List<IStructBody>();
         public List<ClassBody> Classes { get; } = new List<ClassBody>();
+        public List<InstanceBody> Instances => throw new NotImplementedException();
 
         public ClassBody(INamespace ns, string name)
         {

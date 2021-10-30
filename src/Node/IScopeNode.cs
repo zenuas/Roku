@@ -8,5 +8,6 @@ namespace Roku.Node
         public List<FunctionNode> Functions { get; }
         public List<StructNode> Structs { get; }
         public List<ClassNode> Classes { get; }
+        public List<InstanceNode> Instances { get; }
     }
 }

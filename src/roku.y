@@ -71,7 +71,7 @@ line : call EOL
      | class     {Scopes.Peek().Classes.Add($1);}
      | struct    {Scopes.Peek().Structs.Add($1);}
      | sub       {Scopes.Peek().Functions.Add($1);}
-     | instance  {}
+     | instance  {Scopes.Peek().Instances.Add($1);}
      | if
 
 block : begin stmt END {$$ = Scopes.Pop();}
