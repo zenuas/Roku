@@ -141,7 +141,6 @@ namespace Roku.Compiler
                 case ">=": return mi.Name == "op_GreaterThanOrEqual";
                 default: return !new string[] { "get_", "set_", "add_", "remove_" }.Where(x => mi.Name.StartsWith(x) && mi.Name.Substring(x.Length) == name).IsNull();
             }
-            throw new Exception();
         }
 
         public static (bool Exists, GenericsMapper GenericsMapper) FunctionArgumentsEquals(INamespace ns, IFunctionName source, List<IStructBody?> args)
