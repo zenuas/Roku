@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace Roku.Tests
 {
@@ -38,7 +39,7 @@ namespace Roku.Tests
         {
             var start = lines.FindFirstIndex(x => start_line(x));
             if (start < 0) return (false, "not found start_line");
-            var end = lines.Drop(start + 1).FindFirstIndex(x => end_line(x));
+            var end = lines.Skip(start + 1).FindFirstIndex(x => end_line(x));
             if (end < 0) return (false, "not found start_line - end_line");
             return (true, lines[(start + 1)..(start + end + 1)].Join("\r\n"));
         }
@@ -111,7 +112,7 @@ namespace Roku.Tests
                 File.Delete(name_);
 
                 var txt = File.ReadAllText(result.Result.Path);
-                var lines = txt.SplitLine().Map(x => x.TrimStart()).ToArray();
+                var lines = txt.SplitLine().Select(x => x.TrimStart()).ToArray();
                 var name_p = GetLineContent(lines, x => x == "###", x => x == "###");
                 var comment = testname + (name_p.Found ? $" {name_p.Text.SplitLine().Take(2).Join(" ").SubstringAsByte(0, 78 - testname.Length, sjis)}" : "");
 
@@ -121,10 +122,10 @@ namespace Roku.Tests
                 }
                 else
                 {
-                    var in_p = lines.Where(x => x.StartsWith("#<=")).Map(x => x[3..] + "\r\n").Join();
-                    var out_p = lines.Where(x => x.StartsWith("#=>")).Map(x => x[3..] + "\r\n").Join();
-                    var err_p = lines.Where(x => x.StartsWith("#=2>")).Map(x => x[4..] + "\r\n").Join();
-                    var args_p = lines.Where(x => x.StartsWith("##*")).Map(x => x[3..]).Join(" ");
+                    var in_p = lines.Where(x => x.StartsWith("#<=")).Select(x => x[3..] + "\r\n").Join();
+                    var out_p = lines.Where(x => x.StartsWith("#=>")).Select(x => x[3..] + "\r\n").Join();
+                    var err_p = lines.Where(x => x.StartsWith("#=2>")).Select(x => x[4..] + "\r\n").Join();
+                    var args_p = lines.Where(x => x.StartsWith("##*")).Select(x => x[3..]).Join(" ");
 
                     File.WriteAllText(in_, in_p);
                     File.WriteAllText(out_, out_p);
@@ -139,7 +140,7 @@ namespace Roku.Tests
             File.WriteAllText(skip, success.Count > 0 ? success.Join("\r\n") : "");
 
             var failed = compile_result.Where(x => x.Completed && x.Result!.ErrorMessage != "").ToList();
-            if (failed.Count > 0) Assert.Fail(failed.Map(x => $"{x.Result.TestName}: {x.Result.ErrorMessage}").Join("\n"));
+            if (failed.Count > 0) Assert.Fail(failed.Select(x => $"{x.Result.TestName}: {x.Result.ErrorMessage}").Join("\n"));
         }
     }
 }

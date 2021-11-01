@@ -1,6 +1,7 @@
 ﻿using Extensions;
 using Roku.Node;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Roku.Parser
 {
@@ -96,7 +97,7 @@ namespace Roku.Parser
                 ListNode<SpecializationNode> where
             )
         {
-            return CreateFunctionNode(name, new ListNode<DeclareNode>().Return(x => x.List.AddRange(args.List.Map((y, i) => new DeclareNode(CreateVariableNode($"arg{i}"), y)))), ret, where);
+            return CreateFunctionNode(name, new ListNode<DeclareNode>().Return(x => x.List.AddRange(args.List.Select((y, i) => new DeclareNode(CreateVariableNode($"arg{i}"), y)))), ret, where);
         }
 
         public static LambdaExpressionNode CreateLambdaFunction(LambdaExpressionNode lambda, ListNode<IDeclareNode> args, ITypeNode? ret, bool isimplicit)
@@ -125,7 +126,7 @@ namespace Roku.Parser
 
         public static BlockNode ToStatementBlock(IEvaluableNode expr) => ToBlock(expr.Cast<IStatementNode>());
 
-        public static ListNode<VariableNode> ToArrayPattern(ListNode<IEvaluableNode> list) => list.List.And(x => x is VariableNode) ? CreateListNode(list.List.By<VariableNode>().ToArray()) : throw new SyntaxErrorException("not array-pattern");
+        public static ListNode<VariableNode> ToArrayPattern(ListNode<IEvaluableNode> list) => list.List.All(x => x is VariableNode) ? CreateListNode(list.List.OfType<VariableNode>().ToArray()) : throw new SyntaxErrorException("not array-pattern");
 
         public static ITypeNode ExpressionToType(IEvaluableNode expr)
         {

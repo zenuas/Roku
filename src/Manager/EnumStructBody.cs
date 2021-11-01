@@ -2,6 +2,7 @@
 using Roku.Declare;
 using Roku.IntermediateCode;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Roku.Manager
 {
@@ -22,6 +23,6 @@ namespace Roku.Manager
             Namespace = ns;
         }
 
-        public override string ToString() => $"[{Enums.Map(x => x.ToString()!).Join(" | ")}]";
+        public override string ToString() => $"[{Enums.Select(x => x.ToString()!).Join(" | ")}]";
     }
 }

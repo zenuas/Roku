@@ -5,6 +5,7 @@ using Roku.Manager;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -21,9 +22,10 @@ namespace Roku.Compiler
             var externs = Lookup.AllExternFunctions(nss);
             var embedded = Lookup.AllEmbeddedFunctions(nss);
             var extern_structs = Lookup.AllExternStructs(Lookup.GetRootNamespace(body));
-            var extern_asms = externs.Map(x => x.Assembly)
-                .Concat(extern_structs.Map(x => x.Assembly))
-                .By<Assembly>().Unique();
+            var extern_asms = externs.Select(x => x.Assembly)
+                .Concat(extern_structs.Select(x => x.Assembly))
+                .OfType<Assembly>()
+                .Distinct();
 
             var fss = new List<FunctionSpecialization>() { new FunctionSpecialization(entrypoint, new GenericsMapper()) };
             fss = fss.Concat(StructsToFunctionList(structs)).ToList();
@@ -74,7 +76,7 @@ namespace Roku.Compiler
                 {
                     il.WriteLine(".locals(");
                     il.Indent++;
-                    il.WriteLine(local_vals.Map(x => $"[{x.Index}] {GetTypeName(x, g)} {x.Name}").Join(",\n"));
+                    il.WriteLine(local_vals.Select(x => $"[{x.Index}] {GetTypeName(x, g)} {x.Name}").Join(",\n"));
                     il.Indent--;
                     il.WriteLine(")");
                 }
@@ -97,18 +99,18 @@ namespace Roku.Compiler
                 var g = fss[i].GenericsMapper;
                 var mapper = Lookup.GetTypemapper(f.SpecializationMapper, g);
 
-                il.WriteLine($".method public static {GetTypeName(mapper, f.Return, g)} {EscapeILName(f.Name)}({f.Arguments.Map(a => GetTypeName(mapper[a.Name], g)).Join(", ")})");
+                il.WriteLine($".method public static {GetTypeName(mapper, f.Return, g)} {EscapeILName(f.Name)}({f.Arguments.Select(a => GetTypeName(mapper[a.Name], g)).Join(", ")})");
                 il.WriteLine("{");
                 il.Indent++;
                 if (i == 0) il.WriteLine(".entrypoint");
-                il.WriteLine($".maxstack {f.Body.Map(x => GetMaxstack(x, mapper)).Max()}");
+                il.WriteLine($".maxstack {f.Body.Select(x => GetMaxstack(x, mapper)).Max()}");
                 var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable && !(x.Struct is NamespaceBody)).Sort((a, b) => a.Index - b.Index).ToList();
                 local_vals.Each((x, i) => x.Index = i);
                 if (local_vals.Count > 0)
                 {
                     il.WriteLine(".locals(");
                     il.Indent++;
-                    il.WriteLine(local_vals.Map(x => $"[{x.Index}] {GetTypeName(x, g)} {x.Name}").Join(",\n"));
+                    il.WriteLine(local_vals.Select(x => $"[{x.Index}] {GetTypeName(x, g)} {x.Name}").Join(",\n"));
                     il.Indent--;
                     il.WriteLine(")");
                 }
@@ -128,7 +130,7 @@ namespace Roku.Compiler
                 case Operator.Call:
                     {
                         var call = op.Cast<Call>();
-                        stack_size = call.Function.Arguments.Map(x => GetMaxstack(x)).Sum();
+                        stack_size = call.Function.Arguments.Select(x => GetMaxstack(x)).Sum();
                         break;
                     }
 
@@ -168,7 +170,7 @@ namespace Roku.Compiler
                     if (cache.Contains(name)) return;
                     _ = cache.Add(name);
 
-                    body.Body.By<Call>().Each(x => CallToAddEmitFunctionList(mapper, x, fsnew));
+                    body.Body.OfType<Call>().Each(x => CallToAddEmitFunctionList(mapper, x, fsnew));
                 });
             });
             return fsnew;
@@ -186,9 +188,9 @@ namespace Roku.Compiler
                 var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable && !(x.Struct is NamespaceBody)).Sort((a, b) => a.Index - b.Index).ToList();
                 if (local_vals.Count > 0)
                 {
-                    local_vals.Map(x => x.Struct).By<AnonymousFunctionBody>().Each(x => CallToAddEmitFunctionList(mapper, x, fsnew));
+                    local_vals.Select(x => x.Struct).OfType<AnonymousFunctionBody>().Each(x => CallToAddEmitFunctionList(mapper, x, fsnew));
                 }
-                f.Body.By<Call>().Each(x => CallToAddEmitFunctionList(mapper, x, fsnew));
+                f.Body.OfType<Call>().Each(x => CallToAddEmitFunctionList(mapper, x, fsnew));
             }
             return fsnew;
         }
@@ -216,7 +218,7 @@ namespace Roku.Compiler
         public static bool EqualsFunctionCaller(FunctionSpecialization left, IFunctionName right, GenericsMapper right_g)
         {
             if (left.Body != right) return false;
-            return left.GenericsMapper.Keys.And(x => left.GenericsMapper[x] == right_g[x]);
+            return left.GenericsMapper.Keys.All(x => left.GenericsMapper[x] == right_g[x]);
         }
 
         public static void AssemblyOperandEmit(ILWriter il, IOperand op, INamespace ns, TypeMapper m, Dictionary<LabelCode, string> labels, GenericsMapper g)
@@ -243,7 +245,7 @@ namespace Roku.Compiler
                         {
                             il.WriteLine(LoadValue(m, call.Function.Function));
                         }
-                        var args = call.Function.Arguments.Map((x, i) => LoadValue(m, x, GetArgumentType(ns, f, i))).ToArray();
+                        var args = call.Function.Arguments.Select((x, i) => LoadValue(m, x, GetArgumentType(ns, f, i))).ToArray();
                         var have_return = false;
                         if (f.Function is ExternFunction fx)
                         {
@@ -253,19 +255,19 @@ namespace Roku.Compiler
                             var asmname = $"[{fx.Assembly.GetName().Name}]";
                             var classname = GetTypeName(GetType(fx), Lookup.TypeMapperToGenericsMapper(f.TypeMapper));
                             var fname = fx.Function.Name;
-                            var param_args = fx.Function.GetParameters().Map(x => GetParameterName(x.ParameterType)).Join(", ");
+                            var param_args = fx.Function.GetParameters().Select(x => GetParameterName(x.ParameterType)).Join(", ");
                             il.WriteLine($"{callsig} {retvar} class {asmname}{classname}::{fname}({param_args})");
                             have_return = fx.Function.ReturnType is { } p && p != typeof(void);
                         }
                         else if (f.Function is FunctionBody fb)
                         {
                             il.WriteLine(args.Join('\n'));
-                            il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return, g)} {EscapeILName(fb.Name)}({fb.Arguments.Map(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")})");
+                            il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return, g)} {EscapeILName(fb.Name)}({fb.Arguments.Select(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")})");
                             have_return = fb.Return is { };
                         }
                         else if (f.Function is FunctionTypeBody ftb)
                         {
-                            il.WriteLine($"callvirt instance {(ftb.Return is null ? "void" : $"!{ftb.Arguments.Count}")} {GetFunctionTypeName(ftb)}::Invoke({Lists.Range(0, ftb.Arguments.Count).Map(x => $"!{x}").Join(", ")})");
+                            il.WriteLine($"callvirt instance {(ftb.Return is null ? "void" : $"!{ftb.Arguments.Count}")} {GetFunctionTypeName(ftb)}::Invoke({Enumerable.Range(0, ftb.Arguments.Count).Select(x => $"!{x}").Join(", ")})");
                             have_return = ftb.Return is { };
                         }
                         else if (f.Function is EmbeddedFunction ef)
@@ -452,7 +454,7 @@ namespace Roku.Compiler
                     return $"{LoadValue(m, x.Left)}\nldfld {GetStructName(m[x].Struct)} {GetStructName(m[x.Left].Struct)}::{EscapeILName(x.Right)}";
 
                 case ArrayContainer x:
-                    return $"newobj instance void {GetStructName(m[x].Struct)}::.ctor()\n{x.Values.Map(v => "dup\n" + LoadValue(m, v) + $"\ncallvirt instance void {GetStructName(m[x].Struct)}::Add(!0)").Join("\n")}";
+                    return $"newobj instance void {GetStructName(m[x].Struct)}::.ctor()\n{x.Values.Select(v => "dup\n" + LoadValue(m, v) + $"\ncallvirt instance void {GetStructName(m[x].Struct)}::Add(!0)").Join("\n")}";
 
                 case FunctionReferenceValue x:
                     return $"ldnull\nldftn {GetFunctionName(x, m[x].Struct!)}\nnewobj instance void {GetStructName(m[x].Struct)}::.ctor(object, native int)\n";
@@ -500,7 +502,7 @@ namespace Roku.Compiler
 
         public static string GetTypeName(VariableDetail vd, GenericsMapper g) => GetStructName(GetType(vd, g));
 
-        public static string GetTypeName(Type t, GenericsMapper g) => t.FullName! + (!t.IsGenericType ? "" : $"<{t.GetGenericArguments().Map(x => GetStructName(g.GetValue(x.Name))).Join(", ")}>");
+        public static string GetTypeName(Type t, GenericsMapper g) => t.FullName! + (!t.IsGenericType ? "" : $"<{t.GetGenericArguments().Select(x => GetStructName(g.GetValue(x.Name))).Join(", ")}>");
 
         public static string GetParameterName(Type t) =>
             t.IsGenericTypeParameter ? $"!{t.GenericParameterPosition}"
@@ -565,7 +567,7 @@ namespace Roku.Compiler
             var f = "";
             if (t.Return is { } r)
             {
-                f = $"class [mscorlib]System.Func`{t.Arguments.Count + 1}<{t.Arguments.Concat(r).Map(x => GetStructName(x)).Join(", ")}>";
+                f = $"class [mscorlib]System.Func`{t.Arguments.Count + 1}<{t.Arguments.Concat(r).Select(x => GetStructName(x)).Join(", ")}>";
             }
             else
             {
@@ -577,7 +579,7 @@ namespace Roku.Compiler
 
         public static string EscapeILName(string s) => !CilReservedWord.Contains(s) && Regex.IsMatch(s, "^_*[a-zA-Z][_a-zA-Z0-9]*$") ? s : $"'{s}'";
 
-        public static string GetGenericsName(ISpecialization sp, GenericsMapper g, bool inner_escape = true) => $"<{sp.Generics.Map(x => GetStructName(g[x], inner_escape)).Join(", ")}>";
+        public static string GetGenericsName(ISpecialization sp, GenericsMapper g, bool inner_escape = true) => $"<{sp.Generics.Select(x => GetStructName(g[x], inner_escape)).Join(", ")}>";
 
         public static string GetILStructName(ExternStruct sx) => GetILStructName(sx.Struct, sx.Assembly);
 
@@ -607,7 +609,7 @@ namespace Roku.Compiler
             var gens = t.GetGenericArguments();
             if (gens.Length > 0)
             {
-                gen = $"<{gens.Map(x => GetILStructName(x)).Join(", ")}>";
+                gen = $"<{gens.Select(x => GetILStructName(x)).Join(", ")}>";
             }
             return $"{(t.IsValueType ? "" : "class ")}[{asm.GetName().Name}]{t.Namespace}.{t.Name}{gen}";
         }

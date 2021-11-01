@@ -1,5 +1,6 @@
 ﻿using Extensions;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Roku.Declare
 {
@@ -9,6 +10,6 @@ namespace Roku.Declare
         public List<ITypeDefinition> Arguments { get; } = new List<ITypeDefinition>();
         public ITypeDefinition? Return { get; set; } = null;
 
-        public override string ToString() => $"{{{Arguments.Map(x => x.Name).Join(", ")}{(Return is { } r ? $" => {r}" : "")}}}";
+        public override string ToString() => $"{{{Arguments.Select(x => x.Name).Join(", ")}{(Return is { } r ? $" => {r}" : "")}}}";
     }
 }

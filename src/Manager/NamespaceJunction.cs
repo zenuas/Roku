@@ -1,5 +1,5 @@
-﻿using Extensions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Roku.Manager
 {

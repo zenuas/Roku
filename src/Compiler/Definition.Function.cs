@@ -5,6 +5,7 @@ using Roku.Manager;
 using Roku.Node;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Roku.Compiler
 {
@@ -147,7 +148,7 @@ namespace Roku.Compiler
             });
             if (f.Return is { }) body.Return = create_type(f.Return);
 
-            f.Constraints.Each(x => body.Constraints.Add((new VariableValue(x.Name), x.Generics.Map(g => create_type(g)).ToList())));
+            f.Constraints.Each(x => body.Constraints.Add((new VariableValue(x.Name), x.Generics.Select(g => create_type(g)).ToList())));
 
             if (body.Generics.Count == 0) body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
             return body;

@@ -16,6 +16,6 @@ namespace Roku.Declare
             Function = f;
         }
 
-        public override string ToString() => $"{(FirstLookup is null ? "" : FirstLookup.ToString() + ".")}{Function}({Arguments.Map(x => x.ToString()!).Join(", ")})";
+        public override string ToString() => $"{(FirstLookup is null ? "" : FirstLookup.ToString() + ".")}{Function}({Arguments.Select(x => x.ToString()!).Join(", ")})";
     }
 }

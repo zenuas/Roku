@@ -5,6 +5,7 @@ using Roku.Node;
 using Roku.Parser;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace Roku.Compiler
@@ -20,7 +21,7 @@ namespace Roku.Compiler
         public static void Compile(TextReader input, string output, string[] asms)
         {
             var root = new RootNamespace();
-            root.Assemblies.AddRange(asms.Map(Assembly.Load));
+            root.Assemblies.AddRange(asms.Select(Assembly.Load));
             Lookup.LoadType(root, typeof(string)).Name = "String";
             Lookup.LoadType(root, typeof(int)).Name = "Int";
             Lookup.LoadType(root, typeof(long)).Name = "Long";

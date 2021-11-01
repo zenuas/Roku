@@ -4,6 +4,7 @@ using Roku.IntermediateCode;
 using Roku.Manager;
 using Roku.Node;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Roku.Compiler
 {
@@ -41,7 +42,7 @@ namespace Roku.Compiler
             */
             src.Functions.Add(new EmbeddedFunction(co_struct.Name, co_struct.Name) { OpCode = (_, args) => $"newobj instance void {co_struct.Name}::.ctor()" });
 
-            var local_value_exist = !body.LexicalScope.Where(x => x.Value is VariableValue).IsNull();
+            var local_value_exist = !body.LexicalScope.Where(x => x.Value is VariableValue).IsEmpty();
             var co_local = new StructBody(src, $"CoLocal${src.CoroutineUniqueCount++}") { IsCoroutineLocal = true };
             var co_local_typename = new TypeValue(co_local.Name);
             if (local_value_exist)
@@ -108,8 +109,8 @@ namespace Roku.Compiler
             src.Functions.Add(next_body);
 
             var yield_count = body.Body.Where(IsYield).Count();
-            var labels_jump = Lists.Sequence(1).Take(yield_count + 1).Map(n => new LabelCode() { Name = n > yield_count ? "end_" : $"state{n}_" }).ToList();
-            var labels_cond = Lists.Sequence(0).Take(yield_count + 2).Map(n => new LabelCode() { Name = $"cond{n}_" }).ToList();
+            var labels_jump = Lists.Sequence(1).Take(yield_count + 1).Select(n => new LabelCode() { Name = n > yield_count ? "end_" : $"state{n}_" }).ToList();
+            var labels_cond = Lists.Sequence(0).Take(yield_count + 2).Select(n => new LabelCode() { Name = $"cond{n}_" }).ToList();
 
             var tuple2_body = TupleBodyDefinition(Lookup.GetRootNamespace(src), 2);
             var tuple2 = new VariableValue(tuple2_body.Name);
@@ -144,7 +145,7 @@ namespace Roku.Compiler
                 next_body.LexicalScope["$local"] = _local;
                 next_body.Body.Add(new Code { Operator = Operator.Bind, Return = _local, Left = new PropertyValue(_self, "local") });
             }
-            next_body.Body.AddRange(Lists.Sequence(1).Take(yield_count).Map(n => new IOperand[] {
+            next_body.Body.AddRange(Lists.Sequence(1).Take(yield_count).Select(n => new IOperand[] {
                 new Call(new FunctionCallValue(new VariableValue("==")).Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, new NumericValue((uint)n) }))) { Return = _cond },
                 new IfCode(_cond, labels_cond[n]),
                 new GotoCode(labels_jump[n - 1]),
@@ -166,11 +167,11 @@ namespace Roku.Compiler
                 */
                 body.Body
                     .Where(x => x is Code code && code.Operator == Operator.Bind && code.Return is VariableValue)
-                    .By<Code>()
+                    .OfType<Code>()
                     .Each(x => x.Return = new PropertyValue(_local, x.Return!.Cast<VariableValue>().Name));
             }
 
-            next_body.Body.AddRange(body.Body.SplitBefore(IsYield).Map((chunk, i) =>
+            next_body.Body.AddRange(body.Body.SplitBefore(IsYield).Select((chunk, i) =>
             {
                 if (i == 0) return local_value_exist ? ConvertVariableToCoroutineProperty(chunk, _local, body.LexicalScope) : chunk;
 
@@ -191,7 +192,7 @@ namespace Roku.Compiler
                     new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(_ret))),
                     labels_jump[i - 1],
                 });
-                var yield_return_converted = yield_block.Concat(chunk.Drop(1));
+                var yield_return_converted = yield_block.Concat(chunk.Skip(1));
                 return local_value_exist ? ConvertVariableToCoroutineProperty(yield_return_converted, _local, body.LexicalScope) : yield_return_converted;
             }).Flatten());
 
@@ -263,7 +264,7 @@ namespace Roku.Compiler
                 a ->
                     a = $local.a
             */
-            var converted = ops.Map(x => EnumLexicalScopeVariableWithoutReturn(x, lexical_scope)).Flatten().Unique().ToDictionary(x => x, x => false);
+            var converted = ops.Select(x => EnumLexicalScopeVariableWithoutReturn(x, lexical_scope)).Flatten().Distinct().ToDictionary(x => x, x => false);
             var newops = new List<IOperand>();
             foreach (var op in ops)
             {

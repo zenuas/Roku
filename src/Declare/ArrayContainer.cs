@@ -1,5 +1,6 @@
 ﻿using Extensions;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Roku.Declare
 {
@@ -12,6 +13,6 @@ namespace Roku.Declare
             Values = values;
         }
 
-        public override string ToString() => $"[{Values.Map(x => x.ToString()!).Join(", ")}]";
+        public override string ToString() => $"[{Values.Select(x => x.ToString()!).Join(", ")}]";
     }
 }

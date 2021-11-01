@@ -1,5 +1,6 @@
 ﻿using Extensions;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Roku.Declare
 {
@@ -13,6 +14,6 @@ namespace Roku.Declare
             Enums.AddRange(enums);
         }
 
-        public override string ToString() => $"[{Enums.Map(x => x.ToString()!).Join(" | ")}]";
+        public override string ToString() => $"[{Enums.Select(x => x.ToString()!).Join(" | ")}]";
     }
 }

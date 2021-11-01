@@ -4,6 +4,7 @@ using Roku.IntermediateCode;
 using Roku.Manager;
 using Roku.Node;
 using System;
+using System.Linq;
 
 namespace Roku.Compiler
 {
@@ -81,7 +82,7 @@ namespace Roku.Compiler
                     }
 
                 case ListNode<IEvaluableNode> x:
-                    return new ArrayContainer(x.List.Map(list => NormalizationExpression(scope, list, true)).ToList());
+                    return new ArrayContainer(x.List.Select(list => NormalizationExpression(scope, list, true)).ToList());
 
                 case TupleNode x:
                     {
@@ -110,7 +111,7 @@ namespace Roku.Compiler
             switch (t)
             {
                 case EnumNode en:
-                    return new TypeEnum(en.Types.Map(x => CreateType(scope, x)));
+                    return new TypeEnum(en.Types.Select(x => CreateType(scope, x)));
 
                 case TypeNode tn:
                     if (!char.IsLower(tn.Name.First())) return new TypeValue(tn.Name);
@@ -139,7 +140,7 @@ namespace Roku.Compiler
         public static TypeSpecialization CreateTypeSpecialization(ILexicalScope scope, SpecializationNode gen)
         {
             var g = new TypeSpecialization(NormalizationExpression(scope, gen.Expression));
-            gen.Generics.Map(x => x switch
+            gen.Generics.Select(x => x switch
             {
                 TypeNode t => CreateType(scope, t),
                 SpecializationNode t => CreateTypeSpecialization(scope, t),
@@ -152,7 +153,7 @@ namespace Roku.Compiler
         {
             _ = TupleBodyDefinition(Lookup.GetRootNamespace(scope.Namespace), tuple.Types.Count);
             var g = new TypeSpecialization(new VariableValue(GetName(tuple)));
-            tuple.Types.Map(x => x switch
+            tuple.Types.Select(x => x switch
             {
                 TypeNode t => CreateType(scope, t),
                 SpecializationNode t => CreateTypeSpecialization(scope, t),
@@ -169,7 +170,7 @@ namespace Roku.Compiler
 
             if (exists is null)
             {
-                var args = st.Arguments.Map(x => (x.Name.Name, Type: CreateType(scope, x.Type)));
+                var args = st.Arguments.Select(x => (x.Name.Name, Type: CreateType(scope, x.Type)));
 
                 var body = new StructBody(top, name);
                 top.Structs.Add(body);
@@ -240,7 +241,7 @@ namespace Roku.Compiler
             if (scope is INamespace ns && FindNamespaceValue(ns, name) is { } p) return p;
             if (scope.Namespace is IUse src)
             {
-                return src.Uses.Map(x => FindNamespaceValue(x, name)).By<IEvaluable>().First();
+                return src.Uses.Select(x => FindNamespaceValue(x, name)).OfType<IEvaluable>().First();
             }
             throw new Exception();
         }

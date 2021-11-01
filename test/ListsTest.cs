@@ -1,6 +1,7 @@
 ﻿using Extensions;
 using NUnit.Framework;
 using System;
+using System.Linq;
 using System.Threading;
 
 namespace Roku.Tests
@@ -14,14 +15,14 @@ namespace Roku.Tests
             var ys = Lists.RangeTo('a', 'f');
             var zs = xs.Zip(ys);
             var (a, b) = zs.UnZip();
-            Assert.IsTrue(xs.Take(ys.Length()).SequenceEqual(a));
+            Assert.IsTrue(xs.Take(ys.Count()).SequenceEqual(a));
             Assert.IsTrue(ys.SequenceEqual(b));
         }
 
         [Test]
         public void RangeTest()
         {
-            var xs = Lists.Range(int.MaxValue - 5, 6);
+            var xs = Enumerable.Range(int.MaxValue - 5, 6);
             Assert.IsTrue(xs.SequenceEqual(new int[] {
                 int.MaxValue - 5,
                 int.MaxValue - 4,
@@ -39,10 +40,10 @@ namespace Roku.Tests
                 (char)(char.MaxValue - 1),
                 char.MaxValue }));
 
-            Assert.IsTrue(Lists.Range(0, 0).SequenceEqual(new int[] { }));
+            Assert.IsTrue(Enumerable.Range(0, 0).SequenceEqual(new int[] { }));
             Assert.IsTrue(Lists.Range('A', 0).SequenceEqual(new char[] { }));
 
-            _ = Assert.Throws<ArgumentOutOfRangeException>(() => Lists.Range(0, -1));
+            _ = Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Range(0, -1));
         }
 
         [Test]
@@ -50,7 +51,7 @@ namespace Roku.Tests
         {
             var xs = Lists.RangeTo('a', 'z');
             var ys = Lists.RangeTo('A', 'Z');
-            var zs = new (char, char)[] { ('a', 'z'), ('A', 'Z') }.Map(x => Lists.RangeTo(x.Item1, x.Item2)).Flatten();
+            var zs = new (char, char)[] { ('a', 'z'), ('A', 'Z') }.Select(x => Lists.RangeTo(x.Item1, x.Item2)).Flatten();
             Assert.IsTrue(zs.SequenceEqual(xs.Concat(ys)));
         }
 
@@ -115,7 +116,7 @@ namespace Roku.Tests
         [Test]
         public void DropTest()
         {
-            Assert.IsTrue("abc123".Drop(3).ToStringByChars() == "123");
+            Assert.IsTrue("abc123".Skip(3).ToStringByChars() == "123");
             Assert.IsTrue("abc123"[0..^0].ToStringByChars() == "abc123");
             Assert.IsTrue("abc123"[0..^1].ToStringByChars() == "abc12");
             Assert.IsTrue("a"[0..^0].ToStringByChars() == "a");
@@ -169,13 +170,13 @@ namespace Roku.Tests
 
             Assert.IsTrue(xs1.First() == "one");
             Assert.IsTrue(xs1.Last() == "three");
-            Assert.IsTrue(xs1.FirstOrNull() == "one");
-            Assert.IsTrue(xs1.LastOrNull() == "three");
+            Assert.IsTrue(xs1.FirstOrDefault() == "one");
+            Assert.IsTrue(xs1.LastOrDefault() == "three");
 
             _ = Assert.Throws<InvalidOperationException>(() => xs2.First());
             _ = Assert.Throws<InvalidOperationException>(() => xs2.Last());
-            Assert.IsTrue(xs2.FirstOrNull() is null);
-            Assert.IsTrue(xs2.LastOrNull() is null);
+            Assert.IsTrue(xs2.FirstOrDefault() is null);
+            Assert.IsTrue(xs2.LastOrDefault() is null);
 
             var xs3 = new int[] { 1, 2, 3 };
             var xs4 = new int[] { };

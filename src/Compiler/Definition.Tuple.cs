@@ -2,6 +2,7 @@
 using Roku.Declare;
 using Roku.IntermediateCode;
 using Roku.Manager;
+using System.Linq;
 
 namespace Roku.Compiler
 {
@@ -17,7 +18,7 @@ namespace Roku.Compiler
             fbody.LexicalScope.Add(self.Name, self);
             fbody.Body.Add(new Call(new FunctionCallValue(fcall)) { Return = self });
 
-            Lists.Range(0, count).Each(i =>
+            Enumerable.Range(0, count).Each(i =>
             {
                 var gp = new TypeGenericsParameter($"t{i + 1}");
                 var farg_var = new VariableValue($"x{i + 1}");

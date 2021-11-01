@@ -2,6 +2,7 @@
 using Roku.Declare;
 using Roku.IntermediateCode;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Roku.Manager
 {
@@ -25,6 +26,6 @@ namespace Roku.Manager
             Name = name;
         }
 
-        public override string ToString() => $"sub {Name}({Arguments.Map(x => x.Name.ToString() + " : " + x.Type.ToString()).Join(", ")}){(Return is null ? "" : " " + Return.ToString())}";
+        public override string ToString() => $"sub {Name}({Arguments.Select(x => x.Name.ToString() + " : " + x.Type.ToString()).Join(", ")}){(Return is null ? "" : " " + Return.ToString())}";
     }
 }

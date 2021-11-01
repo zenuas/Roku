@@ -2,6 +2,7 @@
 using Roku.Declare;
 using Roku.IntermediateCode;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Roku.Manager
 {
@@ -29,7 +30,7 @@ namespace Roku.Manager
 
         public string ToString(bool need_return)
         {
-            var m = SpecializationMapper.Values.FirstOrNull();
+            var m = SpecializationMapper.Values.FirstOrDefault();
             static string type_name(TypeMapper? m, ITypeDefinition d)
             {
                 if (m is { } && d is TypeImplicit && m.ContainsKey(d) && m[d].Struct is { } s)
@@ -39,7 +40,7 @@ namespace Roku.Manager
                 return d.ToString()!;
             }
 
-            return $"{{{Arguments.Map(x => x.Name.ToString() + (x.Type is { } t ? $" : {type_name(m, t)}" : "")).Join(", ")}{(need_return && Return is { } r ? $" => {type_name(m, r)}" : "")}}}";
+            return $"{{{Arguments.Select(x => x.Name.ToString() + (x.Type is { } t ? $" : {type_name(m, t)}" : "")).Join(", ")}{(need_return && Return is { } r ? $" => {type_name(m, r)}" : "")}}}";
         }
     }
 }

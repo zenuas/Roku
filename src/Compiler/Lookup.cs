@@ -4,6 +4,7 @@ using Roku.IntermediateCode;
 using Roku.Manager;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Roku.Compiler
@@ -22,7 +23,7 @@ namespace Roku.Compiler
                     xs.Add(source);
                     readed.Add(source);
                 }
-                xs.AddRange(source.Uses.By<SourceCodeBody>().Map(xs => use_load(xs)).Flatten());
+                xs.AddRange(source.Uses.OfType<SourceCodeBody>().Select(xs => use_load(xs)).Flatten());
                 return xs;
             }
             return use_load(src);
@@ -40,29 +41,29 @@ namespace Roku.Compiler
                     xs.Add(source);
                     readed.Add(source);
                 }
-                if (source is IUse body) xs.AddRange(body.Uses.Map(xs => use_load(xs)).Flatten());
+                if (source is IUse body) xs.AddRange(body.Uses.Select(xs => use_load(xs)).Flatten());
                 return xs;
             }
             return use_load(src);
         }
 
-        public static IEnumerable<StructBody> AllStructBodies(List<SourceCodeBody> srcs) => srcs.Map(AllStructBodies).Flatten();
+        public static IEnumerable<StructBody> AllStructBodies(List<SourceCodeBody> srcs) => srcs.Select(AllStructBodies).Flatten();
 
-        public static IEnumerable<StructBody> AllStructBodies(INamespaceBody src) => src.Structs.By<StructBody>();
+        public static IEnumerable<StructBody> AllStructBodies(INamespaceBody src) => src.Structs.OfType<StructBody>();
 
         public static IEnumerable<ExternStruct> AllExternStructs(RootNamespace root) => AllStructs<ExternStruct>(root);
 
-        public static IEnumerable<T> AllStructs<T>(INamespaceBody src) where T : IStructBody => src.Structs.By<T>();
+        public static IEnumerable<T> AllStructs<T>(INamespaceBody src) where T : IStructBody => src.Structs.OfType<T>();
 
-        public static IEnumerable<IFunctionBody> AllFunctionBodies(List<SourceCodeBody> srcs) => srcs.Map(AllFunctionBodies).Flatten();
+        public static IEnumerable<IFunctionBody> AllFunctionBodies(List<SourceCodeBody> srcs) => srcs.Select(AllFunctionBodies).Flatten();
 
-        public static IEnumerable<IFunctionBody> AllFunctionBodies(INamespaceBody src) => src.Functions.By<IFunctionBody>();
+        public static IEnumerable<IFunctionBody> AllFunctionBodies(INamespaceBody src) => src.Functions.OfType<IFunctionBody>();
 
-        public static IEnumerable<ExternFunction> AllExternFunctions(List<INamespace> srcs) => srcs.Map(AllFunctions<ExternFunction>).Flatten();
+        public static IEnumerable<ExternFunction> AllExternFunctions(List<INamespace> srcs) => srcs.Select(AllFunctions<ExternFunction>).Flatten();
 
-        public static IEnumerable<EmbeddedFunction> AllEmbeddedFunctions(List<INamespace> srcs) => srcs.Map(AllFunctions<EmbeddedFunction>).Flatten();
+        public static IEnumerable<EmbeddedFunction> AllEmbeddedFunctions(List<INamespace> srcs) => srcs.Select(AllFunctions<EmbeddedFunction>).Flatten();
 
-        public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionName => src is INamespaceBody ns ? ns.Functions.By<T>() : new List<T>();
+        public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionName => src is INamespaceBody ns ? ns.Functions.OfType<T>() : new List<T>();
 
         public static FunctionSpecialization? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args, bool find_use = true)
         {
@@ -139,7 +140,7 @@ namespace Roku.Compiler
                 case "<=": return mi.Name == "op_LessThanOrEqual";
                 case ">": return mi.Name == "op_GreaterThan";
                 case ">=": return mi.Name == "op_GreaterThanOrEqual";
-                default: return !new string[] { "get_", "set_", "add_", "remove_" }.Where(x => mi.Name.StartsWith(x) && mi.Name.Substring(x.Length) == name).IsNull();
+                default: return !new string[] { "get_", "set_", "add_", "remove_" }.Where(x => mi.Name.StartsWith(x) && mi.Name.Substring(x.Length) == name).IsEmpty();
             }
         }
 
@@ -153,11 +154,11 @@ namespace Roku.Compiler
             {
                 var gens = ApplyArgumentsToGenericsParameter(ns, source, args);
                 var fargs = GetArgumentsType(ns, source, gens);
-                return (fargs.Count == args.Count && fargs.Zip(args).And(x => TypeEquals(x.First, x.Second)), gens);
+                return (fargs.Count == args.Count && fargs.Zip(args).All(x => TypeEquals(x.First, x.Second)), gens);
             }
         }
 
-        public static List<IStructBody?> GetArgumentsType(INamespace ns, IFunctionName body, GenericsMapper gens) => FunctionToArgumentsType(body).Map(x => GetStructType(ns, x, gens)).ToList();
+        public static List<IStructBody?> GetArgumentsType(INamespace ns, IFunctionName body, GenericsMapper gens) => FunctionToArgumentsType(body).Select(x => GetStructType(ns, x, gens)).ToList();
 
         public static string[] GetTypeNames(IEvaluable e) =>
             e is TypeValue tv ? tv.Namespace.Concat(tv.Name).ToArray()
@@ -173,9 +174,9 @@ namespace Roku.Compiler
 
                 case TypeSpecialization g:
                     {
-                        var gx = g.Generics.Map(x => GetStructType(ns, x, gens));
+                        var gx = g.Generics.Select(x => GetStructType(ns, x, gens));
                         if (gx.Contains(x => x is null)) return null;
-                        return FindStructOrNull(ns, GetTypeNames(g.Type), gx.Map(x => x!).ToList());
+                        return FindStructOrNull(ns, GetTypeNames(g.Type), gx.Select(x => x!).ToList());
                     }
 
                 case TypeValue tv:
@@ -199,7 +200,7 @@ namespace Roku.Compiler
         {
             if (body is FunctionBody fb)
             {
-                return fb.Arguments.Map(x => x.Type);
+                return fb.Arguments.Select(x => x.Type);
             }
             else if (body is EmbeddedFunction ef)
             {
@@ -207,7 +208,7 @@ namespace Roku.Compiler
             }
             else if (body is ExternFunction xf)
             {
-                return xf.Function.GetParameters().Map(x => new TypeInfoValue(x.ParameterType));
+                return xf.Function.GetParameters().Select(x => new TypeInfoValue(x.ParameterType));
             }
             else if (body is FunctionTypeBody)
             {
@@ -220,7 +221,7 @@ namespace Roku.Compiler
         {
             if (body is FunctionBody fb)
             {
-                return fb.Arguments.Map(x => x.Name);
+                return fb.Arguments.Select(x => x.Name);
             }
             else if (body is EmbeddedFunction ef)
             {
@@ -259,7 +260,7 @@ namespace Roku.Compiler
 
             if (body is IConstraints constr && constr.Constraints.Count > 0)
             {
-                var effected = gens.Or(x => !IsFixedStruct(x.Value));
+                var effected = gens.Any(x => !IsFixedStruct(x.Value));
                 while (effected)
                 {
                     effected = false;
@@ -314,7 +315,7 @@ namespace Roku.Compiler
             sb is IGenericsMapper gm ? IsFixedGenericsMapper(gm.GenericsMapper) :
             true;
 
-        public static bool IsFixedGenericsMapper(GenericsMapper gm) => gm.And(x => IsFixedStruct(x.Value));
+        public static bool IsFixedGenericsMapper(GenericsMapper gm) => gm.All(x => IsFixedStruct(x.Value));
 
         public static ClassBody? FindClassOrNull(INamespace ns, string name, List<ITypeDefinition> gens)
         {
@@ -345,9 +346,9 @@ namespace Roku.Compiler
             };
 
             var resolved = false;
-            class_body.Functions.By<FunctionBody>().Each(f =>
+            class_body.Functions.OfType<FunctionBody>().Each(f =>
             {
-                var args = f.Arguments.Map(x => g.ContainsKey(x.Type) ? g[x.Type] : LoadStruct(ns, x.Name.Name)).ToList();
+                var args = f.Arguments.Select(x => g.ContainsKey(x.Type) ? g[x.Type] : LoadStruct(ns, x.Name.Name)).ToList();
                 var caller = FindFunctionOrNull(ns, f.Name, args);
                 if (caller is { })
                 {
@@ -382,14 +383,14 @@ namespace Roku.Compiler
         {
             if (source is ExternStruct ea && arg is ExternStruct eb) return ea.Struct == eb.Struct;
             if (source is StructBody sa && arg is StructBody sb) return sa == sb;
-            if (source is StructSpecialization ssa && arg is StructSpecialization ssb) return TypeEquals(ssa.Body, ssb.Body) && ssa.GenericsMapper.And(x => TypeEquals(x.Value, ssb.GenericsMapper[x.Key]));
-            if (arg is NumericStruct num) return num.Types.Or(x => TypeEquals(source, x));
-            if (source is NumericStruct num2) return num2.Types.Or(x => TypeEquals(x, arg));
+            if (source is StructSpecialization ssa && arg is StructSpecialization ssb) return TypeEquals(ssa.Body, ssb.Body) && ssa.GenericsMapper.All(x => TypeEquals(x.Value, ssb.GenericsMapper[x.Key]));
+            if (arg is NumericStruct num) return num.Types.Any(x => TypeEquals(source, x));
+            if (source is NumericStruct num2) return num2.Types.Any(x => TypeEquals(x, arg));
             if (source is FunctionTypeBody fta && arg is AnonymousFunctionBody afb) return TypeFunctionEquals(fta, afb);
             if (source is EnumStructBody e)
             {
-                if (arg is EnumStructBody arge) return arge.Enums.And(x => TypeEquals(e, x)); // e >= arge
-                return e.Enums.Or(x => TypeEquals(x, arg));
+                if (arg is EnumStructBody arge) return arge.Enums.All(x => TypeEquals(e, x)); // e >= arge
+                return e.Enums.Any(x => TypeEquals(x, arg));
             }
             if (source is NullBody && arg is NullBody) return true;
             if (source is NamespaceBody nsa && arg is NamespaceBody nsb) return nsa == nsb;
@@ -460,7 +461,7 @@ namespace Roku.Compiler
             {
                 foreach (var asm in root.Assemblies)
                 {
-                    foreach (var ti in GetAssemblyType(asm).Map(x => x.GetTypeInfo()).Where(x => TypeNameEquals(x, name)))
+                    foreach (var ti in GetAssemblyType(asm).Select(x => x.GetTypeInfo()).Where(x => TypeNameEquals(x, name)))
                     {
                         if (ti.GetGenericArguments().Length != args.Count) continue;
 
@@ -490,13 +491,13 @@ namespace Roku.Compiler
 
         public static IStructBody LoadStruct(INamespace ns, string name) => LoadStruct(ns, new string[] { name });
 
-        public static IEnumerable<LabelCode> AllLabels(List<IOperand> ops) => ops.By<LabelCode>().Unique();
+        public static IEnumerable<LabelCode> AllLabels(List<IOperand> ops) => ops.OfType<LabelCode>().Distinct();
 
         public static ExternStruct LoadType(RootNamespace root, Type t) => LoadType(root, t.GetTypeInfo());
 
         public static ExternStruct LoadType(RootNamespace root, TypeInfo ti)
         {
-            var st = root.Structs.Where(x => x is ExternStruct sx && sx.Struct == ti).FirstOrNull();
+            var st = root.Structs.Where(x => x is ExternStruct sx && sx.Struct == ti).FirstOrDefault();
             if (st is { }) return st.Cast<ExternStruct>();
 
             Assembly? asmx = null;
@@ -549,7 +550,7 @@ namespace Roku.Compiler
             {
                 yield return t;
             }
-            foreach (var t in asm.GetReferencedAssemblies().Map(Assembly.Load).Map(GetAssemblyType).Flatten())
+            foreach (var t in asm.GetReferencedAssemblies().Select(Assembly.Load).Select(GetAssemblyType).Flatten())
             {
                 yield return t;
             }
@@ -567,7 +568,7 @@ namespace Roku.Compiler
         public static RootNamespace GetRootNamespace(INamespace ns) =>
             ns is RootNamespace root ? root
             : ns is IAttachedNamespace lex ? GetRootNamespace(lex.Namespace)
-            : ns is IUse use ? use.Uses.By<RootNamespace>().First()
+            : ns is IUse use ? use.Uses.OfType<RootNamespace>().First()
             : throw new Exception();
 
         public static INamespaceBody GetTopLevelNamespace(INamespace ns) =>
@@ -585,7 +586,7 @@ namespace Roku.Compiler
         {
             foreach (var kv in sp)
             {
-                if (kv.Key.Keys.And(x => g.ContainsKey(x) && (TypeEquals(kv.Key[x], g[x]) || g[x] is null))) return (kv.Key, kv.Value);
+                if (kv.Key.Keys.All(x => g.ContainsKey(x) && (TypeEquals(kv.Key[x], g[x]) || g[x] is null))) return (kv.Key, kv.Value);
             }
             return null;
         }

@@ -1,6 +1,7 @@
 ﻿using Extensions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Command
@@ -64,7 +65,7 @@ namespace Command
                 else
                 {
                     if (!is_method_name) method_args.Add(args[i]);
-                    if (method.GetParameters().Length() <= method_args.Count)
+                    if (method.GetParameters().Count() <= method_args.Count)
                     {
                         methods.Add((method, method_args.ToArray()));
                         method = null;

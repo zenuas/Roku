@@ -4,6 +4,7 @@ using Roku.IntermediateCode;
 using Roku.Manager;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Roku.Compiler
 {
@@ -79,7 +80,7 @@ namespace Roku.Compiler
 
             foreach (var mapper in body.SpecializationMapper.Values)
             {
-                if (body.Body.By<IfCastCode>().FindFirstOrNull(x => Lookup.IsValueType(mapper[x.Condition].Struct)) is { })
+                if (body.Body.OfType<IfCastCode>().FindFirstOrNull(x => Lookup.IsValueType(mapper[x.Condition].Struct)) is { })
                 {
                     LocalValueInferenceWithEffect(body.Namespace, mapper, mapper.CastBoxCondition, Lookup.LoadType(Lookup.GetRootNamespace(body.Namespace), typeof(object)));
                 }
@@ -115,10 +116,10 @@ namespace Roku.Compiler
                     {
                         var rets = m.Values
                             .Where(x => x.Struct is FunctionMapper fm && fm.Function is EmbeddedFunction && fm.Name == "return")
-                            .Map(x => x.Struct!.Cast<FunctionMapper>().TypeMapper)
+                            .Select(x => x.Struct!.Cast<FunctionMapper>().TypeMapper)
                             .Where(x => x.ContainsKey(r))
-                            .Map(x => x[r].Struct)
-                            .Unique()
+                            .Select(x => x[r].Struct)
+                            .Distinct()
                             .ToList();
 
                         if (rets.Count == 1)
@@ -146,12 +147,12 @@ namespace Roku.Compiler
             {
                 nums[i].Value.Struct = nums[i].Value.Struct!.Cast<NumericStruct>().Types.First();
             }
-            foreach (var fm in m.Where(x => x.Value.Struct is FunctionMapper).Map(x => x.Value.Struct!.Cast<FunctionMapper>()))
+            foreach (var fm in m.Where(x => x.Value.Struct is FunctionMapper).Select(x => x.Value.Struct!.Cast<FunctionMapper>()))
             {
                 //if (fm.Function is ISpecialization sp) SpecializationNumericDecide(sp);
                 TypeMapperNumericDecide(fm.TypeMapper);
             }
-            foreach (var gm in m.Where(x => x.Value.Struct is IGenericsMapper).Map(x => x.Value.Struct!.Cast<IGenericsMapper>()))
+            foreach (var gm in m.Where(x => x.Value.Struct is IGenericsMapper).Select(x => x.Value.Struct!.Cast<IGenericsMapper>()))
             {
                 var keys = gm.GenericsMapper.Keys.ToList();
                 foreach (var key in keys)
@@ -213,7 +214,7 @@ namespace Roku.Compiler
 
                 case TypeSpecialization ts:
                     {
-                        var args = ts.Generics.Map(g => TypeDefinitionToStructBody(ns, m, g));
+                        var args = ts.Generics.Select(g => TypeDefinitionToStructBody(ns, m, g));
                         var name = Lookup.GetTypeNames(ts.Type);
                         return Lookup.FindStructOrNull(ns, name, args.ToList()) ?? throw new Exception();
                     }
@@ -259,7 +260,7 @@ namespace Roku.Compiler
                     }
                 }
             }
-            var args = call.Function.Arguments.Map(x => ToTypedValue(ns, m, x, true).Struct).ToList();
+            var args = call.Function.Arguments.Select(x => ToTypedValue(ns, m, x, true).Struct).ToList();
 
             switch (call.Function.Function)
             {
@@ -309,7 +310,7 @@ namespace Roku.Compiler
 
                 case TypeSpecialization x:
                     {
-                        var gens = x.Generics.Map(x => Lookup.GetStructType(ns, x, m)!).ToList();
+                        var gens = x.Generics.Select(x => Lookup.GetStructType(ns, x, m)!).ToList();
                         var body = Lookup.FindStructOrNull(ns, GetStructNames(m, x).ToArray(), gens);
                         if (body is null) break;
 
@@ -388,7 +389,7 @@ namespace Roku.Compiler
                 !Lookup.IsFixedStruct(left) &&
                 right is IGenericsMapper rgm)
             {
-                foreach (var kvv in lgm.GenericsMapper.Keys.Map(x => (Key: x, Left: lgm.GenericsMapper[x], Right: rgm.GenericsMapper[x])).ToArray())
+                foreach (var kvv in lgm.GenericsMapper.Keys.Select(x => (Key: x, Left: lgm.GenericsMapper[x], Right: rgm.GenericsMapper[x])).ToArray())
                 {
                     if (kvv.Left is IndefiniteBody && !(kvv.Right is IndefiniteBody))
                     {
@@ -423,7 +424,7 @@ namespace Roku.Compiler
                     break;
 
                 case TypeSpecialization sp:
-                    m[v] = CreateVariableDetail($"${index}", Lookup.FindStructOrNull(ns, Lookup.GetTypeNames(sp.Type), sp.Generics.Map(x => Lookup.GetStructType(ns, x, m)!).ToList()), VariableType.Argument, index);
+                    m[v] = CreateVariableDetail($"${index}", Lookup.FindStructOrNull(ns, Lookup.GetTypeNames(sp.Type), sp.Generics.Select(x => Lookup.GetStructType(ns, x, m)!).ToList()), VariableType.Argument, index);
                     break;
 
                 case TypeFunction tf:
@@ -528,7 +529,7 @@ namespace Roku.Compiler
                     return m[x];
 
                 case FunctionReferenceValue x:
-                    m[x] = CreateVariableDetail("", Lookup.GetRootNamespace(ns).Structs.By<AnonymousFunctionBody>().FindFirst(f => f.Name == x.Name), VariableType.PrimitiveValue);
+                    m[x] = CreateVariableDetail("", Lookup.GetRootNamespace(ns).Structs.OfType<AnonymousFunctionBody>().FindFirst(f => f.Name == x.Name), VariableType.PrimitiveValue);
                     return m[x];
             }
             throw new Exception();
@@ -598,7 +599,7 @@ namespace Roku.Compiler
             switch (body)
             {
                 case StructSpecialization x:
-                    return x.GenericsMapper.And(x => x.Value is { } p && IsDecideType(p));
+                    return x.GenericsMapper.All(x => x.Value is { } p && IsDecideType(p));
 
                 case NumericStruct x:
                     return x.Types.Count == 1;

@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace Extensions
 {
-    public class Expressions
+    public static class Expressions
     {
         public static Func<T, T, T> Add<T>()
         {

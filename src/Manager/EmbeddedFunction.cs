@@ -2,6 +2,7 @@
 using Roku.Declare;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Roku.Manager
 {
@@ -14,7 +15,7 @@ namespace Roku.Manager
         public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
         public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
 
-        public EmbeddedFunction(string name, string? ret, params string[] args) : this(name, ret, args.Map(x => new TypeValue(x)).ToArray())
+        public EmbeddedFunction(string name, string? ret, params string[] args) : this(name, ret, args.Select(x => new TypeValue(x)).ToArray())
         {
         }
 
@@ -29,6 +30,6 @@ namespace Roku.Manager
             Name = name;
         }
 
-        public override string ToString() => $"sub {Name}({Arguments.Map(x => x.ToString()!).Join(", ")}){(Return is { } ? " " + Return.ToString() : "") }";
+        public override string ToString() => $"sub {Name}({Arguments.Select(x => x.ToString()!).Join(", ")}){(Return is { } ? " " + Return.ToString() : "") }";
     }
 }

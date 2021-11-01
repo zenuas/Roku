@@ -3,6 +3,7 @@ using Roku.Declare;
 using Roku.IntermediateCode;
 using Roku.Manager;
 using Roku.Node;
+using System.Linq;
 
 namespace Roku.Compiler
 {
@@ -11,7 +12,7 @@ namespace Roku.Compiler
         public static void IfBodyDefinition(ILexicalScope scope, IIfNode if_)
         {
             var else_ = new LabelCode() { Name = "Else" };
-            var elseif = if_.ElseIf.Map(x => new LabelCode() { Name = "ElseIf" }).ToArray();
+            var elseif = if_.ElseIf.Select(x => new LabelCode() { Name = "ElseIf" }).ToArray();
             var endif = new LabelCode() { Name = "EndIf" };
 
             var next_label =

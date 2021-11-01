@@ -4,6 +4,7 @@ using Roku.Node;
 using Roku.Parser;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Roku.Tests
 {
@@ -47,7 +48,7 @@ namespace Roku.Tests
                     Symbols.EOL,
                     Symbols.END,
                     Symbols._END,
-                }).And(x => x.First.Type == x.Second));
+                }).All(x => x.First.Type == x.Second));
             Assert.AreEqual(ts1[1].Name, "a");
             Assert.AreEqual(ts1[3].Name, "123_456");
 
@@ -62,7 +63,7 @@ namespace Roku.Tests
                     Symbols.EOL,
                     Symbols.END,
                     Symbols._END,
-                }).And(x => x.First.Type == x.Second));
+                }).All(x => x.First.Type == x.Second));
             Assert.AreEqual(ts2[1].Name, "b");
             Assert.AreEqual(ts2[3].Name, "abc123");
         }
@@ -87,7 +88,7 @@ namespace Roku.Tests
                     Symbols.STR,
                     Symbols.EOL,
                     Symbols._END,
-                }).And(x => x.First.Type == x.Second));
+                }).All(x => x.First.Type == x.Second));
             Assert.AreEqual(ts[1].Name, "a");
             Assert.AreEqual(ts[3].Name, "123_456");
             Assert.AreEqual(ts[6].Name, "b");
@@ -106,7 +107,7 @@ namespace Roku.Tests
                     Symbols.EOL,
                     Symbols.END,
                     Symbols._END,
-                }).And(x => x.First.Type == x.Second));
+                }).All(x => x.First.Type == x.Second));
             Assert.AreEqual(ts1[1].Name, "0o123_456");
             Assert.AreEqual(ts1[1].Value!.Cast<NumericNode>().Value, 42_798u);
 
@@ -119,7 +120,7 @@ namespace Roku.Tests
                     Symbols.EOL,
                     Symbols.END,
                     Symbols._END,
-                }).And(x => x.First.Type == x.Second));
+                }).All(x => x.First.Type == x.Second));
             Assert.AreEqual(ts2[1].Name, "0x123_ABC");
             Assert.AreEqual(ts2[1].Value!.Cast<NumericNode>().Value, 1_194_684u);
 
@@ -132,7 +133,7 @@ namespace Roku.Tests
                     Symbols.EOL,
                     Symbols.END,
                     Symbols._END,
-                }).And(x => x.First.Type == x.Second));
+                }).All(x => x.First.Type == x.Second));
             Assert.AreEqual(ts3[1].Name, "0b101_010");
             Assert.AreEqual(ts3[1].Value!.Cast<NumericNode>().Value, 42u);
 
@@ -146,7 +147,7 @@ namespace Roku.Tests
                     Symbols.EOL,
                     Symbols.END,
                     Symbols._END,
-                }).And(x => x.First.Type == x.Second));
+                }).All(x => x.First.Type == x.Second));
             Assert.AreEqual(ts4[1].Name, "0");
             Assert.AreEqual(ts4[1].Value!.Cast<NumericNode>().Value, 0u);
             Assert.AreEqual(ts4[2].Name, "p1");
@@ -160,7 +161,7 @@ namespace Roku.Tests
                     Symbols.EOL,
                     Symbols.END,
                     Symbols._END,
-                }).And(x => x.First.Type == x.Second));
+                }).All(x => x.First.Type == x.Second));
             Assert.AreEqual(ts5[1].Name, "12_3.4_56");
             Assert.AreEqual(ts5[1].Value!.Cast<FloatingNumericNode>().Value, 123.456);
 
@@ -177,7 +178,7 @@ namespace Roku.Tests
                     Symbols.EOL,
                     Symbols.END,
                     Symbols._END,
-                }).And(x => x.First.Type == x.Second));
+                }).All(x => x.First.Type == x.Second));
             Assert.AreEqual(ts6[1].Name, "x");
             Assert.AreEqual(ts6[3].Name, "1");
             Assert.AreEqual(ts6[5].Name, "2");

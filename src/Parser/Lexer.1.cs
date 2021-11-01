@@ -2,6 +2,7 @@
 using Roku.Node;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Roku.Parser
@@ -37,11 +38,11 @@ namespace Roku.Parser
 
         public IToken<INode> PeekToken()
         {
-            if (Store.IsNull())
+            if (Store.IsEmpty())
             {
             READ_LINE_:
                 var line = BaseReader.LineNumber;
-                var ts = ReadLineTokens(BaseReader, Parser?.TokenStack.LastOrNull());
+                var ts = ReadLineTokens(BaseReader, Parser?.TokenStack.LastOrDefault());
                 if (ts.First().Type == Symbols.EOL) goto READ_LINE_;
                 Store.AddRange(ts);
 
@@ -69,11 +70,11 @@ namespace Roku.Parser
                 if (first.Type == Symbols.EOL && !Parser.IsAccept(first))
                 {
                     Store.Clear();
-                    Store.AddRange(ReadLineTokens(BaseReader, Parser?.TokenStack.LastOrNull()));
+                    Store.AddRange(ReadLineTokens(BaseReader, Parser?.TokenStack.LastOrDefault()));
                     goto READ_FIRST_;
                 }
                 else if (first.Type == Symbols.OPE &&
-                    first.Name.And(x => x == '>') &&
+                    first.Name.All(x => x == '>') &&
                     Parser.IsAccept(new Token() { Type = Symbols.GT }))
                 {
                     if (first.Name.Length > 1)
@@ -185,7 +186,7 @@ namespace Roku.Parser
                         var s = reader.ReadLine()!;
                         if (CountIndent(s) == indent)
                         {
-                            var without_indent = s.Drop(indent).ToStringByChars();
+                            var without_indent = s.Skip(indent).ToStringByChars();
                             if (without_indent.StartsWith("###") && without_indent.FindFirstIndex(x => x != '#') == block_count) break;
                         }
                     }

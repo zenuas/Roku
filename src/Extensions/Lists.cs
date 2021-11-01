@@ -15,9 +15,6 @@ namespace Extensions
         }
 
         [DebuggerHidden]
-        public static IEnumerable<int> Range(int start, int length) => Enumerable.Range(start, length);
-
-        [DebuggerHidden]
         public static IEnumerable<char> Range(char start, int length)
         {
             for (var i = 0; i < length; start++)
@@ -40,31 +37,16 @@ namespace Extensions
         }
 
         [DebuggerHidden]
-        public static int Length<T>(this IEnumerable<T> self) => Enumerable.Count(self);
+        public static T? FirstOrNullValue<T>(this IEnumerable<T> self) where T : struct => self.IsEmpty() ? null : self.First().Cast<T?>();
 
         [DebuggerHidden]
-        public static bool IsNull<T>(this IEnumerable<T> self) => !self.Any();
+        public static T? LastOrNullValue<T>(this IEnumerable<T> self) where T : struct => self.IsEmpty() ? null : self.Last().Cast<T?>();
 
         [DebuggerHidden]
-        public static T First<T>(this IEnumerable<T> self) => Enumerable.First(self);
+        public static bool IsEmpty<T>(this IEnumerable<T> self) => !self.Any();
 
         [DebuggerHidden]
-        public static T? FirstOrNull<T>(this IEnumerable<T> self) where T : class => Enumerable.FirstOrDefault(self);
-
-        [DebuggerHidden]
-        public static T? FirstOrNullValue<T>(this IEnumerable<T> self) where T : struct => self.IsNull() ? null : self.First().Cast<T?>();
-
-        [DebuggerHidden]
-        public static T Last<T>(this IEnumerable<T> self) => Enumerable.Last(self);
-
-        [DebuggerHidden]
-        public static T? LastOrNull<T>(this IEnumerable<T> self) where T : class => Enumerable.LastOrDefault(self);
-
-        [DebuggerHidden]
-        public static T? LastOrNullValue<T>(this IEnumerable<T> self) where T : struct => self.IsNull() ? null : self.Last().Cast<T?>();
-
-        [DebuggerHidden]
-        public static IEnumerable<T> Next<T>(this IEnumerable<T> self) => !self.IsNull() ? self.Drop(1) : throw new IndexOutOfRangeException();
+        public static IEnumerable<T> Next<T>(this IEnumerable<T> self) => !self.IsEmpty() ? self.Skip(1) : throw new IndexOutOfRangeException();
 
         [DebuggerHidden]
         public static void Each<T>(this IEnumerable<T> self, Action<T> f)
@@ -93,17 +75,17 @@ namespace Extensions
         [DebuggerHidden]
         public static IEnumerable<T> Accumulator<T>(this IEnumerable<T> self, Func<T, T, T> f)
         {
-            if (self.IsNull()) yield break;
+            if (self.IsEmpty()) yield break;
             var acc = self.First();
             yield return acc;
-            foreach (var v in self.Drop(1)) yield return acc = f(acc, v);
+            foreach (var v in self.Skip(1)) yield return acc = f(acc, v);
         }
 
         [DebuggerHidden]
-        public static R FoldLeft<T, R>(this IEnumerable<T> self, Func<R, T, R> f, R acc) => self.IsNull() ? acc : self.Accumulator(f, acc).Last();
+        public static R FoldLeft<T, R>(this IEnumerable<T> self, Func<R, T, R> f, R acc) => self.IsEmpty() ? acc : self.Accumulator(f, acc).Last();
 
         [DebuggerHidden]
-        public static R FoldRight<T, R>(this IEnumerable<T> self, Func<T, R, R> f, R acc) => self.IsNull() ? acc : self.Reverse().Accumulator((x, a) => f(a, x), acc).Last();
+        public static R FoldRight<T, R>(this IEnumerable<T> self, Func<T, R, R> f, R acc) => self.IsEmpty() ? acc : self.Reverse().Accumulator((x, a) => f(a, x), acc).Last();
 
         [DebuggerHidden]
         public static T FoldLeft<T>(this IEnumerable<T> self, Func<T, T, T> f) => self.Accumulator(f).Last();
@@ -113,30 +95,6 @@ namespace Extensions
 
         [DebuggerHidden]
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> self, T x) => Enumerable.Concat(self, new T[] { x });
-
-        [DebuggerHidden]
-        public static IEnumerable<T> Concat<T>(this IEnumerable<T> self, IEnumerable<T> xs) => Enumerable.Concat(self, xs);
-
-        [DebuggerHidden]
-        public static bool SequenceEqual<T>(this IEnumerable<T> self, IEnumerable<T> xs) => Enumerable.SequenceEqual(self, xs);
-
-        [DebuggerHidden]
-        public static bool And<T>(this IEnumerable<T> self, Func<T, bool> f) => Enumerable.All(self, f);
-
-        [DebuggerHidden]
-        public static bool And<T>(this IEnumerable<T> self, Func<T, int, bool> f) => self.Zip(Sequence(0)).All(x => f(x.First, x.Second));
-
-        [DebuggerHidden]
-        public static bool Or<T>(this IEnumerable<T> self, Func<T, bool> f) => Enumerable.Any(self, f);
-
-        [DebuggerHidden]
-        public static bool Or<T>(this IEnumerable<T> self, Func<T, int, bool> f) => self.Zip(Sequence(0)).Any(x => f(x.First, x.Second));
-
-        [DebuggerHidden]
-        public static IEnumerable<R> Map<T, R>(this IEnumerable<T> self, Func<T, R> f) => self.Select(f);
-
-        [DebuggerHidden]
-        public static IEnumerable<R> Map<T, R>(this IEnumerable<T> self, Func<T, int, R> f) => self.Select(f);
 
         [DebuggerHidden]
         public static IEnumerable<Task<R>> MapParallel<T, R>(this IEnumerable<T> self, Func<T, R> f) => self.Select(x => Task.Run(() => f(x)));
@@ -157,24 +115,6 @@ namespace Extensions
             _ = Task.WaitAll(tasks, waitms);
             return tasks.Select(x => (x.IsCompleted, x.IsCompleted ? x.Result : default));
         }
-
-        [DebuggerHidden]
-        public static IEnumerable<T> Where<T>(this IEnumerable<T> self, Func<T, bool> f) => Enumerable.Where(self, f);
-
-        [DebuggerHidden]
-        public static IEnumerable<T> Where<T>(this IEnumerable<T> self, Func<T, int, bool> f) => Enumerable.Where(self, f);
-
-        [DebuggerHidden]
-        public static IEnumerable<T> Take<T>(this IEnumerable<T> self, int count) => Enumerable.Take(self, count);
-
-        [DebuggerHidden]
-        public static IEnumerable<T> Take<T>(this IEnumerable<T> self, Func<T, bool> f) => Enumerable.TakeWhile(self, f);
-
-        [DebuggerHidden]
-        public static IEnumerable<T> Take<T>(this IEnumerable<T> self, Func<T, int, bool> f) => Enumerable.TakeWhile(self, f);
-
-        [DebuggerHidden]
-        public static IEnumerable<T> Drop<T>(this IEnumerable<T> self, int count) => Enumerable.Skip(self, count);
 
         [DebuggerHidden]
         public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> self) => self.SelectMany(x => x);
@@ -203,22 +143,7 @@ namespace Extensions
         }
 
         [DebuggerHidden]
-        public static IEnumerable<(T1 First, T2 Second)> Zip<T1, T2>(this IEnumerable<T1> self, IEnumerable<T2> xs) => Enumerable.Zip(self, xs);
-
-        [DebuggerHidden]
-        public static (IEnumerable<T1> First, IEnumerable<T2> Second) UnZip<T1, T2>(this IEnumerable<(T1, T2)> self) => (self.Map(x => x.Item1), self.Map(x => x.Item2));
-
-        [DebuggerHidden]
-        public static IEnumerable<T> Reverse<T>(this IEnumerable<T> self) => Enumerable.Reverse(self);
-
-        [DebuggerHidden]
-        public static IEnumerable<T> Unique<T>(this IEnumerable<T> self) => Enumerable.Distinct(self);
-
-        [DebuggerHidden]
-        public static IEnumerable<T> By<T>(this System.Collections.IEnumerable self) => Enumerable.OfType<T>(self);
-
-        [DebuggerHidden]
-        public static IEnumerable<R> By<R, T>(this IEnumerable<T> self) => Enumerable.OfType<R>(self);
+        public static (IEnumerable<T1> First, IEnumerable<T2> Second) UnZip<T1, T2>(this IEnumerable<(T1, T2)> self) => (self.Select(x => x.Item1), self.Select(x => x.Item2));
 
         [DebuggerHidden]
         public static T FindFirst<T>(this IEnumerable<T> self, Func<T, bool> f) => self.Where(f).First();
@@ -227,22 +152,22 @@ namespace Extensions
         public static T FindFirst<T>(this IEnumerable<T> self, Func<T, int, bool> f) => self.Where(f).First();
 
         [DebuggerHidden]
-        public static T? FindFirstOrNull<T>(this IEnumerable<T> self, Func<T, bool> f) where T : class => self.Where(f).If<IEnumerable<T>, T?>(IsNull, _ => null, x => x.First());
+        public static T? FindFirstOrNull<T>(this IEnumerable<T> self, Func<T, bool> f) where T : class => self.Where(f).If<IEnumerable<T>, T?>(IsEmpty, _ => null, x => x.First());
 
         [DebuggerHidden]
-        public static T? FindFirstOrNull<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : class => self.Where(f).If<IEnumerable<T>, T?>(IsNull, _ => null, x => x.First());
+        public static T? FindFirstOrNull<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : class => self.Where(f).If<IEnumerable<T>, T?>(IsEmpty, _ => null, x => x.First());
 
         [DebuggerHidden]
-        public static T? FindFirstOrNullValue<T>(this IEnumerable<T> self, Func<T, bool> f) where T : struct => self.Where(f).If<IEnumerable<T>, T?>(IsNull, _ => null, x => x.First());
+        public static T? FindFirstOrNullValue<T>(this IEnumerable<T> self, Func<T, bool> f) where T : struct => self.Where(f).If<IEnumerable<T>, T?>(IsEmpty, _ => null, x => x.First());
 
         [DebuggerHidden]
-        public static T? FindFirstOrNullValue<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : struct => self.Where(f).If<IEnumerable<T>, T?>(IsNull, _ => null, x => x.First());
+        public static T? FindFirstOrNullValue<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : struct => self.Where(f).If<IEnumerable<T>, T?>(IsEmpty, _ => null, x => x.First());
 
         [DebuggerHidden]
-        public static int FindFirstIndex<T>(this IEnumerable<T> self, Func<T, bool> f) => self.Zip(Sequence(0)).Where(x => f(x.First)).If(IsNull, _ => -1, x => x.First().Second);
+        public static int FindFirstIndex<T>(this IEnumerable<T> self, Func<T, bool> f) => self.Zip(Sequence(0)).Where(x => f(x.First)).If(IsEmpty, _ => -1, x => x.First().Second);
 
         [DebuggerHidden]
-        public static int FindFirstIndex<T>(this IEnumerable<T> self, Func<T, int, bool> f) => self.Zip(Sequence(0)).Where(x => f(x.First, x.Second)).If(IsNull, _ => -1, x => x.First().Second);
+        public static int FindFirstIndex<T>(this IEnumerable<T> self, Func<T, int, bool> f) => self.Zip(Sequence(0)).Where(x => f(x.First, x.Second)).If(IsEmpty, _ => -1, x => x.First().Second);
 
         [DebuggerHidden]
         public static T FindLast<T>(this IEnumerable<T> self, Func<T, bool> f) => self.Reverse().Where(f).First();
@@ -251,22 +176,22 @@ namespace Extensions
         public static T FindLast<T>(this IEnumerable<T> self, Func<T, int, bool> f) => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First, x.Second)).First().First;
 
         [DebuggerHidden]
-        public static T? FindLastOrNull<T>(this IEnumerable<T> self, Func<T, bool> f) where T : class => self.Reverse().Where(f).If<IEnumerable<T>, T?>(IsNull, _ => null, x => x.First());
+        public static T? FindLastOrNull<T>(this IEnumerable<T> self, Func<T, bool> f) where T : class => self.Reverse().Where(f).If<IEnumerable<T>, T?>(IsEmpty, _ => null, x => x.First());
 
         [DebuggerHidden]
-        public static T? FindLastOrNull<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : class => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First, x.Second)).If<IEnumerable<(T, int)>, T?>(IsNull, _ => null, x => x.First().Item1);
+        public static T? FindLastOrNull<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : class => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First, x.Second)).If<IEnumerable<(T, int)>, T?>(IsEmpty, _ => null, x => x.First().Item1);
 
         [DebuggerHidden]
-        public static T? FindLastOrNullValue<T>(this IEnumerable<T> self, Func<T, bool> f) where T : struct => self.Reverse().Where(f).If<IEnumerable<T>, T?>(IsNull, _ => null, x => x.First());
+        public static T? FindLastOrNullValue<T>(this IEnumerable<T> self, Func<T, bool> f) where T : struct => self.Reverse().Where(f).If<IEnumerable<T>, T?>(IsEmpty, _ => null, x => x.First());
 
         [DebuggerHidden]
-        public static T? FindLastOrNullValue<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : struct => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First, x.Second)).If<IEnumerable<(T, int)>, T?>(IsNull, _ => null, x => x.First().Item1);
+        public static T? FindLastOrNullValue<T>(this IEnumerable<T> self, Func<T, int, bool> f) where T : struct => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First, x.Second)).If<IEnumerable<(T, int)>, T?>(IsEmpty, _ => null, x => x.First().Item1);
 
         [DebuggerHidden]
-        public static int FindLastIndex<T>(this IEnumerable<T> self, Func<T, bool> f) => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First)).If(IsNull, _ => -1, x => x.First().Second);
+        public static int FindLastIndex<T>(this IEnumerable<T> self, Func<T, bool> f) => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First)).If(IsEmpty, _ => -1, x => x.First().Second);
 
         [DebuggerHidden]
-        public static int FindLastIndex<T>(this IEnumerable<T> self, Func<T, int, bool> f) => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First, x.Second)).If(IsNull, _ => -1, x => x.First().Second);
+        public static int FindLastIndex<T>(this IEnumerable<T> self, Func<T, int, bool> f) => self.Zip(Sequence(0)).Reverse().Where(x => f(x.First, x.Second)).If(IsEmpty, _ => -1, x => x.First().Second);
 
         [DebuggerHidden]
         public static bool Contains<T>(this IEnumerable<T> self, Func<T, bool> f) => self.FindFirstIndex(f) >= 0;
@@ -275,13 +200,7 @@ namespace Extensions
         public static bool Contains<T>(this IEnumerable<T> self, Func<T, int, bool> f) => self.FindFirstIndex(f) >= 0;
 
         [DebuggerHidden]
-        public static int Sum(this IEnumerable<int> self) => Enumerable.Sum(self);
-
-        [DebuggerHidden]
         public static T Sum<T>(this IEnumerable<T> self) => self.FoldLeft((x, y) => Expressions.Add<T>()(x, y));
-
-        [DebuggerHidden]
-        public static int Count<T>(this IEnumerable<T> self) => Enumerable.Count(self);
 
         [DebuggerHidden]
         public static T Max<T>(this IEnumerable<T> self) where T : IComparable<T> => self.FoldLeft((x, y) => x.CompareTo(y) >= 0 ? x : y);
@@ -290,10 +209,10 @@ namespace Extensions
         public static T Min<T>(this IEnumerable<T> self) where T : IComparable<T> => self.FoldLeft((x, y) => x.CompareTo(y) <= 0 ? x : y);
 
         [DebuggerHidden]
-        public static T Max<T, R>(this IEnumerable<T> self, Func<T, R> f) where R : IComparable<R> => self.Map(x => (x, f(x))).FoldLeft((x, y) => x.Item2.CompareTo(y.Item2) >= 0 ? x : y).x;
+        public static T Max<T, R>(this IEnumerable<T> self, Func<T, R> f) where R : IComparable<R> => self.Select(x => (x, f(x))).FoldLeft((x, y) => x.Item2.CompareTo(y.Item2) >= 0 ? x : y).x;
 
         [DebuggerHidden]
-        public static T Min<T, R>(this IEnumerable<T> self, Func<T, R> f) where R : IComparable<R> => self.Map(x => (x, f(x))).FoldLeft((x, y) => x.Item2.CompareTo(y.Item2) <= 0 ? x : y).x;
+        public static T Min<T, R>(this IEnumerable<T> self, Func<T, R> f) where R : IComparable<R> => self.Select(x => (x, f(x))).FoldLeft((x, y) => x.Item2.CompareTo(y.Item2) <= 0 ? x : y).x;
 
         [DebuggerHidden]
         public static List<T> Sort<T>(this IEnumerable<T> self) where T : IComparable<T> => self.ToList().Return(x => x.Sort());
@@ -306,35 +225,5 @@ namespace Extensions
 
         [DebuggerHidden]
         public static IOrderedEnumerable<T> StableSort<T>(this IEnumerable<T> self, Func<T, T, int> f) => Enumerable.OrderBy(self, x => x, new ComparerBinder<T>() { Compare = f });
-
-        [DebuggerHidden]
-        public static List<T> ToList<T>(this IEnumerable<T> self) => Enumerable.ToList(self);
-
-        [DebuggerHidden]
-        public static T[] ToArray<T>(this IEnumerable<T> self) => Enumerable.ToArray(self);
-
-        [DebuggerHidden]
-        public static string Join(this IEnumerable<string> self, char separator) => string.Join(separator, self);
-
-        [DebuggerHidden]
-        public static string Join(this IEnumerable<string> self, string separator = "") => string.Join(separator, self);
-
-        [DebuggerHidden]
-        public static string[] SplitLine(this string self) => self.Split(new string[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
-
-        [DebuggerHidden]
-        public static Dictionary<K, T> ToDictionary<T, K>(this IEnumerable<T> self, Func<T, K> fkey) where K : notnull => Enumerable.ToDictionary(self, fkey);
-
-        [DebuggerHidden]
-        public static Dictionary<K, V> ToDictionary<T, K, V>(this IEnumerable<T> self, Func<T, K> fkey, Func<T, V> fvalue) where K : notnull => Enumerable.ToDictionary(self, fkey, fvalue);
-
-        [DebuggerHidden]
-        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> self) => Enumerable.ToHashSet(self);
-
-        [DebuggerHidden]
-        public static string ToStringByChars(this IEnumerable<char> self) => new string(self.ToArray());
-
-        [DebuggerHidden]
-        public static ParallelQuery<T> AsParallel<T>(this IEnumerable<T> self) => ParallelEnumerable.AsParallel(self);
     }
 }
