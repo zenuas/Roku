@@ -4,11 +4,8 @@ namespace Command
 {
     public class LongOptionAttribute : Attribute
     {
-        public String Command { get; private set; }
+        public String Command { get; }
 
-        public LongOptionAttribute(string cmd)
-        {
-            Command = cmd;
-        }
+        public LongOptionAttribute(string cmd) => Command = cmd;
     }
 }

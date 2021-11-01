@@ -4,11 +4,8 @@ namespace Command
 {
     public class ShortOptionAttribute : Attribute
     {
-        public char Command { get; private set; }
+        public char Command { get; }
 
-        public ShortOptionAttribute(char cmd)
-        {
-            Command = cmd;
-        }
+        public ShortOptionAttribute(char cmd) => Command = cmd;
     }
 }
