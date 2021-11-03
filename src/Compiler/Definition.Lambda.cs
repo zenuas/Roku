@@ -11,22 +11,24 @@ namespace Roku.Compiler
         {
             var fbody = MakeAnonymousFunction(scope.Namespace);
             fbody.IsImplicit = lambda.IsImplicit;
-            if (lambda.Return is { } ret) fbody.Return = CreateType(scope, ret);
+            if (lambda.Return is { } ret) fbody.Return = CreateType(fbody, ret);
             if (fbody.IsImplicit) fbody.Return = new TypeImplicit();
-            lambda.Arguments.Each(x =>
+            lambda.Arguments.Each((x, i) =>
                 {
                     ITypeDefinition p;
                     if (x is DeclareNode decla)
                     {
-                        p = CreateType(scope, decla.Type);
+                        p = CreateType(fbody, decla.Type);
                     }
                     else
                     {
                         p = new TypeGenericsParameter(x.Name.Name);
-                        scope.LexicalScope[x.Name.Name] = p;
+                        fbody.LexicalScope[$"$type{i}"] = p;
                     }
                     if (p is TypeGenericsParameter g) fbody.Generics.Add(g);
-                    fbody.Arguments.Add((new VariableValue(x.Name.Name), p));
+                    var name = new VariableValue(x.Name.Name);
+                    fbody.Arguments.Add((name, p));
+                    fbody.LexicalScope.Add(x.Name.Name, name);
                 });
 
             if (fbody.Generics.Count == 0) fbody.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
