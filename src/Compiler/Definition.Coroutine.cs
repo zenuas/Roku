@@ -10,7 +10,6 @@ namespace Roku.Compiler
 {
     public static partial class Definition
     {
-
         public static void ConvertCoroutine(SourceCodeBody src, IScopeNode scope, FunctionBody body)
         {
             /*
