@@ -84,6 +84,11 @@ namespace Roku.Compiler
             else
             {
                 m[v] = CreateVariableDetail(v.ToString()!, b, VariableType.LocalVariable, m.Values.Where(x => x.Type == VariableType.LocalVariable).FoldLeft((r, x) => Math.Max(r, x.Index + 1), 0));
+
+                if (v is ImplicitReturnValue && b is null)
+                {
+                    m[v].Struct = Lookup.LoadStruct(ns, "Null");
+                }
             }
             return true;
         }
