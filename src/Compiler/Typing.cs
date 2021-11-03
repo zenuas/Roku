@@ -233,6 +233,7 @@ namespace Roku.Compiler
                 switch (p)
                 {
                     case FunctionTypeBody ftb: return new FunctionSpecialization(ftb, Lookup.FunctionArgumentsEquals(ns, ftb, args).GenericsMapper);
+                    case AnonymousFunctionBody afb: return new FunctionSpecialization(afb, Lookup.IfFunctionArgumentsEquals_ThenAppendSpecialization(ns, afb, args)!.GenericsMapper);
                 }
             }
             return Lookup.FindFunctionOrNull(ns, x.Name, args);
@@ -301,6 +302,13 @@ namespace Roku.Compiler
                         else if (caller.Body is EmbeddedFunction ef)
                         {
                             if (ef.Return is { }) ret = fm.TypeMapper[ef.Return].Struct;
+                        }
+                        else if (caller.Body is AnonymousFunctionBody afb)
+                        {
+                            if (caller.GenericsMapper.Count > 0 && m.ContainsKey(x) && m[x].Struct is AnonymousFunctionBody)
+                            {
+                                call.Function.Function = x = new VariableValue(x.Name);
+                            }
                         }
                         m[x] = CreateVariableDetail("", fm, m.ContainsKey(x) ? m[x].Type : VariableType.FunctionMapper);
                         if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, ret);

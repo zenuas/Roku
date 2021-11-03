@@ -13,7 +13,21 @@ namespace Roku.Compiler
             fbody.IsImplicit = lambda.IsImplicit;
             if (lambda.Return is { } ret) fbody.Return = CreateType(scope, ret);
             if (fbody.IsImplicit) fbody.Return = new TypeImplicit();
-            lambda.Arguments.Each(x => fbody.Arguments.Add((new VariableValue(x.Name.Name), x is DeclareNode decla ? CreateType(scope, decla.Type) : new TypeImplicit())));
+            lambda.Arguments.Each(x =>
+                {
+                    ITypeDefinition p;
+                    if (x is DeclareNode decla)
+                    {
+                        p = CreateType(scope, decla.Type);
+                    }
+                    else
+                    {
+                        p = new TypeGenericsParameter(x.Name.Name);
+                        scope.LexicalScope[x.Name.Name] = p;
+                    }
+                    if (p is TypeGenericsParameter g) fbody.Generics.Add(g);
+                    fbody.Arguments.Add((new VariableValue(x.Name.Name), p));
+                });
 
             if (fbody.Generics.Count == 0) fbody.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
             FunctionBodyDefinition(fbody, lambda.Statements);

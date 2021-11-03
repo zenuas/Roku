@@ -65,18 +65,24 @@ namespace Roku.Compiler
 
         public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionName => src is INamespaceBody ns ? ns.Functions.OfType<T>() : new List<T>();
 
+        public static FunctionSpecialization? IfFunctionArgumentsEquals_ThenAppendSpecialization(INamespace ns, IFunctionName fn, List<IStructBody?> args)
+        {
+            var v = FunctionArgumentsEquals(ns, fn, args);
+            if (v.Exists)
+            {
+                if (fn is ISpecialization sp) AppendSpecialization(sp, v.GenericsMapper);
+                return new FunctionSpecialization(fn, v.GenericsMapper);
+            }
+            return null;
+        }
+
         public static FunctionSpecialization? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args, bool find_use = true)
         {
             if (ns is INamespaceBody nsb)
             {
                 foreach (var x in nsb.Functions.Where(x => x.Name == name))
                 {
-                    var v = FunctionArgumentsEquals(ns, x, args);
-                    if (v.Exists)
-                    {
-                        if (x is ISpecialization sp) AppendSpecialization(sp, v.GenericsMapper);
-                        return new FunctionSpecialization(x, v.GenericsMapper);
-                    }
+                    if (IfFunctionArgumentsEquals_ThenAppendSpecialization(ns, x, args) is { } p) return p;
                 }
             }
 
@@ -213,6 +219,10 @@ namespace Roku.Compiler
             else if (body is FunctionTypeBody)
             {
                 throw new Exception();
+            }
+            else if (body is AnonymousFunctionBody afb)
+            {
+                return afb.Arguments.Select(x => x.Type);
             }
             throw new Exception();
         }
