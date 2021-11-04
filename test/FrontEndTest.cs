@@ -92,7 +92,9 @@ namespace Roku.Tests
         public void CompileTest()
         {
             var none_skip = TestContext.Parameters.Get("none-skip", false);
-            var compile_result = Directory.GetFiles(SourceDir, "*.rk").MapParallelAllWithTimeout(x => Compile(x, none_skip), 1000 * 10).ToList();
+            var compile_result = Directory.GetFiles(SourceDir, "*.rk")
+                .MapParallelAllWithTimeout(x => Compile(x, none_skip), 1000 * 10, x => new(x, Path.GetFileName(x), "timeout"))
+                .ToList();
 
             var sjis = System.Text.Encoding.GetEncoding(932);
             var success = new List<string>();
@@ -139,7 +141,7 @@ namespace Roku.Tests
             File.Delete(skip);
             File.WriteAllText(skip, success.Count > 0 ? success.Join("\r\n") : "");
 
-            var failed = compile_result.Where(x => x.Completed && x.Result!.ErrorMessage != "").ToList();
+            var failed = compile_result.Where(x => !x.Completed || x.Result!.ErrorMessage != "").ToList();
             if (failed.Count > 0) Assert.Fail(failed.Select(x => $"{x.Result.TestName}: {x.Result.ErrorMessage}").Join("\n"));
         }
     }
