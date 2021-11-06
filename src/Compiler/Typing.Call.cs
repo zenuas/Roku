@@ -18,18 +18,36 @@ namespace Roku.Compiler
                 {
                     case FunctionTypeBody ftb: return new FunctionSpecialization(ftb, Lookup.FunctionArgumentsEquals(ns, ftb, args).GenericsMapper);
                     case AnonymousFunctionBody afb: return new FunctionSpecialization(afb, Lookup.IfFunctionArgumentsEquals_ThenAppendSpecialization(ns, afb, args)!.GenericsMapper);
+                    case FunctionMapper fm:
+                        if (fm.Function is AnonymousFunctionBody)
+                        {
+                            return new FunctionSpecialization(fm.Function, Lookup.TypeMapperToGenericsMapper(fm.TypeMapper));
+                        }
+                        break;
                 }
             }
             return Lookup.FindFunctionOrNull(ns, x.Name, args);
         }
 
+        public static bool IsDecideFunction(TypeMapper m, Call call)
+        {
+            if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { } p)
+            {
+                if (p is FunctionMapper fm && fm.Function is AnonymousFunctionBody afb && afb.Return is TypeImplicit)
+                {
+                    return false;
+                }
+                if (IsDecideFunction(p) && (call.Return is null || (call.Return is { } rx && m.ContainsKey(rx) && m[rx].Struct is { } rs && IsDecideType(rs))))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public static bool ResolveFunctionWithEffect(INamespace ns, TypeMapper m, Call call)
         {
-            if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { } p && IsDecideFunction(p) &&
-                (call.Return is null || (call.Return is { } rx && m.ContainsKey(rx) && m[rx].Struct is { } rs && IsDecideType(rs))))
-            {
-                return false;
-            }
+            if (IsDecideFunction(m, call)) return false;
 
             var resolve = false;
             var lookupns = ns;

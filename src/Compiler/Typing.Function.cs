@@ -42,7 +42,18 @@ namespace Roku.Compiler
                     if (!(m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) &&
                         m.Keys.FindFirstOrNull(x => x is ImplicitReturnValue) is { } imp)
                     {
-                        m[v] = CreateVariableDetail("", m[imp].Struct, VariableType.Type);
+                        if (m[imp].Struct is { } impx)
+                        {
+                            m[v] = CreateVariableDetail("", m[imp].Struct, VariableType.Type);
+                        }
+                        else
+                        {
+                            afb.Return = null;
+                            afb.Body
+                                .OfType<IReturnBind>()
+                                .Where(x => x.Return is ImplicitReturnValue)
+                                .Each(x => x.Return = null);
+                        }
                         resolved = true;
                     }
                 }

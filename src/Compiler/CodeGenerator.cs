@@ -185,10 +185,16 @@ namespace Roku.Compiler
                 var g = fsnew[i].GenericsMapper;
                 var mapper = Lookup.GetTypemapper(f.SpecializationMapper, g);
 
-                var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable && !(x.Struct is NamespaceBody)).Sort((a, b) => a.Index - b.Index).ToList();
+                var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable && x.Struct is AnonymousFunctionBody anon && anon.Generics.Count == 0).Sort((a, b) => a.Index - b.Index).ToList();
                 if (local_vals.Count > 0)
                 {
                     local_vals.Select(x => x.Struct).OfType<AnonymousFunctionBody>().Each(x => CallToAddEmitFunctionList(mapper, x, fsnew));
+                }
+
+                var local_vals2 = mapper.Values.Where(x => x.Struct is FunctionMapper fm && fm.Function is AnonymousFunctionBody).Sort((a, b) => a.Index - b.Index).ToList();
+                if (local_vals2.Count > 0)
+                {
+                    local_vals2.Each(x => CallToAddEmitFunctionList(mapper, x.Struct!.Cast<FunctionMapper>(), x.Struct!.Cast<FunctionMapper>().Function.Cast<AnonymousFunctionBody>(), fsnew));
                 }
                 f.Body.OfType<Call>().Each(x => CallToAddEmitFunctionList(mapper, x, fsnew));
             }
@@ -211,8 +217,12 @@ namespace Roku.Compiler
 
         public static void CallToAddEmitFunctionList(TypeMapper m, AnonymousFunctionBody anon, List<FunctionSpecialization> fss)
         {
-            var g = new GenericsMapper();
-            fss.Add(new FunctionSpecialization(anon, g));
+            fss.Add(new FunctionSpecialization(anon, new GenericsMapper()));
+        }
+
+        public static void CallToAddEmitFunctionList(TypeMapper m, FunctionMapper fm, AnonymousFunctionBody anon, List<FunctionSpecialization> fss)
+        {
+            fss.Add(new FunctionSpecialization(anon, Lookup.TypeMapperToGenericsMapper(fm.TypeMapper)));
         }
 
         public static bool EqualsFunctionCaller(FunctionSpecialization left, IFunctionName right, GenericsMapper right_g)
