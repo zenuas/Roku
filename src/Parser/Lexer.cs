@@ -44,6 +44,7 @@ namespace Roku.Parser
             table["IGNORE"] = Symbols.IGNORE;
             table["INSTANCE"] = Symbols.INSTANCE;
             table["IS"] = Symbols.IS;
+            table["LAMBDA_START"] = Symbols.LAMBDA_START;
             table["LET"] = Symbols.LET;
             table["LT"] = Symbols.LT;
             table["NULL"] = Symbols.NULL;

@@ -13,6 +13,7 @@ namespace Roku.Parser
         public Parser? Parser { get; set; }
         public List<Token> Store { get; } = new List<Token>();
         public Stack<int> Indents { get; } = new Stack<int>();
+        public static Token LAMBDA_START { get; } = new Token() { Type = Symbols.LAMBDA_START };
         public static Dictionary<char, Symbols> ReservedChar { get; } = CreateReservedCharTable();
         public static Dictionary<string, Symbols> ReservedString { get; } = new Dictionary<string, Symbols>
             {
@@ -67,7 +68,11 @@ namespace Roku.Parser
             var first = Store.First();
             if (Parser is { })
             {
-                if (first.Type == Symbols.EOL && !Parser.IsAccept(first))
+                if (IsLambdaStart())
+                {
+                    Store.Insert(0, first = new Token() { Type = Symbols.LAMBDA_START });
+                }
+                else if (first.Type == Symbols.EOL && !Parser.IsAccept(first))
                 {
                     Store.Clear();
                     Store.AddRange(ReadLineTokens(BaseReader, Parser?.TokenStack.LastOrDefault()));
@@ -89,6 +94,60 @@ namespace Roku.Parser
                 }
             }
             return first;
+        }
+
+        public bool IsLambdaStart()
+        {
+            if (Store.First().Type == Symbols.__x28 && Parser!.IsAccept(LAMBDA_START))
+            {
+                /*
+                    lambda : . LAMBDA_START '(' lambda_args ')' typex ARROW lambda_func
+                */
+                var parentheses = new Stack<Symbols>();
+                for (var i = 0; i < Store.Count; i++)
+                {
+                    var current = Store[i].Type;
+                    if (Store[i].EndOfToken || (parentheses.Count == 0 && current == Symbols.EOL))
+                    {
+                        return false;
+                    }
+                    else if (parentheses.Count > 0 && current == Symbols.EOL)
+                    {
+                        Store.RemoveAt(i);
+                        Store.AddRange(ReadLineTokens(BaseReader, Parser?.TokenStack.LastOrDefault()));
+                        i--;
+                    }
+                    else if (current == Symbols.__x28 ||
+                        current == Symbols.__x5B ||
+                        current == Symbols.__x7B)
+                    {
+                        parentheses.Push(Store[i].Type);
+                    }
+                    else if (current == Symbols.__x29 ||
+                        current == Symbols.__x5D ||
+                        current == Symbols.__x7D)
+                    {
+                        if (parentheses.Count == 0) return false;
+
+                        var last = parentheses.Peek();
+                        if ((last == Symbols.__x28 && current == Symbols.__x29) ||
+                            (last == Symbols.__x5B && current == Symbols.__x5D) ||
+                            (last == Symbols.__x7B && current == Symbols.__x7D))
+                        {
+                            parentheses.Pop();
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else if (parentheses.Count == 0 && current == Symbols.ARROW)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         public IToken<INode> ReadToken()

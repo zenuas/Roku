@@ -79,6 +79,9 @@ namespace Roku.Parser
         /// <summary>IS</summary>
         IS,
 
+        /// <summary>LAMBDA_START</summary>
+        LAMBDA_START,
+
         /// <summary>LET</summary>
         LET,
 
