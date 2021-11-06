@@ -51,7 +51,7 @@ namespace Roku.Compiler
                         }
                         else if (f.Function is FunctionBody fb)
                         {
-                            il.WriteLine(args.Join('\n'));
+                            if (args.Length > 0) il.WriteLine(args.Join('\n'));
                             il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return, g)} {EscapeILName(fb.Name)}({fb.Arguments.Select(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")})");
                             have_return = fb.Return is { };
                         }

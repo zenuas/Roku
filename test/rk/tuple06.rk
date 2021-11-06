@@ -40,7 +40,6 @@ print(x.2)
         [2] string $$2
     )
     
-    
     call class 'Tuple#2<int32, string>' f()
     stloc.0
     

@@ -121,7 +121,6 @@ while(! isnull(xs))
         [8] string $$5
     )
     
-    
     call class 'Co$0' co()
     stloc.0
     

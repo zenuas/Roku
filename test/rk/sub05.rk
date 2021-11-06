@@ -19,7 +19,6 @@ maxstackの導出
     .entrypoint
     .maxstack 0
     
-    
     call void f()
     ret
 }

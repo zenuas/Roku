@@ -29,7 +29,6 @@ sub f<List<a, Int>>() a となる
         [3] int32 $$1
     )
     
-    
     call class [System.Collections]System.Collections.Generic.List`1<int32> f()
     stloc.0
     

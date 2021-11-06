@@ -23,7 +23,6 @@ print(x)
         [0] string x
     )
     
-    
     call string f()
     stloc.0
     

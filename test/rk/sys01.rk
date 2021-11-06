@@ -19,7 +19,6 @@ sysモジュールの関数呼び出し
         [0] string s
     )
     
-    
     call string version()
     stloc.0
     
