@@ -15,10 +15,12 @@ namespace Roku.Compiler
         public static void Compile(string input, string output, string[] asms)
         {
             using var source = new StreamReader(input);
-            Compile(source, output, asms);
+            var node = Parse(source);
+            source.Dispose();
+            Compile(node, output, asms);
         }
 
-        public static void Compile(TextReader input, string output, string[] asms)
+        public static void Compile(ProgramNode node, string output, string[] asms)
         {
             var root = new RootNamespace();
             root.Assemblies.AddRange(asms.Select(Assembly.Load));
@@ -52,16 +54,16 @@ namespace Roku.Compiler
                 ? $"{args[0]}\nldnull\nceq"
                 : $"{args[0]}\nisinst {args[1]}"));
 
-            var src = Definition.LoadProgram(root, Compile(input));
+            var src = Definition.LoadProgram(root, node);
             using (var sys = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("Roku.sys.rk")!))
             {
-                src.Uses.Add(Definition.LoadProgram(root, Compile(sys)));
+                src.Uses.Add(Definition.LoadProgram(root, Parse(sys)));
             }
             Typing.TypeInference(root, src);
             CodeGenerator.Emit(root, src, output);
         }
 
-        public static ProgramNode Compile(TextReader input)
+        public static ProgramNode Parse(TextReader input)
         {
             var lex = new Lexer(new SourceCodeReader(input));
             var par = new Parser.Parser();

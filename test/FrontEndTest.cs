@@ -56,7 +56,7 @@ namespace Roku.Tests
 
             try
             {
-                FrontEnd.Compile(new StringReader(txt), il, new string[] { "System.Runtime" });
+                FrontEnd.Compile(FrontEnd.Parse(new StringReader(txt)), il, new string[] { "System.Runtime" });
 
                 var valid = GetLineContent(lines, "###start", "###end");
                 if (!valid.Found)
