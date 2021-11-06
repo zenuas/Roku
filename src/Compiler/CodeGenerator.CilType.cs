@@ -79,17 +79,20 @@ namespace Roku.Compiler
 
         public static string GetFunctionTypeName(FunctionTypeBody t)
         {
-            var f = "";
-            if (t.Return is { } r)
+            return GetFunctionTypeName(t.Arguments.ToArray(), t.Return);
+        }
+
+        public static string GetFunctionTypeName(IStructBody[] args, IStructBody? ret)
+        {
+            if (ret is { } r)
             {
-                f = $"class [mscorlib]System.Func`{t.Arguments.Count + 1}<{t.Arguments.Concat(r).Select(x => GetStructName(x)).Join(", ")}>";
+                return $"class [mscorlib]System.Func`{args.Length + 1}<{args.Concat(r).Select(x => GetStructName(x)).Join(", ")}>";
             }
             else
             {
-                if (t.Arguments.Count == 0) return "class [mscorlib]System.Action";
-                f = $"class [mscorlib]System.Action`{t.Arguments.Count}<>";
+                if (args.Length == 0) return "class [mscorlib]System.Action";
+                return $"class [mscorlib]System.Action`{args.Length}<{args.Select(x => GetStructName(x)).Join(", ")}>";
             }
-            return f;
         }
 
         public static string EscapeILName(string s) => !CilReservedWord.Contains(s) && Regex.IsMatch(s, "^_*[a-zA-Z][_a-zA-Z0-9]*$") ? s : $"'{s}'";

@@ -31,7 +31,7 @@ namespace Roku.Compiler
                     {
                         var call = op.Cast<Call>();
                         var f = m[call.Function.Function].Struct!.Cast<FunctionMapper>();
-                        if (f.Function is FunctionTypeBody)
+                        if (f.Function is FunctionTypeBody || f.Function is AnonymousFunctionBody)
                         {
                             il.WriteLine(LoadValue(m, call.Function.Function));
                         }
@@ -39,7 +39,7 @@ namespace Roku.Compiler
                         var have_return = false;
                         if (f.Function is ExternFunction fx)
                         {
-                            il.WriteLine(args.Join('\n'));
+                            if (args.Length > 0) il.WriteLine(args.Join('\n'));
                             var callsig = (fx.Function.IsVirtual ? "callvirt" : "call") + (fx.Function.IsStatic ? "" : " instance");
                             var retvar = GetParameterName(fx.Function.ReturnType);
                             var asmname = $"[{fx.Assembly.GetName().Name}]";
@@ -57,8 +57,17 @@ namespace Roku.Compiler
                         }
                         else if (f.Function is FunctionTypeBody ftb)
                         {
+                            if (args.Length > 0) il.WriteLine(args.Join('\n'));
                             il.WriteLine($"callvirt instance {(ftb.Return is null ? "void" : $"!{ftb.Arguments.Count}")} {GetFunctionTypeName(ftb)}::Invoke({Enumerable.Range(0, ftb.Arguments.Count).Select(x => $"!{x}").Join(", ")})");
                             have_return = ftb.Return is { };
+                        }
+                        else if (f.Function is AnonymousFunctionBody afb)
+                        {
+                            if (args.Length > 0) il.WriteLine(args.Join('\n'));
+                            var args_type = call.Function.Arguments.Select((x, i) => GetArgumentType(ns, f, i)).ToArray();
+                            var return_type = afb.Return is { } rx ? Lookup.GetStructType(ns, rx, f.TypeMapper) : null;
+                            il.WriteLine($"callvirt instance {(afb.Return is null ? "void" : $"!{afb.Arguments.Count}")} {GetFunctionTypeName(args_type!, return_type)}::Invoke({Enumerable.Range(0, afb.Arguments.Count).Select(x => $"!{x}").Join(", ")})");
+                            have_return = afb.Return is { };
                         }
                         else if (f.Function is EmbeddedFunction ef)
                         {
@@ -166,6 +175,7 @@ namespace Roku.Compiler
             switch (body.Function)
             {
                 case FunctionBody fb: return Lookup.GetStructType(caller, fb.Arguments[index].Type, body.TypeMapper);
+                case AnonymousFunctionBody afb: return Lookup.GetStructType(caller, afb.Arguments[index].Type, body.TypeMapper);
                 case EmbeddedFunction ef: return Lookup.GetStructType(caller, ef.Arguments[index], body.TypeMapper);
             }
             return null;
