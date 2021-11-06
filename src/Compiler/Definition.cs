@@ -98,8 +98,10 @@ namespace Roku.Compiler
                 case LambdaExpressionNode x:
                     {
                         var f = LambdaExpressionDefinition(scope, x);
+                        var fref = new FunctionReferenceValue(f.Name);
+                        if (!evaluate_as_expression) return fref;
                         var v = CreateTemporaryVariable(scope);
-                        scope.Body.Add(new Code() { Operator = Operator.Bind, Left = new FunctionReferenceValue(f.Name), Return = v });
+                        scope.Body.Add(new Code() { Operator = Operator.Bind, Left = fref, Return = v });
                         return v;
                     }
             }
