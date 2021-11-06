@@ -48,6 +48,7 @@ namespace Roku.Compiler
                         }
                         else
                         {
+                            m.Remove(imp);
                             afb.Return = null;
                             afb.Body
                                 .OfType<IReturnBind>()
