@@ -49,7 +49,9 @@ namespace Roku.Compiler
                 case Operator.Call:
                     {
                         var call = op.Cast<Call>();
+                        var fm = m[call.Function.Function].Struct!.Cast<FunctionMapper>();
                         stack_size = call.Function.Arguments.Select(x => GetMaxstack(x)).Sum();
+                        if (fm.Function is FunctionTypeBody || fm.Function is AnonymousFunctionBody) stack_size++;
                         break;
                     }
 
