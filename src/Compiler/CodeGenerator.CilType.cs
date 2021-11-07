@@ -51,28 +51,20 @@ namespace Roku.Compiler
 
         public static string GetFunctionName(AnonymousFunctionBody anon)
         {
-            var f = "";
-            if (anon.Return is { } r)
-            {
-                var g = new GenericsMapper();
-                var mapper = Lookup.GetTypemapper(anon.SpecializationMapper, g);
-                f = $"class [mscorlib]System.Func`{anon.Arguments.Count + 1}<{GetTypeName(mapper, anon.Return, g)}>";
-            }
-            else
-            {
-                if (anon.Arguments.Count == 0) return "class [mscorlib]System.Action";
-                f = $"class [mscorlib]System.Action`{anon.Arguments.Count}";
-            }
-            return f;
+            var g = anon.SpecializationMapper.Keys.First();
+            var mapper = Lookup.GetTypemapper(anon.SpecializationMapper, g);
+            var args_type = anon.Arguments.Select(x => GetType(mapper[x.Type], g)).ToArray();
+            var return_type = anon.Return is { } rx ? GetType(mapper[rx], g) : null;
+            return GetFunctionTypeName(args_type!, return_type);
         }
 
         public static string GetFunctionName(FunctionReferenceValue f, IStructBody body)
         {
             if (body is AnonymousFunctionBody anon)
             {
-                var g = new GenericsMapper();
+                var g = anon.SpecializationMapper.Keys.First();
                 var mapper = Lookup.GetTypemapper(anon.SpecializationMapper, g);
-                return $"{GetTypeName(mapper, anon.Return, g)} {EscapeILName(f.Name)}()";
+                return $"{GetTypeName(mapper, anon.Return, g)} {EscapeILName(f.Name)}({anon.Arguments.Select(x => GetTypeName(mapper, x.Type, g)).Join(", ")})";
             }
             throw new Exception();
         }
