@@ -13,16 +13,16 @@ namespace Roku.Parser
         public static Dictionary<char, Symbols> CreateReservedCharTable()
         {
             var table = new Dictionary<char, Symbols>();
-            table['('] = Symbols.__x28;
-            table[')'] = Symbols.__x29;
-            table[','] = Symbols.__x2C;
-            table['.'] = Symbols.__x2E;
-            table[':'] = Symbols.__x3A;
-            table['?'] = Symbols.__x3F;
-            table['['] = Symbols.__x5B;
-            table[']'] = Symbols.__x5D;
-            table['{'] = Symbols.__x7B;
-            table['}'] = Symbols.__x7D;
+            table['('] = Symbols.__LeftParenthesis;
+            table[')'] = Symbols.__RightParenthesis;
+            table[','] = Symbols.__Comma;
+            table['.'] = Symbols.__FullStop;
+            table[':'] = Symbols.__Colon;
+            table['?'] = Symbols.__QuestionMark;
+            table['['] = Symbols.__LeftSquareBracket;
+            table[']'] = Symbols.__RightSquareBracket;
+            table['{'] = Symbols.__LeftCurlyBracket;
+            table['}'] = Symbols.__RightCurlyBracket;
             return table;
         }
 

@@ -5,34 +5,34 @@ namespace Roku.Parser
     {
 
         /// <summary>'('</summary>
-        __x28,
+        __LeftParenthesis,
 
         /// <summary>')'</summary>
-        __x29,
+        __RightParenthesis,
 
         /// <summary>','</summary>
-        __x2C,
+        __Comma,
 
         /// <summary>'.'</summary>
-        __x2E,
+        __FullStop,
 
         /// <summary>':'</summary>
-        __x3A,
+        __Colon,
 
         /// <summary>'?'</summary>
-        __x3F,
+        __QuestionMark,
 
         /// <summary>'['</summary>
-        __x5B,
+        __LeftSquareBracket,
 
         /// <summary>']'</summary>
-        __x5D,
+        __RightSquareBracket,
 
         /// <summary>'{'</summary>
-        __x7B,
+        __LeftCurlyBracket,
 
         /// <summary>'}'</summary>
-        __x7D,
+        __RightCurlyBracket,
 
         /// <summary>AND2</summary>
         AND2,

@@ -98,7 +98,7 @@ namespace Roku.Parser
 
         public bool IsLambdaStart()
         {
-            if (Store.First().Type == Symbols.__x28 && Parser!.IsAccept(LAMBDA_START))
+            if (Store.First().Type == Symbols.__LeftParenthesis && Parser!.IsAccept(LAMBDA_START))
             {
                 /*
                     lambda : . LAMBDA_START '(' lambda_args ')' typex ARROW lambda_func
@@ -117,22 +117,22 @@ namespace Roku.Parser
                         Store.AddRange(ReadLineTokens(BaseReader, Parser?.TokenStack.LastOrDefault()));
                         i--;
                     }
-                    else if (current == Symbols.__x28 ||
-                        current == Symbols.__x5B ||
-                        current == Symbols.__x7B)
+                    else if (current == Symbols.__LeftParenthesis ||
+                        current == Symbols.__LeftSquareBracket ||
+                        current == Symbols.__LeftCurlyBracket)
                     {
                         parentheses.Push(Store[i].Type);
                     }
-                    else if (current == Symbols.__x29 ||
-                        current == Symbols.__x5D ||
-                        current == Symbols.__x7D)
+                    else if (current == Symbols.__RightParenthesis ||
+                        current == Symbols.__RightSquareBracket ||
+                        current == Symbols.__RightCurlyBracket)
                     {
                         if (parentheses.Count == 0) return false;
 
                         var last = parentheses.Peek();
-                        if ((last == Symbols.__x28 && current == Symbols.__x29) ||
-                            (last == Symbols.__x5B && current == Symbols.__x5D) ||
-                            (last == Symbols.__x7B && current == Symbols.__x7D))
+                        if ((last == Symbols.__LeftParenthesis && current == Symbols.__RightParenthesis) ||
+                            (last == Symbols.__LeftSquareBracket && current == Symbols.__RightSquareBracket) ||
+                            (last == Symbols.__LeftCurlyBracket && current == Symbols.__RightCurlyBracket))
                         {
                             parentheses.Pop();
                         }
@@ -318,12 +318,12 @@ namespace Roku.Parser
                             default:
                                 reader.UnRead(base_);
                                 reader.UnRead('0');
-                                return ReadDecimal(reader, "", !(last_token is { } t && t.Type == Symbols.__x2E));
+                                return ReadDecimal(reader, "", !(last_token is { } t && t.Type == Symbols.__FullStop));
                         }
                     }
 
                 default:
-                    if (IsNumber(c)) return ReadDecimal(reader, "", !(last_token is { } t && t.Type == Symbols.__x2E));
+                    if (IsNumber(c)) return ReadDecimal(reader, "", !(last_token is { } t && t.Type == Symbols.__FullStop));
                     if (IsAlphabet(c)) return ReadVariable(reader);
                     if (IsOperator(c)) return ReadOperator(reader);
                     break;

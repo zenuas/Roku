@@ -171,9 +171,9 @@ namespace Roku.Tests
                 {
                     Symbols.BEGIN,
                     Symbols.VAR,
-                    Symbols.__x2E,
+                    Symbols.__FullStop,
                     Symbols.NUM,
-                    Symbols.__x2E,
+                    Symbols.__FullStop,
                     Symbols.NUM,
                     Symbols.EOL,
                     Symbols.END,
