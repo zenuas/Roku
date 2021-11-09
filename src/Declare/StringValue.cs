@@ -2,12 +2,7 @@
 
 public class StringValue : IEvaluable
 {
-    public string Value { get; }
-
-    public StringValue(string s)
-    {
-        Value = s;
-    }
+    public string Value { get; init; } = "";
 
     public override string ToString() => $"\"{Value}\"";
 }

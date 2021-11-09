@@ -20,7 +20,7 @@ public static partial class Typing
         }
         else
         {
-            self = new VariableValue("$self");
+            self = new VariableValue() { Name = "$self" };
             body.LexicalScope.Add(self.Name, self);
         }
 

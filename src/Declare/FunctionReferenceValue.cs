@@ -2,12 +2,7 @@
 
 public class FunctionReferenceValue : IEvaluable
 {
-    public string Name { get; }
-
-    public FunctionReferenceValue(string name)
-    {
-        Name = name;
-    }
+    public string Name { get; init; } = "";
 
     public override string ToString() => $"{Name}";
 }

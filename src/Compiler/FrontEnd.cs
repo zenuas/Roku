@@ -104,11 +104,11 @@ public static class FrontEnd
             {
                 if (ef.Generics.FindFirstOrNull(g => g.Name == x) is { } p) return p;
 
-                var g = new TypeGenericsParameter(x);
+                var g = new TypeGenericsParameter() { Name = x };
                 ef.Generics.Add(g);
                 return g;
             }
-            return new TypeValue(x);
+            return new TypeValue() { Name = x };
         };
 
         args.Each(x => ef.Arguments.Add(create_type(x)));

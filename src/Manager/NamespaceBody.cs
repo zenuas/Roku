@@ -2,11 +2,6 @@
 
 public class NamespaceBody : IStructBody
 {
-    public string Name { get; set; }
+    public string Name { get; init; } = "";
     public NamespaceBody? Parent { get; set; }
-
-    public NamespaceBody(string name)
-    {
-        Name = name;
-    }
 }

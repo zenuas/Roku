@@ -2,12 +2,7 @@
 
 public class GenericsParameter : IStructBody
 {
-    public string Name { get; }
-
-    public GenericsParameter(string name)
-    {
-        Name = name;
-    }
+    public string Name { get; init; } = "";
 
     public override string ToString() => Name;
 }

@@ -2,12 +2,7 @@
 
 public class VariableValue : IEvaluable
 {
-    public string Name { get; }
-
-    public VariableValue(string name)
-    {
-        Name = name;
-    }
+    public string Name { get; init; } = "";
 
     public override string ToString() => Name;
 }

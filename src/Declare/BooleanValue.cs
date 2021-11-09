@@ -2,12 +2,7 @@
 
 public class BooleanValue : IEvaluable
 {
-    public bool Value { get; }
-
-    public BooleanValue(bool b)
-    {
-        Value = b;
-    }
+    public bool Value { get; init; }
 
     public override string ToString() => Value.ToString();
 }

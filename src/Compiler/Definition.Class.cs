@@ -15,7 +15,7 @@ public static partial class Definition
     public static ClassBody ClassBodyDefinition(SourceCodeBody src, ClassNode cn)
     {
         var body = new ClassBody(src, cn.Name.Name);
-        cn.Generics.Each(x => body.Generics.Add(new TypeGenericsParameter(x.Name)));
+        cn.Generics.Each(x => body.Generics.Add(new TypeGenericsParameter() { Name = x.Name }));
         cn.Functions.Each(x => MakeFunctionDefinition(body, body.Generics, x));
         return body;
     }

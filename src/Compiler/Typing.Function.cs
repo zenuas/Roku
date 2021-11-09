@@ -93,7 +93,7 @@ public static partial class Typing
         switch (type)
         {
             case TypeGenericsParameter g:
-                if (!m.ContainsKey(type)) m[type] = CreateVariableDetail(g.Name, new GenericsParameter(g.Name), VariableType.TypeParameter, index);
+                if (!m.ContainsKey(type)) m[type] = CreateVariableDetail(g.Name, new GenericsParameter() { Name = g.Name }, VariableType.TypeParameter, index);
                 m[v] = CreateVariableDetail($"${index}", m[type].Struct, VariableType.Argument, index);
                 break;
 

@@ -2,12 +2,7 @@
 
 public class FloatingNumericValue : IEvaluable
 {
-    public double Value { get; }
-
-    public FloatingNumericValue(double n)
-    {
-        Value = n;
-    }
+    public double Value { get; init; }
 
     public override string ToString() => Value.ToString();
 }

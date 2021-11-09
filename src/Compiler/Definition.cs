@@ -26,16 +26,16 @@ public static partial class Definition
         switch (e)
         {
             case StringNode x:
-                return new StringValue(x.Value);
+                return new StringValue() { Value = x.Value };
 
             case NumericNode x:
-                return new NumericValue(x.Value);
+                return new NumericValue() { Value = x.Value };
 
             case FloatingNumericNode x:
-                return new FloatingNumericValue(x.Value);
+                return new FloatingNumericValue() { Value = x.Value };
 
             case BooleanNode x:
-                return new BooleanValue(x.Value);
+                return new BooleanValue() { Value = x.Value };
 
             case NullNode x:
                 return new NullValue();
@@ -46,7 +46,7 @@ public static partial class Definition
             case TypeNode x:
                 if (x.Namespace.Count > 0)
                 {
-                    return new TypeValue(x.Name).Return(t => t.Namespace.AddRange(x.Namespace));
+                    return new TypeValue() { Name = x.Name }.Return(t => t.Namespace.AddRange(x.Namespace));
                 }
                 else
                 {
@@ -63,10 +63,10 @@ public static partial class Definition
                 else
                 {
                     var call =
-                        x.Expression is PropertyNode prop ? new FunctionCallValue(new VariableValue(prop.Right.Name)) { FirstLookup = NormalizationExpression(scope, prop.Left, true) }
+                        x.Expression is PropertyNode prop ? new FunctionCallValue(new VariableValue() { Name = prop.Right.Name }) { FirstLookup = NormalizationExpression(scope, prop.Left, true) }
                         : x.Expression is SpecializationNode gen ? new FunctionCallValue(CreateTypeSpecialization(scope, gen))
                         : x.Expression is VariableNode va && FindCurrentScopeValueOrNull(scope, va.Name) is { } v ? new FunctionCallValue(v)
-                        : new FunctionCallValue(new VariableValue(GetName(x.Expression)));
+                        : new FunctionCallValue(new VariableValue() { Name = GetName(x.Expression) });
 
                     x.Arguments.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
                     return call;
@@ -87,7 +87,7 @@ public static partial class Definition
             case TupleNode x:
                 {
                     var f = TupleBodyDefinition(Lookup.GetRootNamespace(scope.Namespace), x.Values.Count);
-                    var call = new FunctionCallValue(new VariableValue(f.Name));
+                    var call = new FunctionCallValue(new VariableValue() { Name = f.Name });
                     x.Values.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
                     if (!evaluate_as_expression) return call;
                     var v = CreateTemporaryVariable(scope);
@@ -98,7 +98,7 @@ public static partial class Definition
             case LambdaExpressionNode x:
                 {
                     var f = LambdaExpressionDefinition(scope, x);
-                    var fref = new FunctionReferenceValue(f.Name);
+                    var fref = new FunctionReferenceValue() { Name = f.Name };
                     if (!evaluate_as_expression) return fref;
                     var v = CreateTemporaryVariable(scope);
                     scope.Body.Add(new Code() { Operator = Operator.Bind, Left = fref, Return = v });
@@ -116,9 +116,9 @@ public static partial class Definition
                 return new TypeEnum(en.Types.Select(x => CreateType(scope, x)));
 
             case TypeNode tn:
-                if (!char.IsLower(tn.Name.First())) return new TypeValue(tn.Name);
+                if (!char.IsLower(tn.Name.First())) return new TypeValue() { Name = tn.Name };
                 if (scope.LexicalScope.ContainsKey(tn.Name)) return scope.LexicalScope[tn.Name].Cast<ITypeDefinition>();
-                var gen = new TypeGenericsParameter(tn.Name);
+                var gen = new TypeGenericsParameter() { Name = tn.Name };
                 scope.LexicalScope[tn.Name] = gen;
                 return gen;
 
@@ -154,7 +154,7 @@ public static partial class Definition
     public static TypeSpecialization CreateTupleSpecialization(ILexicalScope scope, TypeTupleNode tuple)
     {
         _ = TupleBodyDefinition(Lookup.GetRootNamespace(scope.Namespace), tuple.Types.Count);
-        var g = new TypeSpecialization(new VariableValue(GetName(tuple)));
+        var g = new TypeSpecialization(new VariableValue() { Name = GetName(tuple) });
         tuple.Types.Select(x => x switch
         {
             TypeNode t => CreateType(scope, t),
@@ -178,28 +178,28 @@ public static partial class Definition
             top.Structs.Add(body);
 
             var ctor = MakeFunction(top, st.StructName.Name);
-            var self = new VariableValue("$self");
+            var self = new VariableValue() { Name = "$self" };
             ctor.LexicalScope.Add(self.Name, self);
-            ctor.Body.Add(new Call(new FunctionCallValue(new VariableValue(name))) { Return = self });
+            ctor.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = name })) { Return = self });
             top.Functions.Add(new EmbeddedFunction(name, name) { OpCode = (_, args) => $"newobj instance void {CodeGenerator.EscapeILName(name)}::.ctor()" });
             args.Each((x, i) =>
             {
-                var member = new VariableValue(x.Name);
+                var member = new VariableValue() { Name = x.Name };
                 body.LexicalScope.Add(member.Name, member);
                 body.Body.Add(new TypeBind(member, x.Type));
                 body.Members.Add(member.Name, member);
 
-                var farg_var = new VariableValue(x.Name);
+                var farg_var = new VariableValue() { Name = x.Name };
                 ctor.Arguments.Add((farg_var, x.Type));
                 ctor.LexicalScope.Add(farg_var.Name, farg_var);
                 ctor.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(self, farg_var.Name), Left = farg_var });
             });
-            ctor.Body.Add(new Call(new FunctionCallValue(new VariableValue("return")).Return(x => x.Arguments.Add(self))));
-            ctor.Return = new TypeValue(name);
+            ctor.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(self))));
+            ctor.Return = new TypeValue() { Name = name };
             body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
         }
 
-        return new TypeValue(name);
+        return new TypeValue() { Name = name };
     }
 
     public static TypeFunction CreateTypeFunction(ILexicalScope scope, TypeFunctionNode tf)
@@ -250,8 +250,8 @@ public static partial class Definition
 
     public static IEvaluable? FindNamespaceValue(INamespace ns, string name)
     {
-        if (ns is INamespaceBody body && body.Structs.FindFirstOrNull(x => x.Name == name) is { } s) return new TypeValue(s.Name);
-        if (ns is RootNamespace root) return new TypeValue(name);
+        if (ns is INamespaceBody body && body.Structs.FindFirstOrNull(x => x.Name == name) is { } s) return new TypeValue() { Name = s.Name };
+        if (ns is RootNamespace root) return new TypeValue() { Name = name };
         return null;
     }
 }

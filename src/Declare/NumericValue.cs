@@ -2,12 +2,7 @@
 
 public class NumericValue : IEvaluable
 {
-    public uint Value { get; }
-
-    public NumericValue(uint n)
-    {
-        Value = n;
-    }
+    public uint Value { get; init; }
 
     public override string ToString() => Value.ToString();
 }

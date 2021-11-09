@@ -104,7 +104,7 @@ public static class Lookup
                 //var args_ti = m.GetParameters().Map(x => x.ParameterType.GetTypeInfo()).ToList();
                 //if (!m.IsStatic) args_ti.Insert(0, sx.Struct);
 
-                sx.Struct.GetGenericArguments().Each(x => g.Add(new TypeGenericsParameter(x.Name), tsp.GenericsMapper.GetValue(x.Name)));
+                sx.Struct.GetGenericArguments().Each(x => g.Add(new TypeGenericsParameter() { Name = x.Name }, tsp.GenericsMapper.GetValue(x.Name)));
                 //m.GetGenericArguments().Each(x => g.Add(new TypeValue(x.Name) { Types = Types.Generics }, null));
 
                 //ToDo: List patch
@@ -283,13 +283,13 @@ public static class Lookup
                         class_body.Generics.Each((g, i) => class_gens[g] = GetStructType(ns, x.Generics[i], gens));
                         if (ApplyClassToGenericsParameter(ns, class_body, class_gens))
                         {
-                                //ToDo: List patch
-                                if (class_body.Name == "List" && class_body.Generics.Count == 2 &&
-                                IsFixedStruct(class_gens[class_body.Generics[1]]) &&
-                                class_gens[class_body.Generics[0]] is StructSpecialization ssp &&
-                                ssp.Body is ExternStruct es &&
-                                es.Struct == typeof(List<>) &&
-                                ssp.GenericsMapper[es.Generics[0]] is IndefiniteBody)
+                            //ToDo: List patch
+                            if (class_body.Name == "List" && class_body.Generics.Count == 2 &&
+                            IsFixedStruct(class_gens[class_body.Generics[1]]) &&
+                            class_gens[class_body.Generics[0]] is StructSpecialization ssp &&
+                            ssp.Body is ExternStruct es &&
+                            es.Struct == typeof(List<>) &&
+                            ssp.GenericsMapper[es.Generics[0]] is IndefiniteBody)
                             {
                                 var gm = new GenericsMapper();
                                 gm[es.Generics[0]] = class_gens[class_body.Generics[1]];
@@ -548,7 +548,7 @@ public static class Lookup
         var t = new ExternStruct(ti, asm);
         root.Structs.Add(t);
 
-        ti.GenericTypeParameters.Each(x => t.Generics.Add(new TypeGenericsParameter(x.Name)));
+        ti.GenericTypeParameters.Each(x => t.Generics.Add(new TypeGenericsParameter() { Name = x.Name }));
         ti.GetMethods().Each(x => LoadFunction(root, t, x.Name, x));
 
         return t;

@@ -77,7 +77,7 @@ public static partial class Typing
             {
                 if (m[prop.Left].Struct is StructBody sb && sb.IsCoroutineLocal)
                 {
-                    sb.Body.Add(new TypeBind(sb.LexicalScope[prop.Right], new TypeValue(b.Name)));
+                    sb.Body.Add(new TypeBind(sb.LexicalScope[prop.Right], new TypeValue() { Name = b.Name }));
                 }
             }
         }
@@ -141,7 +141,7 @@ public static partial class Typing
                 }
                 else
                 {
-                    m[x] = CreateVariableDetail(x.Name, new NamespaceBody(x.Name), VariableType.Namespace);
+                    m[x] = CreateVariableDetail(x.Name, new NamespaceBody() { Name = x.Name }, VariableType.Namespace);
                 }
                 return m[x];
 
@@ -166,7 +166,7 @@ public static partial class Typing
                 return GetPropertyType(x.Body, property, x.GenericsMapper);
 
             case NamespaceBody x:
-                return new NamespaceBody(property) { Parent = x };
+                return new NamespaceBody() { Name = property, Parent = x };
 
             default:
                 throw new Exception();

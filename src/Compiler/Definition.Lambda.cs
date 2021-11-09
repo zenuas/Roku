@@ -22,11 +22,11 @@ public static partial class Definition
                 }
                 else
                 {
-                    p = new TypeGenericsParameter(x.Name.Name);
+                    p = new TypeGenericsParameter() { Name = x.Name.Name };
                     fbody.LexicalScope[$"$type{i}"] = p;
                 }
                 if (p is TypeGenericsParameter g) fbody.Generics.Add(g);
-                var name = new VariableValue(x.Name.Name);
+                var name = new VariableValue() { Name = x.Name.Name };
                 fbody.Arguments.Add((name, p));
                 fbody.LexicalScope.Add(x.Name.Name, name);
             });

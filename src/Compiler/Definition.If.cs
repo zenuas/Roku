@@ -53,7 +53,7 @@ public static partial class Definition
         }
         else if (if_ is IfCastNode ifc)
         {
-            var ifcast = new IfCastCode(new VariableValue(ifc.Name.Name), CreateType(inner_scope, ifc.Declare), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
+            var ifcast = new IfCastCode(new VariableValue() { Name = ifc.Name.Name }, CreateType(inner_scope, ifc.Declare), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
             inner_scope.Body.Add(ifcast);
             inner_scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
         }
@@ -62,7 +62,7 @@ public static partial class Definition
             var ifa = if_.Cast<IfArrayCastNode>();
             var cond = NormalizationExpression(inner_scope, ifa.Condition, true);
             var _v0 = CreateTemporaryVariable(inner_scope);
-            inner_scope.Body.Add(new Call(new FunctionCallValue(new VariableValue("isnull")).Return(x => x.Arguments.Add(cond))) { Return = _v0 });
+            inner_scope.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "isnull" }).Return(x => x.Arguments.Add(cond))) { Return = _v0 });
 
             switch (ifa.ArrayPattern.List.Count)
             {
@@ -94,14 +94,14 @@ public static partial class Definition
                         var _v2 = CreateTemporaryVariable(inner_scope);
                         var _v3 = CreateTemporaryVariable(inner_scope);
                         var _v4 = CreateTemporaryVariable(inner_scope);
-                        var y = new VariableValue(ifa.ArrayPattern.List[0].Name);
+                        var y = new VariableValue() { Name = ifa.ArrayPattern.List[0].Name };
                         inner_scope.LexicalScope.Add(y.Name, y);
                         inner_scope.Body.AddRange(new IOperand[] {
-                                new Call(new FunctionCallValue(new VariableValue("!")).Return(x => x.Arguments.Add(_v0))) { Return = _v1 },
+                                new Call(new FunctionCallValue(new VariableValue() { Name = "!" }).Return(x => x.Arguments.Add(_v0))) { Return = _v1 },
                                 new IfCode(_v1, next_label),
-                                new Call(new FunctionCallValue(new VariableValue("next")).Return(x => x.Arguments.Add(cond))) { Return = _v2 },
+                                new Call(new FunctionCallValue(new VariableValue() { Name = "next" }).Return(x => x.Arguments.Add(cond))) { Return = _v2 },
                                 new Code{ Operator = Operator.Bind, Return = _v3, Left = new PropertyValue(_v2, "2") },
-                                new Call(new FunctionCallValue(new VariableValue("isnull")).Return(x => x.Arguments.Add(_v3))) { Return = _v4 },
+                                new Call(new FunctionCallValue(new VariableValue() { Name = "isnull" }).Return(x => x.Arguments.Add(_v3))) { Return = _v4 },
                                 new IfCode(_v4, next_label),
                                 new Code{ Operator = Operator.Bind, Return = y, Left = new PropertyValue(_v2, "1") },
                             });
@@ -132,7 +132,7 @@ public static partial class Definition
                         */
                         var _v1 = CreateTemporaryVariable(inner_scope);
                         inner_scope.Body.AddRange(new IOperand[] {
-                                new Call(new FunctionCallValue(new VariableValue("!")).Return(x => x.Arguments.Add(_v0))) { Return = _v1 },
+                                new Call(new FunctionCallValue(new VariableValue() { Name = "!" }).Return(x => x.Arguments.Add(_v0))) { Return = _v1 },
                                 new IfCode(_v1, next_label),
                             });
                         var prev_cond = cond;
@@ -142,25 +142,25 @@ public static partial class Definition
                             var _v4_x_index_add_1 = CreateTemporaryVariable(inner_scope);
                             var _v4_x_index_add_2 = CreateTemporaryVariable(inner_scope);
                             var _v4_x_index_add_3 = CreateTemporaryVariable(inner_scope);
-                            var y = new VariableValue(ifa.ArrayPattern.List[index].Name);
+                            var y = new VariableValue() { Name = ifa.ArrayPattern.List[index].Name };
                             inner_scope.LexicalScope.Add(y.Name, y);
                             inner_scope.Body.AddRange(new IOperand[] {
-                                    new Call(new FunctionCallValue(new VariableValue("next")).Return(x => x.Arguments.Add(prev_cond))) { Return = _v4_x_index_add_0 },
+                                    new Call(new FunctionCallValue(new VariableValue() { Name = "next" }).Return(x => x.Arguments.Add(prev_cond))) { Return = _v4_x_index_add_0 },
                                     new Code{ Operator = Operator.Bind, Return = y, Left = new PropertyValue(_v4_x_index_add_0, "1") },
                                     new Code{ Operator = Operator.Bind, Return = _v4_x_index_add_1, Left = new PropertyValue(_v4_x_index_add_0, "2") },
-                                    new Call(new FunctionCallValue(new VariableValue("isnull")).Return(x => x.Arguments.Add(_v4_x_index_add_1))) { Return = _v4_x_index_add_2 },
-                                    new Call(new FunctionCallValue(new VariableValue("!")).Return(x => x.Arguments.Add(_v4_x_index_add_2))) { Return = _v4_x_index_add_3 },
+                                    new Call(new FunctionCallValue(new VariableValue() { Name = "isnull" }).Return(x => x.Arguments.Add(_v4_x_index_add_1))) { Return = _v4_x_index_add_2 },
+                                    new Call(new FunctionCallValue(new VariableValue() { Name = "!" }).Return(x => x.Arguments.Add(_v4_x_index_add_2))) { Return = _v4_x_index_add_3 },
                                     new IfCode(_v4_x_index_add_3, next_label),
                                 });
                             prev_cond = _v4_x_index_add_1;
                         }
                         var _v4_x_last_add_0 = CreateTemporaryVariable(inner_scope);
-                        var yn = new VariableValue(ifa.ArrayPattern.List[ifa.ArrayPattern.List.Count - 2].Name);
-                        var ys = new VariableValue(ifa.ArrayPattern.List[ifa.ArrayPattern.List.Count - 1].Name);
+                        var yn = new VariableValue() { Name = ifa.ArrayPattern.List[ifa.ArrayPattern.List.Count - 2].Name };
+                        var ys = new VariableValue() { Name = ifa.ArrayPattern.List[ifa.ArrayPattern.List.Count - 1].Name };
                         inner_scope.LexicalScope.Add(yn.Name, yn);
                         inner_scope.LexicalScope.Add(ys.Name, ys);
                         inner_scope.Body.AddRange(new IOperand[] {
-                                new Call(new FunctionCallValue(new VariableValue("next")).Return(x => x.Arguments.Add(prev_cond))) { Return = _v4_x_last_add_0 },
+                                new Call(new FunctionCallValue(new VariableValue() { Name = "next" }).Return(x => x.Arguments.Add(prev_cond))) { Return = _v4_x_last_add_0 },
                                 new Code{ Operator = Operator.Bind, Return = yn, Left = new PropertyValue(_v4_x_last_add_0, "1") },
                                 new Code{ Operator = Operator.Bind, Return = ys, Left = new PropertyValue(_v4_x_last_add_0, "2") },
                             });
