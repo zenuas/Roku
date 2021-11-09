@@ -1,9 +1,8 @@
-﻿namespace Roku.Declare
-{
-    public class ImplicitReturnValue : IEvaluable
-    {
-        public string Name { get; } = "_";
+﻿namespace Roku.Declare;
 
-        public override string ToString() => Name;
-    }
+public class ImplicitReturnValue : IEvaluable
+{
+    public string Name { get; } = "_";
+
+    public override string ToString() => Name;
 }

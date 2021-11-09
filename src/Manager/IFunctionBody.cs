@@ -2,13 +2,12 @@
 using Roku.IntermediateCode;
 using System.Collections.Generic;
 
-namespace Roku.Manager
+namespace Roku.Manager;
+
+public interface IFunctionBody : IFunctionName, IFunctionReturn, INamespace, ISpecialization
 {
-    public interface IFunctionBody : IFunctionName, IFunctionReturn, INamespace, ISpecialization
-    {
-        public List<(VariableValue Name, ITypeDefinition Type)> Arguments { get; }
-        public List<IOperand> Body { get; }
-        public INamespace Namespace { get; }
-        public ILexicalScope? Parent { get; }
-    }
+    public List<(VariableValue Name, ITypeDefinition Type)> Arguments { get; }
+    public List<IOperand> Body { get; }
+    public INamespace Namespace { get; }
+    public ILexicalScope? Parent { get; }
 }

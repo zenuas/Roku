@@ -1,7 +1,6 @@
-﻿namespace Roku.Manager
+﻿namespace Roku.Manager;
+
+public interface IFunctionName
 {
-    public interface IFunctionName
-    {
-        public string Name { get; }
-    }
+    public string Name { get; }
 }

@@ -1,11 +1,10 @@
 ﻿using Roku.Declare;
 using System.Collections.Generic;
 
-namespace Roku.Manager
+namespace Roku.Manager;
+
+public interface ISpecialization
 {
-    public interface ISpecialization
-    {
-        public List<TypeGenericsParameter> Generics { get; }
-        public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; }
-    }
+    public List<TypeGenericsParameter> Generics { get; }
+    public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; }
 }

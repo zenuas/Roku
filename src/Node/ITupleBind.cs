@@ -1,6 +1,5 @@
-﻿namespace Roku.Node
+﻿namespace Roku.Node;
+
+public interface ITupleBind : INode
 {
-    public interface ITupleBind : INode
-    {
-    }
 }

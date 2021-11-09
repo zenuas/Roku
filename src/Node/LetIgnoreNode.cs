@@ -1,8 +1,7 @@
-﻿namespace Roku.Node
+﻿namespace Roku.Node;
+
+public class LetIgnoreNode : INode, ITupleBind
 {
-    public class LetIgnoreNode : INode, ITupleBind
-    {
-        public int? LineNumber { get; set; }
-        public int? LineColumn { get; set; }
-    }
+    public int? LineNumber { get; set; }
+    public int? LineColumn { get; set; }
 }

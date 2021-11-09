@@ -1,14 +1,13 @@
-﻿namespace Roku.IntermediateCode
+﻿namespace Roku.IntermediateCode;
+
+public enum Operator
 {
-    public enum Operator
-    {
-        Nop,
-        Call,
-        Bind,
-        TypeBind,
-        If,
-        IfCast,
-        Goto,
-        Label,
-    }
+    Nop,
+    Call,
+    Bind,
+    TypeBind,
+    If,
+    IfCast,
+    Goto,
+    Label,
 }

@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace Roku.Node
+namespace Roku.Node;
+
+public interface IIfNode : INode
 {
-    public interface IIfNode : INode
-    {
-        public IScopeNode Then { get; set; }
-        public List<IIfNode> ElseIf { get; }
-        public IScopeNode? Else { get; set; }
-    }
+    public IScopeNode Then { get; set; }
+    public List<IIfNode> ElseIf { get; }
+    public IScopeNode? Else { get; set; }
 }

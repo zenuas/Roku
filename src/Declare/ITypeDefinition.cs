@@ -1,7 +1,6 @@
-﻿namespace Roku.Declare
+﻿namespace Roku.Declare;
+
+public interface ITypeDefinition : IEvaluable
 {
-    public interface ITypeDefinition : IEvaluable
-    {
-        public string Name { get; }
-    }
+    public string Name { get; }
 }

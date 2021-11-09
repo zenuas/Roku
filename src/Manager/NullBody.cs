@@ -1,9 +1,8 @@
-﻿namespace Roku.Manager
-{
-    public class NullBody : IStructBody
-    {
-        public string Name { get => "Null"; }
+﻿namespace Roku.Manager;
 
-        public override string ToString() => Name;
-    }
+public class NullBody : IStructBody
+{
+    public string Name { get => "Null"; }
+
+    public override string ToString() => Name;
 }

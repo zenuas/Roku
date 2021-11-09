@@ -1,7 +1,6 @@
-﻿namespace Roku.Manager
+﻿namespace Roku.Manager;
+
+public interface IAttachedNamespace
 {
-    public interface IAttachedNamespace
-    {
-        public INamespace Namespace { get; }
-    }
+    public INamespace Namespace { get; }
 }

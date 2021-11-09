@@ -1,9 +1,8 @@
 ﻿using Roku.Declare;
 
-namespace Roku.IntermediateCode
+namespace Roku.IntermediateCode;
+
+public interface IReturnBind
 {
-    public interface IReturnBind
-    {
-        public IEvaluable? Return { get; set; }
-    }
+    public IEvaluable? Return { get; set; }
 }

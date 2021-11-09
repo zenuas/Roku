@@ -1,9 +1,8 @@
 ﻿using Roku.Declare;
 
-namespace Roku.Manager
+namespace Roku.Manager;
+
+public interface IFunctionReturn
 {
-    public interface IFunctionReturn
-    {
-        public ITypeDefinition? Return { get; set; }
-    }
+    public ITypeDefinition? Return { get; set; }
 }

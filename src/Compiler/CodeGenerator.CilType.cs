@@ -7,123 +7,123 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace Roku.Compiler
+namespace Roku.Compiler;
+
+public static partial class CodeGenerator
 {
-    public static partial class CodeGenerator
+    public static Type GetType(ExternFunction e) => e.DeclaringType ?? e.Function.DeclaringType!;
+
+    public static string GetTypeName(TypeMapper m, IEvaluable? e, GenericsMapper g) => e is null ? "void" : GetStructName(GetType(m[e], g));
+
+    public static string GetTypeName(VariableDetail vd, GenericsMapper g) => GetStructName(GetType(vd, g));
+
+    public static string GetTypeName(Type t, GenericsMapper g) => t.FullName! + (!t.IsGenericType ? "" : $"<{t.GetGenericArguments().Select(x => GetStructName(g.GetValue(x.Name))).Join(", ")}>");
+
+    public static string GetParameterName(Type t) =>
+        t.IsGenericTypeParameter ? $"!{t.GenericParameterPosition}"
+        : t.IsGenericMethodParameter ? $"!!{t.GenericParameterPosition}"
+        : GetILStructName(t);
+
+    public static IStructBody? GetType(VariableDetail vd, GenericsMapper g) => GetType(vd.Struct, g);
+
+    public static IStructBody? GetType(IStructBody? body, GenericsMapper g) => body is GenericsParameter gp ? g.FindFirst(x => x.Key.Name == gp.Name).Value : body;
+
+    public static string GetStructName(IStructBody? body, bool escape = true)
     {
-        public static Type GetType(ExternFunction e) => e.DeclaringType ?? e.Function.DeclaringType!;
-
-        public static string GetTypeName(TypeMapper m, IEvaluable? e, GenericsMapper g) => e is null ? "void" : GetStructName(GetType(m[e], g));
-
-        public static string GetTypeName(VariableDetail vd, GenericsMapper g) => GetStructName(GetType(vd, g));
-
-        public static string GetTypeName(Type t, GenericsMapper g) => t.FullName! + (!t.IsGenericType ? "" : $"<{t.GetGenericArguments().Select(x => GetStructName(g.GetValue(x.Name))).Join(", ")}>");
-
-        public static string GetParameterName(Type t) =>
-            t.IsGenericTypeParameter ? $"!{t.GenericParameterPosition}"
-            : t.IsGenericMethodParameter ? $"!!{t.GenericParameterPosition}"
-            : GetILStructName(t);
-
-        public static IStructBody? GetType(VariableDetail vd, GenericsMapper g) => GetType(vd.Struct, g);
-
-        public static IStructBody? GetType(IStructBody? body, GenericsMapper g) => body is GenericsParameter gp ? g.FindFirst(x => x.Key.Name == gp.Name).Value : body;
-
-        public static string GetStructName(IStructBody? body, bool escape = true)
+        switch (body)
         {
-            switch (body)
-            {
-                case null: return "void";
-                case ExternStruct x: return GetILStructName(x);
-                case NumericStruct x: return GetStructName(x.Types.First());
-                case StructBody x: return $"class {(escape ? EscapeILName(x.Name) : x.Name)}";
-                case StructSpecialization x when x.Body is ExternStruct e: return $"class [{e.Assembly.GetName().Name}]{e.Struct.FullName}{GetGenericsName(e, x.GenericsMapper)}";
-                case StructSpecialization x when x.Body is StructBody e: return $"class {GetStructName(x.Name, e, x.GenericsMapper, false).To(x => escape ? EscapeILName(x) : x)}";
-                case EnumStructBody _: return "object";
-                case NullBody _: return "object";
-                case AnonymousFunctionBody x: return GetFunctionName(x);
-                case FunctionTypeBody x: return GetFunctionTypeName(x);
-                case FunctionMapper x when x.Function is FunctionTypeBody ftb: return GetFunctionTypeName(ftb);
-            }
-            throw new Exception();
+            case null: return "void";
+            case ExternStruct x: return GetILStructName(x);
+            case NumericStruct x: return GetStructName(x.Types.First());
+            case StructBody x: return $"class {(escape ? EscapeILName(x.Name) : x.Name)}";
+            case StructSpecialization x when x.Body is ExternStruct e: return $"class [{e.Assembly.GetName().Name}]{e.Struct.FullName}{GetGenericsName(e, x.GenericsMapper)}";
+            case StructSpecialization x when x.Body is StructBody e: return $"class {GetStructName(x.Name, e, x.GenericsMapper, false).To(x => escape ? EscapeILName(x) : x)}";
+            case EnumStructBody _: return "object";
+            case NullBody _: return "object";
+            case AnonymousFunctionBody x: return GetFunctionName(x);
+            case FunctionTypeBody x: return GetFunctionTypeName(x);
+            case FunctionMapper x when x.Function is FunctionTypeBody ftb: return GetFunctionTypeName(ftb);
         }
+        throw new Exception();
+    }
 
-        public static string GetStructName(string name, ISpecialization sp, GenericsMapper g, bool escape = true) => (g.Count == 0 ? name : $"{name}{GetGenericsName(sp, g, false)}").To(x => escape ? EscapeILName(x) : x);
+    public static string GetStructName(string name, ISpecialization sp, GenericsMapper g, bool escape = true) => (g.Count == 0 ? name : $"{name}{GetGenericsName(sp, g, false)}").To(x => escape ? EscapeILName(x) : x);
 
-        public static string GetFunctionName(AnonymousFunctionBody anon)
+    public static string GetFunctionName(AnonymousFunctionBody anon)
+    {
+        var g = anon.SpecializationMapper.Keys.First();
+        var mapper = Lookup.GetTypemapper(anon.SpecializationMapper, g);
+        var args_type = anon.Arguments.Select(x => GetType(mapper[x.Type], g)).ToArray();
+        var return_type = anon.Return is { } rx ? GetType(mapper[rx], g) : null;
+        return GetFunctionTypeName(args_type!, return_type);
+    }
+
+    public static string GetFunctionName(FunctionReferenceValue f, IStructBody body)
+    {
+        if (body is AnonymousFunctionBody anon)
         {
             var g = anon.SpecializationMapper.Keys.First();
             var mapper = Lookup.GetTypemapper(anon.SpecializationMapper, g);
-            var args_type = anon.Arguments.Select(x => GetType(mapper[x.Type], g)).ToArray();
-            var return_type = anon.Return is { } rx ? GetType(mapper[rx], g) : null;
-            return GetFunctionTypeName(args_type!, return_type);
+            return $"{GetTypeName(mapper, anon.Return, g)} {EscapeILName(f.Name)}({anon.Arguments.Select(x => GetTypeName(mapper, x.Type, g)).Join(", ")})";
         }
+        throw new Exception();
+    }
 
-        public static string GetFunctionName(FunctionReferenceValue f, IStructBody body)
+    public static string GetFunctionTypeName(FunctionTypeBody t)
+    {
+        return GetFunctionTypeName(t.Arguments.ToArray(), t.Return);
+    }
+
+    public static string GetFunctionTypeName(IStructBody[] args, IStructBody? ret)
+    {
+        if (ret is { } r)
         {
-            if (body is AnonymousFunctionBody anon)
-            {
-                var g = anon.SpecializationMapper.Keys.First();
-                var mapper = Lookup.GetTypemapper(anon.SpecializationMapper, g);
-                return $"{GetTypeName(mapper, anon.Return, g)} {EscapeILName(f.Name)}({anon.Arguments.Select(x => GetTypeName(mapper, x.Type, g)).Join(", ")})";
-            }
-            throw new Exception();
+            return $"class [mscorlib]System.Func`{args.Length + 1}<{args.Concat(r).Select(x => GetStructName(x)).Join(", ")}>";
         }
-
-        public static string GetFunctionTypeName(FunctionTypeBody t)
+        else
         {
-            return GetFunctionTypeName(t.Arguments.ToArray(), t.Return);
+            if (args.Length == 0) return "class [mscorlib]System.Action";
+            return $"class [mscorlib]System.Action`{args.Length}<{args.Select(x => GetStructName(x)).Join(", ")}>";
         }
+    }
 
-        public static string GetFunctionTypeName(IStructBody[] args, IStructBody? ret)
+    public static string EscapeILName(string s) => !CilReservedWord.Contains(s) && Regex.IsMatch(s, "^_*[a-zA-Z][_a-zA-Z0-9]*$") ? s : $"'{s}'";
+
+    public static string GetGenericsName(ISpecialization sp, GenericsMapper g, bool inner_escape = true) => $"<{sp.Generics.Select(x => GetStructName(g[x], inner_escape)).Join(", ")}>";
+
+    public static string GetILStructName(ExternStruct sx) => GetILStructName(sx.Struct, sx.Assembly);
+
+    public static string GetILStructName(Type t, Assembly? asm = null)
+    {
+        if (t == typeof(void)) return "void";
+        if (t == typeof(string)) return "string";
+        if (t == typeof(int)) return "int32";
+        if (t == typeof(long)) return "int64";
+        if (t == typeof(short)) return "int16";
+        if (t == typeof(byte)) return "byte";
+        if (t == typeof(double)) return "float64";
+        if (t == typeof(float)) return "float32";
+        if (t == typeof(bool)) return "bool";
+        if (t == typeof(object)) return "object";
+        return GetILClassName(t, asm ?? t.Assembly);
+    }
+
+    public static bool IsClassType(IStructBody? body) => (body is { } && !Lookup.IsValueType(body));
+
+    public static string GetILClassName(ExternStruct sx) => GetILClassName(sx.Struct, sx.Assembly);
+
+    public static string GetILClassName(Type t, Assembly asm)
+    {
+        var gen = "";
+        var gens = t.GetGenericArguments();
+        if (gens.Length > 0)
         {
-            if (ret is { } r)
-            {
-                return $"class [mscorlib]System.Func`{args.Length + 1}<{args.Concat(r).Select(x => GetStructName(x)).Join(", ")}>";
-            }
-            else
-            {
-                if (args.Length == 0) return "class [mscorlib]System.Action";
-                return $"class [mscorlib]System.Action`{args.Length}<{args.Select(x => GetStructName(x)).Join(", ")}>";
-            }
+            gen = $"<{gens.Select(x => GetILStructName(x)).Join(", ")}>";
         }
+        return $"{(t.IsValueType ? "" : "class ")}[{asm.GetName().Name}]{t.Namespace}.{t.Name}{gen}";
+    }
 
-        public static string EscapeILName(string s) => !CilReservedWord.Contains(s) && Regex.IsMatch(s, "^_*[a-zA-Z][_a-zA-Z0-9]*$") ? s : $"'{s}'";
-
-        public static string GetGenericsName(ISpecialization sp, GenericsMapper g, bool inner_escape = true) => $"<{sp.Generics.Select(x => GetStructName(g[x], inner_escape)).Join(", ")}>";
-
-        public static string GetILStructName(ExternStruct sx) => GetILStructName(sx.Struct, sx.Assembly);
-
-        public static string GetILStructName(Type t, Assembly? asm = null)
-        {
-            if (t == typeof(void)) return "void";
-            if (t == typeof(string)) return "string";
-            if (t == typeof(int)) return "int32";
-            if (t == typeof(long)) return "int64";
-            if (t == typeof(short)) return "int16";
-            if (t == typeof(byte)) return "byte";
-            if (t == typeof(double)) return "float64";
-            if (t == typeof(float)) return "float32";
-            if (t == typeof(bool)) return "bool";
-            if (t == typeof(object)) return "object";
-            return GetILClassName(t, asm ?? t.Assembly);
-        }
-
-        public static bool IsClassType(IStructBody? body) => (body is { } && !Lookup.IsValueType(body));
-
-        public static string GetILClassName(ExternStruct sx) => GetILClassName(sx.Struct, sx.Assembly);
-
-        public static string GetILClassName(Type t, Assembly asm)
-        {
-            var gen = "";
-            var gens = t.GetGenericArguments();
-            if (gens.Length > 0)
-            {
-                gen = $"<{gens.Select(x => GetILStructName(x)).Join(", ")}>";
-            }
-            return $"{(t.IsValueType ? "" : "class ")}[{asm.GetName().Name}]{t.Namespace}.{t.Name}{gen}";
-        }
-
-        public static HashSet<string> CilReservedWord = new HashSet<string>() {
+    public static HashSet<string> CilReservedWord = new HashSet<string>() {
             "abstract",
             "add",
             "addon",
@@ -419,5 +419,4 @@ namespace Roku.Compiler
             "xor",
             "zeroinit",
         };
-    }
 }

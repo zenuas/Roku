@@ -1,14 +1,13 @@
 ﻿using System;
 
-namespace Roku.Parser
-{
-    public class SyntaxErrorException : Exception
-    {
-        public int? LineNumber { get; set; }
-        public int? LineColumn { get; set; }
+namespace Roku.Parser;
 
-        public SyntaxErrorException(string message) : base(message)
-        {
-        }
+public class SyntaxErrorException : Exception
+{
+    public int? LineNumber { get; set; }
+    public int? LineColumn { get; set; }
+
+    public SyntaxErrorException(string message) : base(message)
+    {
     }
 }

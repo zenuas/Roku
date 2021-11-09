@@ -1,17 +1,16 @@
 ﻿using Roku.Manager;
 using System.Linq;
 
-namespace Roku.Compiler
+namespace Roku.Compiler;
+
+public static class Garbage
 {
-    public static class Garbage
+    public static bool IncompleteType(StructBody sb)
     {
-        public static bool IncompleteType(StructBody sb)
+        foreach (var gm in sb.SpecializationMapper.Keys.ToArray())
         {
-            foreach (var gm in sb.SpecializationMapper.Keys.ToArray())
-            {
-                if (!Lookup.IsFixedGenericsMapper(gm)) sb.SpecializationMapper.Remove(gm);
-            }
-            return sb.SpecializationMapper.Count > 0;
+            if (!Lookup.IsFixedGenericsMapper(gm)) sb.SpecializationMapper.Remove(gm);
         }
+        return sb.SpecializationMapper.Count > 0;
     }
 }

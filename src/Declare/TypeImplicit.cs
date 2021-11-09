@@ -1,7 +1,6 @@
-﻿namespace Roku.Declare
+﻿namespace Roku.Declare;
+
+public class TypeImplicit : ITypeDefinition
 {
-    public class TypeImplicit : ITypeDefinition
-    {
-        public string Name { get; } = "";
-    }
+    public string Name { get; } = "";
 }

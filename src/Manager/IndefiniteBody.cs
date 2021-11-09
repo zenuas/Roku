@@ -1,7 +1,6 @@
-﻿namespace Roku.Manager
+﻿namespace Roku.Manager;
+
+public class IndefiniteBody : IStructBody
 {
-    public class IndefiniteBody : IStructBody
-    {
-        public string Name { get; } = "_";
-    }
+    public string Name { get; } = "_";
 }

@@ -1,17 +1,16 @@
 ﻿using System.Collections.Generic;
 
-namespace Roku.Node
-{
-    public class LetTupleAssignmentNode : INode, IStatementNode
-    {
-        public int? LineNumber { get; set; }
-        public int? LineColumn { get; set; }
-        public List<ITupleBind> Assignment { get; } = new List<ITupleBind>();
-        public IEvaluableNode Expression { get; set; }
+namespace Roku.Node;
 
-        public LetTupleAssignmentNode(IEvaluableNode e)
-        {
-            Expression = e;
-        }
+public class LetTupleAssignmentNode : INode, IStatementNode
+{
+    public int? LineNumber { get; set; }
+    public int? LineColumn { get; set; }
+    public List<ITupleBind> Assignment { get; } = new List<ITupleBind>();
+    public IEvaluableNode Expression { get; set; }
+
+    public LetTupleAssignmentNode(IEvaluableNode e)
+    {
+        Expression = e;
     }
 }

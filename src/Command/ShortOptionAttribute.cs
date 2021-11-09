@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace Command
-{
-    public class ShortOptionAttribute : Attribute
-    {
-        public char Command { get; }
+namespace Command;
 
-        public ShortOptionAttribute(char cmd) => Command = cmd;
-    }
+public class ShortOptionAttribute : Attribute
+{
+    public char Command { get; }
+
+    public ShortOptionAttribute(char cmd) => Command = cmd;
 }

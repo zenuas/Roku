@@ -1,6 +1,5 @@
-﻿namespace Roku.Declare
+﻿namespace Roku.Declare;
+
+public interface IEvaluable
 {
-    public interface IEvaluable
-    {
-    }
 }

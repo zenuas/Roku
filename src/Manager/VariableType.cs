@@ -1,14 +1,13 @@
-﻿namespace Roku.Manager
+﻿namespace Roku.Manager;
+
+public enum VariableType
 {
-    public enum VariableType
-    {
-        LocalVariable,
-        Argument,
-        TypeParameter,
-        Type,
-        Namespace,
-        PrimitiveValue,
-        Property,
-        FunctionMapper,
-    }
+    LocalVariable,
+    Argument,
+    TypeParameter,
+    Type,
+    Namespace,
+    PrimitiveValue,
+    Property,
+    FunctionMapper,
 }

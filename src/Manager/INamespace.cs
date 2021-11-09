@@ -1,6 +1,5 @@
-﻿namespace Roku.Manager
+﻿namespace Roku.Manager;
+
+public interface INamespace
 {
-    public interface INamespace
-    {
-    }
 }

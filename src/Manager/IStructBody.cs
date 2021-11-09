@@ -1,7 +1,6 @@
-﻿namespace Roku.Manager
+﻿namespace Roku.Manager;
+
+public interface IStructBody
 {
-    public interface IStructBody
-    {
-        public string Name { get; }
-    }
+    public string Name { get; }
 }

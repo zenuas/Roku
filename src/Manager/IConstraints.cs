@@ -1,10 +1,9 @@
 ﻿using Roku.Declare;
 using System.Collections.Generic;
 
-namespace Roku.Manager
+namespace Roku.Manager;
+
+public interface IConstraints
 {
-    public interface IConstraints
-    {
-        public List<(VariableValue Class, List<ITypeDefinition> Generics)> Constraints { get; }
-    }
+    public List<(VariableValue Class, List<ITypeDefinition> Generics)> Constraints { get; }
 }

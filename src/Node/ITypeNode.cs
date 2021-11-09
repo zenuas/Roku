@@ -1,7 +1,6 @@
-﻿namespace Roku.Node
+﻿namespace Roku.Node;
+
+public interface ITypeNode : INode, IEvaluableNode
 {
-    public interface ITypeNode : INode, IEvaluableNode
-    {
-        public string Name { get; }
-    }
+    public string Name { get; }
 }

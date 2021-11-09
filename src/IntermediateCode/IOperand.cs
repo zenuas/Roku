@@ -1,7 +1,6 @@
-﻿namespace Roku.IntermediateCode
+﻿namespace Roku.IntermediateCode;
+
+public interface IOperand
 {
-    public interface IOperand
-    {
-        public Operator Operator { get; set; }
-    }
+    public Operator Operator { get; set; }
 }

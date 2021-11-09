@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Roku.Declare
+namespace Roku.Declare;
+
+public class TypeSpecialization : ITypeDefinition
 {
-    public class TypeSpecialization : ITypeDefinition
+    public string Name { get => Type.ToString()!; }
+    public IEvaluable Type { get; }
+    public List<ITypeDefinition> Generics { get; } = new List<ITypeDefinition>();
+
+    public TypeSpecialization(IEvaluable type)
     {
-        public string Name { get => Type.ToString()!; }
-        public IEvaluable Type { get; }
-        public List<ITypeDefinition> Generics { get; } = new List<ITypeDefinition>();
-
-        public TypeSpecialization(IEvaluable type)
-        {
-            Type = type;
-        }
-
-        public override string ToString() => $"{Type}<{Generics.Select(x => x.ToString()!).Join(", ")}>";
+        Type = type;
     }
+
+    public override string ToString() => $"{Type}<{Generics.Select(x => x.ToString()!).Join(", ")}>";
 }

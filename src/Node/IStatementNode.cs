@@ -1,6 +1,5 @@
-﻿namespace Roku.Node
+﻿namespace Roku.Node;
+
+public interface IStatementNode : INode
 {
-    public interface IStatementNode : INode
-    {
-    }
 }

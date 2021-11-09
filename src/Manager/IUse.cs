@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Roku.Manager
+namespace Roku.Manager;
+
+public interface IUse
 {
-    public interface IUse
-    {
-        public List<INamespace> Uses { get; }
-    }
+    public List<INamespace> Uses { get; }
 }

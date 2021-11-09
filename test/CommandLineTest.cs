@@ -3,50 +3,49 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Roku.Tests
+namespace Roku.Tests;
+
+public class Option
 {
-    public class Option
+    [ShortOption('o')]
+    [LongOption("output")]
+    public string Output { get; set; } = "";
+
+    [ShortOption('e')]
+    [LongOption("entrypoint")]
+    public string EntryPoint { get; set; } = "";
+
+    public List<string> Lib { get; private set; } = new List<string>();
+
+    [ShortOption('l')]
+    [LongOption("lib")]
+    public void LoadLibrary(string path) => Lib.Add(path);
+
+    [ShortOption('t')]
+    [LongOption("test")]
+    public void Test() => Lib.Add("xxx");
+}
+
+public class CommandLineTest
+{
+    [Test]
+    public void Test()
     {
-        [ShortOption('o')]
-        [LongOption("output")]
-        public string Output { get; set; } = "";
+        var receiver = new Option();
+        var args = CommandLine.Run<Option>(receiver, "a", "-otest1", "--entrypoint", "test2", "-t", "-l", "test3", "b", "--lib", "test4", "c");
 
-        [ShortOption('e')]
-        [LongOption("entrypoint")]
-        public string EntryPoint { get; set; } = "";
-
-        public List<string> Lib { get; private set; } = new List<string>();
-
-        [ShortOption('l')]
-        [LongOption("lib")]
-        public void LoadLibrary(string path) => Lib.Add(path);
-
-        [ShortOption('t')]
-        [LongOption("test")]
-        public void Test() => Lib.Add("xxx");
+        Assert.AreEqual(receiver.Output, "test1");
+        Assert.AreEqual(receiver.EntryPoint, "test2");
+        Assert.IsTrue(receiver.Lib.SequenceEqual(new string[] { "xxx", "test3", "test4" }));
+        Assert.IsTrue(args.SequenceEqual(new string[] { "a", "b", "c" }));
     }
 
-    public class CommandLineTest
+    [Test]
+    public void OutputStdout()
     {
-        [Test]
-        public void Test()
-        {
-            var receiver = new Option();
-            var args = CommandLine.Run<Option>(receiver, "a", "-otest1", "--entrypoint", "test2", "-t", "-l", "test3", "b", "--lib", "test4", "c");
+        var receiver = new Option();
+        _ = CommandLine.Run<Option>(receiver, "-o", "-");
 
-            Assert.AreEqual(receiver.Output, "test1");
-            Assert.AreEqual(receiver.EntryPoint, "test2");
-            Assert.IsTrue(receiver.Lib.SequenceEqual(new string[] { "xxx", "test3", "test4" }));
-            Assert.IsTrue(args.SequenceEqual(new string[] { "a", "b", "c" }));
-        }
-
-        [Test]
-        public void OutputStdout()
-        {
-            var receiver = new Option();
-            _ = CommandLine.Run<Option>(receiver, "-o", "-");
-
-            Assert.AreEqual(receiver.Output, "-");
-        }
+        Assert.AreEqual(receiver.Output, "-");
     }
 }

@@ -1,14 +1,13 @@
-﻿namespace Roku.Declare
+﻿namespace Roku.Declare;
+
+public class NumericValue : IEvaluable
 {
-    public class NumericValue : IEvaluable
+    public uint Value { get; }
+
+    public NumericValue(uint n)
     {
-        public uint Value { get; }
-
-        public NumericValue(uint n)
-        {
-            Value = n;
-        }
-
-        public override string ToString() => Value.ToString();
+        Value = n;
     }
+
+    public override string ToString() => Value.ToString();
 }

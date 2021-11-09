@@ -1,7 +1,6 @@
-﻿namespace Roku.Node
+﻿namespace Roku.Node;
+
+public interface IDeclareNode : INode
 {
-    public interface IDeclareNode : INode
-    {
-        public VariableNode Name { get; set; }
-    }
+    public VariableNode Name { get; set; }
 }

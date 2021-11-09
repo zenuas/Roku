@@ -1,11 +1,10 @@
 ﻿using Roku.Parser;
 
-namespace Roku.Node
+namespace Roku.Node;
+
+public class TokenNode : INode, IEvaluableNode
 {
-    public class TokenNode : INode, IEvaluableNode
-    {
-        public int? LineNumber { get; set; }
-        public int? LineColumn { get; set; }
-        public Token Token { get; set; } = new Token();
-    }
+    public int? LineNumber { get; set; }
+    public int? LineColumn { get; set; }
+    public Token Token { get; set; } = new Token();
 }

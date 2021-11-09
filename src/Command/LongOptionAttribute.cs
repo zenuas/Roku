@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace Command
-{
-    public class LongOptionAttribute : Attribute
-    {
-        public String Command { get; }
+namespace Command;
 
-        public LongOptionAttribute(string cmd) => Command = cmd;
-    }
+public class LongOptionAttribute : Attribute
+{
+    public String Command { get; }
+
+    public LongOptionAttribute(string cmd) => Command = cmd;
 }

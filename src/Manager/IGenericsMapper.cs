@@ -1,7 +1,6 @@
-﻿namespace Roku.Manager
+﻿namespace Roku.Manager;
+
+public interface IGenericsMapper
 {
-    public interface IGenericsMapper
-    {
-        public GenericsMapper GenericsMapper { get; }
-    }
+    public GenericsMapper GenericsMapper { get; }
 }
