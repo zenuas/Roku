@@ -4,7 +4,7 @@ namespace Roku.Manager;
 
 public class VariableDetail
 {
-    public string Name { get; set; } = "";
+    public string Name { get; init; } = "";
     public IStructBody? Struct { get; set; }
     public IEvaluable? Reciever { get; set; }
     public VariableType Type { get; set; }

@@ -2,5 +2,5 @@
 
 public interface IDeclareNode : INode
 {
-    public VariableNode Name { get; set; }
+    public VariableNode Name { get; }
 }

@@ -5,7 +5,7 @@ namespace Roku.Declare;
 public class TypeInfoValue : ITypeDefinition
 {
     public string Name { get => ToString(); }
-    public Type Type { get; set; }
+    public Type Type { get; }
 
     public TypeInfoValue(Type type)
     {

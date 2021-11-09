@@ -4,9 +4,9 @@ namespace Roku.IntermediateCode;
 
 public class IfCode : IOperand
 {
-    public Operator Operator { get; set; } = Operator.If;
-    public IEvaluable Condition { get; set; }
-    public LabelCode Else { get; set; }
+    public Operator Operator { get; init; } = Operator.If;
+    public IEvaluable Condition { get; }
+    public LabelCode Else { get; }
 
     public IfCode(IEvaluable cond, LabelCode else_)
     {

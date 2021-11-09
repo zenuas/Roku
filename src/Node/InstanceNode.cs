@@ -6,8 +6,8 @@ public class InstanceNode : INode
 {
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
-    public ITypeNode Type { get; set; }
-    public SpecializationNode Specialization { get; set; }
+    public ITypeNode Type { get; }
+    public SpecializationNode Specialization { get; }
     public List<InstanceMapNode> InstanceMap { get; } = new List<InstanceMapNode>();
 
     public InstanceNode(

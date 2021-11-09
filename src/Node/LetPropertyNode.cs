@@ -6,7 +6,7 @@ public class LetPropertyNode : INode, IStatementNode
     public int? LineColumn { get; set; }
     public IEvaluableNode Reciever { get; }
     public VariableNode Name { get; }
-    public IEvaluableNode Expression { get; set; }
+    public IEvaluableNode Expression { get; }
 
     public LetPropertyNode(IEvaluableNode recv, VariableNode name, IEvaluableNode e)
     {

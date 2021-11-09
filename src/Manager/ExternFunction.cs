@@ -7,7 +7,7 @@ public class ExternFunction : IFunctionName
 {
     public string Name { get; }
     public MethodInfo Function { get; }
-    public Type? DeclaringType { get; set; }
+    public Type? DeclaringType { get; init; }
     public Assembly Assembly { get; }
 
     public ExternFunction(string name, MethodInfo f, Assembly asm)

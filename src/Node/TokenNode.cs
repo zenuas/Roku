@@ -6,5 +6,5 @@ public class TokenNode : INode, IEvaluableNode
 {
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
-    public Token Token { get; set; } = new Token();
+    public Token Token { get; init; } = new Token();
 }

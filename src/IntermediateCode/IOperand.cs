@@ -2,5 +2,5 @@
 
 public interface IOperand
 {
-    public Operator Operator { get; set; }
+    public Operator Operator { get; init; }
 }
