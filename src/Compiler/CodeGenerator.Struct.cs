@@ -30,8 +30,7 @@ public static partial class CodeGenerator
             il.WriteLine($".method public void .ctor()");
             il.WriteLine("{");
             il.Indent++;
-            var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable && !(x.Struct is NamespaceBody)).Sort((a, b) => a.Index - b.Index).ToList();
-            local_vals.Each((x, i) => x.Index = i);
+            var local_vals = GetLocalValues(mapper);
             if (local_vals.Count > 0)
             {
                 il.WriteLine(".locals(");

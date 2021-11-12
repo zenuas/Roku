@@ -23,8 +23,7 @@ public static partial class CodeGenerator
             il.Indent++;
             if (i == 0) il.WriteLine(".entrypoint");
             il.WriteLine($".maxstack {f.Body.Select(x => GetMaxstack(x, mapper)).Max()}");
-            var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable && !(x.Struct is NamespaceBody)).Sort((a, b) => a.Index - b.Index).ToList();
-            local_vals.Each((x, i) => x.Index = i);
+            var local_vals = GetLocalValues(mapper);
             if (local_vals.Count > 0)
             {
                 il.WriteLine(".locals(");
@@ -39,6 +38,17 @@ public static partial class CodeGenerator
             il.Indent--;
             il.WriteLine("}");
         }
+    }
+
+    public static List<VariableDetail> GetLocalValues(TypeMapper mapper)
+    {
+        var local_vals = mapper.Values
+            .Where(x => (x.Type == VariableType.LocalVariable && !(x.Struct is NamespaceBody || (x.Struct is AnonymousFunctionBody afb && afb.Generics.Count > 0))) ||
+                (x.Type == VariableType.FunctionMapper && x.Struct!.Cast<FunctionMapper>().Function is AnonymousFunctionBody afb2 && afb2.Generics.Count > 0))
+            .Sort((a, b) => a.Index - b.Index)
+            .ToList();
+        local_vals.Each((x, i) => x.Index = i);
+        return local_vals;
     }
 
     public static int GetMaxstack(IOperand op, TypeMapper m)

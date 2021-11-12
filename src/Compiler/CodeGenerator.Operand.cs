@@ -22,9 +22,27 @@ public static partial class CodeGenerator
         switch (op.Operator)
         {
             case Operator.Bind:
-                if (op is IReturnBind r && m[r.Return!].Struct is NamespaceBody) return;
-                var bind = op.Cast<Code>();
-                il.WriteLine(LoadValue(m, bind.Left!));
+                {
+                    if (op is IReturnBind r)
+                    {
+                        if (m[r.Return!].Struct is NamespaceBody) return;
+                        if (m[r.Return!].Struct is AnonymousFunctionBody afb && afb.Generics.Count > 0)
+                        {
+                            m.Values
+                                .Where(x => x.Type == VariableType.FunctionMapper && x.Struct!.Cast<FunctionMapper>().Function == afb)
+                                .Each((x, i) =>
+                                {
+                                    if (i > 0) il.WriteLine();
+                                    var fm = x.Struct!.Cast<FunctionMapper>();
+                                    il.WriteLine(LoadValue_AnonymousFunctionMapper(fm));
+                                    il.WriteLine(StoreValue_Stloc(x.Index));
+                                });
+                            return;
+                        }
+                    }
+                    var bind = op.Cast<Code>();
+                    il.WriteLine(LoadValue(m, bind.Left!));
+                }
                 break;
 
             case Operator.Call:
@@ -265,6 +283,12 @@ public static partial class CodeGenerator
         throw new Exception();
     }
 
+    public static string LoadValue_AnonymousFunctionMapper(FunctionMapper mapper)
+    {
+        var afb = mapper.Function.Cast<AnonymousFunctionBody>();
+        return $"ldnull\nldftn {GetFunctionName(afb, mapper.TypeMapper)}\nnewobj instance void {GetStructName(mapper)}::.ctor(object, native int)";
+    }
+
     public static string StoreValue(TypeMapper m, IEvaluable value)
     {
         switch (value)
@@ -281,10 +305,7 @@ public static partial class CodeGenerator
                 }
                 else if (detail.Type == VariableType.LocalVariable)
                 {
-                    return
-                        detail.Index <= 3 ? $"stloc.{detail.Index}"
-                        : detail.Index <= byte.MaxValue ? $"stloc.s {detail.Index}"
-                        : $"stloc {detail.Index}";
+                    return StoreValue_Stloc(detail.Index);
                 }
                 else if (detail.Type == VariableType.Property)
                 {
@@ -297,4 +318,9 @@ public static partial class CodeGenerator
         }
         throw new Exception();
     }
+
+    public static string StoreValue_Stloc(int index) =>
+        index <= 3 ? $"stloc.{index}"
+        : index <= byte.MaxValue ? $"stloc.s {index}"
+        : $"stloc {index}";
 }

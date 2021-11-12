@@ -4,6 +4,9 @@ var f = (x, y) => print(x + y)
 #=>3
 f(1, 2)
 
+#=>helloworld
+f("hello", "world")
+
 ###
 複数の引数のあるラムダ式
 
@@ -21,7 +24,8 @@ f(1, 2)
     .entrypoint
     .maxstack 3
     .locals(
-        [0] class [mscorlib]System.Action`2<int32, int32> f
+        [0] class [mscorlib]System.Action`2<int32, int32> ,
+        [1] class [mscorlib]System.Action`2<string, string> 
     )
     
     ldnull
@@ -29,10 +33,20 @@ f(1, 2)
     newobj instance void class [mscorlib]System.Action`2<int32, int32>::.ctor(object, native int)
     stloc.0
     
+    ldnull
+    ldftn void 'anonymous#0'(string, string)
+    newobj instance void class [mscorlib]System.Action`2<string, string>::.ctor(object, native int)
+    stloc.1
+    
     ldloc.0
     ldc.i4.1
     ldc.i4.2
     callvirt instance void class [mscorlib]System.Action`2<int32, int32>::Invoke(!0, !1)
+    
+    ldloc.1
+    ldstr "hello"
+    ldstr "world"
+    callvirt instance void class [mscorlib]System.Action`2<string, string>::Invoke(!0, !1)
     ret
 }
 .method public static void 'anonymous#0'(int32, int32)
@@ -49,6 +63,22 @@ f(1, 2)
     
     ldloc.0
     call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+.method public static void 'anonymous#0'(string, string)
+{
+    .maxstack 2
+    .locals(
+        [0] string $$1
+    )
+    
+    ldarg.0
+    ldarg.1
+    call string class [System.Runtime]System.String::Concat(string, string)
+    stloc.0
+    
+    ldloc.0
+    call void class [System.Console]System.Console::WriteLine(string)
     ret
 }
 ###end

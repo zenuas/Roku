@@ -40,33 +40,27 @@ public static partial class CodeGenerator
             case StructSpecialization x when x.Body is StructBody e: return $"class {GetStructName(x.Name, e, x.GenericsMapper, false).To(x => escape ? EscapeILName(x) : x)}";
             case EnumStructBody _: return "object";
             case NullBody _: return "object";
-            case AnonymousFunctionBody x: return GetFunctionName(x);
+            case AnonymousFunctionBody x: return GetFunctionTypeName(x);
             case FunctionTypeBody x: return GetFunctionTypeName(x);
             case FunctionMapper x when x.Function is FunctionTypeBody ftb: return GetFunctionTypeName(ftb);
+            case FunctionMapper x when x.Function is AnonymousFunctionBody afb: return GetFunctionTypeName(afb, x.TypeMapper);
         }
         throw new Exception();
     }
 
     public static string GetStructName(string name, ISpecialization sp, GenericsMapper g, bool escape = true) => (g.Count == 0 ? name : $"{name}{GetGenericsName(sp, g, false)}").To(x => escape ? EscapeILName(x) : x);
 
-    public static string GetFunctionName(AnonymousFunctionBody anon)
+    public static string GetFunctionTypeName(AnonymousFunctionBody anon)
     {
-        var g = anon.SpecializationMapper.Keys.First();
-        var mapper = Lookup.GetTypemapper(anon.SpecializationMapper, g);
+        return GetFunctionTypeName(anon, anon.SpecializationMapper.First().Value);
+    }
+
+    public static string GetFunctionTypeName(AnonymousFunctionBody anon, TypeMapper mapper)
+    {
+        var g = Lookup.TypeMapperToGenericsMapper(mapper);
         var args_type = anon.Arguments.Select(x => GetType(mapper[x.Type], g)).ToArray();
         var return_type = anon.Return is { } rx ? GetType(mapper[rx], g) : null;
         return GetFunctionTypeName(args_type!, return_type);
-    }
-
-    public static string GetFunctionName(FunctionReferenceValue f, IStructBody body)
-    {
-        if (body is AnonymousFunctionBody anon)
-        {
-            var g = anon.SpecializationMapper.Keys.First();
-            var mapper = Lookup.GetTypemapper(anon.SpecializationMapper, g);
-            return $"{GetTypeName(mapper, anon.Return, g)} {EscapeILName(f.Name)}({anon.Arguments.Select(x => GetTypeName(mapper, x.Type, g)).Join(", ")})";
-        }
-        throw new Exception();
     }
 
     public static string GetFunctionTypeName(FunctionTypeBody t)
@@ -85,6 +79,21 @@ public static partial class CodeGenerator
             if (args.Length == 0) return "class [mscorlib]System.Action";
             return $"class [mscorlib]System.Action`{args.Length}<{args.Select(x => GetStructName(x)).Join(", ")}>";
         }
+    }
+
+    public static string GetFunctionName(FunctionReferenceValue f, IStructBody body)
+    {
+        if (body is AnonymousFunctionBody anon)
+        {
+            return GetFunctionName(anon, anon.SpecializationMapper.Values.First());
+        }
+        throw new Exception();
+    }
+
+    public static string GetFunctionName(AnonymousFunctionBody anon, TypeMapper mapper)
+    {
+        var g = Lookup.TypeMapperToGenericsMapper(mapper);
+        return $"{GetTypeName(mapper, anon.Return, g)} {EscapeILName(anon.Name)}({anon.Arguments.Select(x => GetTypeName(mapper, x.Type, g)).Join(", ")})";
     }
 
     public static string EscapeILName(string s) => !CilReservedWord.Contains(s) && Regex.IsMatch(s, "^_*[a-zA-Z][_a-zA-Z0-9]*$") ? s : $"'{s}'";
