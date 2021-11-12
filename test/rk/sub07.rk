@@ -27,7 +27,6 @@ f(1, 2)
     ldnull
     ldftn void 'anonymous#0'(int32, int32)
     newobj instance void class [mscorlib]System.Action`2<int32, int32>::.ctor(object, native int)
-    
     stloc.0
     
     ldloc.0

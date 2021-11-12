@@ -39,7 +39,6 @@ void f(Func<int> x)
     ldnull
     ldftn int32 'anonymous#0'()
     newobj instance void class [mscorlib]System.Func`1<int32>::.ctor(object, native int)
-    
     stloc.0
     
     ldloc.0
