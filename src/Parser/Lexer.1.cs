@@ -107,7 +107,7 @@ public partial class Lexer : ILexer<INode>
             for (var i = 0; i < Store.Count; i++)
             {
                 var current = Store[i].Type;
-                if (Store[i].EndOfToken || (parentheses.Count == 0 && current == Symbols.EOL))
+                if (Store[i].EndOfToken || (parentheses.Count == 0 && (current == Symbols.EOL || current == Symbols.__Comma)))
                 {
                     return false;
                 }
