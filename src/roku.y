@@ -144,7 +144,7 @@ condn : cond                                       {$$ = CreateListNode($1);}
       | condn cond                                 {$$ = $1.Return(x => x.List.Add($2));}
 
 ########## instance ##########
-instance : INSTANCE type ':' spec EOL instance_block {$$ = CreateInstanceNode($2, $4, $6);}
+instance : INSTANCE spec EOL instance_block      {$$ = CreateInstanceNode($2, $4);}
 
 instance_block : BEGIN mapn END {$$ = $2;}
 

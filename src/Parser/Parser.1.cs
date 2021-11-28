@@ -44,12 +44,11 @@ public partial class Parser
     }
 
     public static InstanceNode CreateInstanceNode(
-            ITypeNode type,
             SpecializationNode spec,
             ListNode<InstanceMapNode> maps
         )
     {
-        return new InstanceNode(type, spec, maps).R(type);
+        return new InstanceNode(spec, maps).R(spec);
     }
 
     public static InstanceMapNode CreateInstanceMapNode(

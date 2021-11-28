@@ -5,7 +5,7 @@ class Hoge<a>
 sub bar(p: String) Int
 	return(1)
 
-instance String: Hoge<String>
+instance Hoge<String>
 	foo(a) = bar(a)
 
 #=>dummy

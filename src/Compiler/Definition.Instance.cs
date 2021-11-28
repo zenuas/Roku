@@ -15,7 +15,6 @@ public static partial class Definition
     public static InstanceBody InstanceBodyDefinition(SourceCodeBody src, InstanceNode inst)
     {
         var body = new InstanceBody(src);
-        body.Type = CreateType(body, inst.Type);
         body.Specialization = CreateTypeSpecialization(body, inst.Specialization);
 
         inst.InstanceMap.Each(x => InstanceMapDefinition(body, x));
