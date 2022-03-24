@@ -112,7 +112,14 @@ public static partial class Typing
                             call.Function.Function = x = new VariableValue() { Name = x.Name };
                         }
                     }
-                    m[x] = CreateVariableDetail("", fm, m.ContainsKey(x) ? m[x].Type : VariableType.FunctionMapper);
+                    if (m.ContainsKey(x))
+                    {
+                        m[x].Struct = fm;
+                    }
+                    else
+                    {
+                        m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
+                    }
                     if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, ret);
                     resolve = true;
                 }
