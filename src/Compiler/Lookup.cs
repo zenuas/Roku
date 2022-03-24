@@ -432,9 +432,18 @@ public static class Lookup
         return false;
     }
 
+    public static bool TypeEquals(IStructBody body, ITypeDefinition def)
+    {
+        if (def is TypeImplicit || def is TypeGenericsParameter) return true;
+        return body.Name == def.Name;
+    }
+
     public static bool TypeFunctionEquals(FunctionTypeBody ft, AnonymousFunctionBody af)
     {
-        return ft.Name == af.ToString(!(af.IsImplicit && ft.Return is null));
+        if (ft.Arguments.Count != af.Arguments.Count) return false;
+        if ((ft.Return is null) != (af.Return is null) && !(ft.Return is null && af.Return is TypeImplicit)) return false;
+        if (ft.Return is { } fp && af.Return is { } ap && !TypeEquals(fp, ap)) return false;
+        return ft.Arguments.Zip(af.Arguments).All(arg => TypeEquals(arg.First, arg.Second.Type));
     }
 
     public static void AppendSpecialization(ISpecialization sp, GenericsMapper g)
