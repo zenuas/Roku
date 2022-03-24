@@ -25,21 +25,4 @@ public class AnonymousFunctionBody : IFunctionBody, IStructBody, ILexicalScope
         Namespace = ns;
         Name = system_unique_name;
     }
-
-    public override string ToString() => ToString(true);
-
-    public string ToString(bool need_return)
-    {
-        var m = SpecializationMapper.Values.FirstOrDefault();
-        static string type_name(TypeMapper? m, ITypeDefinition d)
-        {
-            if (m is { } && d is TypeImplicit && m.ContainsKey(d) && m[d].Struct is { } s)
-            {
-                return s.ToString()!;
-            }
-            return d.ToString()!;
-        }
-
-        return $"{{{Arguments.Select(x => x.Name.ToString() + (x.Type is { } t ? $" : {type_name(m, t)}" : "")).Join(", ")}{(need_return && Return is { } r ? $" => {type_name(m, r)}" : "")}}}";
-    }
 }
