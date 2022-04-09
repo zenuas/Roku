@@ -26,19 +26,6 @@ public static partial class CodeGenerator
                     if (op is IReturnBind r)
                     {
                         if (m[r.Return!].Struct is NamespaceBody) return;
-                        if (m[r.Return!].Struct is AnonymousFunctionBody afb && afb.Generics.Count > 0)
-                        {
-                            m.Values
-                                .Where(x => x.Type == VariableType.FunctionMapper && x.Struct!.Cast<FunctionMapper>().Function == afb)
-                                .Each((x, i) =>
-                                {
-                                    if (i > 0) il.WriteLine();
-                                    var fm = x.Struct!.Cast<FunctionMapper>();
-                                    il.WriteLine(LoadValue_AnonymousFunctionMapper(fm));
-                                    il.WriteLine(StoreValue_Stloc(x.Index));
-                                });
-                            return;
-                        }
                     }
                     var bind = op.Cast<Code>();
                     il.WriteLine(LoadValue(m, bind.Left!));
@@ -310,6 +297,10 @@ public static partial class CodeGenerator
                 else if (detail.Type == VariableType.Property)
                 {
                     return $"stfld {GetStructName(detail.Struct!)} {GetStructName(m[detail.Reciever!].Struct!)}::{EscapeILName(detail.Name)}";
+                }
+                else if (detail.Type == VariableType.FunctionMapper)
+                {
+                    return StoreValue_Stloc(detail.Index);
                 }
                 break;
 

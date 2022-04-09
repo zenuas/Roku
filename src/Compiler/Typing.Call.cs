@@ -214,14 +214,22 @@ public static partial class Typing
                 }
             }
         }
-        else if (left is AnonymousFunctionBody anon)
+        else if (left is FunctionMapper fm)
         {
-            Lookup.AppendSpecialization(anon, new GenericsMapper());
-            if (anon.IsImplicit && anon.Return is TypeImplicit &&
-                right is FunctionTypeBody ftb && ftb.Return is null)
+            if (fm.Function is AnonymousFunctionBody anon)
             {
-                anon.Return = null;
-                anon.IsImplicit = false;
+                var g = new GenericsMapper();
+                Lookup.AppendSpecialization(anon, g);
+                if (anon.IsImplicit && anon.Return is TypeImplicit &&
+                    right is FunctionTypeBody ftb && ftb.Return is null)
+                {
+                    anon.Return = null;
+                    anon.IsImplicit = false;
+                }
+                else if (anon.Return is { } ret && ret is not TypeImplicit)
+                {
+                    fm.TypeMapper[ret] = Typing.CreateVariableDetail(ret.Name, Lookup.GetStructType(anon.Namespace, ret, g), VariableType.TypeParameter);
+                }
             }
         }
     }

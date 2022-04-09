@@ -43,8 +43,8 @@ public static partial class CodeGenerator
     public static List<VariableDetail> GetLocalValues(TypeMapper mapper)
     {
         var local_vals = mapper.Values
-            .Where(x => (x.Type == VariableType.LocalVariable && !(x.Struct is NamespaceBody || (x.Struct is AnonymousFunctionBody afb && afb.Generics.Count > 0))) ||
-                (x.Type == VariableType.FunctionMapper && x.Struct!.Cast<FunctionMapper>().Function is AnonymousFunctionBody afb2 && afb2.Generics.Count > 0))
+            .Where(x => (x.Type == VariableType.LocalVariable && x.Struct is not NamespaceBody) ||
+                (x.Type == VariableType.FunctionMapper && x.Struct!.Cast<FunctionMapper>().Function is AnonymousFunctionBody))
             .Sort((a, b) => a.Index - b.Index)
             .ToList();
         local_vals.Each((x, i) => x.Index = i);

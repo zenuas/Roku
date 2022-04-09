@@ -396,7 +396,7 @@ public static class Lookup
         if (source is StructSpecialization ssa && arg is StructSpecialization ssb) return TypeEquals(ssa.Body, ssb.Body) && ssa.GenericsMapper.All(x => TypeEquals(x.Value, ssb.GenericsMapper[x.Key]));
         if (arg is NumericStruct num) return num.Types.Any(x => TypeEquals(source, x));
         if (source is NumericStruct num2) return num2.Types.Any(x => TypeEquals(x, arg));
-        if (source is FunctionTypeBody fta && arg is AnonymousFunctionBody afb) return TypeFunctionEquals(fta, afb);
+        if (source is FunctionTypeBody fta && arg is FunctionMapper fm) return TypeFunctionEquals(fta, fm);
         if (source is EnumStructBody e)
         {
             if (arg is EnumStructBody arge) return arge.Enums.All(x => TypeEquals(e, x)); // e >= arge
@@ -438,12 +438,18 @@ public static class Lookup
         return body.Name == def.Name;
     }
 
-    public static bool TypeFunctionEquals(FunctionTypeBody ft, AnonymousFunctionBody af)
+    public static bool TypeFunctionEquals(FunctionTypeBody ft, FunctionMapper fm)
     {
-        if (ft.Arguments.Count != af.Arguments.Count) return false;
-        if ((ft.Return is null) != (af.Return is null) && !(ft.Return is null && af.Return is TypeImplicit)) return false;
-        if (ft.Return is { } fp && af.Return is { } ap && !TypeEquals(fp, ap)) return false;
-        return ft.Arguments.Zip(af.Arguments).All(arg => TypeEquals(arg.First, arg.Second.Type));
+        if (fm.Function is IFunctionBody fb) return TypeFunctionEquals(ft, fb);
+        return false;
+    }
+
+    public static bool TypeFunctionEquals(FunctionTypeBody ft, IFunctionBody fb)
+    {
+        if (ft.Arguments.Count != fb.Arguments.Count) return false;
+        if ((ft.Return is null) != (fb.Return is null) && !(ft.Return is null && fb.Return is TypeImplicit)) return false;
+        if (ft.Return is { } fp && fb.Return is { } ap && !TypeEquals(fp, ap)) return false;
+        return ft.Arguments.Zip(fb.Arguments).All(arg => TypeEquals(arg.First, arg.Second.Type));
     }
 
     public static void AppendSpecialization(ISpecialization sp, GenericsMapper g)
