@@ -220,13 +220,22 @@ public static partial class Typing
             {
                 var g = new GenericsMapper();
                 Lookup.AppendSpecialization(anon, g);
-                if (anon.IsImplicit && anon.Return is TypeImplicit &&
-                    right is FunctionTypeBody ftb && ftb.Return is null)
+                if (anon.IsImplicit && anon.Return is TypeImplicit imp)
                 {
-                    anon.Return = null;
-                    anon.IsImplicit = false;
+                    if (right is FunctionTypeBody ftb)
+                    {
+                        if (ftb.Return is null)
+                        {
+                            anon.Return = null;
+                            anon.IsImplicit = false;
+                        }
+                        else
+                        {
+                            fm.TypeMapper[imp] = Typing.CreateVariableDetail(imp.Name, ftb.Return, VariableType.TypeParameter);
+                        }
+                    }
                 }
-                else if (anon.Return is { } ret && ret is not TypeImplicit)
+                else if (anon.Return is { } ret)
                 {
                     fm.TypeMapper[ret] = Typing.CreateVariableDetail(ret.Name, Lookup.GetStructType(anon.Namespace, ret, g), VariableType.TypeParameter);
                 }
