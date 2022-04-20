@@ -21,7 +21,8 @@ public static partial class Typing
                 case FunctionMapper fm:
                     if (fm.Function is AnonymousFunctionBody)
                     {
-                        return new FunctionSpecialization(fm.Function, Lookup.TypeMapperToGenericsMapper(fm.TypeMapper));
+                        var sp = Lookup.IfFunctionArgumentsEquals_ThenAppendSpecialization(ns, fm.Function, args)!;
+                        return new FunctionSpecialization(fm.Function, sp.GenericsMapper);
                     }
                     break;
             }
@@ -33,7 +34,7 @@ public static partial class Typing
     {
         if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { } p)
         {
-            if (p is FunctionMapper fm && fm.Function is AnonymousFunctionBody afb && afb.Return is TypeImplicit)
+            if (call.Return is { } && p is FunctionMapper fm && fm.Function is AnonymousFunctionBody afb && afb.Return is TypeImplicit)
             {
                 return false;
             }
@@ -107,7 +108,7 @@ public static partial class Typing
                     }
                     else if (caller.Body is AnonymousFunctionBody afb)
                     {
-                        if (caller.GenericsMapper.Count > 0 && m.ContainsKey(x) && m[x].Struct is AnonymousFunctionBody)
+                        if (caller.GenericsMapper.Count > 0 && m.ContainsKey(x))
                         {
                             call.Function.Function = x = new VariableValue() { Name = x.Name };
                         }
@@ -214,14 +215,31 @@ public static partial class Typing
                 }
             }
         }
-        else if (left is AnonymousFunctionBody anon)
+        else if (left is FunctionMapper fm)
         {
-            Lookup.AppendSpecialization(anon, new GenericsMapper());
-            if (anon.IsImplicit && anon.Return is TypeImplicit &&
-                right is FunctionTypeBody ftb && ftb.Return is null)
+            if (fm.Function is AnonymousFunctionBody anon)
             {
-                anon.Return = null;
-                anon.IsImplicit = false;
+                var g = new GenericsMapper();
+                Lookup.AppendSpecialization(anon, g);
+                if (anon.IsImplicit && anon.Return is TypeImplicit imp)
+                {
+                    if (right is FunctionTypeBody ftb)
+                    {
+                        if (ftb.Return is null)
+                        {
+                            anon.Return = null;
+                            anon.IsImplicit = false;
+                        }
+                        else
+                        {
+                            fm.TypeMapper[imp] = Typing.CreateVariableDetail(imp.Name, ftb.Return, VariableType.TypeParameter);
+                        }
+                    }
+                }
+                else if (anon.Return is { } ret)
+                {
+                    fm.TypeMapper[ret] = Typing.CreateVariableDetail(ret.Name, Lookup.GetStructType(anon.Namespace, ret, g), VariableType.TypeParameter);
+                }
             }
         }
     }

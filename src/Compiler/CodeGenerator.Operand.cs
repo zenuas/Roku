@@ -26,10 +26,11 @@ public static partial class CodeGenerator
                     if (op is IReturnBind r)
                     {
                         if (m[r.Return!].Struct is NamespaceBody) return;
-                        if (m[r.Return!].Struct is AnonymousFunctionBody afb && afb.Generics.Count > 0)
+                        if (m[r.Return!].Struct is FunctionMapper fm && fm.Function is AnonymousFunctionBody afb && afb.Generics.Count > 0)
                         {
                             m.Values
                                 .Where(x => x.Type == VariableType.FunctionMapper && x.Struct!.Cast<FunctionMapper>().Function == afb)
+                                .Where(IsCallableAnonymousFunction)
                                 .Each((x, i) =>
                                 {
                                     if (i > 0) il.WriteLine();
@@ -310,6 +311,10 @@ public static partial class CodeGenerator
                 else if (detail.Type == VariableType.Property)
                 {
                     return $"stfld {GetStructName(detail.Struct!)} {GetStructName(m[detail.Reciever!].Struct!)}::{EscapeILName(detail.Name)}";
+                }
+                else if (detail.Type == VariableType.FunctionMapper)
+                {
+                    return StoreValue_Stloc(detail.Index);
                 }
                 break;
 

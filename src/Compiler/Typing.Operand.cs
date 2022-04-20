@@ -70,7 +70,7 @@ public static partial class Typing
     {
         if (m.ContainsKey(v))
         {
-            if ((m[v].Struct is { } p && IsDecideType(p)) || b is null) return false;
+            if ((m[v].Struct is { } p && (IsDecideType(p) || p is FunctionMapper)) || b is null) return false;
             m[v].Struct = b;
 
             if (v is PropertyValue prop)
@@ -80,6 +80,11 @@ public static partial class Typing
                     sb.Body.Add(new TypeBind(sb.LexicalScope[prop.Right], new TypeValue() { Name = b.Name }));
                 }
             }
+        }
+        else if (b is AnonymousFunctionBody anon)
+        {
+            var fm = new FunctionMapper(anon);
+            m[v] = CreateVariableDetail(v.ToString()!, fm, VariableType.FunctionMapper);
         }
         else
         {

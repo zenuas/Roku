@@ -10,6 +10,4 @@ public class FunctionMapper : IStructBody
     {
         Function = f;
     }
-
-    public override string ToString() => Function.ToString()!;
 }
