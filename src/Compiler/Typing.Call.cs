@@ -21,7 +21,8 @@ public static partial class Typing
                 case FunctionMapper fm:
                     if (fm.Function is AnonymousFunctionBody)
                     {
-                        return new FunctionSpecialization(fm.Function, Lookup.TypeMapperToGenericsMapper(fm.TypeMapper));
+                        var sp = Lookup.IfFunctionArgumentsEquals_ThenAppendSpecialization(ns, fm.Function, args)!;
+                        return new FunctionSpecialization(fm.Function, sp.GenericsMapper);
                     }
                     break;
             }
@@ -33,7 +34,7 @@ public static partial class Typing
     {
         if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { } p)
         {
-            if (p is FunctionMapper fm && fm.Function is AnonymousFunctionBody afb && afb.Return is TypeImplicit)
+            if (call.Return is { } && p is FunctionMapper fm && fm.Function is AnonymousFunctionBody afb && afb.Return is TypeImplicit)
             {
                 return false;
             }
@@ -107,7 +108,7 @@ public static partial class Typing
                     }
                     else if (caller.Body is AnonymousFunctionBody afb)
                     {
-                        if (caller.GenericsMapper.Count > 0 && m.ContainsKey(x) && m[x].Struct is AnonymousFunctionBody)
+                        if (caller.GenericsMapper.Count > 0 && m.ContainsKey(x))
                         {
                             call.Function.Function = x = new VariableValue() { Name = x.Name };
                         }
