@@ -183,7 +183,7 @@ public static partial class CodeGenerator
                 throw new Exception();
         }
 
-        if (op is IReturnBind ret && ret.Return is { } && !(ret.Return is ImplicitReturnValue))
+        if (op is IReturnBind ret && ret.Return is { } && ret.Return is not ImplicitReturnValue)
         {
             il.WriteLine(StoreValue(m, ret.Return));
         }

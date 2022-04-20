@@ -209,7 +209,7 @@ public static partial class Typing
         {
             foreach (var kvv in lgm.GenericsMapper.Keys.Select(x => (Key: x, Left: lgm.GenericsMapper[x], Right: rgm.GenericsMapper[x])).ToArray())
             {
-                if (kvv.Left is IndefiniteBody && !(kvv.Right is IndefiniteBody))
+                if (kvv.Left is IndefiniteBody && kvv.Right is not IndefiniteBody)
                 {
                     lgm.GenericsMapper[kvv.Key] = kvv.Right;
                 }

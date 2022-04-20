@@ -34,7 +34,7 @@ public static partial class Typing
             var g = keys[i];
             var m = body.SpecializationMapper[g];
             body.Arguments.Each((x, i) => resolved = ArgumentInferenceWithEffect(body.Namespace, m, x.Name, x.Type, i) || resolved);
-            if (body.Return is { } x && !(x is TypeImplicit)) resolved = TypeInferenceWithEffect(body.Namespace, m, x, x) || resolved;
+            if (body.Return is { } x && x is not TypeImplicit) resolved = TypeInferenceWithEffect(body.Namespace, m, x, x) || resolved;
             body.Body.Each(x => resolved = OperandTypeInference(body, m, x) || resolved);
 
             if (body is AnonymousFunctionBody afb && afb.IsImplicit && body.Return is TypeImplicit v)
