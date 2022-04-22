@@ -22,8 +22,8 @@ public static partial class Definition
                 }
                 else
                 {
-                    p = new TypeGenericsParameter() { Name = x.Name.Name };
-                    fbody.LexicalScope[$"$type{i}"] = p;
+                    p = new TypeGenericsParameter() { Name = $"$type{i}" };
+                    fbody.LexicalScope[p.Name] = p;
                 }
                 if (p is TypeGenericsParameter g) fbody.Generics.Add(g);
                 var name = new VariableValue() { Name = x.Name.Name };
