@@ -452,11 +452,12 @@ public static class Lookup
         return ft.Arguments.Zip(fb.Arguments).All(arg => TypeEquals(arg.First, arg.Second.Type));
     }
 
-    public static void AppendSpecialization(ISpecialization sp, GenericsMapper g)
+    public static TypeMapper? AppendSpecialization(ISpecialization sp, GenericsMapper g)
     {
-        if (Lookup.GetGenericsTypeMapperOrNull(sp.SpecializationMapper, g).HasValue) return;
+        if (Lookup.GetGenericsTypeMapperOrNull(sp.SpecializationMapper, g).HasValue) return null;
         var mapper = sp.SpecializationMapper[g] = new TypeMapper();
         g.Each(kv => mapper[kv.Key] = Typing.CreateVariableDetail(kv.Key.Name, kv.Value, VariableType.TypeParameter));
+        return mapper;
     }
 
     public static IStructBody? FindStructOrNull(INamespace ns, string[] name, List<IStructBody> args)

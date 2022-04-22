@@ -220,7 +220,7 @@ public static partial class Typing
             if (fm.Function is AnonymousFunctionBody anon)
             {
                 var g = new GenericsMapper();
-                Lookup.AppendSpecialization(anon, g);
+                var mapper = Lookup.AppendSpecialization(anon, g);
                 if (anon.IsImplicit && anon.Return is TypeImplicit imp)
                 {
                     if (right is FunctionTypeBody ftb)
@@ -232,13 +232,35 @@ public static partial class Typing
                         }
                         else
                         {
+                            g[imp] = ftb.Return;
                             fm.TypeMapper[imp] = Typing.CreateVariableDetail(imp.Name, ftb.Return, VariableType.TypeParameter);
+                            if (mapper is { }) mapper[imp] = fm.TypeMapper[imp];
                         }
                     }
                 }
                 else if (anon.Return is { } ret)
                 {
                     fm.TypeMapper[ret] = Typing.CreateVariableDetail(ret.Name, Lookup.GetStructType(anon.Namespace, ret, g), VariableType.TypeParameter);
+                    if (mapper is { }) mapper[ret] = fm.TypeMapper[ret];
+                }
+
+                foreach (var x in anon.Arguments.Select((arg, i) => (arg, i)))
+                {
+                    if (right is FunctionTypeBody ftb)
+                    {
+                        var ftb_arg_i = ftb.Arguments[x.i];
+                        var anon_arg_type = x.arg.Type;
+                        if (anon_arg_type is TypeGenericsParameter)
+                        {
+                            g[anon_arg_type] = ftb_arg_i;
+                            fm.TypeMapper[anon_arg_type] = Typing.CreateVariableDetail(x.arg.Name.Name, ftb_arg_i, VariableType.TypeParameter);
+                        }
+                        else
+                        {
+                            fm.TypeMapper[anon_arg_type] = Typing.CreateVariableDetail(x.arg.Name.Name, ftb_arg_i, VariableType.Type);
+                        }
+                        if (mapper is { }) mapper[anon_arg_type] = fm.TypeMapper[anon_arg_type];
+                    }
                 }
             }
         }
