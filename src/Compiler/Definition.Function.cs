@@ -13,16 +13,17 @@ public static partial class Definition
 {
     public static void FunctionDefinition(SourceCodeBody src, IScopeNode scope)
     {
+        FunctionBody? main = null;
         if (scope.Statements.Count > 0)
         {
-            var body = MakeFunction(src, "main");
-            body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
-            FunctionBodyDefinition(body, scope.Statements);
+            main = MakeFunction(src, "main");
+            main.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+            FunctionBodyDefinition(main, scope.Statements);
         }
 
         scope.Functions.Each(f =>
         {
-            var body = MakeFunctionDefinition(src, null, f);
+            var body = MakeFunctionDefinition(src, null, f, main);
             FunctionBodyDefinition(body, f.Statements);
 
             if (body.Body.Contains(IsYield)) ConvertCoroutine(src, scope, body);
@@ -108,16 +109,16 @@ public static partial class Definition
         });
     }
 
-    public static FunctionBody MakeFunction(INamespaceBody ns, string name)
+    public static FunctionBody MakeFunction(INamespaceBody ns, string name, ILexicalScope? parent = null)
     {
-        var body = new FunctionBody(ns, name);
+        var body = new FunctionBody(ns, name, parent);
         ns.Functions.Add(body);
         return body;
     }
 
-    public static FunctionBody MakeFunctionDefinition(INamespaceBody ns, List<TypeGenericsParameter>? gens, FunctionNode f)
+    public static FunctionBody MakeFunctionDefinition(INamespaceBody ns, List<TypeGenericsParameter>? gens, FunctionNode f, ILexicalScope? parent = null)
     {
-        var body = MakeFunction(ns, f.Name.Name);
+        var body = MakeFunction(ns, f.Name.Name, parent);
         var types = new Dictionary<string, TypeGenericsParameter>();
 
         ITypeDefinition create_type(ITypeNode s)

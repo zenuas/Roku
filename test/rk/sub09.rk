@@ -1,0 +1,23 @@
+
+sub f1()
+	sub fx()
+		print(1)
+	fx()
+
+sub f2()
+	sub fx()
+		print(2)
+	fx()
+
+#=>1
+#=>2
+f1()
+f2()
+
+###
+
+###
+
+###start
+
+###end

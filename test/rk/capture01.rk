@@ -1,0 +1,27 @@
+
+var a = 1
+
+sub f()
+	print(a)
+
+#=>1
+f()
+
+###
+関数外のレキシカルスコープの変数をキャプチャする
+
+struct $scope
+	var a: Int
+
+var scope = $scope();
+scope.a = 1
+
+sub f(_scope: $scope)
+	print(_scope.a)
+
+f.bind(scope)()
+###
+
+###start
+
+###end

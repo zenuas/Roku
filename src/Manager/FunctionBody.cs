@@ -20,10 +20,11 @@ public class FunctionBody : IFunctionBody, ILexicalScope, IConstraints
     public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
     public List<(VariableValue Class, List<ITypeDefinition> Generics)> Constraints { get; } = new List<(VariableValue, List<ITypeDefinition>)>();
 
-    public FunctionBody(INamespace ns, string name)
+    public FunctionBody(INamespace ns, string name, ILexicalScope? parent = null)
     {
         Namespace = ns;
         Name = name;
+        Parent = parent;
     }
 
     public override string ToString() => $"sub {Name}({Arguments.Select(x => x.Name.ToString() + " : " + x.Type.ToString()).Join(", ")}){(Return is null ? "" : " " + Return.ToString())}";
