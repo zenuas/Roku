@@ -21,13 +21,16 @@ public static partial class Definition
             FunctionBodyDefinition(main, scope.Statements);
         }
 
-        scope.Functions.Each(f =>
-        {
-            var body = MakeFunctionDefinition(src, null, f, main);
-            FunctionBodyDefinition(body, f.Statements);
+        scope.Functions.Each(f => MakeFunctionBodyDefinition(src, f, main));
+    }
 
-            if (body.Body.Contains(IsYield)) ConvertCoroutine(src, scope, body);
-        });
+    public static FunctionBody MakeFunctionBodyDefinition(INamespaceBody ns, FunctionNode f, ILexicalScope? parent = null)
+    {
+        var body = MakeFunctionDefinition(ns, null, f, parent);
+        FunctionBodyDefinition(body, f.Statements);
+
+        if (body.Body.Contains(IsYield)) ConvertCoroutine(ns, body);
+        return body;
     }
 
     public static void FunctionBodyDefinition(ILexicalScope scope, List<IStatementNode> stmts)
@@ -150,6 +153,7 @@ public static partial class Definition
         if (f.Return is { }) body.Return = create_type(f.Return);
 
         f.Constraints.Each(x => body.Constraints.Add((new VariableValue() { Name = x.Name }, x.Generics.Select(g => create_type(g)).ToList())));
+        f.Functions.Each(x => MakeFunctionBodyDefinition(ns, x, body));
 
         if (body.Generics.Count == 0) body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
         return body;

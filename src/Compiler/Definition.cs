@@ -254,4 +254,11 @@ public static partial class Definition
         if (ns is RootNamespace root) return new TypeValue() { Name = name };
         return null;
     }
+
+    public static SourceCodeBody GetSourceCodeBody(INamespaceBody ns)
+    {
+        if (ns is SourceCodeBody src) return src;
+        if (ns is IAttachedNamespace ans && ans.Namespace is INamespaceBody nsb) return GetSourceCodeBody(nsb);
+        throw new Exception();
+    }
 }

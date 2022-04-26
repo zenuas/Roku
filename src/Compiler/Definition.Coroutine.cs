@@ -10,8 +10,9 @@ namespace Roku.Compiler;
 
 public static partial class Definition
 {
-    public static void ConvertCoroutine(SourceCodeBody src, IScopeNode scope, FunctionBody body)
+    public static void ConvertCoroutine(INamespaceBody ns, FunctionBody body)
     {
+        var src = GetSourceCodeBody(ns);
         /*
             struct Co$0
                 var state = 0
@@ -20,7 +21,7 @@ public static partial class Definition
                 var local: CoLocal$0 # local value exist
         */
         var list_a = body.Constraints.FindFirst(x => x.Class.Name == "List" && x.Generics.Count == 2 && x.Generics[0] == body.Return).Generics[1];
-        var co_struct = new StructBody(src, $"Co${src.CoroutineUniqueCount}");
+        var co_struct = new StructBody(ns, $"Co${src.CoroutineUniqueCount}");
         var co_struct_typename = new TypeValue() { Name = co_struct.Name };
         var state = new VariableValue() { Name = "state" };
         var value = new VariableValue() { Name = "value" };
@@ -33,16 +34,16 @@ public static partial class Definition
         co_struct.Body.Add(new TypeBind(value, list_a));
         co_struct.Body.Add(new TypeBind(next, new TypeEnum(new ITypeDefinition[] { co_struct_typename, new TypeValue() { Name = "Null" } })));
         co_struct.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
-        src.Structs.Add(co_struct);
+        ns.Structs.Add(co_struct);
 
         /*
             sub Co$0() Co$0
                 return(newobj Co$0.ctor())
         */
-        src.Functions.Add(new EmbeddedFunction(co_struct.Name, co_struct.Name) { OpCode = (_, args) => $"newobj instance void {co_struct.Name}::.ctor()" });
+        ns.Functions.Add(new EmbeddedFunction(co_struct.Name, co_struct.Name) { OpCode = (_, args) => $"newobj instance void {co_struct.Name}::.ctor()" });
 
         var local_value_exist = !body.LexicalScope.Where(x => x.Value is VariableValue).IsEmpty();
-        var co_local = new StructBody(src, $"CoLocal${src.CoroutineUniqueCount++}") { IsCoroutineLocal = true };
+        var co_local = new StructBody(ns, $"CoLocal${src.CoroutineUniqueCount++}") { IsCoroutineLocal = true };
         var co_local_typename = new TypeValue() { Name = co_local.Name };
         if (local_value_exist)
         {
@@ -57,13 +58,13 @@ public static partial class Definition
             body.LexicalScope.Where(x => x.Value is VariableValue).Each(x => co_local.Members.Add(x.Key, co_local.LexicalScope[x.Key] = x.Value));
             body.Arguments.Each(x => co_local.Body.Add(new TypeBind(x.Name, x.Type)));
             co_local.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
-            src.Structs.Add(co_local);
+            ns.Structs.Add(co_local);
 
             /*
                 sub CoLocal$0() CoLocal$0
                     return(newobj CoLocal$0.ctor())
             */
-            src.Functions.Add(new EmbeddedFunction(co_local.Name, co_local.Name) { OpCode = (_, args) => $"newobj instance void {co_local.Name}::.ctor()" });
+            ns.Functions.Add(new EmbeddedFunction(co_local.Name, co_local.Name) { OpCode = (_, args) => $"newobj instance void {co_local.Name}::.ctor()" });
         }
 
         /*
@@ -97,7 +98,7 @@ public static partial class Definition
                 $ret = Tuple#2(null, $self)
                 return($ret)
         */
-        var next_body = new FunctionBody(src, "next");
+        var next_body = new FunctionBody(ns, "next");
         var _self = new VariableValue() { Name = "$self" };
         next_body.Arguments.Add((_self, co_struct_typename));
         next_body.LexicalScope["$self"] = _self;
@@ -105,13 +106,13 @@ public static partial class Definition
         tuple2sp.Generics.Add(list_a);
         tuple2sp.Generics.Add(co_struct_typename);
         next_body.Return = tuple2sp;
-        src.Functions.Add(next_body);
+        ns.Functions.Add(next_body);
 
         var yield_count = body.Body.Where(IsYield).Count();
         var labels_jump = Lists.Sequence(1).Take(yield_count + 1).Select(n => new LabelCode() { Name = n > yield_count ? "end_" : $"state{n}_" }).ToList();
         var labels_cond = Lists.Sequence(0).Take(yield_count + 2).Select(n => new LabelCode() { Name = $"cond{n}_" }).ToList();
 
-        var tuple2_body = TupleBodyDefinition(Lookup.GetRootNamespace(src), 2);
+        var tuple2_body = TupleBodyDefinition(Lookup.GetRootNamespace(ns), 2);
         var tuple2 = new VariableValue() { Name = tuple2_body.Name };
         var _next_or_null = new VariableValue() { Name = "$next_or_null" };
         var _next = new VariableValue() { Name = "$next" };
@@ -238,7 +239,7 @@ public static partial class Definition
                 var $ret = $state == $m1
                 return($ret)
         */
-        var isnull_body = new FunctionBody(src, "isnull");
+        var isnull_body = new FunctionBody(ns, "isnull");
         isnull_body.Arguments.Add((_self, co_struct_typename));
         isnull_body.Return = new TypeValue() { Name = "Bool" };
         isnull_body.LexicalScope["$self"] = _self;
@@ -250,7 +251,7 @@ public static partial class Definition
         isnull_body.Body.Add(new Code { Operator = Operator.Bind, Return = _state, Left = new PropertyValue(_self, "state") });
         isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "==" }).Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, _m1 }))) { Return = _ret });
         isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(_ret))));
-        src.Functions.Add(isnull_body);
+        ns.Functions.Add(isnull_body);
     }
 
     public static IEnumerable<IOperand> ConvertVariableToCoroutineProperty(
