@@ -74,7 +74,7 @@ print(t)
     stloc.2
     
     ldloc.2
-    call int32 area(class 'struct Triangle(width: Int, height: Int)')
+    call int32 'area#1'(class 'struct Triangle(width: Int, height: Int)')
     stloc.3
     
     ldloc.3
@@ -151,7 +151,7 @@ print(t)
     ret
     ret
 }
-.method public static int32 area(class 'struct Triangle(width: Int, height: Int)')
+.method public static int32 'area#1'(class 'struct Triangle(width: Int, height: Int)')
 {
     .maxstack 2
     .locals(

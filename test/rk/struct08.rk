@@ -67,11 +67,11 @@ print(t)
     
     ldc.i4.s 10
     ldc.i4.5
-    call class 'struct Rect(width: Int, height: Int)' Rect(int32, int32)
+    call class 'struct Rect(width: Int, height: Int)' 'Rect#1'(int32, int32)
     stloc.2
     
     ldloc.2
-    call int32 area(class 'struct Rect(width: Int, height: Int)')
+    call int32 'area#1'(class 'struct Rect(width: Int, height: Int)')
     stloc.3
     
     ldloc.3
@@ -122,7 +122,7 @@ print(t)
     ret
     ret
 }
-.method public static class 'struct Rect(width: Int, height: Int)' Rect(int32, int32)
+.method public static class 'struct Rect(width: Int, height: Int)' 'Rect#1'(int32, int32)
 {
     .maxstack 2
     .locals(
@@ -144,7 +144,7 @@ print(t)
     ret
     ret
 }
-.method public static int32 area(class 'struct Rect(width: Int, height: Int)')
+.method public static int32 'area#1'(class 'struct Rect(width: Int, height: Int)')
 {
     .maxstack 2
     .locals(

@@ -83,12 +83,12 @@ public static partial class CodeGenerator
         }
     }
 
-    public static void CallToAddEmitFunctionList(TypeMapper m, AnonymousFunctionBody anon, List<(string Name, FunctionSpecialization Function)> fss)
+    public static void CallToAddEmitFunctionList(TypeMapper m, AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss)
     {
         AppendFunctionSpecialization(fss, new FunctionSpecialization(anon, new GenericsMapper()));
     }
 
-    public static void CallToAddEmitFunctionList(TypeMapper m, FunctionMapper fm, AnonymousFunctionBody anon, List<(string Name, FunctionSpecialization Function)> fss)
+    public static void CallToAddEmitFunctionList(TypeMapper m, FunctionMapper fm, AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss)
     {
         AppendFunctionSpecialization(fss, new FunctionSpecialization(anon, Lookup.TypeMapperToGenericsMapper(fm.TypeMapper)));
     }

@@ -11,7 +11,7 @@ namespace Roku.Compiler;
 
 public static partial class CodeGenerator
 {
-    public static void AssemblyOperandEmit(ILWriter il, IOperand op, INamespace ns, TypeMapper m, Dictionary<LabelCode, string> labels, GenericsMapper g)
+    public static void AssemblyOperandEmit(ILWriter il, IOperand op, INamespace ns, TypeMapper m, Dictionary<LabelCode, string> labels, GenericsMapper g, List<(string Name, FunctionSpecialization Function)> fss)
     {
         il.WriteLine();
         if (op is IReturnBind prop && prop.Return is { } && m[prop.Return].Type == VariableType.Property)
@@ -71,7 +71,8 @@ public static partial class CodeGenerator
                     else if (f.Function is FunctionBody fb)
                     {
                         if (args.Length > 0) il.WriteLine(args.Join('\n'));
-                        il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return, g)} {EscapeILName(fb.Name)}({fb.Arguments.Select(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")})");
+                        var (_, name) = FindFunctionSpecialization(fss, fb, Lookup.TypeMapperToGenericsMapper(f.TypeMapper));
+                        il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return, g)} {EscapeILName(name)}({fb.Arguments.Select(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")})");
                         have_return = fb.Return is { };
                     }
                     else if (f.Function is FunctionTypeBody ftb)

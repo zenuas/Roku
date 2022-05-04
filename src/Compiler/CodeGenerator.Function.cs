@@ -10,12 +10,41 @@ namespace Roku.Compiler;
 
 public static partial class CodeGenerator
 {
-    public static string AppendFunctionSpecialization(List<(string, FunctionSpecialization)> fss, FunctionSpecialization f)
+    public static string AppendFunctionSpecialization(List<(string Name, FunctionSpecialization Function)> fss, FunctionSpecialization f)
     {
-        var name = f.Body.Name;
-        fss.Add((name, f));
-        return name;
+        var find = FindFunctionSpecialization(fss, f.Body, f.GenericsMapper);
+        if (find.Exists) return find.Name;
+        if (find.Name == "")
+        {
+            var name = f.Body.Name;
+            var i = 0;
+            while (true)
+            {
+                if (!fss.Exists(x => x.Name == name)) break;
+                name = $"{f.Body.Name}#{++i}";
+            }
+            fss.Add((name, f));
+            return name;
+        }
+        else
+        {
+            fss.Add((find.Name, f));
+            return find.Name;
+        }
     }
+
+    public static (bool Exists, string Name) FindFunctionSpecialization(List<(string Name, FunctionSpecialization Function)> fss, IFunctionName body, GenericsMapper g)
+    {
+        var appended = fss.FindFirstOrNullValue(x => x.Function.Body == body && EqualsGenericsMapper(x.Function.GenericsMapper, g));
+        if (appended.HasValue) return (true, appended.Value.Name);
+
+        var sameinst = fss.FindFirstOrNullValue(x => x.Function.Body == body);
+        if (sameinst.HasValue) return (false, sameinst.Value.Name);
+
+        return (false, "");
+    }
+
+    public static bool EqualsGenericsMapper(GenericsMapper g1, GenericsMapper g2) => g1.SequenceEqual(g2);
 
     public static void AssemblyFunctionEmit(ILWriter il, List<(string Name, FunctionSpecialization Function)> fss)
     {
@@ -40,7 +69,7 @@ public static partial class CodeGenerator
                 il.WriteLine(")");
             }
             var labels = Lookup.AllLabels(f.Body).Zip(Lists.Sequence(1)).ToDictionary(x => x.First, x => $"_{x.First.Name}{x.Second}");
-            f.Body.Each(x => AssemblyOperandEmit(il, x, f, mapper, labels, g));
+            f.Body.Each(x => AssemblyOperandEmit(il, x, f, mapper, labels, g, fss));
             il.WriteLine("ret");
             il.Indent--;
             il.WriteLine("}");

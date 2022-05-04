@@ -15,9 +15,51 @@ f1()
 f2()
 
 ###
-
+別のレキシカルスコープに同名関数があった場合の呼び出しテスト
 ###
 
 ###start
-
+.assembly extern System.Console {}
+.assembly extern System.Runtime {}
+.assembly sub09 {}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 0
+    
+    call void f1()
+    
+    call void f2()
+    ret
+}
+.method public static void f1()
+{
+    .maxstack 0
+    
+    call void fx()
+    ret
+}
+.method public static void f2()
+{
+    .maxstack 0
+    
+    call void 'fx#1'()
+    ret
+}
+.method public static void fx()
+{
+    .maxstack 1
+    
+    ldc.i4.1
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+.method public static void 'fx#1'()
+{
+    .maxstack 1
+    
+    ldc.i4.2
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
 ###end

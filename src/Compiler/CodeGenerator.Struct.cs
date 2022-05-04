@@ -8,7 +8,7 @@ namespace Roku.Compiler;
 
 public static partial class CodeGenerator
 {
-    public static void AssemblyStructEmit(ILWriter il, StructBody body)
+    public static void AssemblyStructEmit(ILWriter il, StructBody body, List<(string, FunctionSpecialization)> fss)
     {
         var cache = new HashSet<string>();
         body.SpecializationMapper.Each(sp =>
@@ -39,7 +39,7 @@ public static partial class CodeGenerator
                 il.WriteLine(")");
             }
             var labels = Lookup.AllLabels(body.Body).Zip(Lists.Sequence(1)).ToDictionary(x => x.First, x => $"_{x.First.Name}{x.Second}");
-            body.Body.Each(x => AssemblyOperandEmit(il, x, body.Namespace, mapper, labels, g));
+            body.Body.Each(x => AssemblyOperandEmit(il, x, body.Namespace, mapper, labels, g, fss));
             il.WriteLine("ret");
             il.Indent--;
             il.WriteLine("}");

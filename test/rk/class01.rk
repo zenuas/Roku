@@ -80,7 +80,7 @@ print(n)
     )
     
     ldarg.0
-    call int32 foo(string)
+    call int32 'foo#1'(string)
     stloc.0
     
     ldloc.0
@@ -98,7 +98,7 @@ print(n)
     ret
     ret
 }
-.method public static int32 foo(string)
+.method public static int32 'foo#1'(string)
 {
     .maxstack 1
     
