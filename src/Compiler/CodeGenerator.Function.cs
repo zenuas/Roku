@@ -10,15 +10,22 @@ namespace Roku.Compiler;
 
 public static partial class CodeGenerator
 {
-    public static void AssemblyFunctionEmit(ILWriter il, List<FunctionSpecialization> fss)
+    public static string AppendFunctionSpecialization(List<(string, FunctionSpecialization)> fss, FunctionSpecialization f)
+    {
+        var name = f.Body.Name;
+        fss.Add((name, f));
+        return name;
+    }
+
+    public static void AssemblyFunctionEmit(ILWriter il, List<(string Name, FunctionSpecialization Function)> fss)
     {
         for (var i = 0; i < fss.Count; i++)
         {
-            var f = fss[i].Body.Cast<IFunctionBody>();
-            var g = fss[i].GenericsMapper;
+            var f = fss[i].Function.Body.Cast<IFunctionBody>();
+            var g = fss[i].Function.GenericsMapper;
             var mapper = Lookup.GetTypemapper(f.SpecializationMapper, g);
 
-            il.WriteLine($".method public static {GetTypeName(mapper, f.Return, g)} {EscapeILName(f.Name)}({f.Arguments.Select(a => GetTypeName(mapper[a.Name], g)).Join(", ")})");
+            il.WriteLine($".method public static {GetTypeName(mapper, f.Return, g)} {EscapeILName(fss[i].Name)}({f.Arguments.Select(a => GetTypeName(mapper[a.Name], g)).Join(", ")})");
             il.WriteLine("{");
             il.Indent++;
             if (i == 0) il.WriteLine(".entrypoint");

@@ -23,10 +23,11 @@ public static partial class CodeGenerator
             .OfType<Assembly>()
             .Distinct();
 
-        var fss = new List<FunctionSpecialization>() { new FunctionSpecialization(entrypoint, new GenericsMapper()) };
-        fss = fss.Concat(StructsToFunctionList(structs)).ToList();
-        fss = FunctionsToFunctionList(fss);
-        if (fss.FindFirstOrNull(x => x.Body is AnonymousFunctionBody) is { })
+        var fss = new List<(string Name, FunctionSpecialization Function)>();
+        AppendFunctionSpecialization(fss, new FunctionSpecialization(entrypoint, new GenericsMapper()));
+        StructsToFunctionList(structs, fss);
+        FunctionsToFunctionList(fss);
+        if (fss.FindFirstOrNullValue(x => x.Function.Body is AnonymousFunctionBody) is { })
         {
             extern_asms = extern_asms.Concat(Assembly.Load("mscorlib"));
         }
