@@ -27,7 +27,7 @@ public static partial class Typing
                     break;
             }
         }
-        return Lookup.FindFunctionOrNull(ns, x.Name, args);
+        return Lookup.FindFunctionOrNull(ns, ns as ILexicalScope, x.Name, args);
     }
 
     public static bool IsDecideFunction(TypeMapper m, Call call)

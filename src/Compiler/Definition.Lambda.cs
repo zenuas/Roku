@@ -9,7 +9,7 @@ public static partial class Definition
 {
     public static AnonymousFunctionBody LambdaExpressionDefinition(ILexicalScope scope, LambdaExpressionNode lambda)
     {
-        var fbody = MakeAnonymousFunction(scope.Namespace);
+        var fbody = MakeAnonymousFunction(scope.Namespace, scope);
         fbody.IsImplicit = lambda.IsImplicit;
         if (lambda.Return is { } ret) fbody.Return = CreateType(fbody, ret);
         if (fbody.IsImplicit) fbody.Return = new TypeImplicit();
@@ -36,10 +36,10 @@ public static partial class Definition
         return fbody;
     }
 
-    public static AnonymousFunctionBody MakeAnonymousFunction(INamespace ns)
+    public static AnonymousFunctionBody MakeAnonymousFunction(INamespace ns, ILexicalScope scope)
     {
         var root = Lookup.GetRootNamespace(ns);
-        var body = new AnonymousFunctionBody(ns, $"anonymous#{root.AnonymousFunctionUniqueCount++}");
+        var body = new AnonymousFunctionBody(ns, $"anonymous#{root.AnonymousFunctionUniqueCount++}", scope);
         root.Structs.Add(body);
         root.Functions.Add(body);
         return body;

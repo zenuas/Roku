@@ -76,23 +76,31 @@ public static class Lookup
         return null;
     }
 
-    public static FunctionSpecialization? FindFunctionOrNull(INamespace ns, string name, List<IStructBody?> args, bool find_use = true)
+    public static bool IsReferable(ILexicalScope current, ILexicalScope lex)
+    {
+        if (current == lex) return true;
+        if (current.Parent is { }) return IsReferable(current.Parent, lex);
+        return lex.Namespace is RootNamespace;
+    }
+
+    public static FunctionSpecialization? FindFunctionOrNull(INamespace ns, ILexicalScope? current, string name, List<IStructBody?> args, bool find_use = true)
     {
         if (ns is INamespaceBody nsb)
         {
             foreach (var x in nsb.Functions.Where(x => x.Name == name))
             {
+                if (current is { } && x is ILexicalScope lex && lex.Parent is { } && !IsReferable(current, lex.Parent)) continue;
                 if (IfFunctionArgumentsEquals_ThenAppendSpecialization(ns, x, args) is { } p) return p;
             }
         }
 
-        if (ns is ILexicalScope lex) return FindFunctionOrNull(lex.Namespace, name, args, find_use);
+        if (ns is IAttachedNamespace ans) return FindFunctionOrNull(ans.Namespace, current, name, args, find_use);
 
         if (find_use && ns is IUse body)
         {
             foreach (var use in body.Uses)
             {
-                if (FindFunctionOrNull(use, name, args, false) is { } x) return x;
+                if (FindFunctionOrNull(use, current, name, args, false) is { } x) return x;
             }
         }
         if (ns is StructSpecialization tsp && tsp.Body is ExternStruct sx)
@@ -359,7 +367,7 @@ public static class Lookup
         class_body.Functions.OfType<FunctionBody>().Each(f =>
         {
             var args = f.Arguments.Select(x => g.ContainsKey(x.Type) ? g[x.Type] : LoadStruct(ns, x.Name.Name)).ToList();
-            var caller = FindFunctionOrNull(ns, f.Name, args);
+            var caller = FindFunctionOrNull(ns, f, f.Name, args);
             if (caller is { })
             {
                 var fm = Typing.CreateFunctionMapper(ns, caller);

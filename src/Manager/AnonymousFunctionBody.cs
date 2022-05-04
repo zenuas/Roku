@@ -18,9 +18,10 @@ public class AnonymousFunctionBody : IFunctionBody, IStructBody, ILexicalScope
     public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
     public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
 
-    public AnonymousFunctionBody(INamespace ns, string system_unique_name)
+    public AnonymousFunctionBody(INamespace ns, string system_unique_name, ILexicalScope parent)
     {
         Namespace = ns;
         Name = system_unique_name;
+        Parent = parent;
     }
 }
