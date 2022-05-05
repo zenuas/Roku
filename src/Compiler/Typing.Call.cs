@@ -121,7 +121,7 @@ public static partial class Typing
                     {
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
                     }
-                    if (call.Return is { }) _ = LocalValueInferenceWithEffect(ns, m, call.Return!, ret);
+                    if (call.Return is { }) _ = LocalValueInferenceWithEffect(m, call.Return!, ret);
                     resolve = true;
                 }
                 break;
@@ -136,7 +136,7 @@ public static partial class Typing
                     _ = Lookup.AppendSpecialization(em, new GenericsMapper());
                     var fm = new FunctionMapper(em);
                     m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
-                    if (call.Return is { }) _ = LocalValueInferenceWithEffect(ns, m, call.Return!, body);
+                    if (call.Return is { }) _ = LocalValueInferenceWithEffect(m, call.Return!, body);
                     resolve = true;
                 }
                 break;
@@ -145,7 +145,7 @@ public static partial class Typing
                 throw new Exception();
 
         }
-        return call.Return is { } ? LocalValueInferenceWithEffect(ns, m, call.Return!) || resolve : resolve;
+        return call.Return is { } ? LocalValueInferenceWithEffect(m, call.Return!) || resolve : resolve;
     }
 
     public static FunctionMapper CreateFunctionMapper(INamespace ns, FunctionSpecialization caller)

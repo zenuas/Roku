@@ -18,18 +18,18 @@ public static partial class Typing
                 var resolve = false;
                 if (x.Return is PropertyValue prop)
                 {
-                    resolve = LocalValueInferenceWithEffect(ns, m, prop, ToTypedValue(ns, m, prop).Struct);
+                    resolve = LocalValueInferenceWithEffect(m, prop, ToTypedValue(ns, m, prop).Struct);
                 }
-                return LocalValueInferenceWithEffect(ns, m, x.Return!, ToTypedValue(ns, m, x.Left!).Struct) || resolve;
+                return LocalValueInferenceWithEffect(m, x.Return!, ToTypedValue(ns, m, x.Left!).Struct) || resolve;
 
             case Call x:
                 return ResolveFunctionWithEffect(ns, m, x);
 
             case TypeBind x:
-                return LocalValueInferenceWithEffect(ns, m, x.Name, TypeDefinitionToStructBody(ns, m, x.Type));
+                return LocalValueInferenceWithEffect(m, x.Name, TypeDefinitionToStructBody(ns, m, x.Type));
 
             case IfCastCode x:
-                return LocalValueInferenceWithEffect(ns, m, x.Name, Lookup.LoadStruct(ns, x.Type.Name));
+                return LocalValueInferenceWithEffect(m, x.Name, Lookup.LoadStruct(ns, x.Type.Name));
 
             case IfCode _:
             case GotoCode _:
@@ -66,7 +66,7 @@ public static partial class Typing
 
     public static IStructBody FindTypeMapperToGenerics(TypeMapper m, string name) => m.Where(x => x.Key is ITypeDefinition t && t.Name == name).First().Value.Struct!;
 
-    public static bool LocalValueInferenceWithEffect(INamespace ns, TypeMapper m, IEvaluable v, IStructBody? b = null)
+    public static bool LocalValueInferenceWithEffect(TypeMapper m, IEvaluable v, IStructBody? b = null)
     {
         if (m.ContainsKey(v))
         {

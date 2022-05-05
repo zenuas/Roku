@@ -277,7 +277,7 @@ public static partial class CodeGenerator
                 return $"newobj instance void {GetStructName(m[x].Struct)}::.ctor()\n{x.Values.Select(v => "dup\n" + LoadValue(m, v) + $"\ncallvirt instance void {GetStructName(m[x].Struct)}::Add(!0)").Join("\n")}";
 
             case FunctionReferenceValue x:
-                return $"ldnull\nldftn {GetFunctionName(x, m[x].Struct!)}\nnewobj instance void {GetStructName(m[x].Struct)}::.ctor(object, native int)";
+                return $"ldnull\nldftn {GetFunctionName(m[x].Struct!)}\nnewobj instance void {GetStructName(m[x].Struct)}::.ctor(object, native int)";
 
             case TypeValue x:
                 return GetStructName(m[x].Struct);

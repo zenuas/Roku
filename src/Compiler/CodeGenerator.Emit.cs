@@ -45,13 +45,13 @@ public static partial class CodeGenerator
             var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable && x.Struct is AnonymousFunctionBody anon && anon.Generics.Count == 0).Sort((a, b) => a.Index - b.Index).ToList();
             if (local_vals.Count > 0)
             {
-                local_vals.Select(x => x.Struct).OfType<AnonymousFunctionBody>().Each(x => CallToAddEmitFunctionList(mapper, x, fss));
+                local_vals.Select(x => x.Struct).OfType<AnonymousFunctionBody>().Each(x => CallToAddEmitFunctionList(x, fss));
             }
 
             var local_vals2 = mapper.Values.Where(IsCallableAnonymousFunction).Sort((a, b) => a.Index - b.Index).ToList();
             if (local_vals2.Count > 0)
             {
-                local_vals2.Each(x => CallToAddEmitFunctionList(mapper, x.Struct!.Cast<FunctionMapper>(), x.Struct!.Cast<FunctionMapper>().Function.Cast<AnonymousFunctionBody>(), fss));
+                local_vals2.Each(x => CallToAddEmitFunctionList(x.Struct!.Cast<FunctionMapper>(), x.Struct!.Cast<FunctionMapper>().Function.Cast<AnonymousFunctionBody>(), fss));
             }
             f.Body.OfType<Call>().Each(x => CallToAddEmitFunctionList(mapper, x, fss));
         }
@@ -83,9 +83,9 @@ public static partial class CodeGenerator
         }
     }
 
-    public static void CallToAddEmitFunctionList(TypeMapper m, AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss) => AppendFunctionSpecialization(fss, new FunctionSpecialization(anon, new GenericsMapper()));
+    public static void CallToAddEmitFunctionList(AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss) => AppendFunctionSpecialization(fss, new FunctionSpecialization(anon, new GenericsMapper()));
 
-    public static void CallToAddEmitFunctionList(TypeMapper m, FunctionMapper fm, AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss) => AppendFunctionSpecialization(fss, new FunctionSpecialization(anon, Lookup.TypeMapperToGenericsMapper(fm.TypeMapper)));
+    public static void CallToAddEmitFunctionList(FunctionMapper fm, AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss) => AppendFunctionSpecialization(fss, new FunctionSpecialization(anon, Lookup.TypeMapperToGenericsMapper(fm.TypeMapper)));
 
     public static bool EqualsFunctionCaller(FunctionSpecialization left, IFunctionName right, GenericsMapper right_g)
     {

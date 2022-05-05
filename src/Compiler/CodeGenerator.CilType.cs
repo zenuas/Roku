@@ -75,7 +75,7 @@ public static partial class CodeGenerator
         }
     }
 
-    public static string GetFunctionName(FunctionReferenceValue f, IStructBody body)
+    public static string GetFunctionName(IStructBody body)
     {
         if (body is AnonymousFunctionBody anon)
         {
