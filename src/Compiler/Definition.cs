@@ -238,7 +238,6 @@ public static partial class Definition
     public static IEvaluable FindScopeValue(ILexicalScope scope, string name)
     {
         if (FindCurrentScopeValueOrNull(scope, name) is { } v) return v;
-        if (scope.LexicalScope.ContainsKey(name)) return scope.LexicalScope[name];
         if (scope.Parent is { } parent) return FindScopeValue(parent, name);
         if (scope is IManaged ns && FindNamespaceValue(ns, name) is { } p) return p;
         if (scope.Namespace is IUse src)
