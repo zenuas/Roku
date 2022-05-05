@@ -4,5 +4,5 @@ namespace Roku.Manager;
 
 public interface IUse
 {
-    public List<INamespace> Uses { get; }
+    public List<IManaged> Uses { get; }
 }

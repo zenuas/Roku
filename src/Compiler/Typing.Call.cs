@@ -10,7 +10,7 @@ namespace Roku.Compiler;
 
 public static partial class Typing
 {
-    public static FunctionSpecialization? FindCurrentFunction(INamespace ns, TypeMapper m, VariableValue x, List<IStructBody?> args)
+    public static FunctionSpecialization? FindCurrentFunction(IManaged ns, TypeMapper m, VariableValue x, List<IStructBody?> args)
     {
         if (m.ContainsKey(x) && m[x].Struct is { } p)
         {
@@ -46,7 +46,7 @@ public static partial class Typing
         return false;
     }
 
-    public static bool ResolveFunctionWithEffect(INamespace ns, TypeMapper m, Call call)
+    public static bool ResolveFunctionWithEffect(IManaged ns, TypeMapper m, Call call)
     {
         if (IsDecideFunction(m, call)) return false;
 
@@ -148,7 +148,7 @@ public static partial class Typing
         return call.Return is { } ? LocalValueInferenceWithEffect(m, call.Return!) || resolve : resolve;
     }
 
-    public static FunctionMapper CreateFunctionMapper(INamespace ns, FunctionSpecialization caller)
+    public static FunctionMapper CreateFunctionMapper(IManaged ns, FunctionSpecialization caller)
     {
         var fm = new FunctionMapper(caller.Body);
         caller.GenericsMapper.Each(p => fm.TypeMapper[p.Key] = Typing.CreateVariableDetail(p.Key.Name, p.Value, VariableType.TypeParameter));
@@ -166,7 +166,7 @@ public static partial class Typing
         return fm;
     }
 
-    public static INamespace GetStructNamespace(INamespace ns, IStructBody body)
+    public static IManaged GetStructNamespace(IManaged ns, IStructBody body)
     {
         switch (body)
         {

@@ -3,12 +3,12 @@ using System.Linq;
 
 namespace Roku.Manager;
 
-public class NamespaceJunction : INamespace, IUse
+public class NamespaceJunction : IManaged, IUse
 {
-    public List<INamespace> Uses { get; }
+    public List<IManaged> Uses { get; }
 
-    public NamespaceJunction(INamespace ns)
+    public NamespaceJunction(IManaged ns)
     {
-        Uses = ns is IUse use ? use.Uses.ToList() : new List<INamespace>();
+        Uses = ns is IUse use ? use.Uses.ToList() : new List<IManaged>();
     }
 }

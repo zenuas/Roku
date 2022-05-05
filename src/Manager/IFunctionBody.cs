@@ -4,10 +4,10 @@ using System.Collections.Generic;
 
 namespace Roku.Manager;
 
-public interface IFunctionBody : IFunctionName, IFunctionReturn, INamespace, ISpecialization
+public interface IFunctionBody : IFunctionName, IFunctionReturn, IManaged, ISpecialization
 {
     public List<(VariableValue Name, ITypeDefinition Type)> Arguments { get; }
     public List<IOperand> Body { get; }
-    public INamespace Namespace { get; }
+    public IManaged Namespace { get; }
     public ILexicalScope? Parent { get; }
 }

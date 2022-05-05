@@ -11,14 +11,14 @@ public class EnumStructBody : IStructBody, ILexicalScope, ISpecialization
     public string Name { get => ToString(); }
     public List<IStructBody> Enums { get; } = new List<IStructBody>();
     public List<IOperand> Body { get; } = new List<IOperand>();
-    public INamespace Namespace { get; }
+    public IManaged Namespace { get; }
     public ILexicalScope? Parent { get; } = null;
     public Dictionary<string, IEvaluable> LexicalScope { get; } = new Dictionary<string, IEvaluable>();
     public int MaxTemporaryValue { get; set; } = 0;
     public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
     public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
 
-    public EnumStructBody(INamespace ns)
+    public EnumStructBody(IManaged ns)
     {
         Namespace = ns;
     }

@@ -12,7 +12,7 @@ public class FunctionBody : IFunctionBody, ILexicalScope, IConstraints
     public ITypeDefinition? Return { get; set; } = null;
     public List<(VariableValue Name, ITypeDefinition Type)> Arguments { get; } = new List<(VariableValue, ITypeDefinition)>();
     public List<IOperand> Body { get; } = new List<IOperand>();
-    public INamespace Namespace { get; }
+    public IManaged Namespace { get; }
     public ILexicalScope? Parent { get; } = null;
     public Dictionary<string, IEvaluable> LexicalScope { get; } = new Dictionary<string, IEvaluable>();
     public int MaxTemporaryValue { get; set; } = 0;
@@ -20,7 +20,7 @@ public class FunctionBody : IFunctionBody, ILexicalScope, IConstraints
     public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
     public List<(VariableValue Class, List<ITypeDefinition> Generics)> Constraints { get; } = new List<(VariableValue, List<ITypeDefinition>)>();
 
-    public FunctionBody(INamespace ns, string name, ILexicalScope? parent = null)
+    public FunctionBody(IManaged ns, string name, ILexicalScope? parent = null)
     {
         Namespace = ns;
         Name = name;

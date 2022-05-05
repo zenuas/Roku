@@ -29,13 +29,13 @@ public static class Lookup
         return use_load(src);
     }
 
-    public static List<INamespace> AllNamespaces(SourceCodeBody src)
+    public static List<IManaged> AllNamespaces(SourceCodeBody src)
     {
-        var readed = new HashSet<INamespace>();
+        var readed = new HashSet<IManaged>();
 
-        List<INamespace> use_load(INamespace source)
+        List<IManaged> use_load(IManaged source)
         {
-            var xs = new List<INamespace>();
+            var xs = new List<IManaged>();
             if (!readed.Contains(source))
             {
                 xs.Add(source);
@@ -59,13 +59,13 @@ public static class Lookup
 
     public static IEnumerable<IFunctionBody> AllFunctionBodies(INamespaceBody src) => src.Functions.OfType<IFunctionBody>();
 
-    public static IEnumerable<ExternFunction> AllExternFunctions(List<INamespace> srcs) => srcs.Select(AllFunctions<ExternFunction>).Flatten();
+    public static IEnumerable<ExternFunction> AllExternFunctions(List<IManaged> srcs) => srcs.Select(AllFunctions<ExternFunction>).Flatten();
 
-    public static IEnumerable<EmbeddedFunction> AllEmbeddedFunctions(List<INamespace> srcs) => srcs.Select(AllFunctions<EmbeddedFunction>).Flatten();
+    public static IEnumerable<EmbeddedFunction> AllEmbeddedFunctions(List<IManaged> srcs) => srcs.Select(AllFunctions<EmbeddedFunction>).Flatten();
 
-    public static IEnumerable<T> AllFunctions<T>(INamespace src) where T : IFunctionName => src is INamespaceBody ns ? ns.Functions.OfType<T>() : new List<T>();
+    public static IEnumerable<T> AllFunctions<T>(IManaged src) where T : IFunctionName => src is INamespaceBody ns ? ns.Functions.OfType<T>() : new List<T>();
 
-    public static FunctionSpecialization? IfFunctionArgumentsEquals_ThenAppendSpecialization(INamespace ns, IFunctionName fn, List<IStructBody?> args)
+    public static FunctionSpecialization? IfFunctionArgumentsEquals_ThenAppendSpecialization(IManaged ns, IFunctionName fn, List<IStructBody?> args)
     {
         var v = FunctionArgumentsEquals(ns, fn, args);
         if (v.Exists)
@@ -83,7 +83,7 @@ public static class Lookup
         return lex.Namespace is RootNamespace;
     }
 
-    public static FunctionSpecialization? FindFunctionOrNull(INamespace ns, ILexicalScope? current, string name, List<IStructBody?> args, bool find_use = true)
+    public static FunctionSpecialization? FindFunctionOrNull(IManaged ns, ILexicalScope? current, string name, List<IStructBody?> args, bool find_use = true)
     {
         if (ns is INamespaceBody nsb)
         {
@@ -158,7 +158,7 @@ public static class Lookup
         }
     }
 
-    public static (bool Exists, GenericsMapper GenericsMapper) FunctionArgumentsEquals(INamespace ns, IFunctionName source, List<IStructBody?> args)
+    public static (bool Exists, GenericsMapper GenericsMapper) FunctionArgumentsEquals(IManaged ns, IFunctionName source, List<IStructBody?> args)
     {
         if (source is FunctionTypeBody ftb)
         {
@@ -172,14 +172,14 @@ public static class Lookup
         }
     }
 
-    public static List<IStructBody?> GetArgumentsType(INamespace ns, IFunctionName body, GenericsMapper gens) => FunctionToArgumentsType(body).Select(x => GetStructType(ns, x, gens)).ToList();
+    public static List<IStructBody?> GetArgumentsType(IManaged ns, IFunctionName body, GenericsMapper gens) => FunctionToArgumentsType(body).Select(x => GetStructType(ns, x, gens)).ToList();
 
     public static string[] GetTypeNames(IEvaluable e) =>
         e is TypeValue tv ? tv.Namespace.Concat(tv.Name).ToArray()
         : e is VariableValue v ? new string[] { v.Name }
         : throw new Exception();
 
-    public static IStructBody? GetStructType(INamespace ns, ITypeDefinition t, GenericsMapper gens)
+    public static IStructBody? GetStructType(IManaged ns, ITypeDefinition t, GenericsMapper gens)
     {
         switch (t)
         {
@@ -208,7 +208,7 @@ public static class Lookup
         throw new Exception();
     }
 
-    public static IStructBody? GetStructType(INamespace ns, ITypeDefinition t, TypeMapper mapper) => GetStructType(ns, t, TypeMapperToGenericsMapper(mapper));
+    public static IStructBody? GetStructType(IManaged ns, ITypeDefinition t, TypeMapper mapper) => GetStructType(ns, t, TypeMapperToGenericsMapper(mapper));
 
     public static IEnumerable<ITypeDefinition> FunctionToArgumentsType(IFunctionName body)
     {
@@ -256,7 +256,7 @@ public static class Lookup
         throw new Exception();
     }
 
-    public static GenericsMapper ApplyArgumentsToGenericsParameter(INamespace ns, IFunctionName body, List<IStructBody?> args)
+    public static GenericsMapper ApplyArgumentsToGenericsParameter(IManaged ns, IFunctionName body, List<IStructBody?> args)
     {
         var param = FunctionToArgumentsType(body).ToList();
         var gens = new GenericsMapper();
@@ -335,7 +335,7 @@ public static class Lookup
 
     public static bool IsFixedGenericsMapper(GenericsMapper gm) => gm.All(x => IsFixedStruct(x.Value));
 
-    public static ClassBody? FindClassOrNull(INamespace ns, string name, List<ITypeDefinition> gens)
+    public static ClassBody? FindClassOrNull(IManaged ns, string name, List<ITypeDefinition> gens)
     {
         if (ns is INamespaceBody nsb)
         {
@@ -351,7 +351,7 @@ public static class Lookup
         return null;
     }
 
-    public static bool ApplyClassToGenericsParameter(INamespace ns, ClassBody class_body, GenericsMapper g)
+    public static bool ApplyClassToGenericsParameter(IManaged ns, ClassBody class_body, GenericsMapper g)
     {
         Func<IStructBody?, IStructBody?, bool> feedback = (left, right) =>
         {
@@ -468,7 +468,7 @@ public static class Lookup
         return mapper;
     }
 
-    public static IStructBody? FindStructOrNull(INamespace ns, string[] name, List<IStructBody> args)
+    public static IStructBody? FindStructOrNull(IManaged ns, string[] name, List<IStructBody> args)
     {
         if (ns is INamespaceBody nsb)
         {
@@ -521,9 +521,9 @@ public static class Lookup
         return null;
     }
 
-    public static IStructBody LoadStruct(INamespace ns, string[] name) => FindStructOrNull(ns, name, new List<IStructBody>()) ?? throw new Exception();
+    public static IStructBody LoadStruct(IManaged ns, string[] name) => FindStructOrNull(ns, name, new List<IStructBody>()) ?? throw new Exception();
 
-    public static IStructBody LoadStruct(INamespace ns, string name) => LoadStruct(ns, new string[] { name });
+    public static IStructBody LoadStruct(IManaged ns, string name) => LoadStruct(ns, new string[] { name });
 
     public static IEnumerable<LabelCode> AllLabels(List<IOperand> ops) => ops.OfType<LabelCode>().Distinct();
 
@@ -549,7 +549,7 @@ public static class Lookup
         return CreateExternStruct(root, ti, asmx);
     }
 
-    public static FunctionTypeBody LoadFunctionType(INamespace ns, TypeFunction tf, GenericsMapper gens)
+    public static FunctionTypeBody LoadFunctionType(IManaged ns, TypeFunction tf, GenericsMapper gens)
     {
         var func = new FunctionTypeBody();
         tf.Arguments.Each(x => func.Arguments.Add(GetStructType(ns, x, gens)!));
@@ -557,7 +557,7 @@ public static class Lookup
         return func;
     }
 
-    public static IStructBody LoadEnumStruct(INamespace ns, TypeEnum te)
+    public static IStructBody LoadEnumStruct(IManaged ns, TypeEnum te)
     {
         var e = new EnumStructBody(ns);
         foreach (var td in te.Enums)
@@ -599,13 +599,13 @@ public static class Lookup
         return f;
     }
 
-    public static RootNamespace GetRootNamespace(INamespace ns) =>
+    public static RootNamespace GetRootNamespace(IManaged ns) =>
         ns is RootNamespace root ? root
         : ns is IAttachedNamespace lex ? GetRootNamespace(lex.Namespace)
         : ns is IUse use ? use.Uses.OfType<RootNamespace>().First()
         : throw new Exception();
 
-    public static INamespaceBody GetTopLevelNamespace(INamespace ns) =>
+    public static INamespaceBody GetTopLevelNamespace(IManaged ns) =>
         ns is RootNamespace root ? root
         : ns is SourceCodeBody src ? src
         : ns is IAttachedNamespace lex ? GetTopLevelNamespace(lex.Namespace)

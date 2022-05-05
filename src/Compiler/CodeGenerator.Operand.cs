@@ -11,7 +11,7 @@ namespace Roku.Compiler;
 
 public static partial class CodeGenerator
 {
-    public static void AssemblyOperandEmit(ILWriter il, IOperand op, INamespace ns, TypeMapper m, Dictionary<LabelCode, string> labels, GenericsMapper g, List<(string Name, FunctionSpecialization Function)> fss)
+    public static void AssemblyOperandEmit(ILWriter il, IOperand op, IManaged ns, TypeMapper m, Dictionary<LabelCode, string> labels, GenericsMapper g, List<(string Name, FunctionSpecialization Function)> fss)
     {
         il.WriteLine();
         if (op is IReturnBind prop && prop.Return is { } && m[prop.Return].Type == VariableType.Property)
@@ -190,7 +190,7 @@ public static partial class CodeGenerator
         }
     }
 
-    public static IStructBody? GetArgumentType(INamespace caller, FunctionMapper body, int index)
+    public static IStructBody? GetArgumentType(IManaged caller, FunctionMapper body, int index)
     {
         switch (body.Function)
         {

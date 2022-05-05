@@ -36,7 +36,7 @@ public static partial class Definition
         return fbody;
     }
 
-    public static AnonymousFunctionBody MakeAnonymousFunction(INamespace ns, ILexicalScope scope)
+    public static AnonymousFunctionBody MakeAnonymousFunction(IManaged ns, ILexicalScope scope)
     {
         var root = Lookup.GetRootNamespace(ns);
         var body = new AnonymousFunctionBody(ns, $"anonymous#{root.AnonymousFunctionUniqueCount++}", scope);

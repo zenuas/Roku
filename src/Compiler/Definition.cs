@@ -240,7 +240,7 @@ public static partial class Definition
         if (FindCurrentScopeValueOrNull(scope, name) is { } v) return v;
         if (scope.LexicalScope.ContainsKey(name)) return scope.LexicalScope[name];
         if (scope.Parent is { } parent) return FindScopeValue(parent, name);
-        if (scope is INamespace ns && FindNamespaceValue(ns, name) is { } p) return p;
+        if (scope is IManaged ns && FindNamespaceValue(ns, name) is { } p) return p;
         if (scope.Namespace is IUse src)
         {
             return src.Uses.Select(x => FindNamespaceValue(x, name)).OfType<IEvaluable>().First();
@@ -248,7 +248,7 @@ public static partial class Definition
         throw new Exception();
     }
 
-    public static IEvaluable? FindNamespaceValue(INamespace ns, string name)
+    public static IEvaluable? FindNamespaceValue(IManaged ns, string name)
     {
         if (ns is INamespaceBody body && body.Structs.FindFirstOrNull(x => x.Name == name) is { } s) return new TypeValue() { Name = s.Name };
         if (ns is RootNamespace root) return new TypeValue() { Name = name };

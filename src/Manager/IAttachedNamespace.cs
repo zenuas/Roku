@@ -2,5 +2,5 @@
 
 public interface IAttachedNamespace
 {
-    public INamespace Namespace { get; }
+    public IManaged Namespace { get; }
 }

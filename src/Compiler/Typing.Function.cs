@@ -87,7 +87,7 @@ public static partial class Typing
         return resolved;
     }
 
-    public static bool ArgumentInferenceWithEffect(INamespace ns, TypeMapper m, IEvaluable v, ITypeDefinition type, int index)
+    public static bool ArgumentInferenceWithEffect(IManaged ns, TypeMapper m, IEvaluable v, ITypeDefinition type, int index)
     {
         if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return false;
         switch (type)
@@ -119,7 +119,7 @@ public static partial class Typing
         return true;
     }
 
-    public static bool TypeInferenceWithEffect(INamespace ns, TypeMapper m, IEvaluable v, ITypeDefinition type)
+    public static bool TypeInferenceWithEffect(IManaged ns, TypeMapper m, IEvaluable v, ITypeDefinition type)
     {
         if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return false;
         var s = Lookup.GetStructType(ns, type, m);

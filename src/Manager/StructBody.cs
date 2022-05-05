@@ -9,7 +9,7 @@ public class StructBody : IStructBody, ILexicalScope, ISpecialization
     public string Name { get; }
     public Dictionary<string, IEvaluable> Members { get; } = new Dictionary<string, IEvaluable>();
     public List<IOperand> Body { get; } = new List<IOperand>();
-    public INamespace Namespace { get; }
+    public IManaged Namespace { get; }
     public ILexicalScope? Parent { get; } = null;
     public Dictionary<string, IEvaluable> LexicalScope { get; } = new Dictionary<string, IEvaluable>();
     public int MaxTemporaryValue { get; set; } = 0;
@@ -17,7 +17,7 @@ public class StructBody : IStructBody, ILexicalScope, ISpecialization
     public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
     public bool IsCoroutineLocal { get; init; } = false;
 
-    public StructBody(INamespace ns, string name)
+    public StructBody(IManaged ns, string name)
     {
         Namespace = ns;
         Name = name;

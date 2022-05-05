@@ -10,7 +10,7 @@ namespace Roku.Compiler;
 
 public static partial class Typing
 {
-    public static bool OperandTypeInference(INamespace ns, TypeMapper m, IOperand op)
+    public static bool OperandTypeInference(IManaged ns, TypeMapper m, IOperand op)
     {
         switch (op)
         {
@@ -39,7 +39,7 @@ public static partial class Typing
         throw new Exception();
     }
 
-    public static IStructBody TypeDefinitionToStructBody(INamespace ns, TypeMapper m, ITypeDefinition t)
+    public static IStructBody TypeDefinitionToStructBody(IManaged ns, TypeMapper m, ITypeDefinition t)
     {
         switch (t)
         {
@@ -93,7 +93,7 @@ public static partial class Typing
         return true;
     }
 
-    public static VariableDetail ToTypedValue(INamespace ns, TypeMapper m, IEvaluable v, bool nonamespace = false)
+    public static VariableDetail ToTypedValue(IManaged ns, TypeMapper m, IEvaluable v, bool nonamespace = false)
     {
         if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return m[v];
 

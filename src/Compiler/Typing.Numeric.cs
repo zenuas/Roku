@@ -38,7 +38,7 @@ public static partial class Typing
         }
     }
 
-    public static VariableDetail CreateNumericType(INamespace ns)
+    public static VariableDetail CreateNumericType(IManaged ns)
     {
         var num = new NumericStruct();
         num.Types.Add(Lookup.LoadStruct(ns, "Int"));
@@ -48,7 +48,7 @@ public static partial class Typing
         return CreateVariableDetail("", num, VariableType.PrimitiveValue);
     }
 
-    public static VariableDetail CreateFloatingNumericType(INamespace ns)
+    public static VariableDetail CreateFloatingNumericType(IManaged ns)
     {
         var num = new NumericStruct();
         num.Types.Add(Lookup.LoadStruct(ns, "Double"));

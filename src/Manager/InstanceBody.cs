@@ -7,7 +7,7 @@ namespace Roku.Manager;
 
 public class InstanceBody : INamespaceBody, ILexicalScope
 {
-    public INamespace Namespace { get; }
+    public IManaged Namespace { get; }
     public ITypeDefinition Type { get; set; }
     public TypeSpecialization Specialization { get; set; }
     public List<IFunctionName> Functions { get; } = new List<IFunctionName>();
@@ -20,7 +20,7 @@ public class InstanceBody : INamespaceBody, ILexicalScope
     public int MaxTemporaryValue { get; set; } = 0;
 
 #pragma warning disable CS8618
-    public InstanceBody(INamespace ns)
+    public InstanceBody(IManaged ns)
     {
         Namespace = ns;
     }
