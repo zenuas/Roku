@@ -73,7 +73,7 @@ public static partial class Typing
                     //var ret = new EmbeddedFunction("return", null, args.Map(x => x?.Name!).ToArray()) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                     var r = ns.Cast<FunctionBody>().Return;
                     var ret = new EmbeddedFunction("return", null, r is { } ? new ITypeDefinition[] { r } : new ITypeDefinition[] { }) { OpCode = (_, args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
-                    Lookup.AppendSpecialization(ret, new GenericsMapper());
+                    _ = Lookup.AppendSpecialization(ret, new GenericsMapper());
                     var fm = new FunctionMapper(ret);
                     if (r is TypeGenericsParameter gen) fm.TypeMapper[gen] = CreateVariableDetail("", m[gen].Struct ?? (args.Count > 0 ? args[0] : null), VariableType.TypeParameter);
                     else if (r is TypeSpecialization gv && m.ContainsKey(r) && m[r].Struct is StructSpecialization sp && sp.Body is ISpecialization sp2) gv.Generics.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail("", sp.GenericsMapper[sp2.Generics[i]], VariableType.TypeParameter));
@@ -121,7 +121,7 @@ public static partial class Typing
                     {
                         m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
                     }
-                    if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, ret);
+                    if (call.Return is { }) _ = LocalValueInferenceWithEffect(ns, m, call.Return!, ret);
                     resolve = true;
                 }
                 break;
@@ -133,10 +133,10 @@ public static partial class Typing
                     if (body is null) break;
 
                     var em = new EmbeddedFunction(x.ToString(), x.ToString()) { OpCode = (_, args) => $"newobj instance void {CodeGenerator.GetStructName(body)}::.ctor()" };
-                    Lookup.AppendSpecialization(em, new GenericsMapper());
+                    _ = Lookup.AppendSpecialization(em, new GenericsMapper());
                     var fm = new FunctionMapper(em);
                     m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
-                    if (call.Return is { }) LocalValueInferenceWithEffect(ns, m, call.Return!, body);
+                    if (call.Return is { }) _ = LocalValueInferenceWithEffect(ns, m, call.Return!, body);
                     resolve = true;
                 }
                 break;
@@ -201,7 +201,7 @@ public static partial class Typing
 
         if (left is NumericStruct num)
         {
-            if (num.Types.Contains(right)) num.Types.RemoveAll(x => x != right);
+            if (num.Types.Contains(right)) _ = num.Types.RemoveAll(x => x != right);
         }
         else if (left is IGenericsMapper lgm &&
             !Lookup.IsFixedStruct(left) &&

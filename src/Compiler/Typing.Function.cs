@@ -19,7 +19,7 @@ public static partial class Typing
         {
             if (body.Body.OfType<IfCastCode>().FindFirstOrNull(x => Lookup.IsValueType(mapper[x.Condition].Struct)) is { })
             {
-                LocalValueInferenceWithEffect(body.Namespace, mapper, mapper.CastBoxCondition, Lookup.LoadType(Lookup.GetRootNamespace(body.Namespace), typeof(object)));
+                _ = LocalValueInferenceWithEffect(body.Namespace, mapper, mapper.CastBoxCondition, Lookup.LoadType(Lookup.GetRootNamespace(body.Namespace), typeof(object)));
             }
         }
         return resolved;
@@ -48,7 +48,7 @@ public static partial class Typing
                     }
                     else
                     {
-                        m.Remove(imp);
+                        _ = m.Remove(imp);
                         afb.Return = null;
                         afb.Body
                             .OfType<IReturnBind>()

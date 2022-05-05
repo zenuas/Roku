@@ -6,10 +6,7 @@ namespace Roku.Tests;
 public class StringsTest
 {
     [OneTimeSetUp]
-    public void OneTimeSetUp()
-    {
-        System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-    }
+    public void OneTimeSetUp() => System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
     [Test]
     public void CountTest()

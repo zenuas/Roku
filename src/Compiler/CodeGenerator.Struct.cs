@@ -18,7 +18,7 @@ public static partial class CodeGenerator
 
             var name = GetStructName(body.Name, body, g);
             if (cache.Contains(name)) return;
-            cache.Add(name);
+            _ = cache.Add(name);
 
             il.WriteLine($".class public {name}");
             il.WriteLine("{");

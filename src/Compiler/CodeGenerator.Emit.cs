@@ -83,15 +83,9 @@ public static partial class CodeGenerator
         }
     }
 
-    public static void CallToAddEmitFunctionList(TypeMapper m, AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss)
-    {
-        AppendFunctionSpecialization(fss, new FunctionSpecialization(anon, new GenericsMapper()));
-    }
+    public static void CallToAddEmitFunctionList(TypeMapper m, AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss) => AppendFunctionSpecialization(fss, new FunctionSpecialization(anon, new GenericsMapper()));
 
-    public static void CallToAddEmitFunctionList(TypeMapper m, FunctionMapper fm, AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss)
-    {
-        AppendFunctionSpecialization(fss, new FunctionSpecialization(anon, Lookup.TypeMapperToGenericsMapper(fm.TypeMapper)));
-    }
+    public static void CallToAddEmitFunctionList(TypeMapper m, FunctionMapper fm, AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss) => AppendFunctionSpecialization(fss, new FunctionSpecialization(anon, Lookup.TypeMapperToGenericsMapper(fm.TypeMapper)));
 
     public static bool EqualsFunctionCaller(FunctionSpecialization left, IFunctionName right, GenericsMapper right_g)
     {

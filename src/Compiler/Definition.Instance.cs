@@ -7,10 +7,7 @@ namespace Roku.Compiler;
 
 public static partial class Definition
 {
-    public static void InstanceDefinition(SourceCodeBody src, ProgramNode pgm)
-    {
-        pgm.Instances.Each(x => src.Instances.Add(InstanceBodyDefinition(src, x)));
-    }
+    public static void InstanceDefinition(SourceCodeBody src, ProgramNode pgm) => pgm.Instances.Each(x => src.Instances.Add(InstanceBodyDefinition(src, x)));
 
     public static InstanceBody InstanceBodyDefinition(SourceCodeBody src, InstanceNode inst)
     {

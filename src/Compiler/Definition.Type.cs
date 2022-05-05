@@ -8,10 +8,7 @@ namespace Roku.Compiler;
 
 public static partial class Definition
 {
-    public static void TypeDefinition(SourceCodeBody src, ProgramNode pgm)
-    {
-        pgm.Structs.Each(x => src.Structs.Add(TypeBodyDefinition(src, x)));
-    }
+    public static void TypeDefinition(SourceCodeBody src, ProgramNode pgm) => pgm.Structs.Each(x => src.Structs.Add(TypeBodyDefinition(src, x)));
 
     public static StructBody TypeBodyDefinition(SourceCodeBody src, StructNode sn)
     {

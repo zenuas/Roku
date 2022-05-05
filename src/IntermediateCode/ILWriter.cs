@@ -16,20 +16,11 @@ public class ILWriter : IDisposable
         BaseStream = path == "-" ? Console.Out : new StreamWriter(path);
     }
 
-    public void WriteLine()
-    {
-        IsLineHead = WriteLine(new string[] { "" }, Indent, IsLineHead);
-    }
+    public void WriteLine() => IsLineHead = WriteLine(new string[] { "" }, Indent, IsLineHead);
 
-    public void WriteLine(string? s)
-    {
-        IsLineHead = WriteLine(s!.SplitLine(), Indent, IsLineHead);
-    }
+    public void WriteLine(string? s) => IsLineHead = WriteLine(s!.SplitLine(), Indent, IsLineHead);
 
-    public void Write(string? s)
-    {
-        IsLineHead = Write(s!.SplitLine(), Indent, IsLineHead);
-    }
+    public void Write(string? s) => IsLineHead = Write(s!.SplitLine(), Indent, IsLineHead);
 
     public bool Write(string[] lines, int indent, bool line_head = true)
     {

@@ -46,10 +46,7 @@ public partial class Parser
     public static InstanceNode CreateInstanceNode(
             SpecializationNode spec,
             ListNode<InstanceMapNode> maps
-        )
-    {
-        return new InstanceNode(spec, maps).R(spec);
-    }
+        ) => new InstanceNode(spec, maps).R(spec);
 
     public static InstanceMapNode CreateInstanceMapNode(
             VariableNode name,
@@ -84,20 +81,14 @@ public partial class Parser
             ListNode<DeclareNode> args,
             ITypeNode? ret,
             ListNode<SpecializationNode> where
-        )
-    {
-        return CreateFunctionNode(new FunctionNode().R(name), name, args, ret, where);
-    }
+        ) => CreateFunctionNode(new FunctionNode().R(name), name, args, ret, where);
 
     public static FunctionNode CreateFunctionNode(
             VariableNode name,
             ListNode<ITypeNode> args,
             ITypeNode? ret,
             ListNode<SpecializationNode> where
-        )
-    {
-        return CreateFunctionNode(name, new ListNode<DeclareNode>().Return(x => x.List.AddRange(args.List.Select((y, i) => new DeclareNode(CreateVariableNode($"arg{i}"), y)))), ret, where);
-    }
+        ) => CreateFunctionNode(name, new ListNode<DeclareNode>().Return(x => x.List.AddRange(args.List.Select((y, i) => new DeclareNode(CreateVariableNode($"arg{i}"), y)))), ret, where);
 
     public static LambdaExpressionNode CreateLambdaFunction(LambdaExpressionNode lambda, ListNode<IDeclareNode> args, ITypeNode? ret, bool isimplicit)
     {

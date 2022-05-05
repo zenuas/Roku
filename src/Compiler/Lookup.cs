@@ -21,7 +21,7 @@ public static class Lookup
             if (!readed.Contains(source))
             {
                 xs.Add(source);
-                readed.Add(source);
+                _ = readed.Add(source);
             }
             xs.AddRange(source.Uses.OfType<SourceCodeBody>().Select(xs => use_load(xs)).Flatten());
             return xs;
@@ -39,7 +39,7 @@ public static class Lookup
             if (!readed.Contains(source))
             {
                 xs.Add(source);
-                readed.Add(source);
+                _ = readed.Add(source);
             }
             if (source is IUse body) xs.AddRange(body.Uses.Select(xs => use_load(xs)).Flatten());
             return xs;
@@ -70,7 +70,7 @@ public static class Lookup
         var v = FunctionArgumentsEquals(ns, fn, args);
         if (v.Exists)
         {
-            if (fn is ISpecialization sp) AppendSpecialization(sp, v.GenericsMapper);
+            if (fn is ISpecialization sp) _ = AppendSpecialization(sp, v.GenericsMapper);
             return new FunctionSpecialization(fn, v.GenericsMapper);
         }
         return null;
@@ -479,7 +479,7 @@ public static class Lookup
                     if (g.Generics.Count != args.Count) continue;
                     var gens = new GenericsMapper();
                     g.Generics.Each((x, i) => gens[x] = args[i]);
-                    AppendSpecialization(g, gens);
+                    _ = AppendSpecialization(g, gens);
                     return new StructSpecialization(x, gens);
                 }
                 else

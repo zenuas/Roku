@@ -18,7 +18,7 @@ public class FrontEndTest
     public void Setup()
     {
         Trace.Listeners.Clear();
-        Trace.Listeners.Add(new NoFailListener());
+        _ = Trace.Listeners.Add(new NoFailListener());
     }
 
     [OneTimeSetUp]
@@ -31,7 +31,7 @@ public class FrontEndTest
         }
         else
         {
-            Directory.CreateDirectory(ObjDir);
+            _ = Directory.CreateDirectory(ObjDir);
         }
     }
 

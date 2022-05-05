@@ -134,7 +134,7 @@ public partial class Lexer : ILexer<INode>
                         (last == Symbols.__LeftSquareBracket && current == Symbols.__RightSquareBracket) ||
                         (last == Symbols.__LeftCurlyBracket && current == Symbols.__RightCurlyBracket))
                     {
-                        parentheses.Pop();
+                        _ = parentheses.Pop();
                     }
                     else
                     {
@@ -336,7 +336,7 @@ public partial class Lexer : ILexer<INode>
 
     public static Token ReadVariable(SourceCodeReader reader, StringBuilder s)
     {
-        while (IsWord(reader.PeekChar())) s.Append(reader.ReadChar());
+        while (IsWord(reader.PeekChar())) _ = s.Append(reader.ReadChar());
         var name = s.ToString();
         return ReservedString.ContainsKey(name)
             ? new Token { Type = ReservedString[name], Name = name }
@@ -410,9 +410,9 @@ public partial class Lexer : ILexer<INode>
         while (!reader.EndOfStream)
         {
             if (!IsOperator(reader.PeekChar())) break;
-            s.Append(reader.ReadChar());
+            _ = s.Append(reader.ReadChar());
         }
-        if (reader.PeekChar() == '=') s.Append(reader.ReadChar());
+        if (reader.PeekChar() == '=') _ = s.Append(reader.ReadChar());
         var ope = s.ToString();
         return new Token
         {

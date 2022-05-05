@@ -50,10 +50,7 @@ public static partial class CodeGenerator
 
     public static string GetStructName(string name, ISpecialization sp, GenericsMapper g, bool escape = true) => (g.Count == 0 ? name : $"{name}{GetGenericsName(sp, g, false)}").To(x => escape ? EscapeILName(x) : x);
 
-    public static string GetFunctionTypeName(AnonymousFunctionBody anon)
-    {
-        return GetFunctionTypeName(anon, anon.SpecializationMapper.First().Value);
-    }
+    public static string GetFunctionTypeName(AnonymousFunctionBody anon) => GetFunctionTypeName(anon, anon.SpecializationMapper.First().Value);
 
     public static string GetFunctionTypeName(AnonymousFunctionBody anon, TypeMapper mapper)
     {
@@ -63,10 +60,7 @@ public static partial class CodeGenerator
         return GetFunctionTypeName(args_type!, return_type);
     }
 
-    public static string GetFunctionTypeName(FunctionTypeBody t)
-    {
-        return GetFunctionTypeName(t.Arguments.ToArray(), t.Return);
-    }
+    public static string GetFunctionTypeName(FunctionTypeBody t) => GetFunctionTypeName(t.Arguments.ToArray(), t.Return);
 
     public static string GetFunctionTypeName(IStructBody[] args, IStructBody? ret)
     {
