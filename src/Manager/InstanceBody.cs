@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Roku.Manager;
 
-public class InstanceBody : INamespaceBody, ILexicalScope
+public class InstanceBody : INamespace, ILexicalScope
 {
     public IManaged Namespace { get; }
     public ITypeDefinition Type { get; set; }

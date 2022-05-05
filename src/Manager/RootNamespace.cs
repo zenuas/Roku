@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Roku.Manager;
 
-public class RootNamespace : INamespaceBody
+public class RootNamespace : INamespace
 {
     public List<IFunctionName> Functions { get; } = new List<IFunctionName>();
     public List<IStructBody> Structs { get; } = new List<IStructBody>();

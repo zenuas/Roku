@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Roku.Manager;
 
-public class ClassBody : INamespaceBody, IAttachedNamespace
+public class ClassBody : INamespace, IAttachedNamespace
 {
     public string Name { get; }
     public IManaged Namespace { get; }

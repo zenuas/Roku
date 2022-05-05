@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Roku.Manager;
 
-public class ExternStruct : IStructBody, ISpecialization, INamespaceBody
+public class ExternStruct : IStructBody, ISpecialization, INamespace
 {
     public string Name { get; set; }
     public TypeInfo Struct { get; }

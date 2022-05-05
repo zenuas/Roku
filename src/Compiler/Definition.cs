@@ -250,15 +250,15 @@ public static partial class Definition
 
     public static IEvaluable? FindNamespaceValue(IManaged ns, string name)
     {
-        if (ns is INamespaceBody body && body.Structs.FindFirstOrNull(x => x.Name == name) is { } s) return new TypeValue() { Name = s.Name };
+        if (ns is INamespace body && body.Structs.FindFirstOrNull(x => x.Name == name) is { } s) return new TypeValue() { Name = s.Name };
         if (ns is RootNamespace root) return new TypeValue() { Name = name };
         return null;
     }
 
-    public static SourceCodeBody GetSourceCodeBody(INamespaceBody ns)
+    public static SourceCodeBody GetSourceCodeBody(INamespace ns)
     {
         if (ns is SourceCodeBody src) return src;
-        if (ns is IAttachedNamespace ans && ans.Namespace is INamespaceBody nsb) return GetSourceCodeBody(nsb);
+        if (ns is IAttachedNamespace ans && ans.Namespace is INamespace nsb) return GetSourceCodeBody(nsb);
         throw new Exception();
     }
 }

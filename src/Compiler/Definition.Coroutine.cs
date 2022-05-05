@@ -9,7 +9,7 @@ namespace Roku.Compiler;
 
 public static partial class Definition
 {
-    public static void ConvertCoroutine(INamespaceBody ns, FunctionBody body)
+    public static void ConvertCoroutine(INamespace ns, FunctionBody body)
     {
         var src = GetSourceCodeBody(ns);
         /*

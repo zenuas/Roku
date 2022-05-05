@@ -24,7 +24,7 @@ public static partial class Definition
         scope.Functions.Each(f => MakeFunctionBodyDefinition(src, f, main));
     }
 
-    public static FunctionBody MakeFunctionBodyDefinition(INamespaceBody ns, FunctionNode f, ILexicalScope? parent = null)
+    public static FunctionBody MakeFunctionBodyDefinition(INamespace ns, FunctionNode f, ILexicalScope? parent = null)
     {
         var body = MakeFunctionDefinition(ns, null, f, parent);
         FunctionBodyDefinition(body, f.Statements);
@@ -112,14 +112,14 @@ public static partial class Definition
         });
     }
 
-    public static FunctionBody MakeFunction(INamespaceBody ns, string name, ILexicalScope? parent = null)
+    public static FunctionBody MakeFunction(INamespace ns, string name, ILexicalScope? parent = null)
     {
         var body = new FunctionBody(ns, name, parent);
         ns.Functions.Add(body);
         return body;
     }
 
-    public static FunctionBody MakeFunctionDefinition(INamespaceBody ns, List<TypeGenericsParameter>? gens, FunctionNode f, ILexicalScope? parent = null)
+    public static FunctionBody MakeFunctionDefinition(INamespace ns, List<TypeGenericsParameter>? gens, FunctionNode f, ILexicalScope? parent = null)
     {
         var body = MakeFunction(ns, f.Name.Name, parent);
         var types = new Dictionary<string, TypeGenericsParameter>();

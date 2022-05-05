@@ -49,21 +49,21 @@ public static class Lookup
 
     public static IEnumerable<StructBody> AllStructBodies(List<SourceCodeBody> srcs) => srcs.Select(AllStructBodies).Flatten();
 
-    public static IEnumerable<StructBody> AllStructBodies(INamespaceBody src) => src.Structs.OfType<StructBody>();
+    public static IEnumerable<StructBody> AllStructBodies(INamespace src) => src.Structs.OfType<StructBody>();
 
     public static IEnumerable<ExternStruct> AllExternStructs(RootNamespace root) => AllStructs<ExternStruct>(root);
 
-    public static IEnumerable<T> AllStructs<T>(INamespaceBody src) where T : IStructBody => src.Structs.OfType<T>();
+    public static IEnumerable<T> AllStructs<T>(INamespace src) where T : IStructBody => src.Structs.OfType<T>();
 
     public static IEnumerable<IFunctionBody> AllFunctionBodies(List<SourceCodeBody> srcs) => srcs.Select(AllFunctionBodies).Flatten();
 
-    public static IEnumerable<IFunctionBody> AllFunctionBodies(INamespaceBody src) => src.Functions.OfType<IFunctionBody>();
+    public static IEnumerable<IFunctionBody> AllFunctionBodies(INamespace src) => src.Functions.OfType<IFunctionBody>();
 
     public static IEnumerable<ExternFunction> AllExternFunctions(List<IManaged> srcs) => srcs.Select(AllFunctions<ExternFunction>).Flatten();
 
     public static IEnumerable<EmbeddedFunction> AllEmbeddedFunctions(List<IManaged> srcs) => srcs.Select(AllFunctions<EmbeddedFunction>).Flatten();
 
-    public static IEnumerable<T> AllFunctions<T>(IManaged src) where T : IFunctionName => src is INamespaceBody ns ? ns.Functions.OfType<T>() : new List<T>();
+    public static IEnumerable<T> AllFunctions<T>(IManaged src) where T : IFunctionName => src is INamespace ns ? ns.Functions.OfType<T>() : new List<T>();
 
     public static FunctionSpecialization? IfFunctionArgumentsEquals_ThenAppendSpecialization(IManaged ns, IFunctionName fn, List<IStructBody?> args)
     {
@@ -85,7 +85,7 @@ public static class Lookup
 
     public static FunctionSpecialization? FindFunctionOrNull(IManaged ns, ILexicalScope? current, string name, List<IStructBody?> args, bool find_use = true)
     {
-        if (ns is INamespaceBody nsb)
+        if (ns is INamespace nsb)
         {
             foreach (var x in nsb.Functions.Where(x => x.Name == name))
             {
@@ -337,7 +337,7 @@ public static class Lookup
 
     public static ClassBody? FindClassOrNull(IManaged ns, string name, List<ITypeDefinition> gens)
     {
-        if (ns is INamespaceBody nsb)
+        if (ns is INamespace nsb)
         {
             if (nsb.Classes.FindFirstOrNull(x => x.Name == name && x.Generics.Count == gens.Count) is { } c) return c;
         }
@@ -470,7 +470,7 @@ public static class Lookup
 
     public static IStructBody? FindStructOrNull(IManaged ns, string[] name, List<IStructBody> args)
     {
-        if (ns is INamespaceBody nsb)
+        if (ns is INamespace nsb)
         {
             foreach (var x in nsb.Structs.Where(x => TypeNameEquals(x, name)))
             {
@@ -592,7 +592,7 @@ public static class Lookup
 
     public static ExternFunction LoadFunction(RootNamespace root, string alias, MethodInfo mi) => LoadFunction(root, root, alias, mi);
 
-    public static ExternFunction LoadFunction(RootNamespace root, INamespaceBody ns, string alias, MethodInfo mi)
+    public static ExternFunction LoadFunction(RootNamespace root, INamespace ns, string alias, MethodInfo mi)
     {
         var f = new ExternFunction(alias, mi, LoadType(root, mi.DeclaringType!).Assembly);
         ns.Functions.Add(f);
@@ -605,7 +605,7 @@ public static class Lookup
         : ns is IUse use ? use.Uses.OfType<RootNamespace>().First()
         : throw new Exception();
 
-    public static INamespaceBody GetTopLevelNamespace(IManaged ns) =>
+    public static INamespace GetTopLevelNamespace(IManaged ns) =>
         ns is RootNamespace root ? root
         : ns is SourceCodeBody src ? src
         : ns is IAttachedNamespace lex ? GetTopLevelNamespace(lex.Namespace)
