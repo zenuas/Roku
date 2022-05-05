@@ -32,7 +32,7 @@ public class CommandLineTest
     public void Test()
     {
         var receiver = new Option();
-        var args = CommandLine.Run<Option>(receiver, "a", "-otest1", "--entrypoint", "test2", "-t", "-l", "test3", "b", "--lib", "test4", "c");
+        var args = CommandLine.Run(receiver, "a", "-otest1", "--entrypoint", "test2", "-t", "-l", "test3", "b", "--lib", "test4", "c");
 
         Assert.AreEqual(receiver.Output, "test1");
         Assert.AreEqual(receiver.EntryPoint, "test2");
@@ -44,7 +44,7 @@ public class CommandLineTest
     public void OutputStdout()
     {
         var receiver = new Option();
-        _ = CommandLine.Run<Option>(receiver, "-o", "-");
+        _ = CommandLine.Run(receiver, "-o", "-");
 
         Assert.AreEqual(receiver.Output, "-");
     }
