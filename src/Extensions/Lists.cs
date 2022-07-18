@@ -103,10 +103,10 @@ public static class Lists
     public static IEnumerable<Task<R>> MapParallel<T, R>(this IEnumerable<T> self, Func<T, int, R> f) => self.Select((x, i) => Task.Run(() => f(x, i)));
 
     [DebuggerHidden]
-    public static R[] MapParallelAll<T, R>(this IEnumerable<T> self, Func<T, R> f) => Task.WhenAll(self.Select(x => Task.Run(() => f(x)))).Result;
+    public static R[] MapParallelAll<T, R>(this IEnumerable<T> self, Func<T, R> f) => Task.WhenAll(self.MapParallel(f)).Result;
 
     [DebuggerHidden]
-    public static R[] MapParallelAll<T, R>(this IEnumerable<T> self, Func<T, int, R> f) => Task.WhenAll(self.Select((x, i) => Task.Run(() => f(x, i)))).Result;
+    public static R[] MapParallelAll<T, R>(this IEnumerable<T> self, Func<T, int, R> f) => Task.WhenAll(self.MapParallel(f)).Result;
 
     [DebuggerHidden]
     public static IEnumerable<(bool Completed, R? Result)> MapParallelAllWithTimeout<T, R>(this IEnumerable<T> self, Func<T, R> f, int waitms) => self.MapParallelAllWithTimeout(f, waitms, _ => default);
@@ -115,7 +115,7 @@ public static class Lists
     public static IEnumerable<(bool Completed, R? Result)> MapParallelAllWithTimeout<T, R>(this IEnumerable<T> self, Func<T, R> f, int waitms, Func<T, R?> error)
     {
         var xs = self.ToList();
-        var tasks = xs.Select(x => Task.Run(() => f(x))).ToArray();
+        var tasks = xs.MapParallel(f).ToArray();
         _ = Task.WaitAll(tasks, waitms);
         return tasks.Select((x, i) => (x.IsCompleted, x.IsCompleted ? x.Result : error(xs[i])));
     }
