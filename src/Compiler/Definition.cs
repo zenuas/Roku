@@ -16,6 +16,7 @@ public static partial class Definition
         src.Uses.Add(root);
         TypeDefinition(src, pgm);
         FunctionDefinition(src, pgm);
+        CaptureDefinition(src);
         ClassDefinition(src, pgm);
         InstanceDefinition(src, pgm);
         return src;
@@ -41,7 +42,11 @@ public static partial class Definition
                 return new NullValue();
 
             case VariableNode x:
-                return FindScopeValue(scope, x.Name);
+                {
+                    var (defscope, v) = FindScopeValue(scope, x.Name);
+                    if (defscope is { } && scope != defscope && scope is FunctionBody fb) fb.Capture[v] = defscope;
+                    return v;
+                }
 
             case TypeNode x:
                 if (x.Namespace.Count > 0)
@@ -50,7 +55,7 @@ public static partial class Definition
                 }
                 else
                 {
-                    return FindScopeValue(scope, x.Name);
+                    return FindScopeValue(scope, x.Name).Value;
                 }
 
             case FunctionCallNode x:
@@ -235,14 +240,14 @@ public static partial class Definition
 
     public static IEvaluable? FindCurrentScopeValueOrNull(ILexicalScope scope, string name) => scope.LexicalScope.ContainsKey(name) ? scope.LexicalScope[name] : null;
 
-    public static IEvaluable FindScopeValue(ILexicalScope scope, string name)
+    public static (ILexicalScope? Scope, IEvaluable Value) FindScopeValue(ILexicalScope scope, string name)
     {
-        if (FindCurrentScopeValueOrNull(scope, name) is { } v) return v;
+        if (FindCurrentScopeValueOrNull(scope, name) is { } v) return (scope, v);
         if (scope.Parent is { } parent) return FindScopeValue(parent, name);
-        if (scope is IManaged ns && FindNamespaceValue(ns, name) is { } p) return p;
+        if (scope is IManaged ns && FindNamespaceValue(ns, name) is { } p) return (scope, p);
         if (scope.Namespace is IUse src)
         {
-            return src.Uses.Select(x => FindNamespaceValue(x, name)).OfType<IEvaluable>().First();
+            return (null, src.Uses.Select(x => FindNamespaceValue(x, name)).OfType<IEvaluable>().First());
         }
         throw new Exception();
     }

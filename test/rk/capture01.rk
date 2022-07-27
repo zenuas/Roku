@@ -1,8 +1,12 @@
 
 var a = 1
+var b = "hello"
 
 sub f()
-	print(a)
+	sub g()
+		print(a)
+		print(b)
+	g()
 
 #=>1
 f()
@@ -12,12 +16,18 @@ f()
 
 struct $scope
 	var a: Int
+	var b: String
 
 var scope = $scope();
 scope.a = 1
+scope.b = "hello"
 
 sub f(_scope: $scope)
+	g.bind(_scope)()
+
+sub g(_scope: $scope)
 	print(_scope.a)
+	print(_scope.b)
 
 f.bind(scope)()
 ###

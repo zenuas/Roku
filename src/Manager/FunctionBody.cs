@@ -19,6 +19,7 @@ public class FunctionBody : IFunctionBody, ILexicalScope, IConstraints
     public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
     public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
     public List<(VariableValue Class, List<ITypeDefinition> Generics)> Constraints { get; } = new List<(VariableValue, List<ITypeDefinition>)>();
+    public Dictionary<IEvaluable, ILexicalScope> Capture { get; } = new();
 
     public FunctionBody(IManaged ns, string name, ILexicalScope? parent = null)
     {
