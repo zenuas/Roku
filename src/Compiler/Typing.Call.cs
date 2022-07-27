@@ -171,13 +171,13 @@ public static partial class Typing
         switch (body)
         {
             case ExternStruct x:
-                return new NamespaceJunction(ns).Return(j => j.Uses.Add(x));
+                return x;
 
             case StructBody x:
                 return x.Namespace;
 
             case StructSpecialization x:
-                return new NamespaceJunction(ns).Return(j => j.Uses.Add(x));
+                return x;
         }
         throw new Exception();
     }
