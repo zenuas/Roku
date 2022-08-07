@@ -44,7 +44,7 @@ public static partial class Definition
             case VariableNode x:
                 {
                     var (defscope, v) = FindScopeValue(scope, x.Name);
-                    if (defscope is { } && scope != defscope && scope is FunctionBody fb) fb.Capture[v] = defscope;
+                    if (defscope is { } && scope != defscope && scope is FunctionBody fb) fb.Capture[v.Cast<VariableValue>()] = defscope;
                     return v;
                 }
 
