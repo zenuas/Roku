@@ -42,7 +42,7 @@ public static partial class Definition
         ns.Functions.Add(new EmbeddedFunction(co_struct.Name, co_struct.Name) { OpCode = (_, args) => $"newobj instance void {co_struct.Name}::.ctor()" });
 
         var local_value_exist = !body.LexicalScope.Where(x => x.Value is VariableValue).IsEmpty();
-        var co_local = new StructBody(ns, $"CoLocal${src.CoroutineUniqueCount++}") { IsCoroutineLocal = true };
+        var co_local = new StructBody(ns, $"CoLocal${src.CoroutineUniqueCount++}") { Type = StructBodyTypes.CoroutineLocal };
         var co_local_typename = new TypeValue() { Name = co_local.Name };
         if (local_value_exist)
         {

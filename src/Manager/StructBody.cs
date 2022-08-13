@@ -15,7 +15,7 @@ public class StructBody : IStructBody, ILexicalScope, ISpecialization
     public int MaxTemporaryValue { get; set; } = 0;
     public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
     public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
-    public bool IsCoroutineLocal { get; init; } = false;
+    public StructBodyTypes Type { get; init; } = StructBodyTypes.Struct;
 
     public StructBody(IManaged ns, string name)
     {

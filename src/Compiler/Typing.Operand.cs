@@ -75,7 +75,7 @@ public static partial class Typing
 
             if (v is PropertyValue prop)
             {
-                if (m[prop.Left].Struct is StructBody sb && sb.IsCoroutineLocal)
+                if (m[prop.Left].Struct is StructBody sb && sb.Type == StructBodyTypes.CoroutineLocal)
                 {
                     sb.Body.Add(new TypeBind(sb.LexicalScope[prop.Right], new TypeValue() { Name = b.Name }));
                 }
@@ -134,7 +134,7 @@ public static partial class Typing
                 {
                     var scope = GetCaptured(ns, x);
                     if (scope is null) return m[x];
-                    var reciever = m.FindFirst(kv => kv.Value.Struct!.Name == Definition.ScopeToUniqueName(scope)).Key;
+                    var reciever = m.FindFirst(kv => kv.Value.Struct?.Name == Definition.ScopeToUniqueName(scope)).Key;
                     var prop = m[x] = CreateVariableDetail(x.Name, GetPropertyType(m, reciever, x.Name), VariableType.Property);
                     return m[x];
                 }
