@@ -93,6 +93,15 @@ public static partial class Typing
         return true;
     }
 
+    public static ILexicalScope? GetCaptured(IManaged ns, VariableValue v)
+    {
+        if (ns is FunctionBody fb)
+        {
+            if (fb.Capture.ContainsKey(v)) return fb.Capture[v];
+        }
+        return null;
+    }
+
     public static VariableDetail ToTypedValue(IManaged ns, TypeMapper m, IEvaluable v, bool nonamespace = false)
     {
         if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return m[v];
@@ -122,16 +131,24 @@ public static partial class Typing
                 return m[x];
 
             case VariableValue x:
-                return m[x];
+                {
+                    var scope = GetCaptured(ns, x);
+                    if (scope is null) return m[x];
+                    var reciever = m.FindFirst(kv => kv.Value.Struct!.Name == Definition.ScopeToUniqueName(scope)).Key;
+                    var prop = m[x] = CreateVariableDetail(x.Name, GetPropertyType(m, reciever, x.Name), VariableType.Property);
+                    return m[x];
+                }
 
             case TemporaryValue x:
                 return m[x];
 
             case PropertyValue x:
-                _ = ToTypedValue(ns, m, x.Left);
-                var prop = m[x] = CreateVariableDetail(x.Right, GetPropertyType(m, x.Left, x.Right), VariableType.Property);
-                prop.Reciever = x.Left;
-                return m[x];
+                {
+                    _ = ToTypedValue(ns, m, x.Left);
+                    var prop = m[x] = CreateVariableDetail(x.Right, GetPropertyType(m, x.Left, x.Right), VariableType.Property);
+                    prop.Reciever = x.Left;
+                    return m[x];
+                }
 
             case ArrayContainer x:
                 x.Values.Each(value => ToTypedValue(ns, m, value));
