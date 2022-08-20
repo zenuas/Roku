@@ -23,25 +23,22 @@ public static partial class CodeGenerator
         {
             case Operator.Bind:
                 {
-                    if (op is IReturnBind r)
-                    {
-                        if (m[r.Return!].Struct is NamespaceBody) return;
-                        if (m[r.Return!].Struct is FunctionMapper fm && fm.Function is AnonymousFunctionBody afb && afb.Generics.Count > 0)
-                        {
-                            m.Values
-                                .Where(x => x.Type == VariableType.FunctionMapper && x.Struct!.Cast<FunctionMapper>().Function == afb)
-                                .Where(IsCallableAnonymousFunction)
-                                .Each((x, i) =>
-                                {
-                                    if (i > 0) il.WriteLine();
-                                    var fm = x.Struct!.Cast<FunctionMapper>();
-                                    il.WriteLine(LoadValue_AnonymousFunctionMapper(fm));
-                                    il.WriteLine(StoreValue_Stloc(x.Index));
-                                });
-                            return;
-                        }
-                    }
                     var bind = op.Cast<BindCode>();
+                    if (m[bind.Return!].Struct is NamespaceBody) return;
+                    if (m[bind.Return!].Struct is FunctionMapper fm && fm.Function is AnonymousFunctionBody afb && afb.Generics.Count > 0)
+                    {
+                        m.Values
+                            .Where(x => x.Type == VariableType.FunctionMapper && x.Struct!.Cast<FunctionMapper>().Function == afb)
+                            .Where(IsCallableAnonymousFunction)
+                            .Each((x, i) =>
+                            {
+                                if (i > 0) il.WriteLine();
+                                var fm = x.Struct!.Cast<FunctionMapper>();
+                                il.WriteLine(LoadValue_AnonymousFunctionMapper(fm));
+                                il.WriteLine(StoreValue_Stloc(x.Index));
+                            });
+                        return;
+                    }
                     il.WriteLine(LoadValue(m, bind.Value!));
                 }
                 break;
