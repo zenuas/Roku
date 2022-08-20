@@ -1,8 +1,9 @@
 ﻿using Extensions;
-using Roku.Manager;
 using Roku.Declare;
-using System.Linq;
+using Roku.IntermediateCode;
+using Roku.Manager;
 using System;
+using System.Linq;
 
 namespace Roku.Compiler;
 
@@ -28,10 +29,15 @@ public static partial class Definition
         {
             if (current == find)
             {
+                var captured = current.LexicalScope[v.Name];
+                current.LexicalScope.Remove(v.Name);
                 var name = ScopeToUniqueName(current);
                 var typename = new TypeValue() { Name = v.Name };
+                var varname = $"${name}";
                 if (src.Structs.OfType<StructBody>().FirstOrDefault(s => s.Name == name) is { } p)
                 {
+                    var scopevar = current.LexicalScope[varname];
+                    CapturedVariableToProperty(current, captured, scopevar, v.Name);
                     p.LexicalScope.Add(v.Name, typename);
                     return p;
                 }
@@ -40,6 +46,11 @@ public static partial class Definition
                     var scope = new StructBody(src, name) { Type = StructBodyTypes.Capture };
                     src.Structs.Add(scope);
                     scope.LexicalScope.Add(v.Name, typename);
+
+                    var scopevar = new VariableValue() { Name = varname };
+                    current.LexicalScope.Add(scopevar.Name, scopevar);
+                    CapturedVariableToProperty(current, captured, scopevar, v.Name);
+                    current.Body.Insert(0, new Call(new FunctionCallValue(new VariableValue() { Name = name })) { Return = scopevar });
                     return scope;
                 }
             }
@@ -49,12 +60,66 @@ public static partial class Definition
                 var argname = $"${scope.Name}";
                 if (current is FunctionBody fb && !fb.Arguments.Exists(x => x.Name.Name == argname))
                 {
+                    var scopevar = new VariableValue() { Name = argname };
                     fb.Arguments.Insert(0, (new VariableValue() { Name = argname }, new TypeValue() { Name = scope.Name }));
+                    fb.LexicalScope.Add(scope.Name, scopevar);
                 }
                 return scope;
             }
         }
 
-        f.Capture.Each(kv => up(f, kv.Key, kv.Value));
+        f.Capture.Each(kv =>
+        {
+            _ = up(f, kv.Key, kv.Value);
+
+            var scopevar = f.LexicalScope[ScopeToUniqueName(kv.Value)];
+            CapturedVariableToProperty(f, kv.Key, scopevar, kv.Key.Name);
+        });
+    }
+
+    public static void CapturedVariableToProperty(ILexicalScope scope, IEvaluable original, IEvaluable scopevar, string name)
+    {
+        scope.Body.ForEach(x => CapturedVariableToPropertyOperand(scope, x, original, scopevar, name));
+    }
+
+    public static void CapturedVariableToPropertyOperand(ILexicalScope scope, IOperand ope, IEvaluable original, IEvaluable scopevar, string name)
+    {
+        switch (ope)
+        {
+            case Code bind when bind.Operator == Operator.Bind:
+                bind.Return = IfCapturedVariableToProperty(original, bind.Return, scopevar, name);
+#pragma warning disable CS0612
+                bind.LeftReplace(IfCapturedVariableToProperty(original, bind.Left, scopevar, name));
+                bind.RightReplace(IfCapturedVariableToProperty(original, bind.Right, scopevar, name));
+#pragma warning restore CS0612
+                return;
+
+            case IfCode if_:
+#pragma warning disable CS0612
+                if_.ConditionReplace(IfCapturedVariableToProperty(original, if_.Condition, scopevar, name)!);
+#pragma warning restore CS0612
+                return;
+
+            case IfCastCode ifcast:
+#pragma warning disable CS0612
+                ifcast.ConditionReplace(IfCapturedVariableToProperty(original, ifcast.Condition, scopevar, name)!);
+#pragma warning restore CS0612
+                return;
+
+            case Call call:
+                for (var i = 0; i < call.Function.Arguments.Count; i++)
+                {
+                    call.Function.Arguments[i] = IfCapturedVariableToProperty(original, call.Function.Arguments[i], scopevar, name)!;
+                }
+                call.Return = IfCapturedVariableToProperty(original, call.Return, scopevar, name);
+                return;
+        }
+        throw new Exception();
+    }
+
+    public static IEvaluable? IfCapturedVariableToProperty(IEvaluable original, IEvaluable? v, IEvaluable scopevar, string name)
+    {
+        if (v is { } p && p == original) return new PropertyValue(scopevar, name);
+        return v;
     }
 }
