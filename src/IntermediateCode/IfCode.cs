@@ -5,7 +5,7 @@ namespace Roku.IntermediateCode;
 
 public class IfCode : IOperand
 {
-    public Operator Operator { get; init; } = Operator.If;
+    public Operator Operator { get; } = Operator.If;
     public IEvaluable Condition { get; private set; }
     public LabelCode Else { get; }
 

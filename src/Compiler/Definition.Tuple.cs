@@ -25,7 +25,7 @@ public static partial class Definition
             fbody.Generics.Add(gp);
             fbody.Arguments.Add((farg_var, gp));
             fbody.LexicalScope.Add(farg_var.Name, farg_var);
-            fbody.Body.Add(new BindCode { Operator = Operator.Bind, Return = new PropertyValue(self, $"{i + 1}"), Value = farg_var });
+            fbody.Body.Add(new BindCode { Return = new PropertyValue(self, $"{i + 1}"), Value = farg_var });
             fret.Generics.Add(gp);
             fcall.Generics.Add(gp);
         });

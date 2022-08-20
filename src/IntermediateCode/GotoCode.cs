@@ -2,7 +2,7 @@
 
 public class GotoCode : IOperand
 {
-    public Operator Operator { get; init; } = Operator.Goto;
+    public Operator Operator { get; } = Operator.Goto;
     public LabelCode Label { get; set; }
 
     public GotoCode(LabelCode label)

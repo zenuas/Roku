@@ -5,7 +5,7 @@ namespace Roku.IntermediateCode;
 
 public class IfCastCode : IOperand
 {
-    public Operator Operator { get; init; } = Operator.IfCast;
+    public Operator Operator { get; } = Operator.IfCast;
     public IEvaluable Name { get; }
     public ITypeDefinition Type { get; }
     public IEvaluable Condition { get; private set; }

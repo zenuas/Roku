@@ -14,7 +14,7 @@ public static partial class Typing
     {
         switch (op)
         {
-            case BindCode x when x.Operator == Operator.Bind:
+            case BindCode x:
                 var resolve = false;
                 if (x.Return is PropertyValue prop)
                 {
