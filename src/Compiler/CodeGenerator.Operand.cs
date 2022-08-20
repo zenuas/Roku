@@ -41,8 +41,8 @@ public static partial class CodeGenerator
                             return;
                         }
                     }
-                    var bind = op.Cast<Code>();
-                    il.WriteLine(LoadValue(m, bind.Left!));
+                    var bind = op.Cast<BindCode>();
+                    il.WriteLine(LoadValue(m, bind.Value!));
                 }
                 break;
 

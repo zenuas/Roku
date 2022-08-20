@@ -29,7 +29,7 @@ public static partial class Definition
         co_struct.Members.Add("state", co_struct.LexicalScope["state"] = state);
         co_struct.Members.Add("value", co_struct.LexicalScope["value"] = value);
         co_struct.Members.Add("next", co_struct.LexicalScope["next"] = next);
-        co_struct.Body.Add(new Code { Operator = Operator.Bind, Return = state, Left = new NumericValue() { Value = 0 } });
+        co_struct.Body.Add(new BindCode { Operator = Operator.Bind, Return = state, Value = new NumericValue() { Value = 0 } });
         co_struct.Body.Add(new TypeBind(value, list_a));
         co_struct.Body.Add(new TypeBind(next, new TypeEnum(new ITypeDefinition[] { co_struct_typename, new TypeValue() { Name = "Null" } })));
         co_struct.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
@@ -131,18 +131,18 @@ public static partial class Definition
         body.LexicalScope.Where(x => x.Value is VariableValue).Each(x => next_body.LexicalScope[x.Key] = x.Value);
 
         next_body.Body.AddRange(new List<IOperand> {
-                new Code { Operator = Operator.Bind, Return = _next_or_null, Left = new PropertyValue(_self, "next") },
+                new BindCode { Operator = Operator.Bind, Return = _next_or_null, Value = new PropertyValue(_self, "next") },
                 new IfCastCode(_next, co_struct_typename, _next_or_null, labels_cond[0]),
-                new Code { Operator = Operator.Bind, Return = _value, Left = new PropertyValue(_self, "value") },
+                new BindCode { Operator = Operator.Bind, Return = _value, Value = new PropertyValue(_self, "value") },
                 new Call(new FunctionCallValue(tuple2).Return(x => x.Arguments.AddRange(new IEvaluable[] { _value, _next }))) { Return = _ret },
                 new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(_ret))),
                 labels_cond[0],
-                new Code { Operator = Operator.Bind, Return = _state, Left = new PropertyValue(_self, "state") },
+                new BindCode { Operator = Operator.Bind, Return = _state, Value = new PropertyValue(_self, "state") },
             });
         if (local_value_exist)
         {
             next_body.LexicalScope["$local"] = _local;
-            next_body.Body.Add(new Code { Operator = Operator.Bind, Return = _local, Left = new PropertyValue(_self, "local") });
+            next_body.Body.Add(new BindCode { Operator = Operator.Bind, Return = _local, Value = new PropertyValue(_self, "local") });
         }
         next_body.Body.AddRange(Lists.Sequence(1).Take(yield_count).Select(n => new IOperand[] {
                 new Call(new FunctionCallValue(new VariableValue() { Name = "==" }).Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, new NumericValue() { Value = (uint)n } }))) { Return = _cond },
@@ -165,8 +165,8 @@ public static partial class Definition
                     $local.a = ...
             */
             body.Body
-                .Where(x => x is Code code && code.Operator == Operator.Bind && code.Return is VariableValue)
-                .OfType<Code>()
+                .Where(x => x is BindCode code && code.Operator == Operator.Bind && code.Return is VariableValue)
+                .OfType<BindCode>()
                 .Each(x => x.Return = new PropertyValue(_local, x.Return!.Cast<VariableValue>().Name));
         }
 
@@ -177,16 +177,16 @@ public static partial class Definition
             var yield_line = chunk.First().Cast<Call>();
 
             var yield_block = new List<IOperand>() {
-                    new Code { Operator = Operator.Bind, Return = new PropertyValue(_self, "value"), Left =  yield_line.Function.Arguments[0] },
+                    new BindCode { Operator = Operator.Bind, Return = new PropertyValue(_self, "value"), Value =  yield_line.Function.Arguments[0] },
                     new Call(new FunctionCallValue(co_struct_name)) { Return = _next },
-                    new Code { Operator = Operator.Bind, Return = new PropertyValue(_next, "state"), Left = new NumericValue() { Value = (uint)i } },
+                    new BindCode { Operator = Operator.Bind, Return = new PropertyValue(_next, "state"), Value = new NumericValue() { Value = (uint)i } },
             };
             if (local_value_exist)
             {
-                yield_block.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(_next, "local"), Left = _local });
+                yield_block.Add(new BindCode { Operator = Operator.Bind, Return = new PropertyValue(_next, "local"), Value = _local });
             }
             yield_block.AddRange(new IOperand[] {
-                    new Code { Operator = Operator.Bind, Return = new PropertyValue(_self, "next"), Left = _next },
+                    new BindCode { Operator = Operator.Bind, Return = new PropertyValue(_self, "next"), Value = _next },
                     new Call(new FunctionCallValue(tuple2).Return(x => x.Arguments.AddRange(new IEvaluable[] { yield_line.Function.Arguments[0], _next }))) { Return = _ret },
                     new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(_ret))),
                     labels_jump[i - 1],
@@ -198,7 +198,7 @@ public static partial class Definition
         next_body.Body.AddRange(new IOperand[] {
                 labels_jump[^1],
                 new Call(new FunctionCallValue(new VariableValue() { Name = "-" }).Return(x => x.Arguments.Add(new NumericValue() { Value = 1 }))) { Return = _m1 },
-                new Code { Operator = Operator.Bind, Return = new PropertyValue(_self, "state"), Left = _m1 },
+                new BindCode { Operator = Operator.Bind, Return = new PropertyValue(_self, "state"), Value = _m1 },
                 new Call(new FunctionCallValue(tuple2).Return(x => x.Arguments.AddRange(new IEvaluable[] { new NullValue(), _self }))) { Return = _ret },
                 new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(_ret))),
             });
@@ -224,9 +224,9 @@ public static partial class Definition
             body.Arguments.Each(x =>
             {
                 body.LexicalScope.Add(x.Name.Name, x.Name);
-                body.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(_local, x.Name.Name), Left = x.Name });
+                body.Body.Add(new BindCode { Operator = Operator.Bind, Return = new PropertyValue(_local, x.Name.Name), Value = x.Name });
             });
-            body.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(_ret, "local"), Left = _local });
+            body.Body.Add(new BindCode { Operator = Operator.Bind, Return = new PropertyValue(_ret, "local"), Value = _local });
         }
         body.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(_ret))));
 
@@ -247,7 +247,7 @@ public static partial class Definition
         isnull_body.LexicalScope["$ret"] = _ret;
         isnull_body.Body.Add(new Call(new FunctionCallValue(next).Return(x => x.Arguments.Add(_self))));
         isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "-" }).Return(x => x.Arguments.Add(new NumericValue() { Value = 1 }))) { Return = _m1 });
-        isnull_body.Body.Add(new Code { Operator = Operator.Bind, Return = _state, Left = new PropertyValue(_self, "state") });
+        isnull_body.Body.Add(new BindCode { Operator = Operator.Bind, Return = _state, Value = new PropertyValue(_self, "state") });
         isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "==" }).Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, _m1 }))) { Return = _ret });
         isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(_ret))));
         ns.Functions.Add(isnull_body);
@@ -271,7 +271,7 @@ public static partial class Definition
             {
                 if (!converted[v])
                 {
-                    newops.Add(new Code { Operator = Operator.Bind, Return = v, Left = new PropertyValue(_local, v.Name) });
+                    newops.Add(new BindCode { Operator = Operator.Bind, Return = v, Value = new PropertyValue(_local, v.Name) });
                     converted[v] = true;
                 }
             }
@@ -284,9 +284,9 @@ public static partial class Definition
     {
         switch (op)
         {
-            case Code x:
+            case BindCode x:
                 {
-                    if (x.Left is VariableValue left && lexical_scope.ContainsKey(left.Name)) yield return left;
+                    if (x.Value is VariableValue left && lexical_scope.ContainsKey(left.Name)) yield return left;
                     if (x.Return is VariableValue right && lexical_scope.ContainsKey(right.Name)) yield return right;
                 }
                 break;

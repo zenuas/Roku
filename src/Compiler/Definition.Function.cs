@@ -50,7 +50,7 @@ public static partial class Definition
                         }
                         else
                         {
-                            scope.Body.Add(new Code { Operator = Operator.Bind, Return = v, Left = e });
+                            scope.Body.Add(new BindCode { Operator = Operator.Bind, Return = v, Value = e });
                         }
                     }
                     break;
@@ -64,7 +64,7 @@ public static partial class Definition
                     break;
 
                 case LetPropertyNode let:
-                    scope.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(NormalizationExpression(scope, let.Reciever, true), let.Name.Name), Left = NormalizationExpression(scope, let.Expression, true) });
+                    scope.Body.Add(new BindCode { Operator = Operator.Bind, Return = new PropertyValue(NormalizationExpression(scope, let.Reciever, true), let.Name.Name), Value = NormalizationExpression(scope, let.Expression, true) });
                     break;
 
                 case LetTupleAssignmentNode let:
@@ -76,7 +76,7 @@ public static partial class Definition
                             {
                                 var v = new VariableValue() { Name = letv.Var.Name };
                                 scope.LexicalScope.Add(letv.Var.Name, v);
-                                scope.Body.Add(new Code { Operator = Operator.Bind, Return = v, Left = new PropertyValue(e, $"{i + 1}") });
+                                scope.Body.Add(new BindCode { Operator = Operator.Bind, Return = v, Value = new PropertyValue(e, $"{i + 1}") });
                             }
                         });
                     }
@@ -101,7 +101,7 @@ public static partial class Definition
                         }
                         else
                         {
-                            scope.Body.Add(new Code { Operator = Operator.Bind, Return = v, Left = e });
+                            scope.Body.Add(new BindCode { Operator = Operator.Bind, Return = v, Value = e });
                         }
                     }
                     break;

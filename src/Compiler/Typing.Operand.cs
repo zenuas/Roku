@@ -14,13 +14,13 @@ public static partial class Typing
     {
         switch (op)
         {
-            case Code x when x.Operator == Operator.Bind:
+            case BindCode x when x.Operator == Operator.Bind:
                 var resolve = false;
                 if (x.Return is PropertyValue prop)
                 {
                     resolve = LocalValueInferenceWithEffect(m, prop, ToTypedValue(ns, m, prop).Struct);
                 }
-                return LocalValueInferenceWithEffect(m, x.Return!, ToTypedValue(ns, m, x.Left!).Struct) || resolve;
+                return LocalValueInferenceWithEffect(m, x.Return!, ToTypedValue(ns, m, x.Value!).Struct) || resolve;
 
             case Call x:
                 return ResolveFunctionWithEffect(ns, m, x);

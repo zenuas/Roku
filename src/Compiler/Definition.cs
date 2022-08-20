@@ -82,7 +82,7 @@ public static partial class Definition
                     var prop = new PropertyValue(NormalizationExpression(scope, x.Left, true), x.Right.Name);
                     if (!evaluate_as_expression) return prop;
                     var v = CreateTemporaryVariable(scope);
-                    scope.Body.Add(new Code() { Operator = Operator.Bind, Left = prop, Return = v });
+                    scope.Body.Add(new BindCode() { Operator = Operator.Bind, Value = prop, Return = v });
                     return v;
                 }
 
@@ -106,7 +106,7 @@ public static partial class Definition
                     var fref = new FunctionReferenceValue() { Name = f.Name };
                     if (!evaluate_as_expression) return fref;
                     var v = CreateTemporaryVariable(scope);
-                    scope.Body.Add(new Code() { Operator = Operator.Bind, Left = fref, Return = v });
+                    scope.Body.Add(new BindCode() { Operator = Operator.Bind, Value = fref, Return = v });
                     return v;
                 }
         }
@@ -197,7 +197,7 @@ public static partial class Definition
                 var farg_var = new VariableValue() { Name = x.Name };
                 ctor.Arguments.Add((farg_var, x.Type));
                 ctor.LexicalScope.Add(farg_var.Name, farg_var);
-                ctor.Body.Add(new Code { Operator = Operator.Bind, Return = new PropertyValue(self, farg_var.Name), Left = farg_var });
+                ctor.Body.Add(new BindCode { Operator = Operator.Bind, Return = new PropertyValue(self, farg_var.Name), Value = farg_var });
             });
             ctor.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(self))));
             ctor.Return = new TypeValue() { Name = name };

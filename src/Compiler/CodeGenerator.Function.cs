@@ -103,8 +103,8 @@ public static partial class CodeGenerator
 
             case Operator.Bind:
                 {
-                    var bind = op.Cast<Code>();
-                    stack_size = GetMaxstack(bind.Left!);
+                    var bind = op.Cast<BindCode>();
+                    stack_size = GetMaxstack(bind.Value!);
                     break;
                 }
 

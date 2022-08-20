@@ -86,10 +86,10 @@ public static partial class Definition
     {
         switch (ope)
         {
-            case Code bind when bind.Operator == Operator.Bind:
+            case BindCode bind when bind.Operator == Operator.Bind:
                 bind.Return = IfCapturedVariableToProperty(original, bind.Return, scopevar, name);
 #pragma warning disable CS0612
-                bind.LeftReplace(IfCapturedVariableToProperty(original, bind.Left, scopevar, name));
+                bind.LeftReplace(IfCapturedVariableToProperty(original, bind.Value, scopevar, name));
 #pragma warning restore CS0612
                 return;
 
