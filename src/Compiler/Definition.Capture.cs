@@ -90,7 +90,6 @@ public static partial class Definition
                 bind.Return = IfCapturedVariableToProperty(original, bind.Return, scopevar, name);
 #pragma warning disable CS0612
                 bind.LeftReplace(IfCapturedVariableToProperty(original, bind.Left, scopevar, name));
-                bind.RightReplace(IfCapturedVariableToProperty(original, bind.Right, scopevar, name));
 #pragma warning restore CS0612
                 return;
 
