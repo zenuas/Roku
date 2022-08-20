@@ -214,7 +214,7 @@ public static class Lookup
     {
         if (body is FunctionBody fb)
         {
-            return fb.Arguments.Select(x => x.Type);
+            return fb.Arguments.Where(x => !Definition.IsScopeCapturedArgumentName(x.Name.Name)).Select(x => x.Type);
         }
         else if (body is EmbeddedFunction ef)
         {

@@ -18,6 +18,8 @@ public static partial class Definition
 
     public static bool IsCapturedFunction(FunctionBody f) => f.Capture.Count > 0;
 
+    public static bool IsScopeCapturedArgumentName(string name) => name.StartsWith("$##");
+
     public static string ScopeToUniqueName(ILexicalScope scope) => scope is FunctionBody fb ? $"##{fb.Name}" : throw new Exception();
 
     public static void MakeLexicalCapture(SourceCodeBody src, FunctionBody f)

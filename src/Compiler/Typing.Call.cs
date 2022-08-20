@@ -92,7 +92,7 @@ public static partial class Typing
                     if (caller.Body is FunctionBody fb)
                     {
                         if (fb.Return is { }) ret = fm.TypeMapper[fb.Return].Struct;
-                        fb.Arguments.Each((x, i) => Feedback(args[i], fm.TypeMapper[x.Name].Struct));
+                        fb.Arguments.Where(x => !Definition.IsScopeCapturedArgumentName(x.Name.Name)).Each((x, i) => Feedback(args[i], fm.TypeMapper[x.Name].Struct));
                     }
                     else if (caller.Body is FunctionTypeBody ftb)
                     {
