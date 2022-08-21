@@ -15,6 +15,11 @@ public static partial class Definition
             .OfType<FunctionBody>()
             .Where(IsCapturedFunction)
             .Each(f => MakeLexicalCapture(src, f));
+
+        src.Structs
+            .OfType<StructBody>()
+            .Where(x => x.Type == StructBodyTypes.Capture)
+            .Each(x => src.Functions.Add(new EmbeddedFunction(x.Name, x.Name) { OpCode = (_, args) => $"newobj instance void {x.Name}::.ctor()" }));
     }
 
     public static bool IsCapturedFunction(FunctionBody f) => f.Capture.Count > 0;
