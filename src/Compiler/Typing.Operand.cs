@@ -75,9 +75,19 @@ public static partial class Typing
 
             if (v is PropertyValue prop)
             {
-                if (m[prop.Left].Struct is StructBody sb && sb.Type == StructBodyTypes.CoroutineLocal)
+                if (m[prop.Left].Struct is StructBody sb)
                 {
-                    sb.Body.Add(new TypeBind(sb.LexicalScope[prop.Right], new TypeValue() { Name = b.Name }));
+                    switch (sb.Type)
+                    {
+                        case StructBodyTypes.CoroutineLocal:
+                            sb.Body.Add(new TypeBind(sb.LexicalScope[prop.Right], new TypeValue() { Name = b.Name }));
+                            break;
+
+                        case StructBodyTypes.Capture:
+                            var member = sb.Members[prop.Right];
+                            sb.Body.Add(new TypeReferenceBind(member, b));
+                            break;
+                    }
                 }
             }
         }

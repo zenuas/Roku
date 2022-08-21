@@ -44,6 +44,7 @@ public static partial class Definition
                     var scopevar = current.LexicalScope[varname];
                     CapturedVariableToProperty(current, captured, scopevar, v.Name);
                     p.LexicalScope.Add(v.Name, typename);
+                    p.Members.Add(v.Name, typename);
                     return p;
                 }
                 else
@@ -51,11 +52,14 @@ public static partial class Definition
                     var scope = new StructBody(src, name) { Type = StructBodyTypes.Capture };
                     src.Structs.Add(scope);
                     scope.LexicalScope.Add(v.Name, typename);
+                    scope.Members.Add(v.Name, typename);
 
                     var scopevar = new VariableValue() { Name = varname };
                     current.LexicalScope.Add(scopevar.Name, scopevar);
                     CapturedVariableToProperty(current, captured, scopevar, v.Name);
                     current.Body.Insert(0, new Call(new FunctionCallValue(new VariableValue() { Name = name })) { Return = scopevar });
+
+                    scope.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
                     return scope;
                 }
             }
