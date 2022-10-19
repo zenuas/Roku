@@ -54,6 +54,9 @@ print(x.null)
 .assembly struct09 {}
 .class public Reserved
 {
+    .field public static int32 '#type_no'
+    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    
     .field public int32 var
     .field public int32 'struct'
     .field public int32 'class'
@@ -64,6 +67,16 @@ print(x.null)
     .field public int32 'true'
     .field public int32 'false'
     .field public int32 'null'
+    
+    .method private static void .cctor()
+    {
+        ldc.i4.0
+        stsfld int32 Reserved::'#type_no'
+        
+        ldc.i4.0
+        stsfld class [System.Runtime]System.Object[] Reserved::'#type_generics'
+        ret
+    }
     
     .method public void .ctor()
     {

@@ -20,7 +20,20 @@ f(1)
 .assembly generics03 {}
 .class public 'Foo<int32>'
 {
+    .field public static int32 '#type_no'
+    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    
     .field public int32 x
+    
+    .method private static void .cctor()
+    {
+        ldc.i4.0
+        stsfld int32 'Foo<int32>'::'#type_no'
+        
+        ldc.i4.1
+        stsfld class [System.Runtime]System.Object[] 'Foo<int32>'::'#type_generics'
+        ret
+    }
     
     .method public void .ctor()
     {

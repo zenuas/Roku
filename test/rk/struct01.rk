@@ -16,7 +16,20 @@ print(v.x)
 .assembly struct01 {}
 .class public Foo
 {
+    .field public static int32 '#type_no'
+    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    
     .field public int32 x
+    
+    .method private static void .cctor()
+    {
+        ldc.i4.0
+        stsfld int32 Foo::'#type_no'
+        
+        ldc.i4.0
+        stsfld class [System.Runtime]System.Object[] Foo::'#type_generics'
+        ret
+    }
     
     .method public void .ctor()
     {

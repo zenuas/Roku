@@ -23,7 +23,20 @@ print(t)
 .assembly struct08 {}
 .class public 'struct Rect(width: Int)'
 {
+    .field public static int32 '#type_no'
+    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    
     .field public int32 width
+    
+    .method private static void .cctor()
+    {
+        ldc.i4.0
+        stsfld int32 'struct Rect(width: Int)'::'#type_no'
+        
+        ldc.i4.0
+        stsfld class [System.Runtime]System.Object[] 'struct Rect(width: Int)'::'#type_generics'
+        ret
+    }
     
     .method public void .ctor()
     {
@@ -33,8 +46,21 @@ print(t)
 }
 .class public 'struct Rect(width: Int, height: Int)'
 {
+    .field public static int32 '#type_no'
+    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    
     .field public int32 width
     .field public int32 height
+    
+    .method private static void .cctor()
+    {
+        ldc.i4.1
+        stsfld int32 'struct Rect(width: Int, height: Int)'::'#type_no'
+        
+        ldc.i4.0
+        stsfld class [System.Runtime]System.Object[] 'struct Rect(width: Int, height: Int)'::'#type_generics'
+        ret
+    }
     
     .method public void .ctor()
     {

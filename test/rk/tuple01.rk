@@ -32,8 +32,21 @@ var x = Tuple#2#0(3, "hello")
 .assembly tuple01 {}
 .class public 'Tuple#2<int32, string>'
 {
+    .field public static int32 '#type_no'
+    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    
     .field public int32 '1'
     .field public string '2'
+    
+    .method private static void .cctor()
+    {
+        ldc.i4.0
+        stsfld int32 'Tuple#2<int32, string>'::'#type_no'
+        
+        ldc.i4.2
+        stsfld class [System.Runtime]System.Object[] 'Tuple#2<int32, string>'::'#type_generics'
+        ret
+    }
     
     .method public void .ctor()
     {

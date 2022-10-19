@@ -8,7 +8,7 @@ sub bar(p: String) Int
 instance Hoge<String>
 	foo(a) = bar(a)
 
-#=>dummy
+#=>failed
 print("dummy")
 
 ###

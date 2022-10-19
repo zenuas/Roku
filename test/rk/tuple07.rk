@@ -24,9 +24,22 @@ print(x.3)
 .assembly tuple07 {}
 .class public 'Tuple#3<int32, int32, int32>'
 {
+    .field public static int32 '#type_no'
+    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    
     .field public int32 '1'
     .field public int32 '2'
     .field public int32 '3'
+    
+    .method private static void .cctor()
+    {
+        ldc.i4.0
+        stsfld int32 'Tuple#3<int32, int32, int32>'::'#type_no'
+        
+        ldc.i4.3
+        stsfld class [System.Runtime]System.Object[] 'Tuple#3<int32, int32, int32>'::'#type_generics'
+        ret
+    }
     
     .method public void .ctor()
     {

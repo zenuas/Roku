@@ -80,10 +80,23 @@ sub co() [String]
 .assembly yield02 {}
 .class public 'Co$0'
 {
+    .field public static int32 '#type_no'
+    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    
     .field public int32 state
     .field public string 'value'
     .field public object next
     .field public class 'CoLocal$0' local
+    
+    .method private static void .cctor()
+    {
+        ldc.i4.0
+        stsfld int32 'Co$0'::'#type_no'
+        
+        ldc.i4.0
+        stsfld class [System.Runtime]System.Object[] 'Co$0'::'#type_generics'
+        ret
+    }
     
     .method public void .ctor()
     {
@@ -99,7 +112,20 @@ sub co() [String]
 }
 .class public 'CoLocal$0'
 {
+    .field public static int32 '#type_no'
+    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    
     .field public string two
+    
+    .method private static void .cctor()
+    {
+        ldc.i4.1
+        stsfld int32 'CoLocal$0'::'#type_no'
+        
+        ldc.i4.0
+        stsfld class [System.Runtime]System.Object[] 'CoLocal$0'::'#type_generics'
+        ret
+    }
     
     .method public void .ctor()
     {
@@ -109,8 +135,21 @@ sub co() [String]
 }
 .class public 'Tuple#2<string, class Co$0>'
 {
+    .field public static int32 '#type_no'
+    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    
     .field public string '1'
     .field public class 'Co$0' '2'
+    
+    .method private static void .cctor()
+    {
+        ldc.i4.2
+        stsfld int32 'Tuple#2<string, class Co$0>'::'#type_no'
+        
+        ldc.i4.2
+        stsfld class [System.Runtime]System.Object[] 'Tuple#2<string, class Co$0>'::'#type_generics'
+        ret
+    }
     
     .method public void .ctor()
     {

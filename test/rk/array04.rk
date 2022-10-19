@@ -27,8 +27,21 @@ List制約の実装検証のために作成
 .assembly array04 {}
 .class public 'Tuple#2<int32, int32>'
 {
+    .field public static int32 '#type_no'
+    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    
     .field public int32 '1'
     .field public int32 '2'
+    
+    .method private static void .cctor()
+    {
+        ldc.i4.0
+        stsfld int32 'Tuple#2<int32, int32>'::'#type_no'
+        
+        ldc.i4.2
+        stsfld class [System.Runtime]System.Object[] 'Tuple#2<int32, int32>'::'#type_generics'
+        ret
+    }
     
     .method public void .ctor()
     {
