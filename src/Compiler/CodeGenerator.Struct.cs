@@ -24,7 +24,7 @@ public static partial class CodeGenerator
         }
     }
 
-    public static void AssemblyStructEmit(ILWriter il, StructBody body, GenericsMapper g, List<(string, FunctionSpecialization)> fss, int type_index)
+    public static void AssemblyStructEmit(ILWriter il, StructBody body, GenericsMapper g, List<(string, FunctionSpecialization)> fss, Dictionary<StructBody, int> struct_index)
     {
         var mapper = body.SpecializationMapper[g];
         var name = GetStructName(body.Name, body, g);
@@ -41,7 +41,7 @@ public static partial class CodeGenerator
         il.WriteLine(".method private static void .cctor()");
         il.WriteLine("{");
         il.Indent++;
-        il.WriteLine($"ldc.i4.{type_index}");
+        il.WriteLine($"ldc.i4.{struct_index[body]}");
         il.WriteLine($"stsfld int32 {name}::'#type_no'");
         il.WriteLine("");
         il.WriteLine($"ldc.i4.{body.Generics.Count}");

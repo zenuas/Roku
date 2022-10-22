@@ -36,10 +36,11 @@ public static partial class CodeGenerator
         AssemblyExternEmit(il, extern_asms);
         AssemblyNameEmit(il, path);
 
+        var struct_index = structs.Select((x, i) => (x, i)).ToDictionary(v => v.x, v => v.i);
         structs
             .Select(AllAssemblyStructs)
             .Flatten()
-            .Each((x, i) => AssemblyStructEmit(il, x.Body, x.GenericsMapper, fss, i));
+            .Each(x => AssemblyStructEmit(il, x.Body, x.GenericsMapper, fss, struct_index));
         AssemblyFunctionEmit(il, fss);
     }
 }

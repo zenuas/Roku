@@ -55,7 +55,7 @@ print(p.x)
     
     .method private static void .cctor()
     {
-        ldc.i4.1
+        ldc.i4.0
         stsfld int32 'Foo<int32>'::'#type_no'
         
         ldc.i4.1

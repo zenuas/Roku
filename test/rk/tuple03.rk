@@ -52,7 +52,7 @@ print(x.2 + y.1)
     
     .method private static void .cctor()
     {
-        ldc.i4.1
+        ldc.i4.0
         stsfld int32 'Tuple#2<string, int32>'::'#type_no'
         
         ldc.i4.2
