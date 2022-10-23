@@ -8,13 +8,13 @@ sub bar(p: String) Int
 instance Hoge<String>
 	foo(a) = bar(a)
 
-#=>failed
+#=>dummy
 print("dummy")
 
 ###
 インスタンス宣言の構文テスト
 ###
 
-###start
+###failed
 
 ###end

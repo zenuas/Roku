@@ -32,6 +32,7 @@ function run(args)
 		if(current == 1) middle += s;
 		
 		if(current == 0 && s == "###start") current++;
+		if(current == 0 && s == "###failed") return;
 		if(current == 0 && s == "###error") return;
 		if(current == 1 && s == "###end") current++;
 		

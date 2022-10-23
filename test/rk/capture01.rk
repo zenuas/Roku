@@ -33,6 +33,6 @@ sub g(_scope: $scope)
 f.bind(scope)()
 ###
 
-###start
+###failed
 
 ###end
