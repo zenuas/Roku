@@ -25,8 +25,8 @@ print(b) がWriteLine(int64)を呼び出すこと
 ###
 
 ###start
-.assembly extern System.Console {}
-.assembly extern System.Runtime {}
+.assembly extern System.Console { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
+.assembly extern System.Runtime { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
 .assembly numeric01 {}
 .method public static void main()
 {

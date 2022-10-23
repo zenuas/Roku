@@ -11,7 +11,9 @@ namespace Roku.Compiler;
 
 public static partial class CodeGenerator
 {
-    public static void AssemblyExternEmit(ILWriter il, IEnumerable<Assembly> extern_asms) => extern_asms.Each(x => il.WriteLine($".assembly extern {x.GetName().Name} {{}}"));
+    public static void AssemblyExternEmit(ILWriter il, IEnumerable<Assembly> extern_asms) => extern_asms.Each(x => il.WriteLine($".assembly extern {x.GetName().Name} {{{AssemblyPublicKey(x)}}}"));
+
+    public static string AssemblyPublicKey(Assembly asm) => asm.GetName().GetPublicKeyToken() is { } p ? $" .publickeytoken = ({p.Select(x => x.ToString("X2")).Join(" ")}) " : "";
 
     public static void AssemblyNameEmit(ILWriter il, string path) => il.WriteLine($".assembly {Path.GetFileNameWithoutExtension(path)} {{}}");
 

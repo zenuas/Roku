@@ -8,8 +8,8 @@ print((5.0 - 4.1) + ((r * r * 3.14) / 2.0))
 ###
 
 ###start
-.assembly extern System.Console {}
-.assembly extern System.Runtime {}
+.assembly extern System.Console { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
+.assembly extern System.Runtime { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
 .assembly expr05 {}
 .method public static void main()
 {

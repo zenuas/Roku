@@ -2,7 +2,7 @@
 # usage: make.bat
 #
 
-PATH:=bin;$(WINDIR)\Microsoft.NET\Framework64\v4.0.30319;$(PATH)
+PATH:=bin;$(USERPROFILE)\.nuget\packages\microsoft.netcore.ilasm\6.0.0\runtimes\native;$(PATH)
 TESTS:=$(wildcard test\rk\*.rk)
 
 YANP=..\Yanp\bin\Debug\yanp.exe
@@ -60,9 +60,8 @@ $(TESTS):
 	
 	ifeq $(regex "$(RK_SKIP)" "^$(RK_NAME)\b.*$" m) 0
 		@$(echo $(cat $(RK_OBJ).testname utf-8))
-		-@if exist $(RK_OBJ).il. ilasm $(RK_OBJ).il /out:$(RK_OBJ).dll /quit /dll
-		@copy rk.test.runtimeconfig.json $(RK_OBJ).runtimeconfig.json 1>NUL
-		-@if exist $(RK_OBJ).dll. dotnet $(RK_OBJ).dll < $(RK_OBJ).testin > $(RK_OBJ).stdout
+		-@if exist $(RK_OBJ).il. ilasm $(RK_OBJ).il /out:$(RK_OBJ).exe /quit /exe
+		-@if exist $(RK_OBJ).exe. $(RK_OBJ).exe < $(RK_OBJ).testin > $(RK_OBJ).stdout
 		@fc $(RK_OBJ).testout $(RK_OBJ).stdout > $(RK_OBJ).diff || type $(RK_OBJ).diff
 	else
 		@$(echo $("$&"))
