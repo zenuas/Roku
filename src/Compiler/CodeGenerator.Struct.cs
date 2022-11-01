@@ -29,10 +29,9 @@ public static partial class CodeGenerator
         var mapper = body.SpecializationMapper[g];
         var name = GetStructName(body.Name, body, g);
 
-        il.WriteLine($".class public {name}");
+        il.WriteLine($".class public {name} implements '#RTTI'");
         il.WriteLine("{");
         il.Indent++;
-        il.WriteLine(".field public static int32 '#type_no'");
         il.WriteLine(".field public static class [System.Runtime]System.Type[] '#type_generics'");
         il.WriteLine("");
         body.Members.Each(x => il.WriteLine($".field public {GetTypeName(mapper, x.Value, g)} {EscapeILName(x.Key)}"));
@@ -41,9 +40,6 @@ public static partial class CodeGenerator
         il.WriteLine(".method private static void .cctor()");
         il.WriteLine("{");
         il.Indent++;
-        il.WriteLine($"ldc.i4.{struct_index[body]}");
-        il.WriteLine($"stsfld int32 {name}::'#type_no'");
-        il.WriteLine("");
         il.WriteLine($"ldc.i4.{body.Generics.Count}");
         il.WriteLine("newarr [System.Runtime]System.Type");
         body.Generics.Each((x, i) =>
@@ -56,6 +52,24 @@ public static partial class CodeGenerator
             il.WriteLine("stelem.ref");
         });
         il.WriteLine($"stsfld class [System.Runtime]System.Type[] {name}::'#type_generics'");
+        il.WriteLine("ret");
+        il.Indent--;
+        il.WriteLine("}");
+        il.WriteLine("");
+
+        il.WriteLine(".method public hidebysig newslot virtual instance int32 '#GetTypeNo'()");
+        il.WriteLine("{");
+        il.Indent++;
+        il.WriteLine($"ldc.i4.{struct_index[body]}");
+        il.WriteLine("ret");
+        il.Indent--;
+        il.WriteLine("}");
+        il.WriteLine("");
+
+        il.WriteLine(".method public hidebysig newslot virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'()");
+        il.WriteLine("{");
+        il.Indent++;
+        il.WriteLine($"ldsfld class [System.Runtime]System.Type[] {name}::'#type_generics'");
         il.WriteLine("ret");
         il.Indent--;
         il.WriteLine("}");

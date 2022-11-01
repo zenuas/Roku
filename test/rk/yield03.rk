@@ -76,9 +76,15 @@ sub co(two: String) [String]
 .assembly extern System.Console { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
 .assembly extern System.Runtime { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
 .assembly yield03 {}
-.class public 'Co$0'
+
+.class interface public abstract '#RTTI'
 {
-    .field public static int32 '#type_no'
+    .method public hidebysig newslot abstract virtual instance int32 '#GetTypeNo'() {}
+    .method public hidebysig newslot abstract virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'() {}
+}
+
+.class public 'Co$0' implements '#RTTI'
+{
     .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public int32 state
@@ -89,11 +95,20 @@ sub co(two: String) [String]
     .method private static void .cctor()
     {
         ldc.i4.0
-        stsfld int32 'Co$0'::'#type_no'
-        
-        ldc.i4.0
         newarr [System.Runtime]System.Type
         stsfld class [System.Runtime]System.Type[] 'Co$0'::'#type_generics'
+        ret
+    }
+    
+    .method public hidebysig newslot virtual instance int32 '#GetTypeNo'()
+    {
+        ldc.i4.0
+        ret
+    }
+    
+    .method public hidebysig newslot virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'()
+    {
+        ldsfld class [System.Runtime]System.Type[] 'Co$0'::'#type_generics'
         ret
     }
     
@@ -109,21 +124,29 @@ sub co(two: String) [String]
         ret
     }
 }
-.class public 'CoLocal$0'
+.class public 'CoLocal$0' implements '#RTTI'
 {
-    .field public static int32 '#type_no'
     .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public string two
     
     .method private static void .cctor()
     {
-        ldc.i4.1
-        stsfld int32 'CoLocal$0'::'#type_no'
-        
         ldc.i4.0
         newarr [System.Runtime]System.Type
         stsfld class [System.Runtime]System.Type[] 'CoLocal$0'::'#type_generics'
+        ret
+    }
+    
+    .method public hidebysig newslot virtual instance int32 '#GetTypeNo'()
+    {
+        ldc.i4.1
+        ret
+    }
+    
+    .method public hidebysig newslot virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'()
+    {
+        ldsfld class [System.Runtime]System.Type[] 'CoLocal$0'::'#type_generics'
         ret
     }
     
@@ -133,9 +156,8 @@ sub co(two: String) [String]
         ret
     }
 }
-.class public 'Tuple#2<string, class Co$0>'
+.class public 'Tuple#2<string, class Co$0>' implements '#RTTI'
 {
-    .field public static int32 '#type_no'
     .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public string '1'
@@ -143,9 +165,6 @@ sub co(two: String) [String]
     
     .method private static void .cctor()
     {
-        ldc.i4.2
-        stsfld int32 'Tuple#2<string, class Co$0>'::'#type_no'
-        
         ldc.i4.2
         newarr [System.Runtime]System.Type
         
@@ -161,6 +180,18 @@ sub co(two: String) [String]
         call class [System.Runtime]System.Type [System.Runtime]System.Type::GetTypeFromHandle(valuetype [System.Runtime]System.RuntimeTypeHandle)
         stelem.ref
         stsfld class [System.Runtime]System.Type[] 'Tuple#2<string, class Co$0>'::'#type_generics'
+        ret
+    }
+    
+    .method public hidebysig newslot virtual instance int32 '#GetTypeNo'()
+    {
+        ldc.i4.2
+        ret
+    }
+    
+    .method public hidebysig newslot virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'()
+    {
+        ldsfld class [System.Runtime]System.Type[] 'Tuple#2<string, class Co$0>'::'#type_generics'
         ret
     }
     

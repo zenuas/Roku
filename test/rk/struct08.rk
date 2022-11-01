@@ -21,9 +21,15 @@ print(t)
 .assembly extern System.Console { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
 .assembly extern System.Runtime { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
 .assembly struct08 {}
-.class public 'struct Rect(width: Int)'
+
+.class interface public abstract '#RTTI'
 {
-    .field public static int32 '#type_no'
+    .method public hidebysig newslot abstract virtual instance int32 '#GetTypeNo'() {}
+    .method public hidebysig newslot abstract virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'() {}
+}
+
+.class public 'struct Rect(width: Int)' implements '#RTTI'
+{
     .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public int32 width
@@ -31,11 +37,20 @@ print(t)
     .method private static void .cctor()
     {
         ldc.i4.0
-        stsfld int32 'struct Rect(width: Int)'::'#type_no'
-        
-        ldc.i4.0
         newarr [System.Runtime]System.Type
         stsfld class [System.Runtime]System.Type[] 'struct Rect(width: Int)'::'#type_generics'
+        ret
+    }
+    
+    .method public hidebysig newslot virtual instance int32 '#GetTypeNo'()
+    {
+        ldc.i4.0
+        ret
+    }
+    
+    .method public hidebysig newslot virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'()
+    {
+        ldsfld class [System.Runtime]System.Type[] 'struct Rect(width: Int)'::'#type_generics'
         ret
     }
     
@@ -45,9 +60,8 @@ print(t)
         ret
     }
 }
-.class public 'struct Rect(width: Int, height: Int)'
+.class public 'struct Rect(width: Int, height: Int)' implements '#RTTI'
 {
-    .field public static int32 '#type_no'
     .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public int32 width
@@ -55,12 +69,21 @@ print(t)
     
     .method private static void .cctor()
     {
-        ldc.i4.1
-        stsfld int32 'struct Rect(width: Int, height: Int)'::'#type_no'
-        
         ldc.i4.0
         newarr [System.Runtime]System.Type
         stsfld class [System.Runtime]System.Type[] 'struct Rect(width: Int, height: Int)'::'#type_generics'
+        ret
+    }
+    
+    .method public hidebysig newslot virtual instance int32 '#GetTypeNo'()
+    {
+        ldc.i4.1
+        ret
+    }
+    
+    .method public hidebysig newslot virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'()
+    {
+        ldsfld class [System.Runtime]System.Type[] 'struct Rect(width: Int, height: Int)'::'#type_generics'
         ret
     }
     

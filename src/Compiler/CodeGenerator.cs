@@ -36,11 +36,24 @@ public static partial class CodeGenerator
         AssemblyExternEmit(il, extern_asms);
         AssemblyNameEmit(il, path);
 
+        RuntimeEmit(il);
+
         var struct_index = structs.Select((x, i) => (x, i)).ToDictionary(v => v.x, v => v.i);
         structs
             .Select(AllAssemblyStructs)
             .Flatten()
             .Each(x => AssemblyStructEmit(il, x.Body, x.GenericsMapper, fss, struct_index));
         AssemblyFunctionEmit(il, fss);
+    }
+
+    public static void RuntimeEmit(ILWriter il)
+    {
+        il.WriteLine(@"
+.class interface public abstract '#RTTI'
+{
+    .method public hidebysig newslot abstract virtual instance int32 '#GetTypeNo'() {}
+    .method public hidebysig newslot abstract virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'() {}
+}
+");
     }
 }

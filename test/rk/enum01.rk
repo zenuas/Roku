@@ -27,6 +27,13 @@ f2の戻り値はCIL上ではObject型になる
 .assembly extern System.Console { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
 .assembly extern System.Runtime { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
 .assembly enum01 {}
+
+.class interface public abstract '#RTTI'
+{
+    .method public hidebysig newslot abstract virtual instance int32 '#GetTypeNo'() {}
+    .method public hidebysig newslot abstract virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'() {}
+}
+
 .method public static void main()
 {
     .entrypoint
