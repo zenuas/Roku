@@ -79,7 +79,7 @@ while(! isnull(xs))
 .class public 'Co$0'
 {
     .field public static int32 '#type_no'
-    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public int32 state
     .field public string 'value'
@@ -91,7 +91,8 @@ while(! isnull(xs))
         stsfld int32 'Co$0'::'#type_no'
         
         ldc.i4.0
-        stsfld class [System.Runtime]System.Object[] 'Co$0'::'#type_generics'
+        newarr [System.Runtime]System.Type
+        stsfld class [System.Runtime]System.Type[] 'Co$0'::'#type_generics'
         ret
     }
     
@@ -109,7 +110,7 @@ while(! isnull(xs))
 .class public 'Tuple#2<string, class Co$0>'
 {
     .field public static int32 '#type_no'
-    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public string '1'
     .field public class 'Co$0' '2'
@@ -120,7 +121,20 @@ while(! isnull(xs))
         stsfld int32 'Tuple#2<string, class Co$0>'::'#type_no'
         
         ldc.i4.2
-        stsfld class [System.Runtime]System.Object[] 'Tuple#2<string, class Co$0>'::'#type_generics'
+        newarr [System.Runtime]System.Type
+        
+        dup
+        ldc.i4.0
+        ldtoken string
+        call class [System.Runtime]System.Type [System.Runtime]System.Type::GetTypeFromHandle(valuetype [System.Runtime]System.RuntimeTypeHandle)
+        stelem.ref
+        
+        dup
+        ldc.i4.1
+        ldtoken class 'Co$0'
+        call class [System.Runtime]System.Type [System.Runtime]System.Type::GetTypeFromHandle(valuetype [System.Runtime]System.RuntimeTypeHandle)
+        stelem.ref
+        stsfld class [System.Runtime]System.Type[] 'Tuple#2<string, class Co$0>'::'#type_generics'
         ret
     }
     

@@ -55,7 +55,7 @@ print(x.null)
 .class public Reserved
 {
     .field public static int32 '#type_no'
-    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public int32 var
     .field public int32 'struct'
@@ -74,7 +74,8 @@ print(x.null)
         stsfld int32 Reserved::'#type_no'
         
         ldc.i4.0
-        stsfld class [System.Runtime]System.Object[] Reserved::'#type_generics'
+        newarr [System.Runtime]System.Type
+        stsfld class [System.Runtime]System.Type[] Reserved::'#type_generics'
         ret
     }
     

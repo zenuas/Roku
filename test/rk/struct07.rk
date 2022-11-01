@@ -24,7 +24,7 @@ print(t)
 .class public 'struct Rect(width: Int, height: Int)'
 {
     .field public static int32 '#type_no'
-    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public int32 width
     .field public int32 height
@@ -35,7 +35,8 @@ print(t)
         stsfld int32 'struct Rect(width: Int, height: Int)'::'#type_no'
         
         ldc.i4.0
-        stsfld class [System.Runtime]System.Object[] 'struct Rect(width: Int, height: Int)'::'#type_generics'
+        newarr [System.Runtime]System.Type
+        stsfld class [System.Runtime]System.Type[] 'struct Rect(width: Int, height: Int)'::'#type_generics'
         ret
     }
     
@@ -49,7 +50,7 @@ print(t)
 .class public 'struct Triangle(width: Int, height: Int)'
 {
     .field public static int32 '#type_no'
-    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public int32 width
     .field public int32 height
@@ -60,7 +61,8 @@ print(t)
         stsfld int32 'struct Triangle(width: Int, height: Int)'::'#type_no'
         
         ldc.i4.0
-        stsfld class [System.Runtime]System.Object[] 'struct Triangle(width: Int, height: Int)'::'#type_generics'
+        newarr [System.Runtime]System.Type
+        stsfld class [System.Runtime]System.Type[] 'struct Triangle(width: Int, height: Int)'::'#type_generics'
         ret
     }
     

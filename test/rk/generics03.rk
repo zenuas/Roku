@@ -21,7 +21,7 @@ f(1)
 .class public 'Foo<int32>'
 {
     .field public static int32 '#type_no'
-    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public int32 x
     
@@ -31,7 +31,14 @@ f(1)
         stsfld int32 'Foo<int32>'::'#type_no'
         
         ldc.i4.1
-        stsfld class [System.Runtime]System.Object[] 'Foo<int32>'::'#type_generics'
+        newarr [System.Runtime]System.Type
+        
+        dup
+        ldc.i4.0
+        ldtoken int32
+        call class [System.Runtime]System.Type [System.Runtime]System.Type::GetTypeFromHandle(valuetype [System.Runtime]System.RuntimeTypeHandle)
+        stelem.ref
+        stsfld class [System.Runtime]System.Type[] 'Foo<int32>'::'#type_generics'
         ret
     }
     

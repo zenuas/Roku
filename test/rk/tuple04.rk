@@ -19,7 +19,7 @@ print(x.2 + x.1.2)
 .class public 'Tuple#2<int32, string>'
 {
     .field public static int32 '#type_no'
-    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public int32 '1'
     .field public string '2'
@@ -30,7 +30,20 @@ print(x.2 + x.1.2)
         stsfld int32 'Tuple#2<int32, string>'::'#type_no'
         
         ldc.i4.2
-        stsfld class [System.Runtime]System.Object[] 'Tuple#2<int32, string>'::'#type_generics'
+        newarr [System.Runtime]System.Type
+        
+        dup
+        ldc.i4.0
+        ldtoken int32
+        call class [System.Runtime]System.Type [System.Runtime]System.Type::GetTypeFromHandle(valuetype [System.Runtime]System.RuntimeTypeHandle)
+        stelem.ref
+        
+        dup
+        ldc.i4.1
+        ldtoken string
+        call class [System.Runtime]System.Type [System.Runtime]System.Type::GetTypeFromHandle(valuetype [System.Runtime]System.RuntimeTypeHandle)
+        stelem.ref
+        stsfld class [System.Runtime]System.Type[] 'Tuple#2<int32, string>'::'#type_generics'
         ret
     }
     
@@ -44,7 +57,7 @@ print(x.2 + x.1.2)
 .class public 'Tuple#2<class Tuple#2<int32, string>, string>'
 {
     .field public static int32 '#type_no'
-    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public class 'Tuple#2<int32, string>' '1'
     .field public string '2'
@@ -55,7 +68,20 @@ print(x.2 + x.1.2)
         stsfld int32 'Tuple#2<class Tuple#2<int32, string>, string>'::'#type_no'
         
         ldc.i4.2
-        stsfld class [System.Runtime]System.Object[] 'Tuple#2<class Tuple#2<int32, string>, string>'::'#type_generics'
+        newarr [System.Runtime]System.Type
+        
+        dup
+        ldc.i4.0
+        ldtoken class 'Tuple#2<int32, string>'
+        call class [System.Runtime]System.Type [System.Runtime]System.Type::GetTypeFromHandle(valuetype [System.Runtime]System.RuntimeTypeHandle)
+        stelem.ref
+        
+        dup
+        ldc.i4.1
+        ldtoken string
+        call class [System.Runtime]System.Type [System.Runtime]System.Type::GetTypeFromHandle(valuetype [System.Runtime]System.RuntimeTypeHandle)
+        stelem.ref
+        stsfld class [System.Runtime]System.Type[] 'Tuple#2<class Tuple#2<int32, string>, string>'::'#type_generics'
         ret
     }
     

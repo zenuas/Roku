@@ -33,7 +33,7 @@ public static partial class CodeGenerator
         il.WriteLine("{");
         il.Indent++;
         il.WriteLine(".field public static int32 '#type_no'");
-        il.WriteLine(".field public static class [System.Runtime]System.Object[] '#type_generics'");
+        il.WriteLine(".field public static class [System.Runtime]System.Type[] '#type_generics'");
         il.WriteLine("");
         body.Members.Each(x => il.WriteLine($".field public {GetTypeName(mapper, x.Value, g)} {EscapeILName(x.Key)}"));
         il.WriteLine("");
@@ -45,14 +45,17 @@ public static partial class CodeGenerator
         il.WriteLine($"stsfld int32 {name}::'#type_no'");
         il.WriteLine("");
         il.WriteLine($"ldc.i4.{body.Generics.Count}");
+        il.WriteLine("newarr [System.Runtime]System.Type");
         body.Generics.Each((x, i) =>
         {
-            //il.WriteLine("dup");
-            //il.WriteLine($"ldc.i4.{i}");
-            //il.WriteLine("//load #type_no");
-            //il.WriteLine("stelem.ref");
+            il.WriteLine("");
+            il.WriteLine("dup");
+            il.WriteLine($"ldc.i4.{i}");
+            il.WriteLine($"ldtoken {GetStructName(mapper[x].Struct)}");
+            il.WriteLine("call class [System.Runtime]System.Type [System.Runtime]System.Type::GetTypeFromHandle(valuetype [System.Runtime]System.RuntimeTypeHandle)");
+            il.WriteLine("stelem.ref");
         });
-        il.WriteLine($"stsfld class [System.Runtime]System.Object[] {name}::'#type_generics'");
+        il.WriteLine($"stsfld class [System.Runtime]System.Type[] {name}::'#type_generics'");
         il.WriteLine("ret");
         il.Indent--;
         il.WriteLine("}");

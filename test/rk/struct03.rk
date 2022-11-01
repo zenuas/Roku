@@ -23,7 +23,7 @@ print(v.y)
 .class public Foo
 {
     .field public static int32 '#type_no'
-    .field public static class [System.Runtime]System.Object[] '#type_generics'
+    .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public int32 x
     .field public string y
@@ -34,7 +34,8 @@ print(v.y)
         stsfld int32 Foo::'#type_no'
         
         ldc.i4.0
-        stsfld class [System.Runtime]System.Object[] Foo::'#type_generics'
+        newarr [System.Runtime]System.Type
+        stsfld class [System.Runtime]System.Type[] Foo::'#type_generics'
         ret
     }
     
