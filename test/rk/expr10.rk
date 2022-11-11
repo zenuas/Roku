@@ -1,0 +1,53 @@
+
+#=>20
+print(20)
+
+#=>20
+print(0x014)
+
+#=>20
+print(0o024)
+
+#=>20
+print(0b0001_0100)
+
+#=>20
+print(020)
+
+###
+N進数数値出力テスト
+###
+
+###start
+.assembly extern System.Console { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
+.assembly extern System.Runtime { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
+.assembly expr10 {}
+
+.class interface public abstract '#RTTI'
+{
+    .method public hidebysig newslot abstract virtual instance int32 '#GetTypeNo'() {}
+    .method public hidebysig newslot abstract virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'() {}
+}
+
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 1
+    
+    ldc.i4.s 20
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldc.i4.s 20
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldc.i4.s 20
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldc.i4.s 20
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldc.i4.s 20
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+###end

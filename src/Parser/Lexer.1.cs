@@ -435,7 +435,7 @@ public partial class Lexer : ILexer<INode>
 
     public static bool IsBinary(char c) => c == '0' || c == '1';
 
-    public static bool IsOctal(char c) => c >= '1' && c <= '7';
+    public static bool IsOctal(char c) => c >= '0' && c <= '7';
 
     public static bool IsHexadecimal(char c) => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 
