@@ -30,6 +30,22 @@ public class ParserTest
     }
 
     [Test]
+    public void FloatTest()
+    {
+        var p = Parse("var a = 123.456");
+        Assert.AreEqual(p.Statements.Count, 1);
+        Assert.IsTrue(p.Statements[0] is LetNode);
+
+        var let = p.Statements[0].Cast<LetNode>();
+        Assert.AreEqual(let.Var.Name, "a");
+
+        Assert.IsTrue(let.Expression is FloatingNumericNode);
+        var num = let.Expression.Cast<FloatingNumericNode>();
+        Assert.AreEqual(num.Format, "123.456");
+        Assert.AreEqual(num.Value, 123.456);
+    }
+
+    [Test]
     public void ExpressionTest()
     {
         var p = Parse("var a = 1 + 2 - 3");
