@@ -38,7 +38,7 @@ public partial class Lexer : ILexer<INode>
         {
         READ_LINE_:
             var line = BaseReader.LineNumber;
-            var ts = ReadLineTokens(BaseReader, Parser.TokenStack.LastOrDefault());
+            var ts = ReadLineTokens(BaseReader);
             if (ts.First().Type == Symbols.EOL) goto READ_LINE_;
             Store.AddRange(ts);
 
@@ -68,7 +68,7 @@ public partial class Lexer : ILexer<INode>
         else if (first.Type == Symbols.EOL && !Parser.IsAccept(first))
         {
             Store.Clear();
-            Store.AddRange(ReadLineTokens(BaseReader, Parser.TokenStack.LastOrDefault()));
+            Store.AddRange(ReadLineTokens(BaseReader));
             goto READ_FIRST_;
         }
         else if (first.Type == Symbols.OPE &&
@@ -106,7 +106,7 @@ public partial class Lexer : ILexer<INode>
                 else if (parentheses.Count > 0 && current == Symbols.EOL)
                 {
                     Store.RemoveAt(i);
-                    Store.AddRange(ReadLineTokens(BaseReader, Parser.TokenStack.LastOrDefault()));
+                    Store.AddRange(ReadLineTokens(BaseReader));
                     i--;
                 }
                 else if (current == Symbols.__LeftParenthesis ||
@@ -149,7 +149,7 @@ public partial class Lexer : ILexer<INode>
         return t;
     }
 
-    public static List<Token> ReadLineTokens(SourceCodeReader reader, Token? last_token)
+    public static List<Token> ReadLineTokens(SourceCodeReader reader)
     {
         var (indent, eof) = ReadSkipWhiteSpace(reader, true);
         if (eof is { }) return new List<Token> { eof };
@@ -157,17 +157,17 @@ public partial class Lexer : ILexer<INode>
         var comment = ReadSkipComment(reader, indent, true);
         if (comment is { }) return new List<Token> { comment };
 
-        return ReadTokens(reader, indent, last_token);
+        return ReadTokens(reader, indent);
     }
 
-    public static List<Token> ReadTokens(SourceCodeReader reader, int indent, Token? last_token)
+    public static List<Token> ReadTokens(SourceCodeReader reader, int indent)
     {
         var ts = new List<Token>();
         while (true)
         {
             var line = reader.LineNumber;
             var col = reader.LineColumn;
-            var t = ReadToken(reader, ts.Count > 0 ? ts.Last() : last_token);
+            var t = ReadToken(reader);
             t.LineNumber = line;
             t.LineColumn = col;
             t.Indent = indent;
@@ -247,7 +247,7 @@ public partial class Lexer : ILexer<INode>
         return null;
     }
 
-    public static Token ReadToken(SourceCodeReader reader, Token? last_token)
+    public static Token ReadToken(SourceCodeReader reader)
     {
         var c = reader.PeekChar();
         if (ReservedChar.ContainsKey(c)) return new Token { Type = ReservedChar[c], Name = reader.ReadChar().ToString() };
@@ -310,12 +310,12 @@ public partial class Lexer : ILexer<INode>
                         default:
                             reader.UnRead(base_);
                             reader.UnRead('0');
-                            return ReadDecimal(reader, "", !(last_token is { } t && t.Type == Symbols.__FullStop));
+                            return ReadDecimal(reader, "");
                     }
                 }
 
             default:
-                if (IsNumber(c)) return ReadDecimal(reader, "", !(last_token is { } t && t.Type == Symbols.__FullStop));
+                if (IsNumber(c)) return ReadDecimal(reader, "");
                 if (IsAlphabet(c)) return ReadVariable(reader);
                 if (IsOperator(c)) return ReadOperator(reader);
                 break;
@@ -362,10 +362,10 @@ public partial class Lexer : ILexer<INode>
         return new Token { Type = Symbols.NUM, Name = format, Value = new NumericNode { Value = Convert.ToUInt32(value, base_), Format = format } };
     }
 
-    public static Token ReadNumberOrFloat(SourceCodeReader reader, string prefix, bool floating_enable)
+    public static Token ReadNumberOrFloat(SourceCodeReader reader, string prefix)
     {
-        var (value, format) = ReadNumberText(reader, prefix, floating_enable ? (Func<char, bool>)IsFloatingNumber : IsNumber);
-        if (floating_enable && value.FindFirstIndex(c => c == '.') >= 0)
+        var (value, format) = ReadNumberText(reader, prefix, IsFloatingNumber);
+        if (value.FindFirstIndex(c => c == '.') >= 0)
         {
             return new Token { Type = Symbols.FLOAT, Name = format, Value = new FloatingNumericNode { Value = Convert.ToDouble(value), Format = format } };
         }
@@ -375,7 +375,7 @@ public partial class Lexer : ILexer<INode>
         }
     }
 
-    public static Token ReadDecimal(SourceCodeReader reader, string prefix = "", bool floating_enable = true) => ReadNumberOrFloat(reader, prefix, floating_enable);
+    public static Token ReadDecimal(SourceCodeReader reader, string prefix = "") => ReadNumberOrFloat(reader, prefix);
 
     public static Token ReadHexadecimal(SourceCodeReader reader, string prefix = "0x") => ReadNumber(reader, 16, prefix, IsHexadecimal);
 
