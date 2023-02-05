@@ -139,8 +139,6 @@ sub fn(
     public static ProgramNode Parse(string s)
     {
         var lex = LexerTest.Read(s);
-        var p = new Parser.Parser();
-        lex.Parser = p;
-        return p.Parse(lex).Cast<ProgramNode>();
+        return lex.Parser.Parse(lex).Cast<ProgramNode>();
     }
 }

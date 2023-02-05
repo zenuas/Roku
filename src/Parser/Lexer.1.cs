@@ -9,8 +9,8 @@ namespace Roku.Parser;
 
 public partial class Lexer : ILexer<INode>
 {
-    public SourceCodeReader BaseReader { get; }
-    public Parser? Parser { get; set; }
+    public required SourceCodeReader BaseReader { get; init; }
+    public required Parser Parser { get; init; }
     public List<Token> Store { get; } = new List<Token>();
     public Stack<int> Indents { get; } = new Stack<int>();
     public static Token LAMBDA_START { get; } = new Token() { Type = Symbols.LAMBDA_START };
@@ -32,18 +32,13 @@ public partial class Lexer : ILexer<INode>
                 { "is", Symbols.IS },
             };
 
-    public Lexer(SourceCodeReader reader)
-    {
-        BaseReader = reader;
-    }
-
     public IToken<INode> PeekToken()
     {
         if (Store.IsEmpty())
         {
         READ_LINE_:
             var line = BaseReader.LineNumber;
-            var ts = ReadLineTokens(BaseReader, Parser?.TokenStack.LastOrDefault());
+            var ts = ReadLineTokens(BaseReader, Parser.TokenStack.LastOrDefault());
             if (ts.First().Type == Symbols.EOL) goto READ_LINE_;
             Store.AddRange(ts);
 
@@ -66,39 +61,36 @@ public partial class Lexer : ILexer<INode>
 
     READ_FIRST_:
         var first = Store.First();
-        if (Parser is { })
+        if (IsLambdaStart())
         {
-            if (IsLambdaStart())
+            Store.Insert(0, first = new Token() { Type = Symbols.LAMBDA_START });
+        }
+        else if (first.Type == Symbols.EOL && !Parser.IsAccept(first))
+        {
+            Store.Clear();
+            Store.AddRange(ReadLineTokens(BaseReader, Parser.TokenStack.LastOrDefault()));
+            goto READ_FIRST_;
+        }
+        else if (first.Type == Symbols.OPE &&
+            first.Name.All(x => x == '>') &&
+            Parser.IsAccept(new Token() { Type = Symbols.GT }))
+        {
+            if (first.Name.Length > 1)
             {
-                Store.Insert(0, first = new Token() { Type = Symbols.LAMBDA_START });
+                first.Name = first.Name[1..];
             }
-            else if (first.Type == Symbols.EOL && !Parser.IsAccept(first))
+            else
             {
-                Store.Clear();
-                Store.AddRange(ReadLineTokens(BaseReader, Parser?.TokenStack.LastOrDefault()));
-                goto READ_FIRST_;
+                Store.RemoveAt(0);
             }
-            else if (first.Type == Symbols.OPE &&
-                first.Name.All(x => x == '>') &&
-                Parser.IsAccept(new Token() { Type = Symbols.GT }))
-            {
-                if (first.Name.Length > 1)
-                {
-                    first.Name = first.Name[1..];
-                }
-                else
-                {
-                    Store.RemoveAt(0);
-                }
-                Store.Insert(0, first = new Token() { Type = Symbols.GT });
-            }
+            Store.Insert(0, first = new Token() { Type = Symbols.GT });
         }
         return first;
     }
 
     public bool IsLambdaStart()
     {
-        if (Store.First().Type == Symbols.__LeftParenthesis && Parser!.IsAccept(LAMBDA_START))
+        if (Store.First().Type == Symbols.__LeftParenthesis && Parser.IsAccept(LAMBDA_START))
         {
             /*
                 lambda : . LAMBDA_START '(' lambda_args ')' typex ARROW lambda_func
@@ -114,7 +106,7 @@ public partial class Lexer : ILexer<INode>
                 else if (parentheses.Count > 0 && current == Symbols.EOL)
                 {
                     Store.RemoveAt(i);
-                    Store.AddRange(ReadLineTokens(BaseReader, Parser?.TokenStack.LastOrDefault()));
+                    Store.AddRange(ReadLineTokens(BaseReader, Parser.TokenStack.LastOrDefault()));
                     i--;
                 }
                 else if (current == Symbols.__LeftParenthesis ||
