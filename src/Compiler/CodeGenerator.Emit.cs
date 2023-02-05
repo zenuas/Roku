@@ -44,13 +44,13 @@ public static partial class CodeGenerator
             var g = fss[i].Function.GenericsMapper;
             var mapper = Lookup.GetTypemapper(f.SpecializationMapper, g);
 
-            var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable && x.Struct is AnonymousFunctionBody anon && anon.Generics.Count == 0).Sort((a, b) => a.Index - b.Index).ToList();
+            var local_vals = mapper.Values.Where(x => x.Type == VariableType.LocalVariable && x.Struct is AnonymousFunctionBody anon && anon.Generics.Count == 0).Order((a, b) => a.Index - b.Index).ToList();
             if (local_vals.Count > 0)
             {
                 local_vals.Select(x => x.Struct).OfType<AnonymousFunctionBody>().Each(x => CallToAddEmitFunctionList(x, fss));
             }
 
-            var local_vals2 = mapper.Values.Where(IsCallableAnonymousFunction).Sort((a, b) => a.Index - b.Index).ToList();
+            var local_vals2 = mapper.Values.Where(IsCallableAnonymousFunction).Order((a, b) => a.Index - b.Index).ToList();
             if (local_vals2.Count > 0)
             {
                 local_vals2.Each(x => CallToAddEmitFunctionList(x.Struct!.Cast<FunctionMapper>(), x.Struct!.Cast<FunctionMapper>().Function.Cast<AnonymousFunctionBody>(), fss));

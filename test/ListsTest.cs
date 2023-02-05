@@ -87,8 +87,9 @@ public class ListsTest
                 (10, "q"),
             };
 
-        var unstable_sort = xs.Sort((x, y) => x.Item1 - y.Item1);
-        var stable_sort = xs.StableSort((x, y) => x.Item1 - y.Item1).ToList();
+        var unstable_sort = xs.ToList();
+        unstable_sort.Sort((x, y) => x.Item1 - y.Item1);
+        var stable_sort = xs.Order((x, y) => x.Item1 - y.Item1).ToList();
 
         Assert.IsTrue(!unstable_sort.SequenceEqual(stable_sort));
 

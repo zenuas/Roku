@@ -81,7 +81,7 @@ public static partial class CodeGenerator
         var local_vals = mapper.Values
             .Where(x => (x.Type == VariableType.LocalVariable && x.Struct is not NamespaceBody) ||
                 (x.Type == VariableType.FunctionMapper && IsCallableAnonymousFunction(x)))
-            .Sort((a, b) => a.Index - b.Index)
+            .Order((a, b) => a.Index - b.Index)
             .ToList();
         local_vals.Each((x, i) => x.Index = i);
         return local_vals;

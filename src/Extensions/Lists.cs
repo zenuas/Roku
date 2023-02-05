@@ -17,11 +17,7 @@ public static class Lists
     [DebuggerHidden]
     public static IEnumerable<char> Range(char start, int length)
     {
-        for (var i = 0; i < length; start++)
-        {
-            yield return start;
-            if (++i >= length) break;
-        }
+        for (var i = 0; i < length; i++, start++) yield return start;
     }
 
     [DebuggerHidden]
@@ -207,26 +203,32 @@ public static class Lists
     public static T Sum<T>(this IEnumerable<T> self) => self.FoldLeft((x, y) => Expressions.Add<T>()(x, y));
 
     [DebuggerHidden]
-    public static T Max<T>(this IEnumerable<T> self) where T : IComparable<T> => self.FoldLeft((x, y) => x.CompareTo(y) >= 0 ? x : y);
+    public static IOrderedEnumerable<T> Order<T>(this IEnumerable<T> self, Func<T, T, int> f) => self.Order(new ComparerBinder<T> { Compare = f });
 
     [DebuggerHidden]
-    public static T Min<T>(this IEnumerable<T> self) where T : IComparable<T> => self.FoldLeft((x, y) => x.CompareTo(y) <= 0 ? x : y);
+    public static IOrderedEnumerable<T> OrderBy<T, R>(this IEnumerable<T> self, Func<T, R> selector, Func<R, R, int> f) => self.OrderBy(selector, new ComparerBinder<R> { Compare = f });
 
     [DebuggerHidden]
-    public static T Max<T, R>(this IEnumerable<T> self, Func<T, R> f) where R : IComparable<R> => self.Select(x => (x, f(x))).FoldLeft((x, y) => x.Item2.CompareTo(y.Item2) >= 0 ? x : y).x;
+    public static IOrderedEnumerable<T> OrderDescending<T>(this IEnumerable<T> self, Func<T, T, int> f) => self.OrderDescending(new ComparerBinder<T> { Compare = f });
 
     [DebuggerHidden]
-    public static T Min<T, R>(this IEnumerable<T> self, Func<T, R> f) where R : IComparable<R> => self.Select(x => (x, f(x))).FoldLeft((x, y) => x.Item2.CompareTo(y.Item2) <= 0 ? x : y).x;
+    public static IOrderedEnumerable<T> OrderByDescending<T, R>(this IEnumerable<T> self, Func<T, R> selector, Func<R, R, int> f) => self.OrderByDescending(selector, new ComparerBinder<R> { Compare = f });
 
     [DebuggerHidden]
-    public static List<T> Sort<T>(this IEnumerable<T> self) where T : IComparable<T> => self.ToList().Return(x => x.Sort());
+    public static IOrderedEnumerable<T> ThenBy<T, R>(this IOrderedEnumerable<T> self, Func<T, R> selector, Func<R, R, int> f) => self.ThenBy(selector, new ComparerBinder<R> { Compare = f });
 
     [DebuggerHidden]
-    public static List<T> Sort<T>(this IEnumerable<T> self, Func<T, T, int> f) => self.ToList().Return(x => x.Sort(new Comparison<T>(f)));
+    public static IOrderedEnumerable<T> ThenByDescending<T, R>(this IOrderedEnumerable<T> self, Func<T, R> selector, Func<R, R, int> f) => self.ThenByDescending(selector, new ComparerBinder<R> { Compare = f });
 
     [DebuggerHidden]
-    public static IOrderedEnumerable<T> StableSort<T>(this IEnumerable<T> self) where T : IComparable<T> => Enumerable.OrderBy(self, x => x);
+    public static IEnumerable<T> Distinct<T>(this IEnumerable<T> self, Func<T?, T?, bool> f) => Enumerable.Distinct(self, new EqualityComparerBinder<T>() { Equals = f });
 
     [DebuggerHidden]
-    public static IOrderedEnumerable<T> StableSort<T>(this IEnumerable<T> self, Func<T, T, int> f) => Enumerable.OrderBy(self, x => x, new ComparerBinder<T>() { Compare = f });
+    public static IEnumerable<T> Union<T>(this IEnumerable<T> self, IEnumerable<T> second, Func<T?, T?, bool> f) => Enumerable.Union(self, second, new EqualityComparerBinder<T>() { Equals = f });
+
+    [DebuggerHidden]
+    public static IEnumerable<T> Intersect<T>(this IEnumerable<T> self, IEnumerable<T> second, Func<T?, T?, bool> f) => Enumerable.Intersect(self, second, new EqualityComparerBinder<T>() { Equals = f });
+
+    [DebuggerHidden]
+    public static IEnumerable<T> Except<T>(this IEnumerable<T> self, IEnumerable<T> second, Func<T?, T?, bool> f) => Enumerable.Except(self, second, new EqualityComparerBinder<T>() { Equals = f });
 }
