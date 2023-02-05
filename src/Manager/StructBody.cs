@@ -16,6 +16,7 @@ public class StructBody : IStructBody, ILexicalScope, ISpecialization
     public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
     public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
     public StructBodyTypes Type { get; init; } = StructBodyTypes.Struct;
+    public Dictionary<ClassBody, VTable> VTables = new Dictionary<ClassBody, VTable>();
 
     public StructBody(IManaged ns, string name)
     {
