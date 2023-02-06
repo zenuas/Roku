@@ -1,6 +1,5 @@
 /Properties/launchSettings.json
 
-roku.csv
-roku.txt
+Parser/verbose.txt
 Roku.Metrics.xml
 Roku.Metrics.csv
