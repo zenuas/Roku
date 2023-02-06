@@ -60,14 +60,14 @@ public class ParserTest
         Assert.IsTrue(minus.Arguments[0] is FunctionCallNode);
         var plus = minus.Arguments[0].Cast<FunctionCallNode>();
 
-        Assert.IsTrue(plus.Expression is TokenNode);
-        Assert.IsTrue(minus.Expression is TokenNode);
+        Assert.IsTrue(plus.Expression is VariableNode);
+        Assert.IsTrue(minus.Expression is VariableNode);
         Assert.IsTrue(plus.Arguments[0] is NumericNode);
         Assert.IsTrue(plus.Arguments[1] is NumericNode);
         Assert.IsTrue(minus.Arguments[1] is NumericNode);
 
-        Assert.AreEqual(plus.Expression.Cast<TokenNode>().Token.Name, "+");
-        Assert.AreEqual(minus.Expression.Cast<TokenNode>().Token.Name, "-");
+        Assert.AreEqual(plus.Expression.Cast<VariableNode>().Name, "+");
+        Assert.AreEqual(minus.Expression.Cast<VariableNode>().Name, "-");
         Assert.AreEqual(plus.Arguments[0].Cast<NumericNode>().Value, 1);
         Assert.AreEqual(plus.Arguments[1].Cast<NumericNode>().Value, 2);
         Assert.AreEqual(minus.Arguments[1].Cast<NumericNode>().Value, 3);
@@ -150,6 +150,28 @@ sub fn(
         var num = let.Expression.Cast<NumericNode>();
         Assert.AreEqual(num.Format, "12");
         Assert.AreEqual(num.Value, 12);
+    }
+
+    [Test]
+    public void TypeParameterTest()
+    {
+        var p = Parse("var e = ListIndex<a>()");
+        Assert.AreEqual(p.Statements.Count, 1);
+        Assert.IsTrue(p.Statements[0] is LetNode);
+        var let = p.Statements[0].Cast<LetNode>();
+        Assert.AreEqual(let.Var.Name, "e");
+        Assert.IsTrue(let.Expression is FunctionCallNode);
+
+        var fcall = let.Expression.Cast<FunctionCallNode>();
+        Assert.AreEqual(fcall.Arguments.Count, 0);
+        Assert.IsTrue(fcall.Expression is SpecializationNode);
+        var sp = fcall.Expression.Cast<SpecializationNode>();
+        Assert.AreEqual(sp.Name, "ListIndex");
+        Assert.AreEqual(sp.Generics.Count, 1);
+        Assert.IsTrue(sp.Generics[0] is TypeNode);
+
+        var type = sp.Generics[0].Cast<TypeNode>();
+        Assert.AreEqual(type.Name, "a");
     }
 
     public static ProgramNode Parse(string s)

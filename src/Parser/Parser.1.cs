@@ -11,17 +11,17 @@ public partial class Parser
 
     public static ListNode<T> CreateListNode<T>(params T[] expr) where T : INode => new ListNode<T>().Return(x => x.List.AddRange(expr));
 
-    public static VariableNode CreateVariableNode(Token t) => CreateVariableNode(t.Name).R(t);
+    public static VariableNode CreateVariableNode(TokenNode t) => CreateVariableNode(t.Name).R(t);
 
     public static VariableNode CreateVariableNode(string s) => new VariableNode { Name = s };
 
-    public static FunctionCallNode CreateFunctionCallNode(Token token, params IEvaluableNode[] args) => new FunctionCallNode(CreateVariableNode(token)).Return(x => x.Arguments.AddRange(args)).R(token);
+    public static FunctionCallNode CreateFunctionCallNode(TokenNode token, params IEvaluableNode[] args) => new FunctionCallNode(CreateVariableNode(token)).Return(x => x.Arguments.AddRange(args)).R(token);
 
     public static PropertyNode CreatePropertyNode(IEvaluableNode left, VariableNode right) => new PropertyNode(left, right);
 
     public static FunctionCallNode CreateFunctionCallNode(IEvaluableNode expr, params IEvaluableNode[] args) => new FunctionCallNode(expr).Return(x => x.Arguments.AddRange(args)).R(expr);
 
-    public static LetIgnoreNode CreateLetIgnoreNode(Token t) => new LetIgnoreNode().R(t);
+    public static LetIgnoreNode CreateLetIgnoreNode(TokenNode t) => new LetIgnoreNode().R(t);
 
     public static LetVarNode CreateLetNode(VariableNode v) => new LetVarNode(v).R(v);
 
@@ -148,9 +148,7 @@ public partial class Parser
         ? e.Return(x => x.Types.Add(new TypeNode() { Name = "Null" }.R(type)))
         : new EnumNode(CreateListNode(type, new TypeNode() { Name = "Null" }.R(type)));
 
-    public void SyntaxError(Token t) => SyntaxError(t, "syntax error");
-
-    public static void SyntaxError(Token t, string message) => throw new SyntaxErrorException(message) { LineNumber = t.LineNumber, LineColumn = t.LineColumn };
+    public void SyntaxError(IToken<INode> t) => SyntaxError(t.Value, "syntax error");
 
     public static void SyntaxError(INode node, string message) => throw new SyntaxErrorException(message) { LineNumber = node.LineNumber, LineColumn = node.LineColumn };
 }

@@ -1,26 +1,24 @@
-
 namespace Roku.Parser;
 
 public enum Symbols
 {
-
-    /// <summary>'('</summary>
-    __LeftParenthesis,
-
-    /// <summary>')'</summary>
-    __RightParenthesis,
-
     /// <summary>','</summary>
     __Comma,
-
-    /// <summary>'.'</summary>
-    __FullStop,
 
     /// <summary>':'</summary>
     __Colon,
 
     /// <summary>'?'</summary>
     __QuestionMark,
+
+    /// <summary>'.'</summary>
+    __FullStop,
+
+    /// <summary>'('</summary>
+    __LeftParenthesis,
+
+    /// <summary>')'</summary>
+    __RightParenthesis,
 
     /// <summary>'['</summary>
     __LeftSquareBracket,
@@ -33,6 +31,9 @@ public enum Symbols
 
     /// <summary>'}'</summary>
     __RightCurlyBracket,
+
+    /// <summary>$END</summary>
+    _END,
 
     /// <summary>AND2</summary>
     AND2,
@@ -130,8 +131,8 @@ public enum Symbols
     /// <summary>VAR</summary>
     VAR,
 
-    /// <summary>$END</summary>
-    _END,
+    /// <summary>$ACCEPT</summary>
+    _ACCEPT,
 
     /// <summary>and</summary>
     and,
@@ -366,7 +367,4 @@ public enum Symbols
 
     /// <summary>wheren</summary>
     wheren,
-
-    /// <summary>$ACCEPT</summary>
-    _ACCEPT,
 }

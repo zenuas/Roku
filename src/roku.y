@@ -38,17 +38,18 @@ using Roku.Node;
 %type<StringNode>                   str
 %type<BooleanNode>                  bool
 
-%left  VAR STR NULL TRUE FALSE IF LET SUB IGNORE ARROW IS
-%token<NumericNode> NUM
+%left<TokenNode>            VAR NULL TRUE FALSE IF THEN ELSE LET SUB IGNORE ARROW IS STRUCT CLASS SWITCH
+%left<StringNode>           STR
+%token<NumericNode>         NUM
 %token<FloatingNumericNode> FLOAT
-%left  EQ
-%left  OPE OR LT GT
-%left<TokenNode> ope nope
-%left<TokenNode> or
-%left  OR2
-%left  AND2
-%left<TokenNode> and
-%right UNARY
+%left<TokenNode>            EQ
+%left<TokenNode>            OPE OR LT GT
+%left<TokenNode>            ope nope
+%left<TokenNode>            or
+%left<TokenNode>            OR2
+%left<TokenNode>            AND2
+%left<TokenNode>            and
+%right<TokenNode>           UNARY
 %left  '.'
 
 %left  '?'
@@ -257,22 +258,22 @@ varx   : var
        | IS      {$$ = CreateVariableNode($1);}
 fvar   : varx
        | NUM     {$$ = CreateVariableNode($1.Format).R($1);}
-num    : NUM     {$$ = $1;}
-       | FLOAT   {$$ = $1;}
+num    : NUM
+       | FLOAT
 bool   : TRUE    {$$ = new BooleanNode { Value = true }.R($1);}
        | FALSE   {$$ = new BooleanNode { Value = false }.R($1);}
 null   : NULL    {$$ = new NullNode().R($1);}
-str    : STR     {$$ = new StringNode { Value = $1.Name }.R($1);}
-       | str STR {$$ = $1.Return(x => x.Value += $2.Name);}
+str    : STR
+       | str STR {$$ = $1.Return(x => x.Value += $2.Value);}
 ope    : nope
        | and
        | or
-       | LT      {$$ = new TokenNode { Token = $1 }.R($1);}
-       | GT      {$$ = new TokenNode { Token = $1 }.R($1);}
-nope   : OPE     {$$ = new TokenNode { Token = $1 }.R($1);}
-       | OR      {$$ = new TokenNode { Token = $1 }.R($1);}
-and    : AND2    {$$ = new TokenNode { Token = $1 }.R($1);}
-or     : OR2     {$$ = new TokenNode { Token = $1 }.R($1);}
+       | LT
+       | GT
+nope   : OPE
+       | OR
+and    : AND2
+or     : OR2
 
 extra  : void
        | ','
@@ -280,4 +281,4 @@ extra  : void
 NOTEOL : EOL     {SyntaxError($1, "not eol");}
        | void
 
-void   : {$$ = null;}
+void   :

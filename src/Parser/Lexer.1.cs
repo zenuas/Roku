@@ -11,26 +11,24 @@ public partial class Lexer : ILexer<INode>
 {
     public required SourceCodeReader BaseReader { get; init; }
     public required Parser Parser { get; init; }
-    public List<Token> Store { get; } = new List<Token>();
+    public List<IToken<INode>> Store { get; } = new List<IToken<INode>>();
     public Stack<int> Indents { get; } = new Stack<int>();
-    public static Token LAMBDA_START { get; } = new Token() { Type = Symbols.LAMBDA_START };
-    public static Dictionary<char, Symbols> ReservedChar { get; } = CreateReservedCharTable();
-    public static Dictionary<string, Symbols> ReservedString { get; } = new Dictionary<string, Symbols>
-            {
-                { "var", Symbols.LET },
-                { "struct", Symbols.STRUCT },
-                { "class", Symbols.CLASS },
-                { "instance", Symbols.INSTANCE },
-                { "sub", Symbols.SUB },
-                { "if", Symbols.IF },
-                { "then", Symbols.THEN },
-                { "else", Symbols.ELSE },
-                { "switch", Symbols.SWITCH },
-                { "true", Symbols.TRUE },
-                { "false", Symbols.FALSE },
-                { "null", Symbols.NULL },
-                { "is", Symbols.IS },
-            };
+    public static Dictionary<string, Symbols> ReservedString2 { get; } = new Dictionary<string, Symbols>
+        {
+            { "var", Symbols.LET },
+            { "struct", Symbols.STRUCT },
+            { "class", Symbols.CLASS },
+            { "instance", Symbols.INSTANCE },
+            { "sub", Symbols.SUB },
+            { "if", Symbols.IF },
+            { "then", Symbols.THEN },
+            { "else", Symbols.ELSE },
+            { "switch", Symbols.SWITCH },
+            { "true", Symbols.TRUE },
+            { "false", Symbols.FALSE },
+            { "null", Symbols.NULL },
+            { "is", Symbols.IS },
+        };
 
     public IToken<INode> PeekToken()
     {
@@ -39,21 +37,21 @@ public partial class Lexer : ILexer<INode>
         READ_LINE_:
             var line = BaseReader.LineNumber;
             var ts = ReadLineTokens(BaseReader);
-            if (ts.First().Type == Symbols.EOL) goto READ_LINE_;
+            if (ts.First().Symbol == Symbols.EOL) goto READ_LINE_;
             Store.AddRange(ts);
 
-            if (!Store[0].EndOfToken && (Indents.Count == 0 || Store[0].Indent > Indents.Peek()))
+            if (Store[0].Symbol != Symbols._END && (Indents.Count == 0 || Store[0].Value.Indent > Indents.Peek()))
             {
-                Store.Insert(0, new Token { Type = Symbols.BEGIN, LineNumber = line, Indent = Store[0].Indent });
-                Indents.Push(Store[0].Indent);
+                Store.Insert(0, new TokenNode { Symbol = Symbols.BEGIN, LineNumber = line, Indent = Store[0].Value.Indent });
+                Indents.Push(Store[0].Value.Indent);
             }
             else
             {
                 var count = 0;
                 var head = Store[0];
-                while (Indents.Count > 0 && (head.EndOfToken || head.Indent < Indents.Peek()))
+                while (Indents.Count > 0 && (head.Symbol == Symbols._END || head.Value.Indent < Indents.Peek()))
                 {
-                    Store.Insert(count, new Token { Type = Symbols.END, LineNumber = line, Indent = Indents.Pop() });
+                    Store.Insert(count, new TokenNode { Symbol = Symbols.END, LineNumber = line, Indent = Indents.Pop() });
                     count++;
                 }
             }
@@ -63,34 +61,35 @@ public partial class Lexer : ILexer<INode>
         var first = Store.First();
         if (IsLambdaStart())
         {
-            Store.Insert(0, first = new Token() { Type = Symbols.LAMBDA_START });
+            Store.Insert(0, first = new TokenNode() { Symbol = Symbols.LAMBDA_START });
         }
-        else if (first.Type == Symbols.EOL && !Parser.IsAccept(first))
+        else if (first.Symbol == Symbols.EOL && !Parser.IsAccept(first.Symbol))
         {
             Store.Clear();
             Store.AddRange(ReadLineTokens(BaseReader));
             goto READ_FIRST_;
         }
-        else if (first.Type == Symbols.OPE &&
-            first.Name.All(x => x == '>') &&
-            Parser.IsAccept(new Token() { Type = Symbols.GT }))
+        else if (first.Symbol == Symbols.OPE &&
+            first is TokenNode t &&
+            t.Name.All(x => x == '>') &&
+            Parser.IsAccept(Symbols.GT))
         {
-            if (first.Name.Length > 1)
+            if (t.Name.Length > 1)
             {
-                first.Name = first.Name[1..];
+                t.Name = t.Name[1..];
             }
             else
             {
                 Store.RemoveAt(0);
             }
-            Store.Insert(0, first = new Token() { Type = Symbols.GT });
+            Store.Insert(0, first = new TokenNode() { Symbol = Symbols.GT });
         }
         return first;
     }
 
     public bool IsLambdaStart()
     {
-        if (Store.First().Type == Symbols.__LeftParenthesis && Parser.IsAccept(LAMBDA_START))
+        if (Store.First().Symbol == Symbols.__LeftParenthesis && Parser.IsAccept(Symbols.LAMBDA_START))
         {
             /*
                 lambda : . LAMBDA_START '(' lambda_args ')' typex ARROW lambda_func
@@ -98,8 +97,8 @@ public partial class Lexer : ILexer<INode>
             var parentheses = new Stack<Symbols>();
             for (var i = 0; i < Store.Count; i++)
             {
-                var current = Store[i].Type;
-                if (Store[i].EndOfToken || (parentheses.Count == 0 && (current == Symbols.EOL || current == Symbols.__Comma)))
+                var current = Store[i].Symbol;
+                if (current == Symbols._END || (parentheses.Count == 0 && (current == Symbols.EOL || current == Symbols.__Comma)))
                 {
                     return false;
                 }
@@ -113,7 +112,7 @@ public partial class Lexer : ILexer<INode>
                     current == Symbols.__LeftSquareBracket ||
                     current == Symbols.__LeftCurlyBracket)
                 {
-                    parentheses.Push(Store[i].Type);
+                    parentheses.Push(current);
                 }
                 else if (current == Symbols.__RightParenthesis ||
                     current == Symbols.__RightSquareBracket ||
@@ -149,28 +148,28 @@ public partial class Lexer : ILexer<INode>
         return t;
     }
 
-    public static List<Token> ReadLineTokens(SourceCodeReader reader)
+    public static List<IToken<INode>> ReadLineTokens(SourceCodeReader reader)
     {
         var (indent, eof) = ReadSkipWhiteSpace(reader, true);
-        if (eof is { }) return new List<Token> { eof };
+        if (eof is { }) return new List<IToken<INode>> { eof };
 
         var comment = ReadSkipComment(reader, indent, true);
-        if (comment is { }) return new List<Token> { comment };
+        if (comment is { }) return new List<IToken<INode>> { comment };
 
         return ReadTokens(reader, indent);
     }
 
-    public static List<Token> ReadTokens(SourceCodeReader reader, int indent)
+    public static List<IToken<INode>> ReadTokens(SourceCodeReader reader, int indent)
     {
-        var ts = new List<Token>();
+        var ts = new List<IToken<INode>>();
         while (true)
         {
             var line = reader.LineNumber;
             var col = reader.LineColumn;
             var t = ReadToken(reader);
-            t.LineNumber = line;
-            t.LineColumn = col;
-            t.Indent = indent;
+            t.Value.LineNumber = line;
+            t.Value.LineColumn = col;
+            t.Value.Indent = indent;
             ts.Add(t);
             var (_, eol) = ReadSkipWhiteSpace(reader, false);
             if (eol is { })
@@ -195,11 +194,11 @@ public partial class Lexer : ILexer<INode>
         return indent >= 0 ? indent : s.Length;
     }
 
-    public static (int Indent, Token? Token) ReadSkipWhiteSpace(SourceCodeReader reader, bool only_first_eof_makes_eof)
+    public static (int Indent, IToken<INode>? Token) ReadSkipWhiteSpace(SourceCodeReader reader, bool only_first_eof_makes_eof)
     {
         var line = reader.LineNumber;
         var col = reader.LineColumn;
-        if (reader.EndOfStream) return (0, only_first_eof_makes_eof ? CreateEndOfToken() : new Token { Type = Symbols.EOL, LineNumber = line, LineColumn = col });
+        if (reader.EndOfStream) return (0, only_first_eof_makes_eof ? CreateEndOfToken() : new TokenNode { Symbol = Symbols.EOL, LineNumber = line, LineColumn = col });
 
         var c = reader.PeekChar();
         var indent = 0;
@@ -209,9 +208,9 @@ public partial class Lexer : ILexer<INode>
             _ = reader.ReadChar();
 
             if (c == '\r' && reader.PeekChar() == '\n') _ = reader.Read();
-            if (c == '\r' || c == '\n') return (indent, new Token { Type = Symbols.EOL, LineNumber = line, LineColumn = col });
+            if (c == '\r' || c == '\n') return (indent, new TokenNode { Symbol = Symbols.EOL, LineNumber = line, LineColumn = col });
 
-            if (reader.EndOfStream) return (indent, new Token { Type = Symbols.EOL, LineNumber = line, LineColumn = col });
+            if (reader.EndOfStream) return (indent, new TokenNode { Symbol = Symbols.EOL, LineNumber = line, LineColumn = col });
 
             line = reader.LineNumber;
             col = reader.LineColumn;
@@ -220,7 +219,7 @@ public partial class Lexer : ILexer<INode>
         return (indent, null);
     }
 
-    public static Token? ReadSkipComment(SourceCodeReader reader, int indent, bool enable_block_comment)
+    public static IToken<INode>? ReadSkipComment(SourceCodeReader reader, int indent, bool enable_block_comment)
     {
         var line = reader.LineNumber;
         var col = reader.LineColumn;
@@ -242,15 +241,15 @@ public partial class Lexer : ILexer<INode>
                     }
                 }
             }
-            return new Token { Type = Symbols.EOL, LineNumber = line, LineColumn = col };
+            return new TokenNode { Symbol = Symbols.EOL, LineNumber = line, LineColumn = col };
         }
         return null;
     }
 
-    public static Token ReadToken(SourceCodeReader reader)
+    public static IToken<INode> ReadToken(SourceCodeReader reader)
     {
         var c = reader.PeekChar();
-        if (ReservedChar.ContainsKey(c)) return new Token { Type = ReservedChar[c], Name = reader.ReadChar().ToString() };
+        if (ReservedChar.ContainsKey(c)) return new TokenNode { Symbol = ReservedChar[c], Name = reader.ReadChar().ToString() };
 
         switch (c)
         {
@@ -270,23 +269,23 @@ public partial class Lexer : ILexer<INode>
                         if (reader.PeekChar() == '=')
                         {
                             _ = reader.ReadChar();
-                            return new Token { Type = Symbols.OPE, Name = "===" };
+                            return new TokenNode { Symbol = Symbols.OPE, Name = "===" };
                         }
-                        return new Token { Type = Symbols.OPE, Name = "==" };
+                        return new TokenNode { Symbol = Symbols.OPE, Name = "==" };
                     }
                     else if (c2 == '>')
                     {
                         _ = reader.ReadChar();
-                        return new Token { Type = Symbols.ARROW, Name = "=>" };
+                        return new TokenNode { Symbol = Symbols.ARROW, Name = "=>" };
                     }
-                    return new Token { Type = Symbols.EQ };
+                    return new TokenNode { Symbol = Symbols.EQ };
                 }
 
             case '_':
                 {
                     _ = reader.ReadChar();
                     var c2 = reader.PeekChar();
-                    if (c2 != '_' && !IsAlphabet(c2)) return new Token { Type = Symbols.IGNORE };
+                    if (c2 != '_' && !IsAlphabet(c2)) return new TokenNode { Symbol = Symbols.IGNORE };
 
                     var s = new StringBuilder(c);
                     while (c2 == '_')
@@ -324,15 +323,15 @@ public partial class Lexer : ILexer<INode>
         throw new SyntaxErrorException("syntax error") { LineNumber = reader.LineNumber, LineColumn = reader.LineColumn };
     }
 
-    public static Token ReadVariable(SourceCodeReader reader) => ReadVariable(reader, new StringBuilder());
+    public static TokenNode ReadVariable(SourceCodeReader reader) => ReadVariable(reader, new StringBuilder());
 
-    public static Token ReadVariable(SourceCodeReader reader, StringBuilder s)
+    public static TokenNode ReadVariable(SourceCodeReader reader, StringBuilder s)
     {
         while (IsWord(reader.PeekChar())) _ = s.Append(reader.ReadChar());
         var name = s.ToString();
-        return ReservedString.ContainsKey(name)
-            ? new Token { Type = ReservedString[name], Name = name }
-            : new Token { Type = Symbols.VAR, Name = name };
+        return ReservedString2.ContainsKey(name)
+            ? new TokenNode { Symbol = ReservedString2[name], Name = name }
+            : new TokenNode { Symbol = Symbols.VAR, Name = name };
     }
 
     public static (string Value, string Format) ReadNumberText(SourceCodeReader reader, string prefix, Func<char, bool> isnum)
@@ -356,34 +355,34 @@ public partial class Lexer : ILexer<INode>
         return (n.ToString(), s.ToString());
     }
 
-    public static Token ReadNumber(SourceCodeReader reader, int base_, string prefix, Func<char, bool> isnum)
+    public static NumericNode ReadNumber(SourceCodeReader reader, int base_, string prefix, Func<char, bool> isnum)
     {
         var (value, format) = ReadNumberText(reader, prefix, isnum);
-        return new Token { Type = Symbols.NUM, Name = format, Value = new NumericNode { Value = Convert.ToUInt32(value, base_), Format = format } };
+        return new NumericNode { Value = Convert.ToUInt32(value, base_), Format = format };
     }
 
-    public static Token ReadNumberOrFloat(SourceCodeReader reader, string prefix)
+    public static IToken<INode> ReadNumberOrFloat(SourceCodeReader reader, string prefix)
     {
         var (value, format) = ReadNumberText(reader, prefix, IsFloatingNumber);
         if (value.FindFirstIndex(c => c == '.') >= 0)
         {
-            return new Token { Type = Symbols.FLOAT, Name = format, Value = new FloatingNumericNode { Value = Convert.ToDouble(value), Format = format } };
+            return new FloatingNumericNode { Value = Convert.ToDouble(value), Format = format };
         }
         else
         {
-            return new Token { Type = Symbols.NUM, Name = format, Value = new NumericNode { Value = Convert.ToUInt32(value, 10), Format = format } };
+            return new NumericNode { Value = Convert.ToUInt32(value, 10), Format = format };
         }
     }
 
-    public static Token ReadDecimal(SourceCodeReader reader, string prefix = "") => ReadNumberOrFloat(reader, prefix);
+    public static IToken<INode> ReadDecimal(SourceCodeReader reader, string prefix = "") => ReadNumberOrFloat(reader, prefix);
 
-    public static Token ReadHexadecimal(SourceCodeReader reader, string prefix = "0x") => ReadNumber(reader, 16, prefix, IsHexadecimal);
+    public static NumericNode ReadHexadecimal(SourceCodeReader reader, string prefix = "0x") => ReadNumber(reader, 16, prefix, IsHexadecimal);
 
-    public static Token ReadOctal(SourceCodeReader reader, string prefix = "0o") => ReadNumber(reader, 8, prefix, IsOctal);
+    public static NumericNode ReadOctal(SourceCodeReader reader, string prefix = "0o") => ReadNumber(reader, 8, prefix, IsOctal);
 
-    public static Token ReadBinary(SourceCodeReader reader, string prefix = "0b") => ReadNumber(reader, 2, prefix, IsBinary);
+    public static NumericNode ReadBinary(SourceCodeReader reader, string prefix = "0b") => ReadNumber(reader, 2, prefix, IsBinary);
 
-    public static Token ReadString(SourceCodeReader reader)
+    public static StringNode ReadString(SourceCodeReader reader)
     {
         var start = reader.ReadChar();
         var s = new StringBuilder();
@@ -393,10 +392,10 @@ public partial class Lexer : ILexer<INode>
             if (c == start) break;
             _ = s.Append(c);
         }
-        return new Token { Type = Symbols.STR, Name = s.ToString() };
+        return new StringNode { Value = s.ToString() };
     }
 
-    public static Token ReadOperator(SourceCodeReader reader)
+    public static TokenNode ReadOperator(SourceCodeReader reader)
     {
         var s = new StringBuilder();
         while (!reader.EndOfStream)
@@ -406,9 +405,9 @@ public partial class Lexer : ILexer<INode>
         }
         if (reader.PeekChar() == '=') _ = s.Append(reader.ReadChar());
         var ope = s.ToString();
-        return new Token
+        return new TokenNode
         {
-            Type = ope switch
+            Symbol = ope switch
             {
                 "<" => Symbols.LT,
                 ">" => Symbols.GT,

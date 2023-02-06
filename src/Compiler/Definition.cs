@@ -220,7 +220,7 @@ public static partial class Definition
         return node switch
         {
             VariableNode x => x.Name,
-            TokenNode x => x.Token.Name,
+            TokenNode x => x.Name,
             TupleNode x => GetTupleName(x.Values.Count),
             TypeTupleNode x => GetTupleName(x.Types.Count),
             TypeStructNode x => x.Name,

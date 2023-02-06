@@ -1,6 +1,6 @@
 namespace Roku.Parser;
 
-public interface ILexer<T> where T : class
+public interface ILexer<T>
 {
     public IToken<T> PeekToken();
 

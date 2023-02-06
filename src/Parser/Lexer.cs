@@ -1,8 +1,5 @@
-
-
 using Extensions;
 using Roku.Node;
-
 
 using System.Collections.Generic;
 
@@ -10,59 +7,54 @@ namespace Roku.Parser;
 
 public partial class Lexer : ILexer<INode>
 {
-    public static Dictionary<char, Symbols> CreateReservedCharTable()
-    {
-        var table = new Dictionary<char, Symbols>();
-        table['('] = Symbols.__LeftParenthesis;
-        table[')'] = Symbols.__RightParenthesis;
-        table[','] = Symbols.__Comma;
-        table['.'] = Symbols.__FullStop;
-        table[':'] = Symbols.__Colon;
-        table['?'] = Symbols.__QuestionMark;
-        table['['] = Symbols.__LeftSquareBracket;
-        table[']'] = Symbols.__RightSquareBracket;
-        table['{'] = Symbols.__LeftCurlyBracket;
-        table['}'] = Symbols.__RightCurlyBracket;
-        return table;
-    }
+    public static Dictionary<char, Symbols> ReservedChar { get; } = new()
+        {
+            { ',', Symbols.__Comma },
+            { ':', Symbols.__Colon },
+            { '?', Symbols.__QuestionMark },
+            { '.', Symbols.__FullStop },
+            { '(', Symbols.__LeftParenthesis },
+            { ')', Symbols.__RightParenthesis },
+            { '[', Symbols.__LeftSquareBracket },
+            { ']', Symbols.__RightSquareBracket },
+            { '{', Symbols.__LeftCurlyBracket },
+            { '}', Symbols.__RightCurlyBracket },
+        };
+    public static Dictionary<string, Symbols> ReservedString { get; } = new()
+        {
+            { "AND2", Symbols.AND2 },
+            { "ARROW", Symbols.ARROW },
+            { "BEGIN", Symbols.BEGIN },
+            { "CLASS", Symbols.CLASS },
+            { "ELSE", Symbols.ELSE },
+            { "END", Symbols.END },
+            { "EOL", Symbols.EOL },
+            { "EQ", Symbols.EQ },
+            { "FALSE", Symbols.FALSE },
+            { "FLOAT", Symbols.FLOAT },
+            { "GT", Symbols.GT },
+            { "IF", Symbols.IF },
+            { "IGNORE", Symbols.IGNORE },
+            { "INSTANCE", Symbols.INSTANCE },
+            { "IS", Symbols.IS },
+            { "LAMBDA_START", Symbols.LAMBDA_START },
+            { "LET", Symbols.LET },
+            { "LT", Symbols.LT },
+            { "NULL", Symbols.NULL },
+            { "NUM", Symbols.NUM },
+            { "OPE", Symbols.OPE },
+            { "OR", Symbols.OR },
+            { "OR2", Symbols.OR2 },
+            { "STR", Symbols.STR },
+            { "STRUCT", Symbols.STRUCT },
+            { "SUB", Symbols.SUB },
+            { "SWITCH", Symbols.SWITCH },
+            { "THEN", Symbols.THEN },
+            { "TRUE", Symbols.TRUE },
+            { "TYPE_PARAM", Symbols.TYPE_PARAM },
+            { "UNARY", Symbols.UNARY },
+            { "VAR", Symbols.VAR },
+        };
 
-    public static Dictionary<string, Symbols> CreateReservedStringTable()
-    {
-        var table = new Dictionary<string, Symbols>();
-        table["AND2"] = Symbols.AND2;
-        table["ARROW"] = Symbols.ARROW;
-        table["BEGIN"] = Symbols.BEGIN;
-        table["CLASS"] = Symbols.CLASS;
-        table["ELSE"] = Symbols.ELSE;
-        table["END"] = Symbols.END;
-        table["EOL"] = Symbols.EOL;
-        table["EQ"] = Symbols.EQ;
-        table["FALSE"] = Symbols.FALSE;
-        table["FLOAT"] = Symbols.FLOAT;
-        table["GT"] = Symbols.GT;
-        table["IF"] = Symbols.IF;
-        table["IGNORE"] = Symbols.IGNORE;
-        table["INSTANCE"] = Symbols.INSTANCE;
-        table["IS"] = Symbols.IS;
-        table["LAMBDA_START"] = Symbols.LAMBDA_START;
-        table["LET"] = Symbols.LET;
-        table["LT"] = Symbols.LT;
-        table["NULL"] = Symbols.NULL;
-        table["NUM"] = Symbols.NUM;
-        table["OPE"] = Symbols.OPE;
-        table["OR"] = Symbols.OR;
-        table["OR2"] = Symbols.OR2;
-        table["STR"] = Symbols.STR;
-        table["STRUCT"] = Symbols.STRUCT;
-        table["SUB"] = Symbols.SUB;
-        table["SWITCH"] = Symbols.SWITCH;
-        table["THEN"] = Symbols.THEN;
-        table["TRUE"] = Symbols.TRUE;
-        table["TYPE_PARAM"] = Symbols.TYPE_PARAM;
-        table["UNARY"] = Symbols.UNARY;
-        table["VAR"] = Symbols.VAR;
-        return table;
-    }
-
-    public static Token CreateEndOfToken() => new Token { Type = Symbols._END };
+    public static Token<INode> CreateEndOfToken() => new() { Symbol = Symbols._END, Value = default! };
 }
