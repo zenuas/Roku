@@ -31,15 +31,7 @@ $(YANP_OUT): src\roku.y
 	@$(MAKE) parserd
 
 parserd:
-	#cd ..\Yanp && msbuild Yanp.sln /nologo /v:q /t:build /p:Configuration=Debug
-	$(YANP) \
-		-i src\\roku.y \
-		-v src\\roku.txt \
-		-c src\\roku.csv \
-		-p src\\Parser\\ \
-		-b ..\\Yanp \
-		-t cs
-	
+	dotnet run --project ..\Yanp\src src\roku.y -o src\Parser -t ..\Yanp\template.cs -l 0
 	-find /n "/reduce" < src\roku.txt
 
 test:  testd  testa
