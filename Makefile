@@ -32,7 +32,7 @@ $(YANP_OUT): src\roku.y
 
 parserd:
 	dotnet run --project ..\Yanp\src src\roku.y -o src\Parser -t ..\Yanp\template.cs -l 0
-	-find /n "/reduce" < src\roku.txt
+	-find /n "/reduce" < src\Parser\verbose.txt
 
 test:  testd  testa
 testf: testdf testa
