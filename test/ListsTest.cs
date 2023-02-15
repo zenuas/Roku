@@ -184,12 +184,12 @@ public class ListsTest
 
         Assert.IsTrue(xs3.First() == 1);
         Assert.IsTrue(xs3.Last() == 3);
-        Assert.IsTrue(xs3.FirstOrNullValue() == 1);
-        Assert.IsTrue(xs3.LastOrNullValue() == 3);
+        Assert.IsTrue(xs3.FindFirstOrNullValue(_ => true) == 1);
+        Assert.IsTrue(xs3.FindLastOrNullValue(_ => true) == 3);
 
         _ = Assert.Throws<InvalidOperationException>(() => xs4.First());
         _ = Assert.Throws<InvalidOperationException>(() => xs4.Last());
-        Assert.IsTrue(xs4.FirstOrNullValue() is null);
-        Assert.IsTrue(xs4.LastOrNullValue() is null);
+        Assert.IsTrue(xs4.FindFirstOrNullValue(_ => true) is null);
+        Assert.IsTrue(xs4.FindLastOrNullValue(_ => true) is null);
     }
 }

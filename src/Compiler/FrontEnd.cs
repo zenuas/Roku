@@ -101,7 +101,7 @@ public static class FrontEnd
         {
             if (char.IsLower(x.First()))
             {
-                if (ef.Generics.FindFirstOrNull(g => g.Name == x) is { } p) return p;
+                if (ef.Generics.FirstOrDefault(g => g.Name == x) is { } p) return p;
 
                 var g = new TypeGenericsParameter() { Name = x };
                 ef.Generics.Add(g);

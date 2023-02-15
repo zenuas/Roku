@@ -339,7 +339,7 @@ public static class Lookup
     {
         if (ns is INamespace nsb)
         {
-            if (nsb.Classes.FindFirstOrNull(x => x.Name == name && x.Generics.Count == gens.Count) is { } c) return c;
+            if (nsb.Classes.FirstOrDefault(x => x.Name == name && x.Generics.Count == gens.Count) is { } c) return c;
         }
         if (ns is IUse body)
         {
@@ -537,7 +537,7 @@ public static class Lookup
         Assembly? asmx = null;
         foreach (var asm in root.Assemblies)
         {
-            var x = GetAssemblyType(asm).FindFirstOrNull(x => x.GetTypeInfo() == ti);
+            var x = GetAssemblyType(asm).FirstOrDefault(x => x.GetTypeInfo() == ti);
             if (x is { })
             {
                 asmx = asm;

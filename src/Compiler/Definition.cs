@@ -173,7 +173,7 @@ public static partial class Definition
     {
         var top = Lookup.GetTopLevelNamespace(scope.Namespace);
         var name = GetName(st);
-        var exists = top.Structs.FindFirstOrNull(x => x.Name == name);
+        var exists = top.Structs.FirstOrDefault(x => x.Name == name);
 
         if (exists is null)
         {
@@ -254,7 +254,7 @@ public static partial class Definition
 
     public static IEvaluable? FindNamespaceValue(IManaged ns, string name)
     {
-        if (ns is INamespace body && body.Structs.FindFirstOrNull(x => x.Name == name) is { } s) return new TypeValue() { Name = s.Name };
+        if (ns is INamespace body && body.Structs.FirstOrDefault(x => x.Name == name) is { } s) return new TypeValue() { Name = s.Name };
         if (ns is RootNamespace root) return new TypeValue() { Name = name };
         return null;
     }

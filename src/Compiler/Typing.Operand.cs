@@ -98,7 +98,7 @@ public static partial class Typing
         }
         else
         {
-            m[v] = CreateVariableDetail(v.ToString()!, b, VariableType.LocalVariable, m.Values.Where(x => x.Type == VariableType.LocalVariable).FoldLeft((r, x) => Math.Max(r, x.Index + 1), 0));
+            m[v] = CreateVariableDetail(v.ToString()!, b, VariableType.LocalVariable, m.Values.Where(x => x.Type == VariableType.LocalVariable).Aggregate(0, (r, x) => Math.Max(r, x.Index + 1)));
         }
         return true;
     }
@@ -144,7 +144,7 @@ public static partial class Typing
                 {
                     var scope = GetCaptured(ns, x);
                     if (scope is null) return m[x];
-                    var reciever = m.FindFirst(kv => kv.Value.Struct?.Name == Definition.ScopeToUniqueName(scope)).Key;
+                    var reciever = m.First(kv => kv.Value.Struct?.Name == Definition.ScopeToUniqueName(scope)).Key;
                     var prop = m[x] = CreateVariableDetail(x.Name, GetPropertyType(m, reciever, x.Name), VariableType.Property);
                     return m[x];
                 }
@@ -178,7 +178,7 @@ public static partial class Typing
                 return m[x];
 
             case FunctionReferenceValue x:
-                m[x] = CreateVariableDetail("", Lookup.GetRootNamespace(ns).Structs.OfType<AnonymousFunctionBody>().FindFirst(f => f.Name == x.Name), VariableType.PrimitiveValue);
+                m[x] = CreateVariableDetail("", Lookup.GetRootNamespace(ns).Structs.OfType<AnonymousFunctionBody>().First(f => f.Name == x.Name), VariableType.PrimitiveValue);
                 return m[x];
         }
         throw new Exception();

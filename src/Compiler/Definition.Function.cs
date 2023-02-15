@@ -140,7 +140,7 @@ public static partial class Definition
                 sp.Generics.Each(x => create_type(x));
             }
             return types.ContainsKey(s.Name) ? types[s.Name]
-                : gens?.FindFirstOrNull(x => x.Name == s.Name) is { } p ? types[s.Name] = p.Return(x => body.Generics.Add(x))
+                : gens?.FirstOrDefault(x => x.Name == s.Name) is { } p ? types[s.Name] = p.Return(x => body.Generics.Add(x))
                 : CreateType(body, s).Return(x => { if (x is TypeGenericsParameter g) body.Generics.Add(types[g.Name] = g); });
         }
 

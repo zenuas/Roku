@@ -37,7 +37,7 @@ public static partial class Definition
     public static FunctionBody TupleBodyDefinition(RootNamespace root, int count)
     {
         var name = GetTupleName(count);
-        var exists = root.Functions.FindFirstOrNull(x => x.Name == name);
+        var exists = root.Functions.FirstOrDefault(x => x.Name == name);
 
         if (exists is FunctionBody fb) return fb;
 

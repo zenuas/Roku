@@ -26,7 +26,7 @@ public static partial class CodeGenerator
 
     public static IStructBody? GetType(VariableDetail vd, GenericsMapper g) => GetType(vd.Struct, g);
 
-    public static IStructBody? GetType(IStructBody? body, GenericsMapper g) => body is GenericsParameter gp ? g.FindFirst(x => x.Key.Name == gp.Name).Value : body;
+    public static IStructBody? GetType(IStructBody? body, GenericsMapper g) => body is GenericsParameter gp ? g.First(x => x.Key.Name == gp.Name).Value : body;
 
     public static string GetStructName(IStructBody? body, bool escape = true)
     {

@@ -19,7 +19,7 @@ public static partial class Definition
                 var next: [Co$0 | Null]
                 var local: CoLocal$0 # local value exist
         */
-        var list_a = body.Constraints.FindFirst(x => x.Class.Name == "List" && x.Generics.Count == 2 && x.Generics[0] == body.Return).Generics[1];
+        var list_a = body.Constraints.First(x => x.Class.Name == "List" && x.Generics.Count == 2 && x.Generics[0] == body.Return).Generics[1];
         var co_struct = new StructBody(ns, $"Co${src.CoroutineUniqueCount}");
         var co_struct_typename = new TypeValue() { Name = co_struct.Name };
         var state = new VariableValue() { Name = "state" };

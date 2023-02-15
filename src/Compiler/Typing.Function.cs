@@ -17,7 +17,7 @@ public static partial class Typing
 
         foreach (var mapper in body.SpecializationMapper.Values)
         {
-            if (body.Body.OfType<IfCastCode>().FindFirstOrNull(x => Lookup.IsValueType(mapper[x.Condition].Struct)) is { })
+            if (body.Body.OfType<IfCastCode>().FirstOrDefault(x => Lookup.IsValueType(mapper[x.Condition].Struct)) is { })
             {
                 _ = LocalValueInferenceWithEffect(mapper, mapper.CastBoxCondition, Lookup.LoadType(Lookup.GetRootNamespace(body.Namespace), typeof(object)));
             }
@@ -40,7 +40,7 @@ public static partial class Typing
             if (body is AnonymousFunctionBody afb && afb.IsImplicit && body.Return is TypeImplicit v)
             {
                 if (!(m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) &&
-                    m.Keys.FindFirstOrNull(x => x is ImplicitReturnValue) is { } imp)
+                    m.Keys.FirstOrDefault(x => x is ImplicitReturnValue) is { } imp)
                 {
                     if (m[imp].Struct is { } impx)
                     {
