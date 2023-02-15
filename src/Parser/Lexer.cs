@@ -1,11 +1,8 @@
-using Extensions;
-using Roku.Node;
-
 using System.Collections.Generic;
 
 namespace Roku.Parser;
 
-public partial class Lexer : ILexer<INode>
+public partial class Lexer
 {
     public static Dictionary<char, Symbols> ReservedChar { get; } = new()
         {
