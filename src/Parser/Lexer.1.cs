@@ -198,7 +198,7 @@ public partial class Lexer : ILexer<INode>
     {
         var line = reader.LineNumber;
         var col = reader.LineColumn;
-        if (reader.EndOfStream) return (0, only_first_eof_makes_eof ? CreateEndOfToken() : new TokenNode { Symbol = Symbols.EOL, LineNumber = line, LineColumn = col });
+        if (reader.EndOfStream) return (0, only_first_eof_makes_eof ? new TokenNode { Symbol = Symbols._END, LineNumber = line, LineColumn = col } : new TokenNode { Symbol = Symbols.EOL, LineNumber = line, LineColumn = col });
 
         var c = reader.PeekChar();
         var indent = 0;
@@ -232,7 +232,7 @@ public partial class Lexer : ILexer<INode>
                 var block_count = comment.FindFirstIndex(x => x != '#');
                 while (true)
                 {
-                    if (reader.EndOfStream) return CreateEndOfToken();
+                    if (reader.EndOfStream) return new TokenNode { Symbol = Symbols._END, LineNumber = line, LineColumn = col };
                     var s = reader.ReadLine()!;
                     if (CountIndent(s) == indent)
                     {

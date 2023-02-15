@@ -55,6 +55,4 @@ public partial class Lexer : ILexer<INode>
             { "UNARY", Symbols.UNARY },
             { "VAR", Symbols.VAR },
         };
-
-    public static Token<INode> CreateEndOfToken() => new() { Symbol = Symbols._END, Value = default! };
 }
