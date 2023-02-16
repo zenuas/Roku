@@ -1671,7 +1671,6 @@ public partial class Parser
             case -182:
                 {
                     Debug.WriteLine("void : ");
-                    
                     return DoAction(Symbols.@void, default!, 0);
                 }
 
