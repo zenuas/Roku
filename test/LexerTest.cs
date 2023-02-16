@@ -125,17 +125,20 @@ public class LexerTest
         Assert.AreEqual(ts5[1].Cast<FloatingNumericNode>().Value, 123.456);
 
         var ts6 = Tokens("x.1.2");
-        Assert.AreEqual(ts6.Count, 5);
+        Assert.AreEqual(ts6.Count, 7);
         Assert.IsTrue(ts6.Zip(new Symbols[]
             {
                 Symbols.BEGIN,
                 Symbols.VAR,
                 Symbols.__FullStop,
-                Symbols.FLOAT,
+                Symbols.NUM,
+                Symbols.__FullStop,
+                Symbols.NUM,
                 Symbols._END,
             }).All(x => x.First.Symbol == x.Second));
         Assert.AreEqual(ts6[1].Cast<TokenNode>().Name, "x");
-        Assert.AreEqual(ts6[3].Cast<FloatingNumericNode>().Format, "1.2");
+        Assert.AreEqual(ts6[3].Cast<NumericNode>().Format, "1");
+        Assert.AreEqual(ts6[5].Cast<NumericNode>().Format, "2");
     }
 
     public static Lexer Read(string s) => new Lexer() { BaseReader = new SourceCodeReader(new StringReader(s)), Parser = new Parser.Parser() };

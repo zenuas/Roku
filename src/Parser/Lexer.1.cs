@@ -166,7 +166,7 @@ public partial class Lexer : ILexer<INode>
         {
             var line = reader.LineNumber;
             var col = reader.LineColumn;
-            var t = ReadToken(reader);
+            var t = ReadToken(reader, ts.LastOrDefault().To(x => x is TokenNode t && t.Name == "."));
             t.Value.LineNumber = line;
             t.Value.LineColumn = col;
             t.Value.Indent = indent;
@@ -246,16 +246,13 @@ public partial class Lexer : ILexer<INode>
         return null;
     }
 
-    public static IToken<INode> ReadToken(SourceCodeReader reader)
+    public static IToken<INode> ReadToken(SourceCodeReader reader, bool isprev_dot)
     {
         var c = reader.PeekChar();
         if (ReservedChar.ContainsKey(c)) return new TokenNode { Symbol = ReservedChar[c], Name = reader.ReadChar().ToString() };
 
         switch (c)
         {
-            case '.':
-                break;
-
             case '"':
                 return ReadString(reader);
 
@@ -309,12 +306,13 @@ public partial class Lexer : ILexer<INode>
                         default:
                             reader.UnRead(base_);
                             reader.UnRead('0');
-                            return ReadDecimal(reader, "");
+                            return ReadNumberOrFloat(reader);
                     }
                 }
 
             default:
-                if (IsNumber(c)) return ReadDecimal(reader, "");
+                if (isprev_dot && IsNumber(c)) return ReadDecimal(reader);
+                if (IsNumber(c)) return ReadNumberOrFloat(reader);
                 if (IsAlphabet(c)) return ReadVariable(reader);
                 if (IsOperator(c)) return ReadOperator(reader);
                 break;
@@ -361,7 +359,7 @@ public partial class Lexer : ILexer<INode>
         return new NumericNode { Value = Convert.ToUInt32(value, base_), Format = format };
     }
 
-    public static IToken<INode> ReadNumberOrFloat(SourceCodeReader reader, string prefix)
+    public static IToken<INode> ReadNumberOrFloat(SourceCodeReader reader, string prefix = "")
     {
         var (value, format) = ReadNumberText(reader, prefix, IsFloatingNumber);
         if (value.FindFirstIndex(c => c == '.') >= 0)
@@ -374,7 +372,7 @@ public partial class Lexer : ILexer<INode>
         }
     }
 
-    public static IToken<INode> ReadDecimal(SourceCodeReader reader, string prefix = "") => ReadNumberOrFloat(reader, prefix);
+    public static NumericNode ReadDecimal(SourceCodeReader reader) => ReadNumber(reader, 10, "", IsNumber);
 
     public static NumericNode ReadHexadecimal(SourceCodeReader reader, string prefix = "0x") => ReadNumber(reader, 16, prefix, IsHexadecimal);
 
