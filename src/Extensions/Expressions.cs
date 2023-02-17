@@ -1,35 +1,21 @@
 ﻿using System;
-using System.Linq.Expressions;
+using System.Numerics;
 
 namespace Extensions;
 
 public static class Expressions
 {
-    public static Func<T, T, T> Add<T>()
-    {
-        var x = Expression.Parameter(typeof(T));
-        var y = Expression.Parameter(typeof(T));
-        return Expression.Lambda<Func<T, T, T>>(Expression.Add(x, y), x, y).Compile();
-    }
+    public static Func<T, T, T> Add<T>() where T : IAdditionOperators<T, T, T> => (a, b) => a + b;
 
-    public static Func<T, T, T> Subtract<T>()
-    {
-        var x = Expression.Parameter(typeof(T));
-        var y = Expression.Parameter(typeof(T));
-        return Expression.Lambda<Func<T, T, T>>(Expression.Subtract(x, y), x, y).Compile();
-    }
+    public static Func<T, T, T> Subtract<T>() where T : ISubtractionOperators<T, T, T> => (a, b) => a - b;
 
-    public static Func<T, T, T> Multiply<T>()
-    {
-        var x = Expression.Parameter(typeof(T));
-        var y = Expression.Parameter(typeof(T));
-        return Expression.Lambda<Func<T, T, T>>(Expression.Multiply(x, y), x, y).Compile();
-    }
+    public static Func<T, T, T> Multiply<T>() where T : IMultiplyOperators<T, T, T> => (a, b) => a * b;
 
-    public static Func<T, T, T> Divide<T>()
-    {
-        var x = Expression.Parameter(typeof(T));
-        var y = Expression.Parameter(typeof(T));
-        return Expression.Lambda<Func<T, T, T>>(Expression.Divide(x, y), x, y).Compile();
-    }
+    public static Func<T, T, T> Divide<T>() where T : IDivisionOperators<T, T, T> => (a, b) => a / b;
+
+    public static Func<T, T, T> Modulo<T>() where T : IModulusOperators<T, T, T> => (a, b) => a % b;
+
+    public static Func<T, T, T> LeftShift<T>() where T : IShiftOperators<T, T, T> => (a, b) => a << b;
+
+    public static Func<T, T, T> RightShift<T>() where T : IShiftOperators<T, T, T> => (a, b) => a >> b;
 }
