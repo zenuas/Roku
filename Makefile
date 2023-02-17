@@ -11,7 +11,7 @@ YANP_OUT=src\Parser\Parser.cs
 .PHONY: all clean distclean release test testf testd testdf testa parser parserd fetchil metric
 
 all:
-	dotnet build --nologo -v q
+	dotnet build --nologo -v q --clp:NoSummary
 
 clean:
 	dotnet clean --nologo -v q
