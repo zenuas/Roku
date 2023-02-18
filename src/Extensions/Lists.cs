@@ -102,27 +102,33 @@ public static class Lists
     public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> self) => self.SelectMany(x => x);
 
     [DebuggerHidden]
-    public static IEnumerable<IEnumerable<T>> SplitBefore<T>(this IEnumerable<T> self, Func<T, bool> f)
+    public static IEnumerable<(IEnumerable<T> Values, bool Found, T Separator)> SplitFor<T>(this IEnumerable<T> self, Func<T, bool> f, bool prepend = false)
     {
-        var list = self.ToList();
-        var start = 0;
-        var skip = 0;
-        while (true)
+        var values = new List<T>();
+        foreach (var x in self)
         {
-            var index = list.FindIndex(skip, x => f(x));
-            if (index < 0)
+            if (f(x))
             {
-                yield return list.GetRange(start, list.Count - start);
-                break;
+                yield return (values.ToArray(), true, x);
+                values.Clear();
+                if (prepend) values.Add(x);
             }
             else
             {
-                yield return list.GetRange(start, index - start);
-                start = index;
-                skip = index + 1;
+                values.Add(x);
             }
         }
+        if (values.Count > 0) yield return (values, false, default!);
     }
+
+    [DebuggerHidden]
+    public static IEnumerable<IEnumerable<T>> SplitIn<T>(this IEnumerable<T> self, Func<T, bool> f) => self.SplitFor(f).Select(x => x.Values);
+
+    [DebuggerHidden]
+    public static IEnumerable<IEnumerable<T>> SplitBefore<T>(this IEnumerable<T> self, Func<T, bool> f) => self.SplitFor(f, true).Select(x => x.Values);
+
+    [DebuggerHidden]
+    public static IEnumerable<IEnumerable<T>> SplitAfter<T>(this IEnumerable<T> self, Func<T, bool> f) => self.SplitFor(f).Select(x => x.Found ? x.Values.Concat(x.Separator) : x.Values);
 
     [DebuggerHidden]
     public static (IEnumerable<T1> First, IEnumerable<T2> Second) UnZip<T1, T2>(this IEnumerable<(T1, T2)> self) => (self.Select(x => x.Item1), self.Select(x => x.Item2));
