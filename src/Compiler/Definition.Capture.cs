@@ -19,7 +19,7 @@ public static partial class Definition
         src.Structs
             .OfType<StructBody>()
             .Where(x => x.Type == StructBodyTypes.Capture)
-            .Each(x => src.Functions.Add(new EmbeddedFunction(x.Name, x.Name) { OpCode = (_, args) => $"newobj instance void {x.Name}::.ctor()" }));
+            .Each(x => src.Functions.Add(new EmbeddedFunction(x.Name, x.Name) { OpCode = (_, args) => $"newobj instance void {CodeGenerator.EscapeILName(x.Name)}::.ctor()" }));
     }
 
     public static bool IsCapturedFunction(FunctionBody f) => f.Capture.Count > 0;
@@ -70,7 +70,7 @@ public static partial class Definition
                 if (current is FunctionBody fb && !fb.Arguments.Exists(x => x.Name.Name == argname))
                 {
                     var scopevar = new VariableValue() { Name = argname };
-                    fb.Arguments.Insert(0, (new VariableValue() { Name = argname }, new TypeValue() { Name = scope.Name }));
+                    fb.Arguments.Insert(0, (scopevar, new TypeValue() { Name = scope.Name }));
                     fb.LexicalScope.Add(scope.Name, scopevar);
                 }
                 return scope;
