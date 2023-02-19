@@ -28,6 +28,9 @@ public static partial class Typing
             case TypeBind x:
                 return LocalValueInferenceWithEffect(m, x.Name, TypeDefinitionToStructBody(ns, m, x.Type));
 
+            case TypeReferenceBind x:
+                return LocalValueInferenceWithEffect(m, x.Name, x.Struct);
+
             case IfCastCode x:
                 return LocalValueInferenceWithEffect(m, x.Name, Lookup.LoadStruct(ns, x.Type.Name));
 
