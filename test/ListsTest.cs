@@ -148,24 +148,40 @@ public class ListsTest
     }
 
     [Test]
+    public void SplitTest()
+    {
+        var xs1 = "".Split(',').ToList();
+        Assert.AreEqual(xs1.Count, 1);
+
+        var xs2 = "123,45,,6,".Split(',').ToList();
+        Assert.AreEqual(xs2.Count, 5);
+        Assert.AreEqual(xs2[0], "123");
+        Assert.AreEqual(xs2[1], "45");
+        Assert.AreEqual(xs2[2], "");
+        Assert.AreEqual(xs2[3], "6");
+        Assert.AreEqual(xs2[4], "");
+    }
+
+    [Test]
     public void SplitInTest()
     {
         var xs1 = new int[] { }.SplitIn(x => x < 0).ToList();
-        Assert.AreEqual(xs1.Count, 0);
+        Assert.AreEqual(xs1.Count, 1);
 
         var xs2 = new int[] { 1, 2, 3, -1, 4, 5, -2, -3, 6, -4 }.SplitIn(x => x < 0).ToList();
-        Assert.AreEqual(xs2.Count, 4);
+        Assert.AreEqual(xs2.Count, 5);
         Assert.AreEqual(xs2[0], new int[] { 1, 2, 3 });
         Assert.AreEqual(xs2[1], new int[] { 4, 5 });
         Assert.AreEqual(xs2[2], new int[] { });
         Assert.AreEqual(xs2[3], new int[] { 6 });
+        Assert.AreEqual(xs2[4], new int[] { });
     }
 
     [Test]
     public void SplitBeforeTest()
     {
         var xs1 = new int[] { }.SplitBefore(x => x < 0).ToList();
-        Assert.AreEqual(xs1.Count, 0);
+        Assert.AreEqual(xs1.Count, 1);
 
         var xs2 = new int[] { 1, 2, 3, -1, 4, 5, -2, -3, 6, -4 }.SplitBefore(x => x < 0).ToList();
         Assert.AreEqual(xs2.Count, 5);
@@ -180,14 +196,15 @@ public class ListsTest
     public void SplitAfterTest()
     {
         var xs1 = new int[] { }.SplitAfter(x => x < 0).ToList();
-        Assert.AreEqual(xs1.Count, 0);
+        Assert.AreEqual(xs1.Count, 1);
 
         var xs2 = new int[] { 1, 2, 3, -1, 4, 5, -2, -3, 6, -4 }.SplitAfter(x => x < 0).ToList();
-        Assert.AreEqual(xs2.Count, 4);
+        Assert.AreEqual(xs2.Count, 5);
         Assert.AreEqual(xs2[0], new int[] { 1, 2, 3, -1 });
         Assert.AreEqual(xs2[1], new int[] { 4, 5, -2 });
         Assert.AreEqual(xs2[2], new int[] { -3 });
         Assert.AreEqual(xs2[3], new int[] { 6, -4 });
+        Assert.AreEqual(xs2[4], new int[] { });
     }
 
     [Test]

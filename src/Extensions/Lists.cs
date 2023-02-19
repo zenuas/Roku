@@ -118,7 +118,7 @@ public static class Lists
                 values.Add(x);
             }
         }
-        if (values.Count > 0) yield return (values, false, default!);
+        yield return (values, false, default!);
     }
 
     [DebuggerHidden]
