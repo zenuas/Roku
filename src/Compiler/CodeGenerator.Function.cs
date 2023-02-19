@@ -64,7 +64,7 @@ public static partial class CodeGenerator
             {
                 il.WriteLine(".locals(");
                 il.Indent++;
-                il.WriteLine(local_vals.Select(x => $"[{x.Index}] {GetTypeName(x, g)} {x.Name}").Join(",\n"));
+                il.WriteLine(local_vals.Select(x => $"[{x.Index}] {GetTypeName(x, g)} {EscapeILName(x.Name)}").Join(",\n"));
                 il.Indent--;
                 il.WriteLine(")");
             }
@@ -98,6 +98,7 @@ public static partial class CodeGenerator
                     var fm = m[call.Function.Function].Struct!.Cast<FunctionMapper>();
                     stack_size = call.Function.Arguments.Select(x => GetMaxstack(x)).Sum();
                     if (fm.Function is FunctionTypeBody || fm.Function is AnonymousFunctionBody) stack_size++;
+                    else if (fm.Function is FunctionBody fb) stack_size += fb.Arguments.Where(x => Definition.IsScopeCapturedArgumentName(x.Name.Name)).Count();
                     break;
                 }
 

@@ -67,6 +67,8 @@ public static partial class CodeGenerator
                     }
                     else if (f.Function is FunctionBody fb)
                     {
+                        var captured = fb.Arguments.Where(x => Definition.IsScopeCapturedArgumentName(x.Name.Name)).Select(x => LoadValue(m, m.Keys.OfType<VariableValue>().First(y => y.Name == x.Name.Name))).ToArray();
+                        if (captured.Length > 0) il.WriteLine(captured.Join('\n'));
                         if (args.Length > 0) il.WriteLine(args.Join('\n'));
                         var (_, name) = FindFunctionSpecialization(fss, fb, Lookup.TypeMapperToGenericsMapper(f.TypeMapper));
                         il.WriteLine($"call {GetTypeName(f.TypeMapper, fb.Return, g)} {EscapeILName(name)}({fb.Arguments.Select(a => GetTypeName(f.TypeMapper[a.Name], g)).Join(", ")})");
