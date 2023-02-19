@@ -33,6 +33,93 @@ sub g(_scope: $scope)
 f.bind(scope)()
 ###
 
-###failed
+###start
+.assembly extern System.Console { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
+.assembly extern System.Runtime { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
+.assembly capture01 {}
 
+.class interface public abstract '#RTTI'
+{
+    .method public hidebysig newslot abstract virtual instance int32 '#GetTypeNo'() {}
+    .method public hidebysig newslot abstract virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'() {}
+}
+
+.class public '##main' implements '#RTTI'
+{
+    .field public static class [System.Runtime]System.Type[] '#type_generics'
+    
+    .field public int32 a
+    .field public string b
+    
+    .method private static void .cctor()
+    {
+        ldc.i4.0
+        newarr [System.Runtime]System.Type
+        stsfld class [System.Runtime]System.Type[] '##main'::'#type_generics'
+        ret
+    }
+    
+    .method public hidebysig newslot virtual instance int32 '#GetTypeNo'()
+    {
+        ldc.i4.0
+        ret
+    }
+    
+    .method public hidebysig newslot virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'()
+    {
+        ldsfld class [System.Runtime]System.Type[] '##main'::'#type_generics'
+        ret
+    }
+    
+    .method public void .ctor()
+    {
+        
+        
+        ret
+    }
+}
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 2
+    .locals(
+        [0] class '##main' '$##main'
+    )
+    
+    newobj instance void '##main'::.ctor()
+    stloc.0
+    
+    ldloc.0
+    ldc.i4.1
+    stfld int32 class '##main'::a
+    
+    ldloc.0
+    ldstr "hello"
+    stfld string class '##main'::b
+    
+    ldloc.0
+    call void f(class '##main')
+    ret
+}
+.method public static void f(class '##main')
+{
+    .maxstack 1
+    
+    ldarg.0
+    call void g(class '##main')
+    ret
+}
+.method public static void g(class '##main')
+{
+    .maxstack 1
+    
+    ldarg.0
+    ldfld int32 class '##main'::a
+    call void class [System.Console]System.Console::WriteLine(int32)
+    
+    ldarg.0
+    ldfld string class '##main'::b
+    call void class [System.Console]System.Console::WriteLine(string)
+    ret
+}
 ###end
