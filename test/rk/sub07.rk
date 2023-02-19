@@ -31,8 +31,8 @@ f("hello", "world")
     .entrypoint
     .maxstack 3
     .locals(
-        [0] class [mscorlib]System.Action`2<int32, int32> ,
-        [1] class [mscorlib]System.Action`2<string, string> 
+        [0] class [mscorlib]System.Action`2<int32, int32> '',
+        [1] class [mscorlib]System.Action`2<string, string> ''
     )
     
     ldnull

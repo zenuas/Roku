@@ -83,7 +83,7 @@ while(! isnull(xs))
     .method public hidebysig newslot abstract virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'() {}
 }
 
-.class public 'Co$0' implements '#RTTI'
+.class public Co$0 implements '#RTTI'
 {
     .field public static class [System.Runtime]System.Type[] '#type_generics'
     
@@ -95,7 +95,7 @@ while(! isnull(xs))
     {
         ldc.i4.0
         newarr [System.Runtime]System.Type
-        stsfld class [System.Runtime]System.Type[] 'Co$0'::'#type_generics'
+        stsfld class [System.Runtime]System.Type[] Co$0::'#type_generics'
         ret
     }
     
@@ -107,7 +107,7 @@ while(! isnull(xs))
     
     .method public hidebysig newslot virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'()
     {
-        ldsfld class [System.Runtime]System.Type[] 'Co$0'::'#type_generics'
+        ldsfld class [System.Runtime]System.Type[] Co$0::'#type_generics'
         ret
     }
     
@@ -116,7 +116,7 @@ while(! isnull(xs))
         
         ldarg.0
         ldc.i4.0
-        stfld int32 class 'Co$0'::state
+        stfld int32 class Co$0::state
         
         
         ret
@@ -127,7 +127,7 @@ while(! isnull(xs))
     .field public static class [System.Runtime]System.Type[] '#type_generics'
     
     .field public string '1'
-    .field public class 'Co$0' '2'
+    .field public class Co$0 '2'
     
     .method private static void .cctor()
     {
@@ -142,7 +142,7 @@ while(! isnull(xs))
         
         dup
         ldc.i4.1
-        ldtoken class 'Co$0'
+        ldtoken class Co$0
         call class [System.Runtime]System.Type [System.Runtime]System.Type::GetTypeFromHandle(valuetype [System.Runtime]System.RuntimeTypeHandle)
         stelem.ref
         stsfld class [System.Runtime]System.Type[] 'Tuple#2<string, class Co$0>'::'#type_generics'
@@ -173,22 +173,22 @@ while(! isnull(xs))
     .entrypoint
     .maxstack 1
     .locals(
-        [0] class 'Co$0' xs,
+        [0] class Co$0 xs,
         [1] class 'Tuple#2<string, class Co$0>' p1,
         [2] string $$1,
-        [3] class 'Co$0' $$2,
+        [3] class Co$0 $$2,
         [4] class 'Tuple#2<string, class Co$0>' p2,
         [5] string $$3,
-        [6] class 'Co$0' $$4,
+        [6] class Co$0 $$4,
         [7] class 'Tuple#2<string, class Co$0>' p3,
         [8] string $$5
     )
     
-    call class 'Co$0' co()
+    call class Co$0 co()
     stloc.0
     
     ldloc.0
-    call class 'Tuple#2<string, class Co$0>' next(class 'Co$0')
+    call class 'Tuple#2<string, class Co$0>' next(class Co$0)
     stloc.1
     
     ldloc.1
@@ -199,11 +199,11 @@ while(! isnull(xs))
     call void class [System.Console]System.Console::WriteLine(string)
     
     ldloc.1
-    ldfld class 'Co$0' class 'Tuple#2<string, class Co$0>'::'2'
+    ldfld class Co$0 class 'Tuple#2<string, class Co$0>'::'2'
     stloc.3
     
     ldloc.3
-    call class 'Tuple#2<string, class Co$0>' next(class 'Co$0')
+    call class 'Tuple#2<string, class Co$0>' next(class Co$0)
     stloc.s 4
     
     ldloc.s 4
@@ -214,11 +214,11 @@ while(! isnull(xs))
     call void class [System.Console]System.Console::WriteLine(string)
     
     ldloc.s 4
-    ldfld class 'Co$0' class 'Tuple#2<string, class Co$0>'::'2'
+    ldfld class Co$0 class 'Tuple#2<string, class Co$0>'::'2'
     stloc.s 6
     
     ldloc.s 6
-    call class 'Tuple#2<string, class Co$0>' next(class 'Co$0')
+    call class 'Tuple#2<string, class Co$0>' next(class Co$0)
     stloc.s 7
     
     ldloc.s 7
@@ -229,11 +229,11 @@ while(! isnull(xs))
     call void class [System.Console]System.Console::WriteLine(string)
     ret
 }
-.method public static class 'Co$0' co()
+.method public static class Co$0 co()
 {
     .maxstack 1
     .locals(
-        [0] class 'Co$0' $ret
+        [0] class Co$0 $ret
     )
     
     newobj instance void Co$0::.ctor()
@@ -243,12 +243,12 @@ while(! isnull(xs))
     ret
     ret
 }
-.method public static class 'Tuple#2<string, class Co$0>' next(class 'Co$0')
+.method public static class 'Tuple#2<string, class Co$0>' next(class Co$0)
 {
     .maxstack 2
     .locals(
         [0] object $next_or_null,
-        [1] class 'Co$0' $next,
+        [1] class Co$0 $next,
         [2] string $value,
         [3] class 'Tuple#2<string, class Co$0>' $ret,
         [4] int32 $state,
@@ -257,11 +257,11 @@ while(! isnull(xs))
     )
     
     ldarg.0
-    ldfld object class 'Co$0'::next
+    ldfld object class Co$0::next
     stloc.0
     
     ldloc.0
-    isinst class 'Co$0'
+    isinst class Co$0
     ldnull
     cgt.un
     brfalse.s _cond0_1
@@ -269,12 +269,12 @@ while(! isnull(xs))
     stloc.1
     
     ldarg.0
-    ldfld string class 'Co$0'::'value'
+    ldfld string class Co$0::'value'
     stloc.2
     
     ldloc.2
     ldloc.1
-    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class 'Co$0')
+    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class Co$0)
     stloc.3
     
     ldloc.3
@@ -283,7 +283,7 @@ while(! isnull(xs))
 _cond0_1:
     
     ldarg.0
-    ldfld int32 class 'Co$0'::state
+    ldfld int32 class Co$0::state
     stloc.s 4
     
     ldloc.s 4
@@ -340,22 +340,22 @@ _cond4_5:
     
     ldarg.0
     ldstr "one"
-    stfld string class 'Co$0'::'value'
+    stfld string class Co$0::'value'
     
     newobj instance void Co$0::.ctor()
     stloc.1
     
     ldloc.1
     ldc.i4.1
-    stfld int32 class 'Co$0'::state
+    stfld int32 class Co$0::state
     
     ldarg.0
     ldloc.1
-    stfld object class 'Co$0'::next
+    stfld object class Co$0::next
     
     ldstr "one"
     ldloc.1
-    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class 'Co$0')
+    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class Co$0)
     stloc.3
     
     ldloc.3
@@ -365,22 +365,22 @@ _state1_6:
     
     ldarg.0
     ldstr "two"
-    stfld string class 'Co$0'::'value'
+    stfld string class Co$0::'value'
     
     newobj instance void Co$0::.ctor()
     stloc.1
     
     ldloc.1
     ldc.i4.2
-    stfld int32 class 'Co$0'::state
+    stfld int32 class Co$0::state
     
     ldarg.0
     ldloc.1
-    stfld object class 'Co$0'::next
+    stfld object class Co$0::next
     
     ldstr "two"
     ldloc.1
-    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class 'Co$0')
+    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class Co$0)
     stloc.3
     
     ldloc.3
@@ -390,22 +390,22 @@ _state2_7:
     
     ldarg.0
     ldstr "three"
-    stfld string class 'Co$0'::'value'
+    stfld string class Co$0::'value'
     
     newobj instance void Co$0::.ctor()
     stloc.1
     
     ldloc.1
     ldc.i4.3
-    stfld int32 class 'Co$0'::state
+    stfld int32 class Co$0::state
     
     ldarg.0
     ldloc.1
-    stfld object class 'Co$0'::next
+    stfld object class Co$0::next
     
     ldstr "three"
     ldloc.1
-    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class 'Co$0')
+    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class Co$0)
     stloc.3
     
     ldloc.3
@@ -421,18 +421,18 @@ _end_9:
     
     ldarg.0
     ldloc.s 6
-    stfld int32 class 'Co$0'::state
+    stfld int32 class Co$0::state
     
     ldnull
     ldarg.0
-    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class 'Co$0')
+    call class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class Co$0)
     stloc.3
     
     ldloc.3
     ret
     ret
 }
-.method public static class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class 'Co$0')
+.method public static class 'Tuple#2<string, class Co$0>' 'Tuple#2'(string, class Co$0)
 {
     .maxstack 2
     .locals(
@@ -448,7 +448,7 @@ _end_9:
     
     ldloc.0
     ldarg.1
-    stfld class 'Co$0' class 'Tuple#2<string, class Co$0>'::'2'
+    stfld class Co$0 class 'Tuple#2<string, class Co$0>'::'2'
     
     ldloc.0
     ret

@@ -90,7 +90,7 @@ public static partial class CodeGenerator
         return $"{GetTypeName(mapper, anon.Return, g)} {EscapeILName(anon.Name)}({anon.Arguments.Select(x => GetTypeName(mapper, x.Type, g)).Join(", ")})";
     }
 
-    public static string EscapeILName(string s) => !CilReservedWord.Contains(s) && Regex.IsMatch(s, "^_*[a-zA-Z][_a-zA-Z0-9]*$") ? s : $"'{s}'";
+    public static string EscapeILName(string s) => !CilReservedWord.Contains(s) && Regex.IsMatch(s, @"^[_#$@a-zA-Z][_?$@`a-zA-Z0-9]*$") ? s : $"'{s}'";
 
     public static string GetGenericsName(ISpecialization sp, GenericsMapper g, bool inner_escape = true) => $"<{sp.Generics.Select(x => GetStructName(g[x], inner_escape)).Join(", ")}>";
 
