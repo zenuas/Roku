@@ -15,6 +15,6 @@ print("dummy")
 インスタンス宣言の構文テスト
 ###
 
-###failed
-
+###error
+not support
 ###end

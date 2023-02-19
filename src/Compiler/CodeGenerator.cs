@@ -17,6 +17,7 @@ public static partial class CodeGenerator
         var structs = Lookup.AllStructBodies(pgms).Concat(Lookup.AllStructBodies(root)).Where(Garbage.IncompleteType);
         var externs = Lookup.AllExternFunctions(nss);
         var embedded = Lookup.AllEmbeddedFunctions(nss);
+        var instances = Lookup.AllInstanceBodies(pgms);
         var extern_structs = Lookup.AllExternStructs(Lookup.GetRootNamespace(body));
         var extern_asms = externs.Select(x => x.Assembly)
             .Concat(extern_structs.Select(x => x.Assembly))
@@ -37,6 +38,7 @@ public static partial class CodeGenerator
         AssemblyNameEmit(il, path);
 
         RuntimeEmit(il);
+        InstanceEmit(instances);
 
         var struct_index = structs.Select((x, i) => (x, i)).ToDictionary(v => v.x, v => v.i);
         structs
@@ -55,5 +57,11 @@ public static partial class CodeGenerator
     .method public hidebysig newslot abstract virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'() {}
 }
 ");
+    }
+
+    public static void InstanceEmit(IEnumerable<InstanceBody> instances)
+    {
+        if (instances.IsEmpty()) return;
+        throw new System.Exception("not support");
     }
 }

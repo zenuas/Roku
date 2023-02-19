@@ -65,6 +65,10 @@ public static class Lookup
 
     public static IEnumerable<T> AllFunctions<T>(IManaged src) where T : IFunctionName => src is INamespace ns ? ns.Functions.OfType<T>() : new List<T>();
 
+    public static IEnumerable<InstanceBody> AllInstanceBodies(List<SourceCodeBody> srcs) => srcs.Select(AllInstanceBodies).Flatten();
+
+    public static IEnumerable<InstanceBody> AllInstanceBodies(INamespace src) => src.Instances;
+
     public static FunctionSpecialization? IfFunctionArgumentsEquals_ThenAppendSpecialization(IManaged ns, IFunctionName fn, List<IStructBody?> args)
     {
         var v = FunctionArgumentsEquals(ns, fn, args);
