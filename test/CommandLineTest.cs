@@ -36,8 +36,8 @@ public class CommandLineTest
 
         Assert.AreEqual(receiver.Output, "test1");
         Assert.AreEqual(receiver.EntryPoint, "test2");
-        Assert.IsTrue(receiver.Lib.SequenceEqual(new string[] { "xxx", "test3", "test4" }));
-        Assert.IsTrue(args.SequenceEqual(new string[] { "a", "b", "c" }));
+        Assert.AreEqual(receiver.Lib, new string[] { "xxx", "test3", "test4" });
+        Assert.AreEqual(args, new string[] { "a", "b", "c" });
     }
 
     [Test]
