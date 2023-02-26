@@ -1,6 +1,7 @@
 ﻿using Extensions;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -48,7 +49,7 @@ public static class CommandLine
             var is_method_name = false;
             if (args[i].StartsWith("--"))
             {
-                method = map[args[i].Substring(2)].Method;
+                method = map[args[i][2..]].Method;
                 is_method_name = true;
             }
             else if (args[i].Length > 1 && args[i].StartsWith("-"))
@@ -79,7 +80,32 @@ public static class CommandLine
     public static string[] Run<T>(T receiver, params string[] args)
     {
         var (xargs, opt) = Parse<T>(args);
-        opt.Each(x => x.Method.Invoke(receiver, x.Arguments));
+        opt.Each(x => x.Method.Invoke(receiver, x.Arguments.Select((arg, i) => Convert(x.Method.GetParameters()[i].ParameterType, arg)).ToArray()));
         return xargs;
+    }
+
+    public static object Convert(Type t, string s)
+    {
+        return t switch
+        {
+            Type a when a == typeof(TextReader) => new StreamReader(s),
+            Type a when a == typeof(StreamReader) => new StreamReader(s),
+            Type a when a == typeof(TextWriter) => new StreamWriter(s),
+            Type a when a == typeof(StreamWriter) => new StreamWriter(s),
+            Type a when a == typeof(byte) => byte.Parse(s),
+            Type a when a == typeof(sbyte) => sbyte.Parse(s),
+            Type a when a == typeof(int) => int.Parse(s),
+            Type a when a == typeof(uint) => uint.Parse(s),
+            Type a when a == typeof(short) => short.Parse(s),
+            Type a when a == typeof(ushort) => ushort.Parse(s),
+            Type a when a == typeof(long) => long.Parse(s),
+            Type a when a == typeof(ulong) => ulong.Parse(s),
+            Type a when a == typeof(float) => float.Parse(s),
+            Type a when a == typeof(double) => double.Parse(s),
+            Type a when a == typeof(char) => char.Parse(s),
+            Type a when a == typeof(bool) => bool.Parse(s),
+            Type a when a == typeof(decimal) => decimal.Parse(s),
+            _ => s,
+        };
     }
 }
