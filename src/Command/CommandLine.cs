@@ -31,14 +31,13 @@ public static class CommandLine
         }
     }
 
-    public static (string[] Arguments, (MethodInfo Method, string[] Arguments)[] Options) Parse<T>(params string[] args)
+    public static string[] Parse<T>(T receiver, params string[] args)
     {
         var map = GetCommands<T>()
             .Where(x => x.Attribute is CommandOptionAttribute)
             .ToDictionary(x => x.Attribute.Cast<CommandOptionAttribute>().Command);
 
         var xargs = new List<string>();
-        var methods = new List<(MethodInfo, string[])>();
         MethodInfo? method = null;
         var method_args = new List<string>();
 
@@ -65,20 +64,22 @@ public static class CommandLine
 
             if (method is { } && method.GetParameters().Length <= method_args.Count)
             {
-                methods.Add((method, method_args.ToArray()));
+                var parameters = method.GetParameters();
+                _ = method.Invoke(receiver, method_args.Select((arg, i) => Convert(parameters[i].ParameterType, arg)).ToArray());
                 method = null;
                 method_args.Clear();
             }
         }
-        return (xargs.ToArray(), methods.ToArray());
+        return [.. xargs];
     }
 
-    public static string[] Run<T>(T receiver, params string[] args)
+    public static (T Receiver, string[] Arguments) Run<T>(params string[] args)
     {
-        var (xargs, opt) = Parse<T>(args);
-        opt.Each(x => x.Method.Invoke(receiver, x.Arguments.Select((arg, i) => Convert(x.Method.GetParameters()[i].ParameterType, arg)).ToArray()));
-        return xargs;
+        var receiver = Expressions.GetNew<T>()();
+        return (receiver, Run(receiver, args));
     }
+
+    public static string[] Run<T>(T receiver, params string[] args) => Parse<T>(receiver, args);
 
     public static object Convert(Type t, string s)
     {
