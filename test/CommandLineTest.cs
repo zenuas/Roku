@@ -6,22 +6,22 @@ namespace Roku.Tests;
 
 public class Option
 {
-    [ShortOption('o')]
-    [LongOption("output")]
+    [CommandOption('o')]
+    [CommandOption("output")]
     public string Output { get; set; } = "";
 
-    [ShortOption('e')]
-    [LongOption("entrypoint")]
+    [CommandOption('e')]
+    [CommandOption("entrypoint")]
     public string EntryPoint { get; set; } = "";
 
     public List<string> Lib { get; private set; } = new List<string>();
 
-    [ShortOption('l')]
-    [LongOption("lib")]
+    [CommandOption('l')]
+    [CommandOption("lib")]
     public void LoadLibrary(string path) => Lib.Add(path);
 
-    [ShortOption('t')]
-    [LongOption("test")]
+    [CommandOption('t')]
+    [CommandOption("test")]
     public void Test() => Lib.Add("xxx");
 }
 

@@ -72,7 +72,7 @@ public static class Lists
     }
 
     [DebuggerHidden]
-    public static IEnumerable<T> Concat<T>(this IEnumerable<T> self, T x) => Enumerable.Concat(self, new T[] { x });
+    public static IEnumerable<T> Concat<T>(this IEnumerable<T> self, T x) => Enumerable.Concat(self, [x]);
 
     [DebuggerHidden]
     public static IEnumerable<Task<R>> MapParallel<T, R>(this IEnumerable<T> self, Func<T, R> f) => self.Select(x => Task.Run(() => f(x)));
@@ -109,7 +109,7 @@ public static class Lists
         {
             if (f(x))
             {
-                yield return (values.ToArray(), true, x);
+                yield return ([.. values], true, x);
                 values.Clear();
                 if (prepend) values.Add(x);
             }
@@ -192,4 +192,7 @@ public static class Lists
 
     [DebuggerHidden]
     public static IEnumerable<T> Except<T>(this IEnumerable<T> self, IEnumerable<T> second, Func<T?, T?, bool> f) => Enumerable.Except(self, second, new EqualityComparerBinder<T>() { Equals = f });
+
+    [DebuggerHidden]
+    public static IEnumerable<T> Travers<T>(this T self, Func<T, IEnumerable<T>> f) => f(self).Select(x => Travers(x, f)).Flatten().Prepend(self);
 }

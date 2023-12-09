@@ -5,17 +5,17 @@ namespace Roku;
 
 public class Option
 {
-    [ShortOption('o')]
-    [LongOption("output")]
+    [CommandOption('o')]
+    [CommandOption("output")]
     public string Output { get; set; } = "a.il";
 
-    [ShortOption('e')]
-    [LongOption("entrypoint")]
+    [CommandOption('e')]
+    [CommandOption("entrypoint")]
     public string EntryPoint { get; set; } = "";
 
     public List<string> Libraries { get; set; } = new List<string>();
 
-    [ShortOption('l')]
-    [LongOption("lib")]
+    [CommandOption('l')]
+    [CommandOption("lib")]
     public void LoadLibrary(string path) => Libraries.Add(path);
 }

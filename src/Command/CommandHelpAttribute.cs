@@ -2,9 +2,8 @@
 
 namespace Command;
 
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Method)]
 public class CommandHelpAttribute : Attribute
 {
-    public string Message { get; }
-
-    public CommandHelpAttribute(string msg) => Message = msg;
+    public required string Message { get; init; }
 }

@@ -28,8 +28,8 @@ public static class Strings
     public static string Join(this IEnumerable<string> self, string separator = "") => string.Join(separator, self);
 
     [DebuggerHidden]
-    public static string[] SplitLine(this string self) => self.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
+    public static string[] SplitLine(this string self) => self.Split(["\r\n", "\n", "\r"], StringSplitOptions.None);
 
     [DebuggerHidden]
-    public static string ToStringByChars(this IEnumerable<char> self) => new(self.ToArray());
+    public static string ToStringByChars(this IEnumerable<char> self) => new([.. self]);
 }
