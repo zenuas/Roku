@@ -85,9 +85,9 @@ public static class CommandLine
     {
         return t switch
         {
-            Type a when a == typeof(TextReader) => new StreamReader(s),
+            Type a when a == typeof(TextReader) => s == "-" ? Console.In : new StreamReader(s),
             Type a when a == typeof(StreamReader) => new StreamReader(s),
-            Type a when a == typeof(TextWriter) => new StreamWriter(s),
+            Type a when a == typeof(TextWriter) => s == "-" ? Console.Out : new StreamWriter(s),
             Type a when a == typeof(StreamWriter) => new StreamWriter(s),
             Type a when a == typeof(byte) => byte.Parse(s),
             Type a when a == typeof(sbyte) => sbyte.Parse(s),

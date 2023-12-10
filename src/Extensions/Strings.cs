@@ -10,7 +10,7 @@ public static class Strings
 {
     [DebuggerHidden]
     public static int CountAsByte(this string self, int length, Encoding enc) =>
-        self.Select(x => enc.GetByteCount(new[] { x }))
+        self.Select(x => enc.GetByteCount([x]))
             .Accumulator((acc, x) => acc + x)
             .TakeWhile(x => x <= length)
             .Count();
