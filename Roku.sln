@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Roku", "src\Roku.csproj", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Roku.Tests", "test\Roku.Tests.csproj", "{B490A0DF-C7BF-4BD4-846A-23C33F2E5E24}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roku.TestCompile", "test-compile\Roku.TestCompile.csproj", "{47B6E4A7-76F0-40C6-BC2F-5243CFDB32C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{B490A0DF-C7BF-4BD4-846A-23C33F2E5E24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B490A0DF-C7BF-4BD4-846A-23C33F2E5E24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B490A0DF-C7BF-4BD4-846A-23C33F2E5E24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47B6E4A7-76F0-40C6-BC2F-5243CFDB32C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47B6E4A7-76F0-40C6-BC2F-5243CFDB32C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47B6E4A7-76F0-40C6-BC2F-5243CFDB32C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47B6E4A7-76F0-40C6-BC2F-5243CFDB32C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
