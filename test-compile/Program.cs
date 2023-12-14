@@ -22,35 +22,23 @@ public class Program
         var (opt, xargs) = CommandLine.Run<Program>(args);
 
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-        if (Directory.Exists(opt.Output))
-        {
-            Directory.GetFiles(opt.Output, "*.*").Each(File.Delete);
-        }
-        else
-        {
-            _ = Directory.CreateDirectory(opt.Output);
-        }
+        _ = Directory.CreateDirectory(opt.Output);
 
         var compile_result = Directory.GetFiles(".", "*.rk")
-            .MapParallelAllWithTimeout(x => FrontEndTest.Compile(x, Path.Combine(opt.Output, $"{Path.GetFileNameWithoutExtension(x)}.il"), !opt.Force), 1000 * 10, x => new(x, Path.GetFileName(x), "timeout"))
+            .MapParallelAllWithTimeout(x =>
+            {
+                var il = Path.Combine(opt.Output, $"{Path.GetFileNameWithoutExtension(x)}.il");
+                var result = FrontEndTest.Compile(x, il);
+                if (!opt.Force) File.Delete(il);
+                return result;
+            },
+            1000 * 10, x => new(x, Path.GetFileName(x), "timeout"))
             .ToList();
 
         var sjis = System.Text.Encoding.GetEncoding(932);
         foreach (var result in compile_result)
         {
             var testname = Path.GetFileNameWithoutExtension(result.Result.Path);
-            var in_ = Path.Combine(opt.Output, testname + ".testin");
-            var out_ = Path.Combine(opt.Output, testname + ".testout");
-            var err_ = Path.Combine(opt.Output, testname + ".testerr");
-            var args_ = Path.Combine(opt.Output, testname + ".testargs");
-            var name_ = Path.Combine(opt.Output, testname + ".testname");
-
-            File.Delete(in_);
-            File.Delete(out_);
-            File.Delete(err_);
-            File.Delete(args_);
-            File.Delete(name_);
-
             var txt = File.ReadAllText(result.Result.Path);
             var lines = txt.SplitLine().Select(x => x.TrimStart()).ToArray();
             var name_p = FrontEndTest.GetLineContent(lines, x => x == "###", x => x == "###");
@@ -64,11 +52,10 @@ public class Program
                 var err_p = lines.Where(x => x.StartsWith("#=2>")).Select(x => x[4..] + "\r\n").Join();
                 var args_p = lines.Where(x => x.StartsWith("##*")).Select(x => x[3..]).Join(" ");
 
-                File.WriteAllText(in_, in_p);
-                File.WriteAllText(out_, out_p);
-                File.WriteAllText(err_, err_p);
-                File.WriteAllText(args_, args_p);
-                File.WriteAllText(name_, comment);
+                File.WriteAllText(Path.Combine(opt.Output, testname + ".testin"), in_p);
+                File.WriteAllText(Path.Combine(opt.Output, testname + ".testout"), out_p);
+                File.WriteAllText(Path.Combine(opt.Output, testname + ".testerr"), err_p);
+                File.WriteAllText(Path.Combine(opt.Output, testname + ".testargs"), args_p);
 
                 if (!result.Completed || result.Result.ErrorMessage != "")
                 {

@@ -30,7 +30,7 @@ public class FrontEndTest
 
     public static (bool Found, string Text) GetLineContent(string[] lines, string start_line, string end_line) => GetLineContent(lines, x => x.StartsWith(start_line), x => x.StartsWith(end_line));
 
-    public static (string Path, string TestName, string ErrorMessage) Compile(string src, string il, bool il_delete)
+    public static (string Path, string TestName, string ErrorMessage) Compile(string src, string il)
     {
         var filename = Path.GetFileName(src);
         var txt = File.ReadAllText(src);
@@ -49,8 +49,6 @@ public class FrontEndTest
             var il_src = File.ReadAllText(il).Trim();
 
             if (valid.Text.Trim() != il_src) return (src, filename, "il make a difference");
-
-            if (il_delete) File.Delete(il);
         }
         catch (Exception ex)
         {
@@ -75,7 +73,13 @@ public class FrontEndTest
     public void CompileTest()
     {
         var compile_result = Directory.GetFiles(SourceDir, "*.rk")
-            .MapParallelAllWithTimeout(x => Compile(x, $"{Path.GetFileNameWithoutExtension(x)}.il", true), 1000 * 10, x => new(x, Path.GetFileName(x), "timeout"))
+            .MapParallelAllWithTimeout(x =>
+            {
+                var il = $"{Path.GetFileNameWithoutExtension(x)}.il";
+                var result = Compile(x, il);
+                File.Delete(il);
+                return result;
+            }, 1000 * 10, x => new(x, Path.GetFileName(x), "timeout"))
             .ToList();
 
         var failed = compile_result.Where(x => !x.Completed || x.Result.ErrorMessage != "").ToList();

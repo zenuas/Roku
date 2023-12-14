@@ -46,6 +46,7 @@
 
 :testf
 	dotnet test --nologo -v q
+	del /F /Q test-rk\obj\*
 	@call :testa -f true
 	@exit /b %ERRORLEVEL%
 
