@@ -12,6 +12,7 @@
 @exit /b %ERRORLEVEL%
 
 :build
+	@call :parser
 	dotnet build --nologo -v q --clp:NoSummary
 	@exit /b %ERRORLEVEL%
 
