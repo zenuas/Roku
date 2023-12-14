@@ -1,13 +1,7 @@
 ﻿namespace Roku.Manager;
 
-public class FunctionSpecialization : IGenericsMapper
+public class FunctionSpecialization(IFunctionName body, GenericsMapper gen_map) : IGenericsMapper
 {
-    public IFunctionName Body { get; }
-    public GenericsMapper GenericsMapper { get; }
-
-    public FunctionSpecialization(IFunctionName body, GenericsMapper gen_map)
-    {
-        Body = body;
-        GenericsMapper = gen_map;
-    }
+    public IFunctionName Body { get; } = body;
+    public GenericsMapper GenericsMapper { get; } = gen_map;
 }

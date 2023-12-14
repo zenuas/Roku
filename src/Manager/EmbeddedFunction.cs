@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace Roku.Manager;
 
-public class EmbeddedFunction : IFunctionName, IFunctionReturn, ISpecialization
+public class EmbeddedFunction(string name) : IFunctionName, IFunctionReturn, ISpecialization
 {
-    public string Name { get; }
+    public string Name { get; } = name;
     public ITypeDefinition? Return { get; set; } = null;
     public List<ITypeDefinition> Arguments { get; } = [];
     public Func<FunctionMapper, string[], string> OpCode { get; set; } = (_, _) => "";
@@ -23,11 +23,6 @@ public class EmbeddedFunction : IFunctionName, IFunctionReturn, ISpecialization
     {
         if (ret is { }) Return = new TypeValue() { Name = ret };
         Arguments.AddRange(args);
-    }
-
-    public EmbeddedFunction(string name)
-    {
-        Name = name;
     }
 
     public override string ToString() => $"sub {Name}({Arguments.Select(x => x.ToString()!).Join(", ")}){(Return is { } ? " " + Return.ToString() : "") }";

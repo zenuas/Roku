@@ -4,18 +4,11 @@ using System.Collections.Generic;
 
 namespace Roku.Manager;
 
-public class InnerScope : ILexicalScope
+public class InnerScope(ILexicalScope parent) : ILexicalScope
 {
     public List<IOperand> Body { get; } = [];
-    public IManaged Namespace { get; }
-    public ILexicalScope? Parent { get; } = null;
+    public IManaged Namespace { get; } = parent.Namespace;
+    public ILexicalScope? Parent { get; } = parent;
     public Dictionary<string, IEvaluable> LexicalScope { get; } = [];
-    public int MaxTemporaryValue { get; set; } = 0;
-
-    public InnerScope(ILexicalScope parent)
-    {
-        Namespace = parent.Namespace;
-        Parent = parent;
-        MaxTemporaryValue = parent.MaxTemporaryValue;
-    }
+    public int MaxTemporaryValue { get; set; } = parent.MaxTemporaryValue;
 }

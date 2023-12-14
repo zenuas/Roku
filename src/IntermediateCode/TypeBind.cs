@@ -2,17 +2,11 @@
 
 namespace Roku.IntermediateCode;
 
-public class TypeBind : IOperand
+public class TypeBind(IEvaluable name, ITypeDefinition type) : IOperand
 {
     public Operator Operator { get; init; } = Operator.TypeBind;
-    public IEvaluable Name { get; }
-    public ITypeDefinition Type { get; }
-
-    public TypeBind(IEvaluable name, ITypeDefinition type)
-    {
-        Name = name;
-        Type = type;
-    }
+    public IEvaluable Name { get; } = name;
+    public ITypeDefinition Type { get; } = type;
 
     public override string ToString() => $"var {Name}: {Type}";
 }

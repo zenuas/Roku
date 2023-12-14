@@ -2,12 +2,8 @@
 
 namespace Roku.Parser;
 
-public class SyntaxErrorException : Exception
+public class SyntaxErrorException(string message) : Exception(message)
 {
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
-
-    public SyntaxErrorException(string message) : base(message)
-    {
-    }
 }

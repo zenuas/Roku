@@ -3,17 +3,11 @@ using System;
 
 namespace Roku.IntermediateCode;
 
-public class IfCode : IOperand
+public class IfCode(IEvaluable cond, LabelCode else_) : IOperand
 {
     public Operator Operator { get; } = Operator.If;
-    public IEvaluable Condition { get; private set; }
-    public LabelCode Else { get; }
-
-    public IfCode(IEvaluable cond, LabelCode else_)
-    {
-        Condition = cond;
-        Else = else_;
-    }
+    public IEvaluable Condition { get; private set; } = cond;
+    public LabelCode Else { get; } = else_;
 
     [Obsolete]
     public void ConditionReplace(IEvaluable v) => Condition = v;

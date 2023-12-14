@@ -4,14 +4,9 @@ using System.Linq;
 
 namespace Roku.Declare;
 
-public class ArrayContainer : IEvaluable
+public class ArrayContainer(List<IEvaluable> values) : IEvaluable
 {
-    public List<IEvaluable> Values { get; }
-
-    public ArrayContainer(List<IEvaluable> values)
-    {
-        Values = values;
-    }
+    public List<IEvaluable> Values { get; } = values;
 
     public override string ToString() => $"[{Values.Select(x => x.ToString()!).Join(", ")}]";
 }

@@ -5,16 +5,11 @@ using System.Linq;
 
 namespace Roku.IntermediateCode;
 
-public class ILWriter : IDisposable
+public class ILWriter(string path) : IDisposable
 {
-    public TextWriter BaseStream { get; }
+    public TextWriter BaseStream { get; } = path == "-" ? Console.Out : new StreamWriter(path);
     public int Indent { get; set; } = 0;
     public bool IsLineHead { get; protected set; } = true;
-
-    public ILWriter(string path)
-    {
-        BaseStream = path == "-" ? Console.Out : new StreamWriter(path);
-    }
 
     public void WriteLine() => IsLineHead = WriteLine([""], Indent, IsLineHead);
 

@@ -3,21 +3,13 @@ using System;
 
 namespace Roku.IntermediateCode;
 
-public class IfCastCode : IOperand
+public class IfCastCode(IEvaluable name, ITypeDefinition type, IEvaluable cond, LabelCode else_) : IOperand
 {
     public Operator Operator { get; } = Operator.IfCast;
-    public IEvaluable Name { get; }
-    public ITypeDefinition Type { get; }
-    public IEvaluable Condition { get; private set; }
-    public LabelCode Else { get; }
-
-    public IfCastCode(IEvaluable name, ITypeDefinition type, IEvaluable cond, LabelCode else_)
-    {
-        Name = name;
-        Type = type;
-        Condition = cond;
-        Else = else_;
-    }
+    public IEvaluable Name { get; } = name;
+    public ITypeDefinition Type { get; } = type;
+    public IEvaluable Condition { get; private set; } = cond;
+    public LabelCode Else { get; } = else_;
 
     [Obsolete]
     public void ConditionReplace(IEvaluable v) => Condition = v;

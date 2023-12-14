@@ -4,17 +4,12 @@ using System.Linq;
 
 namespace Roku.Parser;
 
-public class SourceCodeReader
+public class SourceCodeReader(TextReader reader)
 {
-    public TextReader BaseReader { get; }
+    public TextReader BaseReader { get; } = reader;
     public int LineNumber { get; protected set; } = 1;
     public int LineColumn { get; protected set; } = 1;
     public List<char> Buffer { get; } = [];
-
-    public SourceCodeReader(TextReader reader)
-    {
-        BaseReader = reader;
-    }
 
     public int Read()
     {

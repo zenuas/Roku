@@ -6,19 +6,14 @@ using System.Linq;
 
 namespace Roku.Node;
 
-public class SpecializationNode : INode, ITypeNode
+public class SpecializationNode(IEvaluableNode expr) : INode, ITypeNode
 {
     public Symbols Symbol { get; init; }
     INode IToken<INode>.Value { get => this; init => throw new NotImplementedException(); }
     public int Indent { get; set; }
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
-    public IEvaluableNode Expression { get; }
+    public IEvaluableNode Expression { get; } = expr;
     public List<ITypeNode> Generics { get; } = [];
     public string Name => NodeIterator.PropertyToList(Expression).Select(x => x is VariableNode v ? v.Name : x is TypeNode t ? t.Name : throw new()).Join(".");
-
-    public SpecializationNode(IEvaluableNode expr)
-    {
-        Expression = expr;
-    }
 }

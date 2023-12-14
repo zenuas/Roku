@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace Roku.Manager;
 
-public class InstanceBody : INamespace, ILexicalScope
+public class InstanceBody(IManaged ns) : INamespace, ILexicalScope
 {
-    public IManaged Namespace { get; }
+    public IManaged Namespace { get; } = ns;
     public ITypeDefinition Type { get; set; }
     public TypeSpecialization Specialization { get; set; }
     public List<IFunctionName> Functions { get; } = [];
@@ -18,11 +18,5 @@ public class InstanceBody : INamespace, ILexicalScope
     public Dictionary<string, IEvaluable> LexicalScope { get; } = [];
     public List<IOperand> Body { get; } = [];
     public int MaxTemporaryValue { get; set; } = 0;
-
-#pragma warning disable CS8618
-    public InstanceBody(IManaged ns)
-    {
-        Namespace = ns;
-    }
 #pragma warning restore CS8618
 }
