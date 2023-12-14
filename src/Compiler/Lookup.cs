@@ -147,19 +147,19 @@ public static class Lookup
     public static bool MatchMethodName(MethodInfo mi, string name)
     {
         if (!mi.IsSpecialName) return mi.Name == name;
-        switch (name)
+        return name switch
         {
-            case "[]": return mi.Name.In("get_Item", "set_Item");
-            case "+": return mi.Name == "op_Addition";
-            case "-": return mi.Name == "op_Subtraction";
-            case "==": return mi.Name == "op_Equality";
-            case "!=": return mi.Name == "op_Inequality";
-            case "<": return mi.Name == "op_LessThan";
-            case "<=": return mi.Name == "op_LessThanOrEqual";
-            case ">": return mi.Name == "op_GreaterThan";
-            case ">=": return mi.Name == "op_GreaterThanOrEqual";
-            default: return !new string[] { "get_", "set_", "add_", "remove_" }.Where(x => mi.Name.StartsWith(x) && mi.Name.Substring(x.Length) == name).IsEmpty();
-        }
+            "[]" => mi.Name.In("get_Item", "set_Item"),
+            "+" => mi.Name == "op_Addition",
+            "-" => mi.Name == "op_Subtraction",
+            "==" => mi.Name == "op_Equality",
+            "!=" => mi.Name == "op_Inequality",
+            "<" => mi.Name == "op_LessThan",
+            "<=" => mi.Name == "op_LessThanOrEqual",
+            ">" => mi.Name == "op_GreaterThan",
+            ">=" => mi.Name == "op_GreaterThanOrEqual",
+            _ => !new string[] { "get_", "set_", "add_", "remove_" }.Where(x => mi.Name.StartsWith(x) && mi.Name[x.Length..] == name).IsEmpty(),
+        };
     }
 
     public static (bool Exists, GenericsMapper GenericsMapper) FunctionArgumentsEquals(IManaged ns, IFunctionName source, List<IStructBody?> args)
@@ -426,8 +426,8 @@ public static class Lookup
     {
         var full_name = name.Join(".");
         if (ti.FullName == full_name) return true;
-        var g = ti.FullName!.IndexOf("`");
-        return g >= 0 && ti.FullName.Substring(0, g) == full_name;
+        var g = ti.FullName!.IndexOf('`');
+        return g >= 0 && ti.FullName[..g] == full_name;
     }
 
     public static bool TypeNameEquals(IStructBody body, string[] name)
