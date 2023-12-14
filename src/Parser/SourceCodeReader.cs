@@ -51,5 +51,5 @@ public class SourceCodeReader(TextReader reader)
 
     public char PeekChar() => EndOfStream ? '\0' : Buffer.Count > 0 ? Buffer.Last() : (char)BaseReader.Peek();
 
-    public bool EndOfStream { get => Buffer.Count == 0 && BaseReader.Peek() < 0; }
+    public bool EndOfStream => Buffer.Count == 0 && BaseReader.Peek() < 0;
 }

@@ -6,7 +6,7 @@ namespace Roku.Declare;
 
 public class TypeFunction : ITypeDefinition
 {
-    public string Name { get => ToString(); }
+    public string Name => ToString();
     public List<ITypeDefinition> Arguments { get; } = [];
     public ITypeDefinition? Return { get; set; } = null;
 

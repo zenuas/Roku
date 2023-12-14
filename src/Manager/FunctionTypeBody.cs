@@ -6,7 +6,7 @@ namespace Roku.Manager;
 
 public class FunctionTypeBody : IStructBody, IFunctionName
 {
-    public string Name { get => ToString(); }
+    public string Name => ToString();
     public List<IStructBody> Arguments { get; } = [];
     public IStructBody? Return { get; set; } = null;
 

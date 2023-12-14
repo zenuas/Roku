@@ -8,7 +8,7 @@ namespace Roku.Manager;
 
 public class EnumStructBody(IManaged ns) : IStructBody, ILexicalScope, ISpecialization
 {
-    public string Name { get => ToString(); }
+    public string Name => ToString();
     public List<IStructBody> Enums { get; } = [];
     public List<IOperand> Body { get; } = [];
     public IManaged Namespace { get; } = ns;

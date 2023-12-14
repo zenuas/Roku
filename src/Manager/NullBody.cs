@@ -2,7 +2,7 @@
 
 public class NullBody : IStructBody
 {
-    public string Name { get => "Null"; }
+    public string Name => "Null";
 
     public override string ToString() => Name;
 }

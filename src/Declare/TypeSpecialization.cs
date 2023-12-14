@@ -6,7 +6,7 @@ namespace Roku.Declare;
 
 public class TypeSpecialization(IEvaluable type) : ITypeDefinition
 {
-    public string Name { get => Type.ToString()!; }
+    public string Name => Type.ToString()!;
     public IEvaluable Type { get; } = type;
     public List<ITypeDefinition> Generics { get; } = [];
 
