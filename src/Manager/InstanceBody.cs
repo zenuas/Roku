@@ -5,7 +5,9 @@ using System.Collections.Generic;
 
 namespace Roku.Manager;
 
+#pragma warning disable CS8618
 public class InstanceBody(IManaged ns) : INamespace, ILexicalScope
+#pragma warning restore CS8618
 {
     public IManaged Namespace { get; } = ns;
     public ITypeDefinition Type { get; set; }
@@ -18,5 +20,4 @@ public class InstanceBody(IManaged ns) : INamespace, ILexicalScope
     public Dictionary<string, IEvaluable> LexicalScope { get; } = [];
     public List<IOperand> Body { get; } = [];
     public int MaxTemporaryValue { get; set; } = 0;
-#pragma warning restore CS8618
 }
