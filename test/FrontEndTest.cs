@@ -30,7 +30,7 @@ public class FrontEndTest
 
     public static (bool Found, string Text) GetLineContent(string[] lines, string start_line, string end_line) => GetLineContent(lines, x => x.StartsWith(start_line), x => x.StartsWith(end_line));
 
-    public static (string Path, string TestName, string ErrorMessage) Compile(string src, string il)
+    public static (string Path, string TestName, string ILName, string ErrorMessage) Compile(string src, string il)
     {
         var filename = Path.GetFileName(src);
         var txt = File.ReadAllText(src);
@@ -44,18 +44,18 @@ public class FrontEndTest
             var valid = GetLineContent(lines, "###start", "###end");
             if (!valid.Found)
             {
-                return (src, filename, "test code not found ###start - ###end");
+                return (src, filename, il, "test code not found ###start - ###end");
             }
             var il_src = File.ReadAllText(il).Trim();
 
-            if (valid.Text.Trim() != il_src) return (src, filename, "il make a difference");
+            if (valid.Text.Trim() != il_src) return (src, filename, il, "il make a difference");
         }
         catch (Exception ex)
         {
             var error = GetLineContent(lines, "###error", "###end");
             if (!error.Found || error.Text.Trim() != ex.Message)
             {
-                return (src, filename, ex.Message);
+                return (src, filename, il, ex.Message);
             }
             File.WriteAllText(il, $@"
 .assembly {filename} {{}}
@@ -66,20 +66,20 @@ public class FrontEndTest
 }}
 ");
         }
-        return (src, filename, "");
+        return (src, filename, il, "");
     }
 
     [Test]
     public void CompileTest()
     {
         var compile_result = Directory.GetFiles(SourceDir, "*.rk")
+            .Select(x => (RkName: x, ILName: $"{Path.GetFileNameWithoutExtension(x)}.il"))
             .MapParallelAllWithTimeout(x =>
             {
-                var il = $"{Path.GetFileNameWithoutExtension(x)}.il";
-                var result = Compile(x, il);
-                File.Delete(il);
+                var result = Compile(x.RkName, x.ILName);
+                File.Delete(x.ILName);
                 return result;
-            }, 1000 * 10, x => new(x, Path.GetFileName(x), "timeout"))
+            }, 1000 * 10, x => new(x.RkName, Path.GetFileName(x.RkName), x.ILName, "timeout"))
             .ToList();
 
         var failed = compile_result.Where(x => !x.Completed || x.Result.ErrorMessage != "").ToList();
