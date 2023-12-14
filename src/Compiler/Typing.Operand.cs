@@ -39,7 +39,7 @@ public static partial class Typing
             case LabelCode _:
                 return false;
         }
-        throw new Exception();
+        throw new();
     }
 
     public static IStructBody TypeDefinitionToStructBody(IManaged ns, TypeMapper m, ITypeDefinition t)
@@ -59,7 +59,7 @@ public static partial class Typing
                 {
                     var args = ts.Generics.Select(g => TypeDefinitionToStructBody(ns, m, g));
                     var name = Lookup.GetTypeNames(ts.Type);
-                    return Lookup.FindStructOrNull(ns, name, args.ToList()) ?? throw new Exception();
+                    return Lookup.FindStructOrNull(ns, name, args.ToList()) ?? throw new();
                 }
 
             default:
@@ -71,10 +71,10 @@ public static partial class Typing
 
     public static bool LocalValueInferenceWithEffect(TypeMapper m, IEvaluable v, IStructBody? b = null)
     {
-        if (m.ContainsKey(v))
+        if (m.TryGetValue(v, out var value))
         {
-            if ((m[v].Struct is { } p && (IsDecideType(p) || p is FunctionMapper)) || b is null) return false;
-            m[v].Struct = b;
+            if ((value.Struct is { } p && (IsDecideType(p) || p is FunctionMapper)) || b is null) return false;
+            value.Struct = b;
 
             if (v is PropertyValue prop)
             {
@@ -110,14 +110,14 @@ public static partial class Typing
     {
         if (ns is FunctionBody fb)
         {
-            if (fb.Capture.ContainsKey(v)) return fb.Capture[v];
+            if (fb.Capture.TryGetValue(v, out var value)) return value;
         }
         return null;
     }
 
     public static VariableDetail ToTypedValue(IManaged ns, TypeMapper m, IEvaluable v, bool nonamespace = false)
     {
-        if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return m[v];
+        if (m.TryGetValue(v, out var value) && value.Struct is { } p && IsDecideType(p)) return value;
 
         switch (v)
         {
@@ -166,7 +166,7 @@ public static partial class Typing
             case ArrayContainer x:
                 x.Values.Each(value => ToTypedValue(ns, m, value));
                 var gens = new List<IStructBody>() { x.Values.Count > 0 ? m[x.Values[0]].Struct! : new IndefiniteBody() };
-                m[x] = CreateVariableDetail("", Lookup.FindStructOrNull(ns, new string[] { "System", "Collections", "Generic", "List" }, gens), VariableType.PrimitiveValue);
+                m[x] = CreateVariableDetail("", Lookup.FindStructOrNull(ns, ["System", "Collections", "Generic", "List"], gens), VariableType.PrimitiveValue);
                 return m[x];
 
             case TypeValue x:
@@ -184,7 +184,7 @@ public static partial class Typing
                 m[x] = CreateVariableDetail("", Lookup.GetRootNamespace(ns).Structs.OfType<AnonymousFunctionBody>().First(f => f.Name == x.Name), VariableType.PrimitiveValue);
                 return m[x];
         }
-        throw new Exception();
+        throw new();
     }
 
     public static IStructBody? GetPropertyType(TypeMapper m, IEvaluable receiver, string property)
@@ -204,7 +204,7 @@ public static partial class Typing
                 return new NamespaceBody() { Name = property, Parent = x };
 
             default:
-                throw new Exception();
+                throw new();
         }
     }
 
@@ -213,15 +213,15 @@ public static partial class Typing
         switch (left)
         {
             case StructBody x:
-                if (x.Members.ContainsKey(property))
+                if (x.Members.TryGetValue(property, out var value))
                 {
                     var m = g is null ? x.SpecializationMapper.First().Value : Lookup.GetGenericsTypeMapperOrNull(x.SpecializationMapper, g)!.Value.TypeMapper;
-                    if (m.ContainsKey(x.Members[property])) return m[x.Members[property]].Struct;
+                    if (m.ContainsKey(value)) return m[value].Struct;
                 }
                 break;
 
             default:
-                throw new Exception();
+                throw new();
         }
         return null;
     }

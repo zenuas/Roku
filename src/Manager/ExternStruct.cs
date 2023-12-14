@@ -10,9 +10,9 @@ public class ExternStruct : IStructBody, ISpecialization, INamespace
     public string Name { get; set; }
     public TypeInfo Struct { get; }
     public Assembly Assembly { get; }
-    public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
-    public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
-    public List<IFunctionName> Functions { get; } = new List<IFunctionName>();
+    public List<TypeGenericsParameter> Generics { get; } = [];
+    public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = [];
+    public List<IFunctionName> Functions { get; } = [];
     public List<IStructBody> Structs => throw new NotImplementedException();
     public List<ClassBody> Classes => throw new NotImplementedException();
     public List<InstanceBody> Instances => throw new NotImplementedException();

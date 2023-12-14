@@ -11,9 +11,9 @@ public class StructNode : INode, IScopeNode
     public int Indent { get; set; }
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
-    public VariableNode Name { get; set; } = new VariableNode();
-    public List<ITypeNode> Generics { get; } = new List<ITypeNode>();
-    public List<IStatementNode> Statements { get; } = new List<IStatementNode>();
+    public VariableNode Name { get; set; } = new();
+    public List<ITypeNode> Generics { get; } = [];
+    public List<IStatementNode> Statements { get; } = [];
     public List<FunctionNode> Functions => throw new NotImplementedException();
     public List<StructNode> Structs => throw new NotImplementedException();
     public List<ClassNode> Classes => throw new NotImplementedException();

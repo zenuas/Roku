@@ -7,16 +7,16 @@ namespace Roku.Manager;
 public class StructBody : IStructBody, ILexicalScope, ISpecialization
 {
     public string Name { get; }
-    public Dictionary<string, IEvaluable> Members { get; } = new Dictionary<string, IEvaluable>();
-    public List<IOperand> Body { get; } = new List<IOperand>();
+    public Dictionary<string, IEvaluable> Members { get; } = [];
+    public List<IOperand> Body { get; } = [];
     public IManaged Namespace { get; }
     public ILexicalScope? Parent { get; } = null;
-    public Dictionary<string, IEvaluable> LexicalScope { get; } = new Dictionary<string, IEvaluable>();
+    public Dictionary<string, IEvaluable> LexicalScope { get; } = [];
     public int MaxTemporaryValue { get; set; } = 0;
-    public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
-    public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = new Dictionary<GenericsMapper, TypeMapper>();
+    public List<TypeGenericsParameter> Generics { get; } = [];
+    public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = [];
     public StructBodyTypes Type { get; init; } = StructBodyTypes.Struct;
-    public Dictionary<ClassBody, VTable> VTables = new Dictionary<ClassBody, VTable>();
+    public Dictionary<ClassBody, VTable> VTables = [];
 
     public StructBody(IManaged ns, string name)
     {

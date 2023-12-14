@@ -14,9 +14,9 @@ public static partial class Typing
         _ = StructBodyInference(body);
 
         VariableValue self;
-        if (body.LexicalScope.ContainsKey("$self"))
+        if (body.LexicalScope.TryGetValue("$self", out var value))
         {
-            self = body.LexicalScope["$self"].Cast<VariableValue>();
+            self = value.Cast<VariableValue>();
         }
         else
         {
@@ -30,12 +30,11 @@ public static partial class Typing
 
             body.Members.Values.Each(x =>
             {
-                if (mapper.ContainsKey(x))
+                if (mapper.TryGetValue(x, out var value))
                 {
-                    var d = mapper[x];
-                    d.Type = VariableType.Property;
-                    d.Reciever = self;
-                    d.Index = 0;
+                    value.Type = VariableType.Property;
+                    value.Reciever = self;
+                    value.Index = 0;
                 }
             });
         }

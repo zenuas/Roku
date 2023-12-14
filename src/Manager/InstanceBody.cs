@@ -10,13 +10,13 @@ public class InstanceBody : INamespace, ILexicalScope
     public IManaged Namespace { get; }
     public ITypeDefinition Type { get; set; }
     public TypeSpecialization Specialization { get; set; }
-    public List<IFunctionName> Functions { get; } = new List<IFunctionName>();
-    public List<IStructBody> Structs { get; } = new List<IStructBody>();
-    public List<ClassBody> Classes { get; } = new List<ClassBody>();
+    public List<IFunctionName> Functions { get; } = [];
+    public List<IStructBody> Structs { get; } = [];
+    public List<ClassBody> Classes { get; } = [];
     public List<InstanceBody> Instances => throw new NotImplementedException();
     public ILexicalScope? Parent { get; } = null;
-    public Dictionary<string, IEvaluable> LexicalScope { get; } = new Dictionary<string, IEvaluable>();
-    public List<IOperand> Body { get; } = new List<IOperand>();
+    public Dictionary<string, IEvaluable> LexicalScope { get; } = [];
+    public List<IOperand> Body { get; } = [];
     public int MaxTemporaryValue { get; set; } = 0;
 
 #pragma warning disable CS8618

@@ -110,7 +110,7 @@ public static partial class Definition
                     return v;
                 }
         }
-        throw new Exception();
+        throw new();
     }
 
     public static ITypeDefinition CreateType(ILexicalScope scope, ITypeNode t)
@@ -122,7 +122,7 @@ public static partial class Definition
 
             case TypeNode tn:
                 if (!char.IsLower(tn.Name.First())) return new TypeValue() { Name = tn.Name };
-                if (scope.LexicalScope.ContainsKey(tn.Name)) return scope.LexicalScope[tn.Name].Cast<ITypeDefinition>();
+                if (scope.LexicalScope.TryGetValue(tn.Name, out var value)) return value.Cast<ITypeDefinition>();
                 var gen = new TypeGenericsParameter() { Name = tn.Name };
                 scope.LexicalScope[tn.Name] = gen;
                 return gen;
@@ -140,7 +140,7 @@ public static partial class Definition
                 return CreateTypeFunction(scope, tf);
 
             default:
-                throw new Exception();
+                throw new();
         }
     }
 
@@ -151,7 +151,7 @@ public static partial class Definition
         {
             TypeNode t => CreateType(scope, t),
             SpecializationNode t => CreateTypeSpecialization(scope, t),
-            _ => throw new Exception(),
+            _ => throw new(),
         }).Each(x => g.Generics.Add(x));
         return g;
     }
@@ -164,7 +164,7 @@ public static partial class Definition
         {
             TypeNode t => CreateType(scope, t),
             SpecializationNode t => CreateTypeSpecialization(scope, t),
-            _ => throw new Exception(),
+            _ => throw new(),
         }).Each(x => g.Generics.Add(x));
         return g;
     }
@@ -201,7 +201,7 @@ public static partial class Definition
             });
             ctor.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(self))));
             ctor.Return = new TypeValue() { Name = name };
-            body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+            body.SpecializationMapper[[]] = [];
         }
 
         return new TypeValue() { Name = name };
@@ -224,7 +224,7 @@ public static partial class Definition
             TupleNode x => GetTupleName(x.Values.Count),
             TypeTupleNode x => GetTupleName(x.Types.Count),
             TypeStructNode x => x.Name,
-            _ => throw new Exception(),
+            _ => throw new(),
         };
     }
 
@@ -238,7 +238,7 @@ public static partial class Definition
         return v;
     }
 
-    public static IEvaluable? FindCurrentScopeValueOrNull(ILexicalScope scope, string name) => scope.LexicalScope.ContainsKey(name) ? scope.LexicalScope[name] : null;
+    public static IEvaluable? FindCurrentScopeValueOrNull(ILexicalScope scope, string name) => scope.LexicalScope.TryGetValue(name, out var value) ? value : null;
 
     public static (ILexicalScope? Scope, IEvaluable Value) FindScopeValue(ILexicalScope scope, string name)
     {
@@ -249,7 +249,7 @@ public static partial class Definition
         {
             return (null, src.Uses.Select(x => FindNamespaceValue(x, name)).OfType<IEvaluable>().First());
         }
-        throw new Exception();
+        throw new();
     }
 
     public static IEvaluable? FindNamespaceValue(IManaged ns, string name)
@@ -263,6 +263,6 @@ public static partial class Definition
     {
         if (ns is SourceCodeBody src) return src;
         if (ns is IAttachedNamespace ans && ans.Namespace is INamespace nsb) return GetSourceCodeBody(nsb);
-        throw new Exception();
+        throw new();
     }
 }

@@ -15,7 +15,7 @@ public class IfCastNode : INode, IStatementNode, IIfNode
     public ITypeNode Declare { get; set; }
     public IEvaluableNode Condition { get; }
     public IScopeNode Then { get; }
-    public List<IIfNode> ElseIf { get; } = new List<IIfNode>();
+    public List<IIfNode> ElseIf { get; } = [];
     public IScopeNode? Else { get; set; } = null;
 
     public IfCastNode(VariableNode name, ITypeNode declare, IEvaluableNode cond, IScopeNode then)

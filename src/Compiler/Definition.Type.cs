@@ -28,12 +28,12 @@ public static partial class Definition
                     break;
 
                 default:
-                    throw new Exception();
+                    throw new();
             }
         });
         if (sn.Generics.Count == 0)
         {
-            body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+            body.SpecializationMapper[[]] = [];
             src.Functions.Add(new EmbeddedFunction(sn.Name.Name, sn.Name.Name) { OpCode = (_, args) => $"newobj instance void {sn.Name.Name}::.ctor()" });
         }
         return body;

@@ -13,7 +13,7 @@ public class TypeTupleNode : INode, ITypeNode
     public int Indent { get; set; }
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
-    public List<ITypeNode> Types { get; } = new List<ITypeNode>();
+    public List<ITypeNode> Types { get; } = [];
     public string Name => $"[{Types.Select(x => x.Name).Join(", ")}]";
 
     public TypeTupleNode(ListNode<ITypeNode> types)

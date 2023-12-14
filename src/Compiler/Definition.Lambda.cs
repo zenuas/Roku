@@ -31,7 +31,7 @@ public static partial class Definition
                 fbody.LexicalScope.Add(x.Name.Name, name);
             });
 
-        if (fbody.Generics.Count == 0) fbody.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+        if (fbody.Generics.Count == 0) fbody.SpecializationMapper[[]] = [];
         FunctionBodyDefinition(fbody, lambda.Statements);
         return fbody;
     }

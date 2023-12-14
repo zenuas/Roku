@@ -95,11 +95,11 @@ expr : var
      | expr LT expr                               {$$ = CreateFunctionCallNode($2, $1, $3);}
      | expr GT expr                               {$$ = CreateFunctionCallNode($2, $1, $3);}
      | expr LT expr GT           %prec TYPE_PARAM {$$ = CreateSpecialization($1, $3);}
-     | expr LT expr ',' typen GT %prec TYPE_PARAM {$$ = CreateSpecialization($1, $3, $5.List.ToArray());}
+     | expr LT expr ',' typen GT %prec TYPE_PARAM {$$ = CreateSpecialization($1, $3, [.. $5.List]);}
      | expr '[' expr ']'                          {$$ = CreateFunctionCallNode(CreatePropertyNode($1, CreateVariableNode("[]")), $3);}
      | expr IS type                               {$$ = CreateFunctionCallNode($2, $1, $3);}
 
-call : expr '(' list ')' {$$ = CreateFunctionCallNode($1, $3.List.ToArray());}
+call : expr '(' list ')' {$$ = CreateFunctionCallNode($1, [.. $3.List]);}
 
 list   : void            {$$ = CreateListNode<IEvaluableNode>();}
        | listn extra

@@ -23,7 +23,7 @@ public static partial class Definition
         var body = MakeFunction(inst, map.Name.Name);
         map.Arguments.Each(x => body.Arguments.Add((new VariableValue() { Name = x.Name.Name }, x is DeclareNode decla ? CreateType(inst, decla.Type) : new TypeImplicit())));
         body.Arguments.Each(x => body.LexicalScope.Add(x.Name.Name, x.Name));
-        body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+        body.SpecializationMapper[[]] = [];
         FunctionBodyDefinition(body, map.Statements);
         return body;
     }

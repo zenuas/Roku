@@ -17,7 +17,7 @@ public static partial class Definition
         if (scope.Statements.Count > 0)
         {
             main = MakeFunction(src, "main");
-            main.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+            main.SpecializationMapper[[]] = [];
             FunctionBodyDefinition(main, scope.Statements);
         }
 
@@ -107,7 +107,7 @@ public static partial class Definition
                     break;
 
                 default:
-                    throw new Exception();
+                    throw new();
             }
         });
     }
@@ -139,7 +139,7 @@ public static partial class Definition
             {
                 sp.Generics.Each(x => create_type(x));
             }
-            return types.ContainsKey(s.Name) ? types[s.Name]
+            return types.TryGetValue(s.Name, out var value) ? value
                 : gens?.FirstOrDefault(x => x.Name == s.Name) is { } p ? types[s.Name] = p.Return(x => body.Generics.Add(x))
                 : CreateType(body, s).Return(x => { if (x is TypeGenericsParameter g) body.Generics.Add(types[g.Name] = g); });
         }
@@ -155,7 +155,7 @@ public static partial class Definition
         f.Constraints.Each(x => body.Constraints.Add((new VariableValue() { Name = x.Name }, x.Generics.Select(g => create_type(g)).ToList())));
         f.Functions.Each(x => MakeFunctionBodyDefinition(ns, x, body));
 
-        if (body.Generics.Count == 0) body.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+        if (body.Generics.Count == 0) body.SpecializationMapper[[]] = [];
         return body;
     }
 }

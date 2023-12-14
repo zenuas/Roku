@@ -11,9 +11,9 @@ public partial class Lexer : ILexer<INode>
 {
     public required SourceCodeReader BaseReader { get; init; }
     public required Parser Parser { get; init; }
-    public List<IToken<INode>> Store { get; } = new List<IToken<INode>>();
-    public Stack<int> Indents { get; } = new Stack<int>();
-    public static Dictionary<string, Symbols> ReservedString2 { get; } = new Dictionary<string, Symbols>
+    public List<IToken<INode>> Store { get; } = [];
+    public Stack<int> Indents { get; } = new();
+    public static Dictionary<string, Symbols> ReservedString2 { get; } = new()
         {
             { "var", Symbols.LET },
             { "struct", Symbols.STRUCT },
@@ -151,10 +151,10 @@ public partial class Lexer : ILexer<INode>
     public static List<IToken<INode>> ReadLineTokens(SourceCodeReader reader)
     {
         var (indent, eof) = ReadSkipWhiteSpace(reader, true);
-        if (eof is { }) return new List<IToken<INode>> { eof };
+        if (eof is { }) return [eof];
 
         var comment = ReadSkipComment(reader, indent, true);
-        if (comment is { }) return new List<IToken<INode>> { comment };
+        if (comment is { }) return [comment];
 
         return ReadTokens(reader, indent);
     }
@@ -249,7 +249,7 @@ public partial class Lexer : ILexer<INode>
     public static IToken<INode> ReadToken(SourceCodeReader reader, bool isprev_dot)
     {
         var c = reader.PeekChar();
-        if (ReservedChar.ContainsKey(c)) return new TokenNode { Symbol = ReservedChar[c], Name = reader.ReadChar().ToString() };
+        if (ReservedChar.TryGetValue(c, out var value)) return new TokenNode { Symbol = value, Name = reader.ReadChar().ToString() };
 
         switch (c)
         {
@@ -327,8 +327,7 @@ public partial class Lexer : ILexer<INode>
     {
         while (IsWord(reader.PeekChar())) _ = s.Append(reader.ReadChar());
         var name = s.ToString();
-        return ReservedString2.ContainsKey(name)
-            ? new TokenNode { Symbol = ReservedString2[name], Name = name }
+        return ReservedString2.TryGetValue(name, out var value) ? new TokenNode { Symbol = value, Name = name }
             : new TokenNode { Symbol = Symbols.VAR, Name = name };
     }
 

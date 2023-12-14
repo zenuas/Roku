@@ -8,7 +8,7 @@ public class TypeSpecialization : ITypeDefinition
 {
     public string Name { get => Type.ToString()!; }
     public IEvaluable Type { get; }
-    public List<ITypeDefinition> Generics { get; } = new List<ITypeDefinition>();
+    public List<ITypeDefinition> Generics { get; } = [];
 
     public TypeSpecialization(IEvaluable type)
     {

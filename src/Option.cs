@@ -13,7 +13,7 @@ public class Option
     [CommandOption("entrypoint")]
     public string EntryPoint { get; set; } = "";
 
-    public List<string> Libraries { get; set; } = new List<string>();
+    public List<string> Libraries { get; set; } = [];
 
     [CommandOption('l')]
     [CommandOption("lib")]

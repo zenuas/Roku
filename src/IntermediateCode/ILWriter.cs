@@ -16,7 +16,7 @@ public class ILWriter : IDisposable
         BaseStream = path == "-" ? Console.Out : new StreamWriter(path);
     }
 
-    public void WriteLine() => IsLineHead = WriteLine(new string[] { "" }, Indent, IsLineHead);
+    public void WriteLine() => IsLineHead = WriteLine([""], Indent, IsLineHead);
 
     public void WriteLine(string? s) => IsLineHead = WriteLine(s!.SplitLine(), Indent, IsLineHead);
 

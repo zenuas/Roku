@@ -6,10 +6,10 @@ namespace Roku.Manager;
 
 public class InnerScope : ILexicalScope
 {
-    public List<IOperand> Body { get; } = new List<IOperand>();
+    public List<IOperand> Body { get; } = [];
     public IManaged Namespace { get; }
     public ILexicalScope? Parent { get; } = null;
-    public Dictionary<string, IEvaluable> LexicalScope { get; } = new Dictionary<string, IEvaluable>();
+    public Dictionary<string, IEvaluable> LexicalScope { get; } = [];
     public int MaxTemporaryValue { get; set; } = 0;
 
     public InnerScope(ILexicalScope parent)

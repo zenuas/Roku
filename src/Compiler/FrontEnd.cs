@@ -40,14 +40,14 @@ public static class FrontEnd
         DefineNumericFunction(root, "Double", "ldc.r8 0");
         DefineNumericFunction(root, "Float", "ldc.r4 0");
         DefineBooleanFunction(root, "Bool");
-        _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(string) })!);
-        _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(int) })!);
-        _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(long) })!);
-        _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(byte) })!);
-        _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(bool) })!);
-        _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(double) })!);
-        _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", new Type[] { typeof(float) })!);
-        _ = Lookup.LoadFunction(root, "+", typeof(string).GetMethod("Concat", new Type[] { typeof(string), typeof(string) })!);
+        _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", [typeof(string)])!);
+        _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", [typeof(int)])!);
+        _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", [typeof(long)])!);
+        _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", [typeof(byte)])!);
+        _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", [typeof(bool)])!);
+        _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", [typeof(double)])!);
+        _ = Lookup.LoadFunction(root, "print", typeof(Console).GetMethod("WriteLine", [typeof(float)])!);
+        _ = Lookup.LoadFunction(root, "+", typeof(string).GetMethod("Concat", [typeof(string), typeof(string)])!);
         root.Structs.Add(new NullBody());
         root.Functions.Add(CreateEmbeddedFunction("is", "Bool", "a", "b").Return(x => x.OpCode = (m, args) =>
             m.TypeMapper[x.Arguments[1]].Struct is NullBody

@@ -6,10 +6,10 @@ namespace Roku.Manager;
 
 public class RootNamespace : INamespace
 {
-    public List<IFunctionName> Functions { get; } = new List<IFunctionName>();
-    public List<IStructBody> Structs { get; } = new List<IStructBody>();
-    public List<ClassBody> Classes { get; } = new List<ClassBody>();
+    public List<IFunctionName> Functions { get; } = [];
+    public List<IStructBody> Structs { get; } = [];
+    public List<ClassBody> Classes { get; } = [];
     public List<InstanceBody> Instances => throw new NotImplementedException();
-    public List<Assembly> Assemblies { get; } = new List<Assembly>();
+    public List<Assembly> Assemblies { get; } = [];
     public int AnonymousFunctionUniqueCount { get; set; } = 0;
 }

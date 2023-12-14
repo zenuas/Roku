@@ -181,7 +181,7 @@ public static class Lookup
     public static string[] GetTypeNames(IEvaluable e) =>
         e is TypeValue tv ? tv.Namespace.Concat(tv.Name).ToArray()
         : e is VariableValue v ? new string[] { v.Name }
-        : throw new Exception();
+        : throw new();
 
     public static IStructBody? GetStructType(IManaged ns, ITypeDefinition t, GenericsMapper gens)
     {
@@ -209,7 +209,7 @@ public static class Lookup
             case TypeFunction tf:
                 return LoadFunctionType(ns, tf, gens);
         }
-        throw new Exception();
+        throw new();
     }
 
     public static IStructBody? GetStructType(IManaged ns, ITypeDefinition t, TypeMapper mapper) => GetStructType(ns, t, TypeMapperToGenericsMapper(mapper));
@@ -230,13 +230,13 @@ public static class Lookup
         }
         else if (body is FunctionTypeBody)
         {
-            throw new Exception();
+            throw new();
         }
         else if (body is AnonymousFunctionBody afb)
         {
             return afb.Arguments.Select(x => x.Type);
         }
-        throw new Exception();
+        throw new();
     }
 
     public static IEnumerable<IEvaluable> FunctionToArgumentsName(IFunctionName body)
@@ -251,13 +251,13 @@ public static class Lookup
         }
         else if (body is ExternFunction xf)
         {
-            throw new Exception();
+            throw new();
         }
         else if (body is FunctionTypeBody)
         {
-            throw new Exception();
+            throw new();
         }
-        throw new Exception();
+        throw new();
     }
 
     public static GenericsMapper ApplyArgumentsToGenericsParameter(IManaged ns, IFunctionName body, List<IStructBody?> args)
@@ -303,8 +303,10 @@ public static class Lookup
                             es.Struct == typeof(List<>) &&
                             ssp.GenericsMapper[es.Generics[0]] is IndefiniteBody)
                             {
-                                var gm = new GenericsMapper();
-                                gm[es.Generics[0]] = class_gens[class_body.Generics[1]];
+                                var gm = new GenericsMapper
+                                {
+                                    [es.Generics[0]] = class_gens[class_body.Generics[1]]
+                                };
                                 class_gens[class_body.Generics[0]] = new StructSpecialization(es, gm);
                             }
 
@@ -370,7 +372,7 @@ public static class Lookup
         var resolved = false;
         class_body.Functions.OfType<FunctionBody>().Each(f =>
         {
-            var args = f.Arguments.Select(x => g.ContainsKey(x.Type) ? g[x.Type] : LoadStruct(ns, x.Name.Name)).ToList();
+            var args = f.Arguments.Select(x => g.TryGetValue(x.Type, out var value) ? value : LoadStruct(ns, x.Name.Name)).ToList();
             var caller = FindFunctionOrNull(ns, f, f.Name, args);
             if (caller is { })
             {
@@ -378,18 +380,18 @@ public static class Lookup
                 var fargs = FunctionToArgumentsName(caller.Body).ToList();
                 f.Arguments.Each((x, i) =>
                 {
-                    if (g.ContainsKey(x.Type))
+                    if (g.TryGetValue(x.Type, out var value))
                     {
-                        if (feedback(g[x.Type], fm.TypeMapper[fargs[i]].Struct))
+                        if (feedback(value, fm.TypeMapper[fargs[i]].Struct))
                         {
                             g[x.Type] = fm.TypeMapper[fargs[i]].Struct;
                             resolved = true;
                         }
                     }
                 });
-                if (f.Return is { } && g.ContainsKey(f.Return) && caller.Body is IFunctionReturn r && r.Return is { } ret)
+                if (f.Return is { } && g.TryGetValue(f.Return, out var value) && caller.Body is IFunctionReturn r && r.Return is { } ret)
                 {
-                    if (feedback(g[f.Return], fm.TypeMapper[ret].Struct))
+                    if (feedback(value, fm.TypeMapper[ret].Struct))
                     {
                         g[f.Return] = fm.TypeMapper[ret].Struct;
                         resolved = true;
@@ -467,7 +469,7 @@ public static class Lookup
     public static TypeMapper? AppendSpecialization(ISpecialization sp, GenericsMapper g)
     {
         if (Lookup.GetGenericsTypeMapperOrNull(sp.SpecializationMapper, g).HasValue) return null;
-        var mapper = sp.SpecializationMapper[g] = new TypeMapper();
+        var mapper = sp.SpecializationMapper[g] = [];
         g.Each(kv => mapper[kv.Key] = Typing.CreateVariableDetail(kv.Key.Name, kv.Value, VariableType.TypeParameter));
         return mapper;
     }
@@ -525,7 +527,7 @@ public static class Lookup
         return null;
     }
 
-    public static IStructBody LoadStruct(IManaged ns, string[] name) => FindStructOrNull(ns, name, new List<IStructBody>()) ?? throw new Exception();
+    public static IStructBody LoadStruct(IManaged ns, string[] name) => FindStructOrNull(ns, name, []) ?? throw new();
 
     public static IStructBody LoadStruct(IManaged ns, string name) => LoadStruct(ns, new string[] { name });
 
@@ -607,13 +609,13 @@ public static class Lookup
         ns is RootNamespace root ? root
         : ns is IAttachedNamespace lex ? GetRootNamespace(lex.Namespace)
         : ns is IUse use ? use.Uses.OfType<RootNamespace>().First()
-        : throw new Exception();
+        : throw new();
 
     public static INamespace GetTopLevelNamespace(IManaged ns) =>
         ns is RootNamespace root ? root
         : ns is SourceCodeBody src ? src
         : ns is IAttachedNamespace lex ? GetTopLevelNamespace(lex.Namespace)
-        : throw new Exception();
+        : throw new();
 
     public static IStructBody? LoadTypeWithoutVoid(RootNamespace root, Type t, GenericsMapper g) =>
         t == typeof(void) ? null

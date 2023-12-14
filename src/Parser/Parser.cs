@@ -9,7 +9,7 @@ namespace Roku.Parser;
 
 public partial class Parser
 {
-    public List<(int Index, INode Value)> TokenStack { get; } = new();
+    public List<(int Index, INode Value)> TokenStack { get; } = [];
     public static int[,] Tables { get; } = new [,]
         {
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, 0, 0, 350, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -621,7 +621,7 @@ public partial class Parser
             case -32:
                 {
                     Debug.WriteLine("expr : expr LT expr ',' typen GT");
-                    var yy_value = CreateSpecialization(((IEvaluableNode)GetValueFromLast(6)), ((IEvaluableNode)GetValueFromLast(4)), ((ListNode<ITypeNode>)GetValueFromLast(2)).List.ToArray());
+                    var yy_value = CreateSpecialization(((IEvaluableNode)GetValueFromLast(6)), ((IEvaluableNode)GetValueFromLast(4)), [.. ((ListNode<ITypeNode>)GetValueFromLast(2)).List]);
                     return DoAction(Symbols.expr, yy_value, 6);
                 }
 
@@ -642,7 +642,7 @@ public partial class Parser
             case -35:
                 {
                     Debug.WriteLine("call : expr '(' list ')'");
-                    var yy_value = CreateFunctionCallNode(((IEvaluableNode)GetValueFromLast(4)), ((ListNode<IEvaluableNode>)GetValueFromLast(2)).List.ToArray());
+                    var yy_value = CreateFunctionCallNode(((IEvaluableNode)GetValueFromLast(4)), [.. ((ListNode<IEvaluableNode>)GetValueFromLast(2)).List]);
                     return DoAction(Symbols.call, yy_value, 4);
                 }
 

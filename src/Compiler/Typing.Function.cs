@@ -89,7 +89,7 @@ public static partial class Typing
 
     public static bool ArgumentInferenceWithEffect(IManaged ns, TypeMapper m, IEvaluable v, ITypeDefinition type, int index)
     {
-        if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return false;
+        if (m.TryGetValue(v, out var value) && value.Struct is { } p && IsDecideType(p)) return false;
         switch (type)
         {
             case TypeGenericsParameter g:
@@ -114,14 +114,14 @@ public static partial class Typing
                 break;
 
             default:
-                throw new Exception();
+                throw new();
         }
         return true;
     }
 
     public static bool TypeInferenceWithEffect(IManaged ns, TypeMapper m, IEvaluable v, ITypeDefinition type)
     {
-        if (m.ContainsKey(v) && m[v].Struct is { } p && IsDecideType(p)) return false;
+        if (m.TryGetValue(v, out var value) && value.Struct is { } p && IsDecideType(p)) return false;
         var s = Lookup.GetStructType(ns, type, m);
         m[v] = CreateVariableDetail("", s, type is TypeGenericsParameter ? VariableType.TypeParameter : VariableType.Type);
         return true;

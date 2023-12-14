@@ -9,7 +9,7 @@ public class SourceCodeReader
     public TextReader BaseReader { get; }
     public int LineNumber { get; protected set; } = 1;
     public int LineColumn { get; protected set; } = 1;
-    public List<char> Buffer { get; } = new List<char>();
+    public List<char> Buffer { get; } = [];
 
     public SourceCodeReader(TextReader reader)
     {

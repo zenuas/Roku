@@ -180,7 +180,7 @@ public static partial class CodeGenerator
                 break;
 
             default:
-                throw new Exception();
+                throw new();
         }
 
         if (op is IReturnBind ret && ret.Return is { } && ret.Return is not ImplicitReturnValue)
@@ -281,7 +281,7 @@ public static partial class CodeGenerator
             case TypeValue x:
                 return GetStructName(m[x].Struct);
         }
-        throw new Exception();
+        throw new();
     }
 
     public static string LoadValue_AnonymousFunctionMapper(FunctionMapper mapper)
@@ -321,7 +321,7 @@ public static partial class CodeGenerator
             case PropertyValue x:
                 return $"stfld {GetStructName(m[x].Struct)} {GetStructName(m[x.Left].Struct)}::{EscapeILName(x.Right)}";
         }
-        throw new Exception();
+        throw new();
     }
 
     public static string StoreValue_Stloc(int index) =>

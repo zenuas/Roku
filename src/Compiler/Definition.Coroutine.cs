@@ -31,8 +31,8 @@ public static partial class Definition
         co_struct.Members.Add("next", co_struct.LexicalScope["next"] = next);
         co_struct.Body.Add(new BindCode { Return = state, Value = new NumericValue() { Value = 0 } });
         co_struct.Body.Add(new TypeBind(value, list_a));
-        co_struct.Body.Add(new TypeBind(next, new TypeEnum(new ITypeDefinition[] { co_struct_typename, new TypeValue() { Name = "Null" } })));
-        co_struct.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+        co_struct.Body.Add(new TypeBind(next, new TypeEnum([co_struct_typename, new TypeValue() { Name = "Null" }])));
+        co_struct.SpecializationMapper[[]] = [];
         ns.Structs.Add(co_struct);
 
         /*
@@ -56,7 +56,7 @@ public static partial class Definition
             */
             body.LexicalScope.Where(x => x.Value is VariableValue).Each(x => co_local.Members.Add(x.Key, co_local.LexicalScope[x.Key] = x.Value));
             body.Arguments.Each(x => co_local.Body.Add(new TypeBind(x.Name, x.Type)));
-            co_local.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+            co_local.SpecializationMapper[[]] = [];
             ns.Structs.Add(co_local);
 
             /*
@@ -130,15 +130,15 @@ public static partial class Definition
         next_body.LexicalScope["$m1"] = _m1;
         body.LexicalScope.Where(x => x.Value is VariableValue).Each(x => next_body.LexicalScope[x.Key] = x.Value);
 
-        next_body.Body.AddRange(new List<IOperand> {
-                new BindCode { Return = _next_or_null, Value = new PropertyValue(_self, "next") },
-                new IfCastCode(_next, co_struct_typename, _next_or_null, labels_cond[0]),
-                new BindCode { Return = _value, Value = new PropertyValue(_self, "value") },
-                new Call(new FunctionCallValue(tuple2).Return(x => x.Arguments.AddRange(new IEvaluable[] { _value, _next }))) { Return = _ret },
-                new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(_ret))),
-                labels_cond[0],
-                new BindCode { Return = _state, Value = new PropertyValue(_self, "state") },
-            });
+        next_body.Body.AddRange([
+            new BindCode { Return = _next_or_null, Value = new PropertyValue(_self, "next") },
+            new IfCastCode(_next, co_struct_typename, _next_or_null, labels_cond[0]),
+            new BindCode { Return = _value, Value = new PropertyValue(_self, "value") },
+            new Call(new FunctionCallValue(tuple2).Return(x => x.Arguments.AddRange(new IEvaluable[] { _value, _next }))) { Return = _ret },
+            new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(_ret))),
+            labels_cond[0],
+            new BindCode { Return = _state, Value = new PropertyValue(_self, "state") },
+        ]);
         if (local_value_exist)
         {
             next_body.LexicalScope["$local"] = _local;
@@ -150,13 +150,13 @@ public static partial class Definition
                 new GotoCode(labels_jump[n - 1]),
                 labels_cond[n],
             }).Flatten());
-        next_body.Body.AddRange(new IOperand[] {
-                new Call(new FunctionCallValue(new VariableValue() { Name = "-" }).Return(x => x.Arguments.Add(new NumericValue() { Value = 1 }))) { Return = _m1 },
-                new Call(new FunctionCallValue(new VariableValue() { Name = "==" }).Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, _m1 }))) { Return = _cond },
-                new IfCode(_cond, labels_cond[^1]),
-                new GotoCode(labels_jump[^1]),
-                labels_cond[^1],
-            });
+        next_body.Body.AddRange([
+            new Call(new FunctionCallValue(new VariableValue() { Name = "-" }).Return(x => x.Arguments.Add(new NumericValue() { Value = 1 }))) { Return = _m1 },
+            new Call(new FunctionCallValue(new VariableValue() { Name = "==" }).Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, _m1 }))) { Return = _cond },
+            new IfCode(_cond, labels_cond[^1]),
+            new GotoCode(labels_jump[^1]),
+            labels_cond[^1],
+        ]);
 
         if (local_value_exist)
         {
@@ -185,23 +185,23 @@ public static partial class Definition
             {
                 yield_block.Add(new BindCode { Return = new PropertyValue(_next, "local"), Value = _local });
             }
-            yield_block.AddRange(new IOperand[] {
-                    new BindCode { Return = new PropertyValue(_self, "next"), Value = _next },
-                    new Call(new FunctionCallValue(tuple2).Return(x => x.Arguments.AddRange(new IEvaluable[] { yield_line.Function.Arguments[0], _next }))) { Return = _ret },
-                    new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(_ret))),
-                    labels_jump[i - 1],
-            });
+            yield_block.AddRange([
+                new BindCode { Return = new PropertyValue(_self, "next"), Value = _next },
+                new Call(new FunctionCallValue(tuple2).Return(x => x.Arguments.AddRange(new IEvaluable[] { yield_line.Function.Arguments[0], _next }))) { Return = _ret },
+                new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(_ret))),
+                labels_jump[i - 1],
+            ]);
             var yield_return_converted = yield_block.Concat(chunk.Skip(1));
             return local_value_exist ? ConvertVariableToCoroutineProperty(yield_return_converted, _local, body.LexicalScope) : yield_return_converted;
         }).Flatten());
 
-        next_body.Body.AddRange(new IOperand[] {
-                labels_jump[^1],
-                new Call(new FunctionCallValue(new VariableValue() { Name = "-" }).Return(x => x.Arguments.Add(new NumericValue() { Value = 1 }))) { Return = _m1 },
-                new BindCode { Return = new PropertyValue(_self, "state"), Value = _m1 },
-                new Call(new FunctionCallValue(tuple2).Return(x => x.Arguments.AddRange(new IEvaluable[] { new NullValue(), _self }))) { Return = _ret },
-                new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(_ret))),
-            });
+        next_body.Body.AddRange([
+            labels_jump[^1],
+            new Call(new FunctionCallValue(new VariableValue() { Name = "-" }).Return(x => x.Arguments.Add(new NumericValue() { Value = 1 }))) { Return = _m1 },
+            new BindCode { Return = new PropertyValue(_self, "state"), Value = _m1 },
+            new Call(new FunctionCallValue(tuple2).Return(x => x.Arguments.AddRange(new IEvaluable[] { new NullValue(), _self }))) { Return = _ret },
+            new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(_ret))),
+        ]);
 
         /*
             sub co<List<x, a>>(args...) x
@@ -248,7 +248,7 @@ public static partial class Definition
         isnull_body.Body.Add(new Call(new FunctionCallValue(next).Return(x => x.Arguments.Add(_self))));
         isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "-" }).Return(x => x.Arguments.Add(new NumericValue() { Value = 1 }))) { Return = _m1 });
         isnull_body.Body.Add(new BindCode { Return = _state, Value = new PropertyValue(_self, "state") });
-        isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "==" }).Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, _m1 }))) { Return = _ret });
+        isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "==" }).Return(x => x.Arguments.AddRange([_state, _m1]))) { Return = _ret });
         isnull_body.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(_ret))));
         ns.Functions.Add(isnull_body);
     }

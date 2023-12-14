@@ -7,7 +7,7 @@ namespace Roku.Declare;
 public class TypeEnum : ITypeDefinition
 {
     public string Name { get => ToString(); }
-    public List<ITypeDefinition> Enums { get; } = new List<ITypeDefinition>();
+    public List<ITypeDefinition> Enums { get; } = [];
 
     public TypeEnum(IEnumerable<ITypeDefinition> enums)
     {

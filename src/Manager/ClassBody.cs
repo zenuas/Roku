@@ -8,10 +8,10 @@ public class ClassBody : INamespace, IAttachedNamespace
 {
     public string Name { get; }
     public IManaged Namespace { get; }
-    public List<TypeGenericsParameter> Generics { get; } = new List<TypeGenericsParameter>();
-    public List<IFunctionName> Functions { get; } = new List<IFunctionName>();
-    public List<IStructBody> Structs { get; } = new List<IStructBody>();
-    public List<ClassBody> Classes { get; } = new List<ClassBody>();
+    public List<TypeGenericsParameter> Generics { get; } = [];
+    public List<IFunctionName> Functions { get; } = [];
+    public List<IStructBody> Structs { get; } = [];
+    public List<ClassBody> Classes { get; } = [];
     public List<InstanceBody> Instances => throw new NotImplementedException();
 
     public ClassBody(IManaged ns, string name)

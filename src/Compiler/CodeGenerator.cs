@@ -25,7 +25,7 @@ public static partial class CodeGenerator
             .Distinct();
 
         var fss = new List<(string Name, FunctionSpecialization Function)>();
-        _ = AppendFunctionSpecialization(fss, new FunctionSpecialization(entrypoint, new GenericsMapper()));
+        _ = AppendFunctionSpecialization(fss, new(entrypoint, []));
         StructsToFunctionList(structs, fss);
         FunctionsToFunctionList(fss);
         if (fss.FindFirstOrNullValue(x => x.Function.Body is AnonymousFunctionBody) is { })
@@ -62,6 +62,6 @@ public static partial class CodeGenerator
     public static void InstanceEmit(IEnumerable<InstanceBody> instances)
     {
         if (instances.IsEmpty()) return;
-        throw new System.Exception("not support");
+        throw new("not support");
     }
 }

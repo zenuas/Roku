@@ -32,7 +32,7 @@ public static partial class Typing
 
     public static bool IsDecideFunction(TypeMapper m, Call call)
     {
-        if (m.ContainsKey(call.Function.Function) && m[call.Function.Function].Struct is { } p)
+        if (m.TryGetValue(call.Function.Function, out var value) && value.Struct is { } p)
         {
             if (call.Return is { } && p is FunctionMapper fm && fm.Function is AnonymousFunctionBody afb && afb.Return is TypeImplicit)
             {
@@ -54,7 +54,7 @@ public static partial class Typing
         var lookupns = ns;
         if (call.Function.FirstLookup is { } receiver)
         {
-            if (m.ContainsKey(receiver) && m[receiver] is { } r)
+            if (m.TryGetValue(receiver, out var value) && value is { } r)
             {
                 if (r.Struct is { }) lookupns = GetStructNamespace(ns, r.Struct);
                 if ((r.Type == VariableType.LocalVariable || r.Type == VariableType.Argument) && !call.Function.ReceiverToArgumentsInserted)
@@ -72,8 +72,8 @@ public static partial class Typing
                 {
                     //var ret = new EmbeddedFunction("return", null, args.Map(x => x?.Name!).ToArray()) { OpCode = (args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                     var r = ns.Cast<FunctionBody>().Return;
-                    var ret = new EmbeddedFunction("return", null, r is { } ? new ITypeDefinition[] { r } : new ITypeDefinition[] { }) { OpCode = (_, args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
-                    _ = Lookup.AppendSpecialization(ret, new GenericsMapper());
+                    var ret = new EmbeddedFunction("return", null, r is { } ? new ITypeDefinition[] { r } : []) { OpCode = (_, args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
+                    _ = Lookup.AppendSpecialization(ret, []);
                     var fm = new FunctionMapper(ret);
                     if (r is TypeGenericsParameter gen) fm.TypeMapper[gen] = CreateVariableDetail("", m[gen].Struct ?? (args.Count > 0 ? args[0] : null), VariableType.TypeParameter);
                     else if (r is TypeSpecialization gv && m.ContainsKey(r) && m[r].Struct is StructSpecialization sp && sp.Body is ISpecialization sp2) gv.Generics.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail("", sp.GenericsMapper[sp2.Generics[i]], VariableType.TypeParameter));
@@ -133,7 +133,7 @@ public static partial class Typing
                     if (body is null) break;
 
                     var em = new EmbeddedFunction(x.ToString(), x.ToString()) { OpCode = (_, args) => $"newobj instance void {CodeGenerator.GetStructName(body)}::.ctor()" };
-                    _ = Lookup.AppendSpecialization(em, new GenericsMapper());
+                    _ = Lookup.AppendSpecialization(em, []);
                     var fm = new FunctionMapper(em);
                     m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
                     if (call.Return is { }) _ = LocalValueInferenceWithEffect(m, call.Return!, body);
@@ -142,7 +142,7 @@ public static partial class Typing
                 break;
 
             default:
-                throw new Exception();
+                throw new();
 
         }
         return call.Return is { } ? LocalValueInferenceWithEffect(m, call.Return!) || resolve : resolve;
@@ -179,7 +179,7 @@ public static partial class Typing
             case StructSpecialization x:
                 return x;
         }
-        throw new Exception();
+        throw new();
     }
 
     public static IEnumerable<string> GetStructNames(TypeMapper m, IEvaluable e)
@@ -189,8 +189,8 @@ public static partial class Typing
             if (g.Type is PropertyValue prop) return GetStructNames(m, prop.Left).Concat(prop.Right);
             return new string[] { g.Type.ToString()! };
         }
-        if (m.ContainsKey(e) && m[e].Struct is NamespaceBody ns) return GetNamespaceNames(ns);
-        throw new Exception();
+        if (m.TryGetValue(e, out var value) && value.Struct is NamespaceBody ns) return GetNamespaceNames(ns);
+        throw new();
     }
 
     public static IEnumerable<string> GetNamespaceNames(NamespaceBody ns) => ns.Parent is { } p ? GetNamespaceNames(p).Concat(ns.Name) : new string[] { ns.Name };

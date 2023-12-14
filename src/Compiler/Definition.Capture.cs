@@ -26,7 +26,7 @@ public static partial class Definition
 
     public static bool IsScopeCapturedArgumentName(string name) => name.StartsWith("$##");
 
-    public static string ScopeToUniqueName(ILexicalScope scope) => scope is FunctionBody fb ? $"##{fb.Name}" : throw new Exception();
+    public static string ScopeToUniqueName(ILexicalScope scope) => scope is FunctionBody fb ? $"##{fb.Name}" : throw new();
 
     public static void MakeLexicalCapture(SourceCodeBody src, FunctionBody f)
     {
@@ -57,9 +57,9 @@ public static partial class Definition
                     var scopevar = new VariableValue() { Name = varname };
                     current.LexicalScope.Add(scopevar.Name, scopevar);
                     CapturedVariableToProperty(current, captured, scopevar, v.Name);
-                    current.Body.Insert(0, new Call(new FunctionCallValue(new VariableValue() { Name = name })) { Return = scopevar });
+                    current.Body.Insert(0, new Call(new(new VariableValue() { Name = name })) { Return = scopevar });
 
-                    scope.SpecializationMapper[new GenericsMapper()] = new TypeMapper();
+                    scope.SpecializationMapper[[]] = [];
                     return scope;
                 }
             }
@@ -122,7 +122,7 @@ public static partial class Definition
                 call.Return = IfCapturedVariableToProperty(original, call.Return, scopevar, name);
                 return;
         }
-        throw new Exception();
+        throw new();
     }
 
     public static IEvaluable? IfCapturedVariableToProperty(IEvaluable original, IEvaluable? v, IEvaluable scopevar, string name)
