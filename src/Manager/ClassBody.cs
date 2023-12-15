@@ -4,10 +4,10 @@ using System.Collections.Generic;
 
 namespace Roku.Manager;
 
-public class ClassBody(IManaged ns, string name) : INamespace, IAttachedNamespace
+public class ClassBody : INamespace, IAttachedNamespace
 {
-    public string Name { get; } = name;
-    public IManaged Namespace { get; } = ns;
+    public required string Name { get; init; }
+    public required IManaged Namespace { get; init; }
     public List<TypeGenericsParameter> Generics { get; } = [];
     public List<IFunctionName> Functions { get; } = [];
     public List<IStructBody> Structs { get; } = [];
