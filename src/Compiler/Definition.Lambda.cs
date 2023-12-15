@@ -26,7 +26,7 @@ public static partial class Definition
                     fbody.LexicalScope[p.Name] = p;
                 }
                 if (p is TypeGenericsParameter g) fbody.Generics.Add(g);
-                var name = new VariableValue() { Name = x.Name.Name };
+                var name = new VariableValue { Name = x.Name.Name };
                 fbody.Arguments.Add((name, p));
                 fbody.LexicalScope.Add(x.Name.Name, name);
             });

@@ -41,7 +41,7 @@ public static partial class Definition
             {
                 case LetNode let:
                     {
-                        var v = new VariableValue() { Name = let.Var.Name };
+                        var v = new VariableValue { Name = let.Var.Name };
                         scope.LexicalScope.Add(let.Var.Name, v);
                         var e = NormalizationExpression(scope, let.Expression);
                         if (e is FunctionCallValue fcall)
@@ -57,7 +57,7 @@ public static partial class Definition
 
                 case LetTypeNode let:
                     {
-                        var v = new VariableValue() { Name = let.Var.Name };
+                        var v = new VariableValue { Name = let.Var.Name };
                         scope.LexicalScope.Add(let.Var.Name, v);
                         scope.Body.Add(new TypeBind(v, CreateType(scope, let.Type)));
                     }
@@ -74,7 +74,7 @@ public static partial class Definition
                         {
                             if (x is LetVarNode letv)
                             {
-                                var v = new VariableValue() { Name = letv.Var.Name };
+                                var v = new VariableValue { Name = letv.Var.Name };
                                 scope.LexicalScope.Add(letv.Var.Name, v);
                                 scope.Body.Add(new BindCode { Return = v, Value = new PropertyValue { Left = e, Right = $"{i + 1}" } });
                             }
@@ -132,7 +132,7 @@ public static partial class Definition
                 body.Generics.Add(xs_type);
 
                 var x_type = create_type(ta.Item);
-                body.Constraints.Add((new VariableValue() { Name = "List" }, new ITypeDefinition[] { xs_type, x_type }.ToList()));
+                body.Constraints.Add((new VariableValue { Name = "List" }, new ITypeDefinition[] { xs_type, x_type }.ToList()));
                 return xs_type;
             }
             else if (s is SpecializationNode sp)
@@ -146,13 +146,13 @@ public static partial class Definition
 
         f.Arguments.Each(x =>
         {
-            var name = new VariableValue() { Name = x.Name.Name };
+            var name = new VariableValue { Name = x.Name.Name };
             body.Arguments.Add((name, create_type(x.Type)));
             body.LexicalScope.Add(x.Name.Name, name);
         });
         if (f.Return is { }) body.Return = create_type(f.Return);
 
-        f.Constraints.Each(x => body.Constraints.Add((new VariableValue() { Name = x.Name }, x.Generics.Select(g => create_type(g)).ToList())));
+        f.Constraints.Each(x => body.Constraints.Add((new VariableValue { Name = x.Name }, x.Generics.Select(g => create_type(g)).ToList())));
         f.Functions.Each(x => MakeFunctionBodyDefinition(ns, x, body));
 
         if (body.Generics.Count == 0) body.SpecializationMapper[[]] = [];

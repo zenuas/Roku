@@ -12,16 +12,16 @@ public static partial class Definition
     {
         var name = GetTupleName(count);
         var fbody = MakeFunction(root, name);
-        var fret = new TypeSpecialization { Type = new VariableValue() { Name = name } };
-        var fcall = new TypeSpecialization { Type = new VariableValue() { Name = name } };
-        var self = new VariableValue() { Name = "$self" };
+        var fret = new TypeSpecialization { Type = new VariableValue { Name = name } };
+        var fcall = new TypeSpecialization { Type = new VariableValue { Name = name } };
+        var self = new VariableValue { Name = "$self" };
         fbody.LexicalScope.Add(self.Name, self);
         fbody.Body.Add(new Call(new FunctionCallValue { Function = fcall }) { Return = self });
 
         Enumerable.Range(0, count).Each(i =>
         {
             var gp = new TypeGenericsParameter() { Name = $"t{i + 1}" };
-            var farg_var = new VariableValue() { Name = $"x{i + 1}" };
+            var farg_var = new VariableValue { Name = $"x{i + 1}" };
             fbody.Generics.Add(gp);
             fbody.Arguments.Add((farg_var, gp));
             fbody.LexicalScope.Add(farg_var.Name, farg_var);
@@ -29,7 +29,7 @@ public static partial class Definition
             fret.Generics.Add(gp);
             fcall.Generics.Add(gp);
         });
-        fbody.Body.Add(new Call(new FunctionCallValue { Function = new VariableValue() { Name = "return" } }.Return(x => x.Arguments.Add(self))));
+        fbody.Body.Add(new Call(new FunctionCallValue { Function = new VariableValue { Name = "return" } }.Return(x => x.Arguments.Add(self))));
         fbody.Return = fret;
         return fbody;
     }
@@ -53,7 +53,7 @@ public static partial class Definition
         {
             var gp = new TypeGenericsParameter() { Name = $"a{i}" };
             body.Generics.Add(gp);
-            var member = new VariableValue() { Name = $"{i}" };
+            var member = new VariableValue { Name = $"{i}" };
             body.LexicalScope.Add(member.Name, member);
             body.Body.Add(new TypeBind(member, gp));
             body.Members.Add(member.Name, member);

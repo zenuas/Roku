@@ -53,10 +53,10 @@ public static partial class Definition
                     scope.LexicalScope.Add(v.Name, typename);
                     scope.Members.Add(v.Name, typename);
 
-                    var scopevar = new VariableValue() { Name = varname };
+                    var scopevar = new VariableValue { Name = varname };
                     current.LexicalScope.Add(scopevar.Name, scopevar);
                     CapturedVariableToProperty(current, captured, scopevar, v.Name);
-                    current.Body.Insert(0, new Call(new() { Function = new VariableValue() { Name = name } }) { Return = scopevar });
+                    current.Body.Insert(0, new Call(new() { Function = new VariableValue { Name = name } }) { Return = scopevar });
 
                     scope.SpecializationMapper[[]] = [];
                     return scope;
@@ -68,7 +68,7 @@ public static partial class Definition
                 var argname = $"${scope.Name}";
                 if (current is FunctionBody fb && !fb.Arguments.Exists(x => x.Name.Name == argname))
                 {
-                    var scopevar = new VariableValue() { Name = argname };
+                    var scopevar = new VariableValue { Name = argname };
                     fb.Arguments.Insert(0, (scopevar, new TypeValue() { Name = scope.Name }));
                     fb.LexicalScope.Add(scope.Name, scopevar);
                 }

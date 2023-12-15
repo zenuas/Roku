@@ -109,7 +109,7 @@ public static partial class Typing
                     {
                         if (caller.GenericsMapper.Count > 0 && m.ContainsKey(x))
                         {
-                            call.Function.Function = x = new VariableValue() { Name = x.Name };
+                            call.Function.Function = x = new VariableValue { Name = x.Name };
                         }
                     }
                     if (m.ContainsKey(x))
@@ -160,7 +160,7 @@ public static partial class Typing
         else if (caller.Body is EmbeddedFunction ef)
         {
             if (ef.Return is { } && !fm.TypeMapper.ContainsKey(ef.Return)) fm.TypeMapper[ef.Return] = Typing.CreateVariableDetail("", Lookup.LoadStruct(ns, ef.Return.Name), VariableType.Type);
-            ef.Arguments.Each((x, i) => fm.TypeMapper[new VariableValue() { Name = $"${i}" }] = Typing.CreateVariableDetail($"${i}", Lookup.GetStructType(ns, x, caller.GenericsMapper), VariableType.Argument, i));
+            ef.Arguments.Each((x, i) => fm.TypeMapper[new VariableValue { Name = $"${i}" }] = Typing.CreateVariableDetail($"${i}", Lookup.GetStructType(ns, x, caller.GenericsMapper), VariableType.Argument, i));
         }
         return fm;
     }
