@@ -104,7 +104,7 @@ public partial class Parser
 
     public static IfCastNode CreateIfCastNode(VariableNode name, ITypeNode declare, IEvaluableNode cond, IScopeNode then) => new IfCastNode(name, declare, cond, then).R(cond);
 
-    public static IfArrayCastNode CreateIfArrayCastNode(ListNode<VariableNode> array_pattern, IEvaluableNode cond, IScopeNode then) => new IfArrayCastNode(array_pattern, cond, then).R(cond);
+    public static IfArrayCastNode CreateIfArrayCastNode(ListNode<VariableNode> array_pattern, IEvaluableNode cond, IScopeNode then) => new IfArrayCastNode { ArrayPattern = array_pattern, Condition = cond, Then = then }.R(cond);
 
     public static IIfNode AddElse(IIfNode if_, IScopeNode else_) => if_.Return(x => x.Else = else_);
 
