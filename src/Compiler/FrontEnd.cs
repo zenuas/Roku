@@ -66,7 +66,7 @@ public static class FrontEnd
     public static ProgramNode Parse(TextReader input)
     {
         var par = new Parser.Parser();
-        var lex = new Lexer() { BaseReader = new SourceCodeReader(input), Parser = par };
+        var lex = new Lexer() { BaseReader = new SourceCodeReader { BaseReader = input }, Parser = par };
         return par.Parse(lex).Cast<ProgramNode>();
     }
 
