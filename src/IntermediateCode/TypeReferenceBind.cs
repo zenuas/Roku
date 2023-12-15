@@ -3,11 +3,11 @@ using Roku.Manager;
 
 namespace Roku.IntermediateCode;
 
-public class TypeReferenceBind(IEvaluable name, IStructBody sb) : IOperand
+public class TypeReferenceBind : IOperand
 {
     public Operator Operator { get; init; } = Operator.TypeBind;
-    public IEvaluable Name { get; } = name;
-    public IStructBody Struct { get; } = sb;
+    public required IEvaluable Name { get; init; }
+    public required IStructBody Struct { get; init; }
 
     public override string ToString() => $"var {Name}: {Struct.Name}";
 }

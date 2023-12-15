@@ -88,7 +88,7 @@ public static partial class Typing
 
                         case StructBodyTypes.Capture:
                             var member = sb.Members[prop.Right];
-                            sb.Body.Add(new TypeReferenceBind(member, b));
+                            sb.Body.Add(new TypeReferenceBind { Name = member, Struct = b });
                             break;
                     }
                 }
