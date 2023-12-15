@@ -27,7 +27,7 @@ public partial class Parser
 
     public static LetNode CreateLetNode(VariableNode v, IEvaluableNode e) => new LetNode { Var = v, Expression = e }.R(v);
 
-    public static LetPropertyNode CreateLetNode(IEvaluableNode left, VariableNode right, IEvaluableNode e) => new LetPropertyNode(left, right, e).R(right);
+    public static LetPropertyNode CreateLetNode(IEvaluableNode left, VariableNode right, IEvaluableNode e) => new LetPropertyNode { Reciever = left, Name = right, Expression = e }.R(right);
 
     public static LetTypeNode CreateLetNode(VariableNode v, ITypeNode t) => new LetTypeNode(v, t).R(v);
 

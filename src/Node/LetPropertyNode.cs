@@ -3,14 +3,14 @@ using System;
 
 namespace Roku.Node;
 
-public class LetPropertyNode(IEvaluableNode recv, VariableNode name, IEvaluableNode e) : INode, IStatementNode
+public class LetPropertyNode : INode, IStatementNode
 {
     public Symbols Symbol { get; init; }
     INode IToken<INode>.Value { get => this; init => throw new NotImplementedException(); }
     public int Indent { get; set; }
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
-    public IEvaluableNode Reciever { get; } = recv;
-    public VariableNode Name { get; } = name;
-    public IEvaluableNode Expression { get; } = e;
+    public required IEvaluableNode Reciever { get; init; }
+    public required VariableNode Name { get; init; }
+    public required IEvaluableNode Expression { get; init; }
 }
