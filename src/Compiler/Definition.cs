@@ -86,7 +86,7 @@ public static partial class Definition
                 }
 
             case ListNode<IEvaluableNode> x:
-                return new ArrayContainer(x.List.Select(list => NormalizationExpression(scope, list, true)).ToList());
+                return new ArrayContainer() { Values = x.List.Select(list => NormalizationExpression(scope, list, true)).ToList() };
 
             case TupleNode x:
                 {
