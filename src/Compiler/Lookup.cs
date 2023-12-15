@@ -307,7 +307,7 @@ public static class Lookup
                                 {
                                     [es.Generics[0]] = class_gens[class_body.Generics[1]]
                                 };
-                                class_gens[class_body.Generics[0]] = new StructSpecialization(es, gm);
+                                class_gens[class_body.Generics[0]] = new StructSpecialization { Body = es, GenericsMapper = gm };
                             }
 
                             class_body.Generics.Each((g, i) =>
@@ -486,7 +486,7 @@ public static class Lookup
                     var gens = new GenericsMapper();
                     g.Generics.Each((x, i) => gens[x] = args[i]);
                     _ = AppendSpecialization(g, gens);
-                    return new StructSpecialization(x, gens);
+                    return new StructSpecialization { Body = x, GenericsMapper = gens };
                 }
                 else
                 {
@@ -513,7 +513,7 @@ public static class Lookup
 
                     var gens = new GenericsMapper();
                     t.Generics.Each((x, i) => gens[x] = args[i]);
-                    return new StructSpecialization(t, gens);
+                    return new StructSpecialization { Body = t, GenericsMapper = gens };
                 }
             }
         }

@@ -26,7 +26,7 @@ public static partial class Typing
 
         foreach (var mapper in body.SpecializationMapper.Values)
         {
-            if (!mapper.ContainsKey(self)) mapper[self] = CreateVariableDetail(self.Name, new StructSpecialization(body, Lookup.TypeMapperToGenericsMapper(mapper)), VariableType.Argument, 0);
+            if (!mapper.ContainsKey(self)) mapper[self] = CreateVariableDetail(self.Name, new StructSpecialization { Body = body, GenericsMapper = Lookup.TypeMapperToGenericsMapper(mapper) }, VariableType.Argument, 0);
 
             body.Members.Values.Each(x =>
             {

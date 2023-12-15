@@ -1,8 +1,8 @@
 ﻿namespace Roku.Manager;
 
-public class StructSpecialization(IStructBody body, GenericsMapper gen_map) : IStructBody, IManaged, IGenericsMapper
+public class StructSpecialization : IStructBody, IManaged, IGenericsMapper
 {
     public string Name => Body.Name;
-    public IStructBody Body { get; } = body;
-    public GenericsMapper GenericsMapper { get; } = gen_map;
+    public required IStructBody Body { get; init; }
+    public required GenericsMapper GenericsMapper { get; init; }
 }
