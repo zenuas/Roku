@@ -15,13 +15,13 @@ public static partial class Typing
         {
             switch (p)
             {
-                case FunctionTypeBody ftb: return new FunctionSpecialization(ftb, Lookup.FunctionArgumentsEquals(ns, ftb, args).GenericsMapper);
-                case AnonymousFunctionBody afb: return new FunctionSpecialization(afb, Lookup.IfFunctionArgumentsEquals_ThenAppendSpecialization(ns, afb, args)!.GenericsMapper);
+                case FunctionTypeBody ftb: return new() { Body = ftb, GenericsMapper = Lookup.FunctionArgumentsEquals(ns, ftb, args).GenericsMapper };
+                case AnonymousFunctionBody afb: return new() { Body = afb, GenericsMapper = Lookup.IfFunctionArgumentsEquals_ThenAppendSpecialization(ns, afb, args)!.GenericsMapper };
                 case FunctionMapper fm:
                     if (fm.Function is AnonymousFunctionBody)
                     {
                         var sp = Lookup.IfFunctionArgumentsEquals_ThenAppendSpecialization(ns, fm.Function, args)!;
-                        return new FunctionSpecialization(fm.Function, sp.GenericsMapper);
+                        return new() { Body = fm.Function, GenericsMapper = sp.GenericsMapper };
                     }
                     break;
             }

@@ -25,7 +25,7 @@ public static partial class CodeGenerator
             .Distinct();
 
         var fss = new List<(string Name, FunctionSpecialization Function)>();
-        _ = AppendFunctionSpecialization(fss, new(entrypoint, []));
+        _ = AppendFunctionSpecialization(fss, new() { Body = entrypoint, GenericsMapper = [] });
         StructsToFunctionList(structs, fss);
         FunctionsToFunctionList(fss);
         if (fss.FindFirstOrNullValue(x => x.Function.Body is AnonymousFunctionBody) is { })

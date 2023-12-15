@@ -75,7 +75,7 @@ public static class Lookup
         if (v.Exists)
         {
             if (fn is ISpecialization sp) _ = AppendSpecialization(sp, v.GenericsMapper);
-            return new FunctionSpecialization(fn, v.GenericsMapper);
+            return new() { Body = fn, GenericsMapper = v.GenericsMapper };
         }
         return null;
     }
@@ -124,7 +124,7 @@ public static class Lookup
                 var asmx = ti.Assembly;
                 if (ti == typeof(List<>).GetTypeInfo()) asmx = Assembly.Load("System.Collections");
 
-                return new FunctionSpecialization(new ExternFunction { Name = name, Function = m, Assembly = asmx }, g);
+                return new() { Body = new ExternFunction { Name = name, Function = m, Assembly = asmx }, GenericsMapper = g };
             }
         }
         if (ns is ExternStruct sx2)
@@ -138,7 +138,7 @@ public static class Lookup
                 var asmx = ti.Assembly;
                 if (ti == typeof(string).GetTypeInfo()) asmx = Assembly.Load("System.Runtime");
 
-                return new FunctionSpecialization(new ExternFunction { Name = name, Function = m, Assembly = asmx }, g);
+                return new() { Body = new ExternFunction { Name = name, Function = m, Assembly = asmx }, GenericsMapper = g };
             }
         }
         return null;

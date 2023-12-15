@@ -79,14 +79,14 @@ public static partial class CodeGenerator
             var g = Lookup.TypeMapperToGenericsMapper(f.TypeMapper);
             if (fss.FindFirstIndex(x => EqualsFunctionCaller(x.Function, body, g)) < 0)
             {
-                _ = AppendFunctionSpecialization(fss, new(body, g));
+                _ = AppendFunctionSpecialization(fss, new() { Body = body, GenericsMapper = g });
             }
         }
     }
 
-    public static void CallToAddEmitFunctionList(AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss) => AppendFunctionSpecialization(fss, new(anon, []));
+    public static void CallToAddEmitFunctionList(AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss) => AppendFunctionSpecialization(fss, new() { Body = anon, GenericsMapper = [] });
 
-    public static void CallToAddEmitFunctionList(FunctionMapper fm, AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss) => AppendFunctionSpecialization(fss, new(anon, Lookup.TypeMapperToGenericsMapper(fm.TypeMapper)));
+    public static void CallToAddEmitFunctionList(FunctionMapper fm, AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss) => AppendFunctionSpecialization(fss, new() { Body = anon, GenericsMapper = Lookup.TypeMapperToGenericsMapper(fm.TypeMapper) });
 
     public static bool EqualsFunctionCaller(FunctionSpecialization left, IFunctionName right, GenericsMapper right_g)
     {
