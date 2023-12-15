@@ -114,7 +114,7 @@ public static partial class Definition
 
     public static FunctionBody MakeFunction(INamespace ns, string name, ILexicalScope? parent = null)
     {
-        var body = new FunctionBody(ns, name, parent);
+        var body = new FunctionBody { Namespace = ns, Name = name, Parent = parent };
         ns.Functions.Add(body);
         return body;
     }

@@ -6,14 +6,14 @@ using System.Linq;
 
 namespace Roku.Manager;
 
-public class FunctionBody(IManaged ns, string name, ILexicalScope? parent = null) : IFunctionBody, ILexicalScope, IConstraints
+public class FunctionBody : IFunctionBody, ILexicalScope, IConstraints
 {
-    public string Name { get; } = name;
+    public required string Name { get; init; }
     public ITypeDefinition? Return { get; set; } = null;
     public List<(VariableValue Name, ITypeDefinition Type)> Arguments { get; } = new List<(VariableValue, ITypeDefinition)>();
     public List<IOperand> Body { get; } = [];
-    public IManaged Namespace { get; } = ns;
-    public ILexicalScope? Parent { get; } = parent;
+    public required IManaged Namespace { get; init; }
+    public ILexicalScope? Parent { get; init; }
     public Dictionary<string, IEvaluable> LexicalScope { get; } = [];
     public int MaxTemporaryValue { get; set; } = 0;
     public List<TypeGenericsParameter> Generics { get; } = [];

@@ -97,7 +97,7 @@ public static partial class Definition
                 $ret = Tuple#2(null, $self)
                 return($ret)
         */
-        var next_body = new FunctionBody(ns, "next");
+        var next_body = new FunctionBody { Namespace = ns, Name = "next" };
         var _self = new VariableValue { Name = "$self" };
         next_body.Arguments.Add((_self, co_struct_typename));
         next_body.LexicalScope["$self"] = _self;
@@ -238,7 +238,7 @@ public static partial class Definition
                 var $ret = $state == $m1
                 return($ret)
         */
-        var isnull_body = new FunctionBody(ns, "isnull");
+        var isnull_body = new FunctionBody { Namespace = ns, Name = "isnull" };
         isnull_body.Arguments.Add((_self, co_struct_typename));
         isnull_body.Return = new TypeValue { Name = "Bool" };
         isnull_body.LexicalScope["$self"] = _self;
