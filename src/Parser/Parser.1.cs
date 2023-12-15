@@ -130,7 +130,7 @@ public partial class Parser
 
     public static SpecializationNode CreateSpecialization(IEvaluableNode expr, IEvaluableNode t1, params ITypeNode[] ts)
     {
-        var g = new SpecializationNode(expr);
+        var g = new SpecializationNode { Expression = expr };
         g.Generics.Add(ExpressionToType(t1));
         g.Generics.AddRange(ts);
         return g;
@@ -138,7 +138,7 @@ public partial class Parser
 
     public static SpecializationNode CreateSpecialization(IEvaluableNode expr, ListNode<ITypeNode> ts)
     {
-        var g = new SpecializationNode(expr);
+        var g = new SpecializationNode { Expression = expr };
         g.Generics.AddRange(ts.List);
         return g;
     }
