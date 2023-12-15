@@ -147,14 +147,14 @@ public static partial class Definition
         next_body.Body.AddRange(Lists.Sequence(1).Take(yield_count).Select(n => new IOperand[] {
                 new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "==" } }.Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, new NumericValue() { Value = (uint)n } })), Return = _cond },
                 new IfCode(_cond, labels_cond[n]),
-                new GotoCode(labels_jump[n - 1]),
+                new GotoCode { Label = labels_jump[n - 1] },
                 labels_cond[n],
             }).Flatten());
         next_body.Body.AddRange([
             new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "-" } }.Return(x => x.Arguments.Add(new NumericValue() { Value = 1 })), Return = _m1 },
             new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "==" } }.Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, _m1 })), Return = _cond },
             new IfCode(_cond, labels_cond[^1]),
-            new GotoCode(labels_jump[^1]),
+            new GotoCode { Label = labels_jump[^1] },
             labels_cond[^1],
         ]);
 

@@ -23,7 +23,7 @@ public static partial class Definition
 
         if_.ElseIf.Each((x, i) =>
         {
-            scope.Body.Add(new GotoCode(endif));
+            scope.Body.Add(new GotoCode { Label = endif });
             scope.Body.Add(elseif[i]);
 
             var next_label =
@@ -36,7 +36,7 @@ public static partial class Definition
 
         if (if_.Else is { })
         {
-            scope.Body.Add(new GotoCode(endif));
+            scope.Body.Add(new GotoCode { Label = endif });
             scope.Body.Add(else_);
             FunctionBodyDefinition(scope, if_.Else.Statements);
         }
