@@ -23,7 +23,7 @@ public partial class Parser
 
     public static LetIgnoreNode CreateLetIgnoreNode(TokenNode t) => new LetIgnoreNode().R(t);
 
-    public static LetVarNode CreateLetNode(VariableNode v) => new LetVarNode(v).R(v);
+    public static LetVarNode CreateLetNode(VariableNode v) => new LetVarNode { Var = v }.R(v);
 
     public static LetNode CreateLetNode(VariableNode v, IEvaluableNode e) => new LetNode { Var = v, Expression = e }.R(v);
 
