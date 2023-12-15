@@ -1,9 +1,9 @@
 ﻿namespace Roku.Declare;
 
-public class PropertyValue(IEvaluable left, string right) : IEvaluable
+public class PropertyValue : IEvaluable
 {
-    public IEvaluable Left { get; } = left;
-    public string Right { get; } = right;
+    public required IEvaluable Left { get; init; }
+    public required string Right { get; init; }
 
     public override string ToString() => $"{Left}.{Right}";
 }

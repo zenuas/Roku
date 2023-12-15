@@ -100,10 +100,10 @@ public static partial class Definition
                                 new Call(new FunctionCallValue { Function = new VariableValue() { Name = "!" } }.Return(x => x.Arguments.Add(_v0))) { Return = _v1 },
                                 new IfCode(_v1, next_label),
                                 new Call(new FunctionCallValue { Function = new VariableValue() { Name = "next" } }.Return(x => x.Arguments.Add(cond))) { Return = _v2 },
-                                new BindCode{ Return = _v3, Value = new PropertyValue(_v2, "2") },
+                                new BindCode{ Return = _v3, Value = new PropertyValue { Left =_v2, Right = "2" } },
                                 new Call(new FunctionCallValue { Function = new VariableValue() { Name = "isnull" } }.Return(x => x.Arguments.Add(_v3))) { Return = _v4 },
                                 new IfCode(_v4, next_label),
-                                new BindCode{ Return = y, Value = new PropertyValue(_v2, "1") },
+                                new BindCode{ Return = y, Value = new PropertyValue{ Left = _v2, Right = "1" } },
                             });
                     }
                     break;
@@ -146,8 +146,8 @@ public static partial class Definition
                             inner_scope.LexicalScope.Add(y.Name, y);
                             inner_scope.Body.AddRange(new IOperand[] {
                                     new Call(new FunctionCallValue{ Function = new VariableValue() { Name = "next" } }.Return(x => x.Arguments.Add(prev_cond))) { Return = _v4_x_index_add_0 },
-                                    new BindCode{ Return = y, Value = new PropertyValue(_v4_x_index_add_0, "1") },
-                                    new BindCode{ Return = _v4_x_index_add_1, Value = new PropertyValue(_v4_x_index_add_0, "2") },
+                                    new BindCode{ Return = y, Value = new PropertyValue{ Left = _v4_x_index_add_0, Right = "1" } },
+                                    new BindCode{ Return = _v4_x_index_add_1, Value = new PropertyValue{ Left = _v4_x_index_add_0, Right = "2" } },
                                     new Call(new FunctionCallValue{ Function = new VariableValue() { Name = "isnull" } }.Return(x => x.Arguments.Add(_v4_x_index_add_1))) { Return = _v4_x_index_add_2 },
                                     new Call(new FunctionCallValue{ Function = new VariableValue() { Name = "!" } }.Return(x => x.Arguments.Add(_v4_x_index_add_2))) { Return = _v4_x_index_add_3 },
                                     new IfCode(_v4_x_index_add_3, next_label),
@@ -161,8 +161,8 @@ public static partial class Definition
                         inner_scope.LexicalScope.Add(ys.Name, ys);
                         inner_scope.Body.AddRange(new IOperand[] {
                                 new Call(new FunctionCallValue{ Function = new VariableValue() { Name = "next" } }.Return(x => x.Arguments.Add(prev_cond))) { Return = _v4_x_last_add_0 },
-                                new BindCode{ Return = yn, Value = new PropertyValue(_v4_x_last_add_0, "1") },
-                                new BindCode{ Return = ys, Value = new PropertyValue(_v4_x_last_add_0, "2") },
+                                new BindCode{ Return = yn, Value = new PropertyValue{ Left = _v4_x_last_add_0, Right = "1" } },
+                                new BindCode{ Return = ys, Value = new PropertyValue{ Left = _v4_x_last_add_0, Right = "2" } },
                             });
                     }
                     break;

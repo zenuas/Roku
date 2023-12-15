@@ -64,7 +64,7 @@ public static partial class Definition
                     break;
 
                 case LetPropertyNode let:
-                    scope.Body.Add(new BindCode { Return = new PropertyValue(NormalizationExpression(scope, let.Reciever, true), let.Name.Name), Value = NormalizationExpression(scope, let.Expression, true) });
+                    scope.Body.Add(new BindCode { Return = new PropertyValue { Left = NormalizationExpression(scope, let.Reciever, true), Right = let.Name.Name }, Value = NormalizationExpression(scope, let.Expression, true) });
                     break;
 
                 case LetTupleAssignmentNode let:
@@ -76,7 +76,7 @@ public static partial class Definition
                             {
                                 var v = new VariableValue() { Name = letv.Var.Name };
                                 scope.LexicalScope.Add(letv.Var.Name, v);
-                                scope.Body.Add(new BindCode { Return = v, Value = new PropertyValue(e, $"{i + 1}") });
+                                scope.Body.Add(new BindCode { Return = v, Value = new PropertyValue { Left = e, Right = $"{i + 1}" } });
                             }
                         });
                     }

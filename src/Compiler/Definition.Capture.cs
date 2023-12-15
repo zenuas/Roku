@@ -126,7 +126,7 @@ public static partial class Definition
 
     public static IEvaluable? IfCapturedVariableToProperty(IEvaluable original, IEvaluable? v, IEvaluable scopevar, string name)
     {
-        if (v is { } p && p == original) return new PropertyValue(scopevar, name);
+        if (v is { } p && p == original) return new PropertyValue { Left = scopevar, Right = name };
         return v;
     }
 }

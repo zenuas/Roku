@@ -78,7 +78,7 @@ public static partial class Definition
 
             case PropertyNode x:
                 {
-                    var prop = new PropertyValue(NormalizationExpression(scope, x.Left, true), x.Right.Name);
+                    var prop = new PropertyValue { Left = NormalizationExpression(scope, x.Left, true), Right = x.Right.Name };
                     if (!evaluate_as_expression) return prop;
                     var v = CreateTemporaryVariable(scope);
                     scope.Body.Add(new BindCode() { Value = prop, Return = v });
@@ -196,7 +196,7 @@ public static partial class Definition
                 var farg_var = new VariableValue() { Name = x.Name };
                 ctor.Arguments.Add((farg_var, x.Type));
                 ctor.LexicalScope.Add(farg_var.Name, farg_var);
-                ctor.Body.Add(new BindCode { Return = new PropertyValue(self, farg_var.Name), Value = farg_var });
+                ctor.Body.Add(new BindCode { Return = new PropertyValue { Left = self, Right = farg_var.Name }, Value = farg_var });
             });
             ctor.Body.Add(new Call(new FunctionCallValue { Function = new VariableValue { Name = "return" } }.Return(x => x.Arguments.Add(self))));
             ctor.Return = new TypeValue() { Name = name };
