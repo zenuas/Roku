@@ -565,7 +565,7 @@ public static class Lookup
 
     public static IStructBody LoadEnumStruct(IManaged ns, TypeEnum te)
     {
-        var e = new EnumStructBody(ns);
+        var e = new EnumStructBody { Namespace = ns };
         foreach (var td in te.Enums)
         {
             e.Enums.Add(GetStructType(ns, td, new TypeMapper())!);

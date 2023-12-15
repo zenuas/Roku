@@ -25,5 +25,5 @@ public class EmbeddedFunction(string name) : IFunctionName, IFunctionReturn, ISp
         Arguments.AddRange(args);
     }
 
-    public override string ToString() => $"sub {Name}({Arguments.Select(x => x.ToString()!).Join(", ")}){(Return is { } ? " " + Return.ToString() : "") }";
+    public override string ToString() => $"sub {Name}({Arguments.Select(x => x.ToString()!).Join(", ")}){(Return is { } ? " " + Return.ToString() : "")}";
 }

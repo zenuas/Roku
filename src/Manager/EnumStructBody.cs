@@ -6,12 +6,12 @@ using System.Linq;
 
 namespace Roku.Manager;
 
-public class EnumStructBody(IManaged ns) : IStructBody, ILexicalScope, ISpecialization
+public class EnumStructBody : IStructBody, ILexicalScope, ISpecialization
 {
     public string Name => ToString();
     public List<IStructBody> Enums { get; } = [];
     public List<IOperand> Body { get; } = [];
-    public IManaged Namespace { get; } = ns;
+    public required IManaged Namespace { get; init; }
     public ILexicalScope? Parent { get; } = null;
     public Dictionary<string, IEvaluable> LexicalScope { get; } = [];
     public int MaxTemporaryValue { get; set; } = 0;
