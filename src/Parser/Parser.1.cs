@@ -98,7 +98,7 @@ public partial class Parser
         return lambda;
     }
 
-    public static LambdaExpressionNode ToLambdaExpression(IEvaluableNode expr) => new LambdaExpressionNode().Return(x => x.Statements.Add(new ImplicitReturn(expr)));
+    public static LambdaExpressionNode ToLambdaExpression(IEvaluableNode expr) => new LambdaExpressionNode().Return(x => x.Statements.Add(new ImplicitReturn { Expression = expr }));
 
     public static IfNode CreateIfNode(IEvaluableNode cond, IScopeNode then) => new IfNode { Condition = cond, Then = then }.R(cond);
 
