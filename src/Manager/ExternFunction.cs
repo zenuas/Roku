@@ -3,12 +3,12 @@ using System.Reflection;
 
 namespace Roku.Manager;
 
-public class ExternFunction(string name, MethodInfo f, Assembly asm) : IFunctionName
+public class ExternFunction : IFunctionName
 {
-    public string Name { get; } = name;
-    public MethodInfo Function { get; } = f;
+    public required string Name { get; init; }
+    public required MethodInfo Function { get; init; }
     public Type? DeclaringType { get; init; }
-    public Assembly Assembly { get; } = asm;
+    public required Assembly Assembly { get; init; }
 
     public override string ToString() => Name;
 }

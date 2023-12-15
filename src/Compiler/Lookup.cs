@@ -124,7 +124,7 @@ public static class Lookup
                 var asmx = ti.Assembly;
                 if (ti == typeof(List<>).GetTypeInfo()) asmx = Assembly.Load("System.Collections");
 
-                return new FunctionSpecialization(new ExternFunction(name, m, asmx), g);
+                return new FunctionSpecialization(new ExternFunction { Name = name, Function = m, Assembly = asmx }, g);
             }
         }
         if (ns is ExternStruct sx2)
@@ -138,7 +138,7 @@ public static class Lookup
                 var asmx = ti.Assembly;
                 if (ti == typeof(string).GetTypeInfo()) asmx = Assembly.Load("System.Runtime");
 
-                return new FunctionSpecialization(new ExternFunction(name, m, asmx), g);
+                return new FunctionSpecialization(new ExternFunction { Name = name, Function = m, Assembly = asmx }, g);
             }
         }
         return null;
@@ -600,7 +600,7 @@ public static class Lookup
 
     public static ExternFunction LoadFunction(RootNamespace root, INamespace ns, string alias, MethodInfo mi)
     {
-        var f = new ExternFunction(alias, mi, LoadType(root, mi.DeclaringType!).Assembly);
+        var f = new ExternFunction { Name = alias, Function = mi, Assembly = LoadType(root, mi.DeclaringType!).Assembly };
         ns.Functions.Add(f);
         return f;
     }
