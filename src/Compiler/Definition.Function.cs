@@ -46,7 +46,7 @@ public static partial class Definition
                         var e = NormalizationExpression(scope, let.Expression);
                         if (e is FunctionCallValue fcall)
                         {
-                            scope.Body.Add(new Call(fcall) { Return = v });
+                            scope.Body.Add(new Call { Function = fcall, Return = v });
                         }
                         else
                         {
@@ -83,7 +83,7 @@ public static partial class Definition
                     break;
 
                 case FunctionCallNode call:
-                    scope.Body.Add(new Call(NormalizationExpression(scope, call).Cast<FunctionCallValue>()));
+                    scope.Body.Add(new Call { Function = NormalizationExpression(scope, call).Cast<FunctionCallValue>() });
                     break;
 
                 case IIfNode if_:
@@ -97,7 +97,7 @@ public static partial class Definition
                         var e = NormalizationExpression(scope, imp.Expression);
                         if (e is FunctionCallValue fcall)
                         {
-                            scope.Body.Add(new Call(fcall) { Return = v });
+                            scope.Body.Add(new Call { Function = fcall, Return = v });
                         }
                         else
                         {

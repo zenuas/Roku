@@ -2,11 +2,11 @@
 
 namespace Roku.IntermediateCode;
 
-public class Call(FunctionCallValue f) : IOperand, IReturnBind
+public class Call : IOperand, IReturnBind
 {
     public Operator Operator { get; } = Operator.Call;
     public IEvaluable? Return { get; set; }
-    public FunctionCallValue Function { get; } = f;
+    public required FunctionCallValue Function { get; init; }
 
     public override string ToString() => $"{(Return is null ? "" : Return.ToString() + " = ")}{Function}";
 }

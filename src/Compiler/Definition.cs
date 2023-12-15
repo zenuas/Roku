@@ -61,7 +61,7 @@ public static partial class Definition
                 if (evaluate_as_expression)
                 {
                     var v = CreateTemporaryVariable(scope);
-                    scope.Body.Add(new Call(NormalizationExpression(scope, x).Cast<FunctionCallValue>()) { Return = v });
+                    scope.Body.Add(new Call { Function = NormalizationExpression(scope, x).Cast<FunctionCallValue>(), Return = v });
                     return v;
                 }
                 else
@@ -95,7 +95,7 @@ public static partial class Definition
                     x.Values.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
                     if (!evaluate_as_expression) return call;
                     var v = CreateTemporaryVariable(scope);
-                    scope.Body.Add(new Call(call) { Return = v });
+                    scope.Body.Add(new Call { Function = call, Return = v });
                     return v;
                 }
 
@@ -184,7 +184,7 @@ public static partial class Definition
             var ctor = MakeFunction(top, st.StructName.Name);
             var self = new VariableValue { Name = "$self" };
             ctor.LexicalScope.Add(self.Name, self);
-            ctor.Body.Add(new Call(new FunctionCallValue { Function = new VariableValue { Name = name } }) { Return = self });
+            ctor.Body.Add(new Call { Function = new() { Function = new VariableValue { Name = name } }, Return = self });
             top.Functions.Add(new EmbeddedFunction(name, name) { OpCode = (_, args) => $"newobj instance void {CodeGenerator.EscapeILName(name)}::.ctor()" });
             args.Each((x, i) =>
             {
@@ -198,7 +198,7 @@ public static partial class Definition
                 ctor.LexicalScope.Add(farg_var.Name, farg_var);
                 ctor.Body.Add(new BindCode { Return = new PropertyValue { Left = self, Right = farg_var.Name }, Value = farg_var });
             });
-            ctor.Body.Add(new Call(new FunctionCallValue { Function = new VariableValue { Name = "return" } }.Return(x => x.Arguments.Add(self))));
+            ctor.Body.Add(new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "return" } }.Return(x => x.Arguments.Add(self)) });
             ctor.Return = new TypeValue() { Name = name };
             body.SpecializationMapper[[]] = [];
         }
