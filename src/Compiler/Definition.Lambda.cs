@@ -39,7 +39,7 @@ public static partial class Definition
     public static AnonymousFunctionBody MakeAnonymousFunction(IManaged ns, ILexicalScope scope)
     {
         var root = Lookup.GetRootNamespace(ns);
-        var body = new AnonymousFunctionBody(ns, $"anonymous#{root.AnonymousFunctionUniqueCount++}", scope);
+        var body = new AnonymousFunctionBody { Namespace = ns, Name = $"anonymous#{root.AnonymousFunctionUniqueCount++}", Parent = scope };
         root.Structs.Add(body);
         root.Functions.Add(body);
         return body;
