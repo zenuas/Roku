@@ -155,8 +155,8 @@ public static partial class Definition
                             prev_cond = _v4_x_index_add_1;
                         }
                         var _v4_x_last_add_0 = CreateTemporaryVariable(inner_scope);
-                        var yn = new VariableValue { Name = ifa.ArrayPattern.List[ifa.ArrayPattern.List.Count - 2].Name };
-                        var ys = new VariableValue { Name = ifa.ArrayPattern.List[ifa.ArrayPattern.List.Count - 1].Name };
+                        var yn = new VariableValue { Name = ifa.ArrayPattern.List[^2].Name };
+                        var ys = new VariableValue { Name = ifa.ArrayPattern.List[^1].Name };
                         inner_scope.LexicalScope.Add(yn.Name, yn);
                         inner_scope.LexicalScope.Add(ys.Name, ys);
                         inner_scope.Body.AddRange(new IOperand[] {
