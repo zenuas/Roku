@@ -30,8 +30,8 @@ public static partial class Definition
         co_struct.Members.Add("value", co_struct.LexicalScope["value"] = value);
         co_struct.Members.Add("next", co_struct.LexicalScope["next"] = next);
         co_struct.Body.Add(new BindCode { Return = state, Value = new NumericValue() { Value = 0 } });
-        co_struct.Body.Add(new TypeBind(value, list_a));
-        co_struct.Body.Add(new TypeBind(next, new TypeEnum([co_struct_typename, new TypeValue() { Name = "Null" }])));
+        co_struct.Body.Add(new TypeBind { Name = value, Type = list_a });
+        co_struct.Body.Add(new TypeBind { Name = next, Type = new TypeEnum([co_struct_typename, new TypeValue() { Name = "Null" }]) });
         co_struct.SpecializationMapper[[]] = [];
         ns.Structs.Add(co_struct);
 
@@ -47,7 +47,7 @@ public static partial class Definition
         if (local_value_exist)
         {
             co_struct.Members.Add("local", co_struct.LexicalScope["local"] = local);
-            co_struct.Body.Add(new TypeBind(local, co_local_typename));
+            co_struct.Body.Add(new TypeBind { Name = local, Type = co_local_typename });
 
             /*
                 struct CoLocal$0
@@ -55,7 +55,7 @@ public static partial class Definition
                     var local_values...
             */
             body.LexicalScope.Where(x => x.Value is VariableValue).Each(x => co_local.Members.Add(x.Key, co_local.LexicalScope[x.Key] = x.Value));
-            body.Arguments.Each(x => co_local.Body.Add(new TypeBind(x.Name, x.Type)));
+            body.Arguments.Each(x => co_local.Body.Add(new TypeBind { Name = x.Name, Type = x.Type }));
             co_local.SpecializationMapper[[]] = [];
             ns.Structs.Add(co_local);
 

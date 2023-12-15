@@ -83,7 +83,7 @@ public static partial class Typing
                     switch (sb.Type)
                     {
                         case StructBodyTypes.CoroutineLocal:
-                            sb.Body.Add(new TypeBind(sb.LexicalScope[prop.Right], new TypeValue() { Name = b.Name }));
+                            sb.Body.Add(new TypeBind { Name = sb.LexicalScope[prop.Right], Type = new TypeValue() { Name = b.Name } });
                             break;
 
                         case StructBodyTypes.Capture:

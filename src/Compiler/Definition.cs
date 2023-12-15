@@ -190,7 +190,7 @@ public static partial class Definition
             {
                 var member = new VariableValue { Name = x.Name };
                 body.LexicalScope.Add(member.Name, member);
-                body.Body.Add(new TypeBind(member, x.Type));
+                body.Body.Add(new TypeBind { Name = member, Type = x.Type });
                 body.Members.Add(member.Name, member);
 
                 var farg_var = new VariableValue { Name = x.Name };

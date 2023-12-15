@@ -55,7 +55,7 @@ public static partial class Definition
             body.Generics.Add(gp);
             var member = new VariableValue { Name = $"{i}" };
             body.LexicalScope.Add(member.Name, member);
-            body.Body.Add(new TypeBind(member, gp));
+            body.Body.Add(new TypeBind { Name = member, Type = gp });
             body.Members.Add(member.Name, member);
         });
         root.Structs.Add(body);

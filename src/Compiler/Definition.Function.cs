@@ -59,7 +59,7 @@ public static partial class Definition
                     {
                         var v = new VariableValue { Name = let.Var.Name };
                         scope.LexicalScope.Add(let.Var.Name, v);
-                        scope.Body.Add(new TypeBind(v, CreateType(scope, let.Type)));
+                        scope.Body.Add(new TypeBind { Name = v, Type = CreateType(scope, let.Type) });
                     }
                     break;
 
