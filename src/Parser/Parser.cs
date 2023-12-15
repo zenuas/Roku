@@ -1027,7 +1027,7 @@ public partial class Parser
             case -90:
                 {
                     Debug.WriteLine("typev : '[' type2n ']'");
-                    var yy_value = new TypeTupleNode(((ListNode<ITypeNode>)GetValueFromLast(2))).R(GetValueFromLast(3));
+                    var yy_value = new TypeTupleNode { Types = ((ListNode<ITypeNode>)GetValueFromLast(2)).List }.R(GetValueFromLast(3));
                     return DoAction(Symbols.typev, yy_value, 3);
                 }
 
