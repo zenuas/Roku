@@ -46,7 +46,7 @@ public partial class Parser
     public static InstanceNode CreateInstanceNode(
             SpecializationNode spec,
             ListNode<InstanceMapNode> maps
-        ) => new InstanceNode(spec, maps).R(spec);
+        ) => new InstanceNode { Specialization = spec, InstanceMap = maps.List }.R(spec);
 
     public static InstanceMapNode CreateInstanceMapNode(
             VariableNode name,
