@@ -1,8 +1,8 @@
 ﻿namespace Roku.Manager;
 
-public class FunctionMapper(IFunctionName f) : IStructBody
+public class FunctionMapper : IStructBody
 {
-    public IFunctionName Function { get; } = f;
+    public required IFunctionName Function { get; init; }
     public string Name => Function.Name;
     public TypeMapper TypeMapper { get; init; } = [];
 }

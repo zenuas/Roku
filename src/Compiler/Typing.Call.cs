@@ -73,7 +73,7 @@ public static partial class Typing
                     var r = ns.Cast<FunctionBody>().Return;
                     var ret = new EmbeddedFunction("return", null, r is { } ? new ITypeDefinition[] { r } : []) { OpCode = (_, args) => $"{(args.Length == 0 ? "" : args[0] + "\n")}ret" };
                     _ = Lookup.AppendSpecialization(ret, []);
-                    var fm = new FunctionMapper(ret);
+                    var fm = new FunctionMapper { Function = ret };
                     if (r is TypeGenericsParameter gen) fm.TypeMapper[gen] = CreateVariableDetail("", m[gen].Struct ?? (args.Count > 0 ? args[0] : null), VariableType.TypeParameter);
                     else if (r is TypeSpecialization gv && m.ContainsKey(r) && m[r].Struct is StructSpecialization sp && sp.Body is ISpecialization sp2) gv.Generics.Each((x, i) => fm.TypeMapper[x] = CreateVariableDetail("", sp.GenericsMapper[sp2.Generics[i]], VariableType.TypeParameter));
 
@@ -133,7 +133,7 @@ public static partial class Typing
 
                     var em = new EmbeddedFunction(x.ToString(), x.ToString()) { OpCode = (_, args) => $"newobj instance void {CodeGenerator.GetStructName(body)}::.ctor()" };
                     _ = Lookup.AppendSpecialization(em, []);
-                    var fm = new FunctionMapper(em);
+                    var fm = new FunctionMapper { Function = em };
                     m[x] = CreateVariableDetail("", fm, VariableType.FunctionMapper);
                     if (call.Return is { }) _ = LocalValueInferenceWithEffect(m, call.Return!, body);
                     resolve = true;
@@ -149,7 +149,7 @@ public static partial class Typing
 
     public static FunctionMapper CreateFunctionMapper(IManaged ns, FunctionSpecialization caller)
     {
-        var fm = new FunctionMapper(caller.Body);
+        var fm = new FunctionMapper { Function = caller.Body };
         caller.GenericsMapper.Each(p => fm.TypeMapper[p.Key] = Typing.CreateVariableDetail(p.Key.Name, p.Value, VariableType.TypeParameter));
 
         if (caller.Body is FunctionBody fb)

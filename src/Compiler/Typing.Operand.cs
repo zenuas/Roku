@@ -96,7 +96,7 @@ public static partial class Typing
         }
         else if (b is AnonymousFunctionBody anon)
         {
-            var fm = new FunctionMapper(anon);
+            var fm = new FunctionMapper { Function = anon };
             m[v] = CreateVariableDetail(v.ToString()!, fm, VariableType.FunctionMapper);
         }
         else
