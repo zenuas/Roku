@@ -2,7 +2,6 @@
 using Roku.Declare;
 using Roku.Manager;
 using Roku.Node;
-using System;
 
 namespace Roku.Compiler;
 

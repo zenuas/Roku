@@ -3,7 +3,6 @@ using Roku.Declare;
 using Roku.IntermediateCode;
 using Roku.Manager;
 using Roku.Node;
-using System;
 using System.Linq;
 
 namespace Roku.Compiler;
