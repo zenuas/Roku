@@ -15,11 +15,11 @@ public partial class Parser
 
     public static VariableNode CreateVariableNode(string s) => new VariableNode { Name = s };
 
-    public static FunctionCallNode CreateFunctionCallNode(TokenNode token, params IEvaluableNode[] args) => new FunctionCallNode(CreateVariableNode(token)).Return(x => x.Arguments.AddRange(args)).R(token);
+    public static FunctionCallNode CreateFunctionCallNode(TokenNode token, params IEvaluableNode[] args) => new FunctionCallNode { Expression = CreateVariableNode(token) }.Return(x => x.Arguments.AddRange(args)).R(token);
 
     public static PropertyNode CreatePropertyNode(IEvaluableNode left, VariableNode right) => new PropertyNode(left, right);
 
-    public static FunctionCallNode CreateFunctionCallNode(IEvaluableNode expr, params IEvaluableNode[] args) => new FunctionCallNode(expr).Return(x => x.Arguments.AddRange(args)).R(expr);
+    public static FunctionCallNode CreateFunctionCallNode(IEvaluableNode expr, params IEvaluableNode[] args) => new FunctionCallNode { Expression = expr }.Return(x => x.Arguments.AddRange(args)).R(expr);
 
     public static LetIgnoreNode CreateLetIgnoreNode(TokenNode t) => new LetIgnoreNode().R(t);
 

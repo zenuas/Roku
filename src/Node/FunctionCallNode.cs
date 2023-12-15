@@ -4,13 +4,13 @@ using System.Collections.Generic;
 
 namespace Roku.Node;
 
-public class FunctionCallNode(IEvaluableNode expr) : INode, IEvaluableNode, IStatementNode
+public class FunctionCallNode : INode, IEvaluableNode, IStatementNode
 {
     public Symbols Symbol { get; init; }
     INode IToken<INode>.Value { get => this; init => throw new NotImplementedException(); }
     public int Indent { get; set; }
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
-    public IEvaluableNode Expression { get; set; } = expr;
+    public required IEvaluableNode Expression { get; init; }
     public List<IEvaluableNode> Arguments { get; } = [];
 }
