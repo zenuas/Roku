@@ -100,7 +100,7 @@ public partial class Parser
 
     public static LambdaExpressionNode ToLambdaExpression(IEvaluableNode expr) => new LambdaExpressionNode().Return(x => x.Statements.Add(new ImplicitReturn(expr)));
 
-    public static IfNode CreateIfNode(IEvaluableNode cond, IScopeNode then) => new IfNode(cond, then).R(cond);
+    public static IfNode CreateIfNode(IEvaluableNode cond, IScopeNode then) => new IfNode { Condition = cond, Then = then }.R(cond);
 
     public static IfCastNode CreateIfCastNode(VariableNode name, ITypeNode declare, IEvaluableNode cond, IScopeNode then) => new IfCastNode { Name = name, Declare = declare, Condition = cond, Then = then }.R(cond);
 
