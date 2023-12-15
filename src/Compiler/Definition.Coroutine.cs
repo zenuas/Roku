@@ -132,7 +132,7 @@ public static partial class Definition
 
         next_body.Body.AddRange([
             new BindCode { Return = _next_or_null, Value = new PropertyValue { Left = _self, Right = "next" } },
-            new IfCastCode(_next, co_struct_typename, _next_or_null, labels_cond[0]),
+            new IfCastCode { Name = _next, Type = co_struct_typename, Condition = _next_or_null, Else = labels_cond[0] },
             new BindCode { Return = _value, Value = new PropertyValue { Left = _self, Right = "value" } },
             new Call { Function = new FunctionCallValue { Function = tuple2 }.Return(x => x.Arguments.AddRange(new IEvaluable[] { _value, _next })), Return = _ret },
             new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "return" } }.Return(x => x.Arguments.Add(_ret)) },
@@ -146,14 +146,14 @@ public static partial class Definition
         }
         next_body.Body.AddRange(Lists.Sequence(1).Take(yield_count).Select(n => new IOperand[] {
                 new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "==" } }.Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, new NumericValue() { Value = (uint)n } })), Return = _cond },
-                new IfCode(_cond, labels_cond[n]),
+                new IfCode { Condition = _cond, Else = labels_cond[n] },
                 new GotoCode { Label = labels_jump[n - 1] },
                 labels_cond[n],
             }).Flatten());
         next_body.Body.AddRange([
             new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "-" } }.Return(x => x.Arguments.Add(new NumericValue() { Value = 1 })), Return = _m1 },
             new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "==" } }.Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, _m1 })), Return = _cond },
-            new IfCode(_cond, labels_cond[^1]),
+            new IfCode { Condition = _cond, Else = labels_cond[^1] },
             new GotoCode { Label = labels_jump[^1] },
             labels_cond[^1],
         ]);
