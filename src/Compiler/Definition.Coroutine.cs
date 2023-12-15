@@ -21,7 +21,7 @@ public static partial class Definition
         */
         var list_a = body.Constraints.First(x => x.Class.Name == "List" && x.Generics.Count == 2 && x.Generics[0] == body.Return).Generics[1];
         var co_struct = new StructBody(ns, $"Co${src.CoroutineUniqueCount}");
-        var co_struct_typename = new TypeValue() { Name = co_struct.Name };
+        var co_struct_typename = new TypeValue { Name = co_struct.Name };
         var state = new VariableValue { Name = "state" };
         var value = new VariableValue { Name = "value" };
         var next = new VariableValue { Name = "next" };
@@ -31,7 +31,7 @@ public static partial class Definition
         co_struct.Members.Add("next", co_struct.LexicalScope["next"] = next);
         co_struct.Body.Add(new BindCode { Return = state, Value = new NumericValue() { Value = 0 } });
         co_struct.Body.Add(new TypeBind { Name = value, Type = list_a });
-        co_struct.Body.Add(new TypeBind { Name = next, Type = new TypeEnum([co_struct_typename, new TypeValue() { Name = "Null" }]) });
+        co_struct.Body.Add(new TypeBind { Name = next, Type = new TypeEnum([co_struct_typename, new TypeValue { Name = "Null" }]) });
         co_struct.SpecializationMapper[[]] = [];
         ns.Structs.Add(co_struct);
 
@@ -43,7 +43,7 @@ public static partial class Definition
 
         var local_value_exist = !body.LexicalScope.Where(x => x.Value is VariableValue).IsEmpty();
         var co_local = new StructBody(ns, $"CoLocal${src.CoroutineUniqueCount++}") { Type = StructBodyTypes.CoroutineLocal };
-        var co_local_typename = new TypeValue() { Name = co_local.Name };
+        var co_local_typename = new TypeValue { Name = co_local.Name };
         if (local_value_exist)
         {
             co_struct.Members.Add("local", co_struct.LexicalScope["local"] = local);
@@ -240,7 +240,7 @@ public static partial class Definition
         */
         var isnull_body = new FunctionBody(ns, "isnull");
         isnull_body.Arguments.Add((_self, co_struct_typename));
-        isnull_body.Return = new TypeValue() { Name = "Bool" };
+        isnull_body.Return = new TypeValue { Name = "Bool" };
         isnull_body.LexicalScope["$self"] = _self;
         isnull_body.LexicalScope["$m1"] = _m1;
         isnull_body.LexicalScope["$state"] = _state;

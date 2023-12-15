@@ -107,7 +107,7 @@ public static class FrontEnd
                 ef.Generics.Add(g);
                 return g;
             }
-            return new TypeValue() { Name = x };
+            return new TypeValue { Name = x };
         };
 
         args.Each(x => ef.Arguments.Add(create_type(x)));

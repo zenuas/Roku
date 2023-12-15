@@ -50,7 +50,7 @@ public static partial class Definition
             case TypeNode x:
                 if (x.Namespace.Count > 0)
                 {
-                    return new TypeValue() { Name = x.Name }.Return(t => t.Namespace.AddRange(x.Namespace));
+                    return new TypeValue { Name = x.Name }.Return(t => t.Namespace.AddRange(x.Namespace));
                 }
                 else
                 {
@@ -120,7 +120,7 @@ public static partial class Definition
                 return new TypeEnum(en.Types.Select(x => CreateType(scope, x)));
 
             case TypeNode tn:
-                if (!char.IsLower(tn.Name.First())) return new TypeValue() { Name = tn.Name };
+                if (!char.IsLower(tn.Name.First())) return new TypeValue { Name = tn.Name };
                 if (scope.LexicalScope.TryGetValue(tn.Name, out var value)) return value.Cast<ITypeDefinition>();
                 var gen = new TypeGenericsParameter() { Name = tn.Name };
                 scope.LexicalScope[tn.Name] = gen;
@@ -199,11 +199,11 @@ public static partial class Definition
                 ctor.Body.Add(new BindCode { Return = new PropertyValue { Left = self, Right = farg_var.Name }, Value = farg_var });
             });
             ctor.Body.Add(new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "return" } }.Return(x => x.Arguments.Add(self)) });
-            ctor.Return = new TypeValue() { Name = name };
+            ctor.Return = new TypeValue { Name = name };
             body.SpecializationMapper[[]] = [];
         }
 
-        return new TypeValue() { Name = name };
+        return new TypeValue { Name = name };
     }
 
     public static TypeFunction CreateTypeFunction(ILexicalScope scope, TypeFunctionNode tf)
@@ -253,8 +253,8 @@ public static partial class Definition
 
     public static IEvaluable? FindNamespaceValue(IManaged ns, string name)
     {
-        if (ns is INamespace body && body.Structs.FirstOrDefault(x => x.Name == name) is { } s) return new TypeValue() { Name = s.Name };
-        if (ns is RootNamespace root) return new TypeValue() { Name = name };
+        if (ns is INamespace body && body.Structs.FirstOrDefault(x => x.Name == name) is { } s) return new TypeValue { Name = s.Name };
+        if (ns is RootNamespace root) return new TypeValue { Name = name };
         return null;
     }
 

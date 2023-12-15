@@ -15,13 +15,13 @@ public class EmbeddedFunction(string name) : IFunctionName, IFunctionReturn, ISp
     public List<TypeGenericsParameter> Generics { get; } = [];
     public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = [];
 
-    public EmbeddedFunction(string name, string? ret, params string[] args) : this(name, ret, args.Select(x => new TypeValue() { Name = x }).ToArray())
+    public EmbeddedFunction(string name, string? ret, params string[] args) : this(name, ret, args.Select(x => new TypeValue { Name = x }).ToArray())
     {
     }
 
     public EmbeddedFunction(string name, string? ret, ITypeDefinition[] args) : this(name)
     {
-        if (ret is { }) Return = new TypeValue() { Name = ret };
+        if (ret is { }) Return = new TypeValue { Name = ret };
         Arguments.AddRange(args);
     }
 

@@ -36,7 +36,7 @@ public static partial class Definition
                 var captured = current.LexicalScope[v.Name];
                 current.LexicalScope.Remove(v.Name);
                 var name = ScopeToUniqueName(current);
-                var typename = new TypeValue() { Name = v.Name };
+                var typename = new TypeValue { Name = v.Name };
                 var varname = $"${name}";
                 if (src.Structs.OfType<StructBody>().FirstOrDefault(s => s.Name == name) is { } p)
                 {
@@ -69,7 +69,7 @@ public static partial class Definition
                 if (current is FunctionBody fb && !fb.Arguments.Exists(x => x.Name.Name == argname))
                 {
                     var scopevar = new VariableValue { Name = argname };
-                    fb.Arguments.Insert(0, (scopevar, new TypeValue() { Name = scope.Name }));
+                    fb.Arguments.Insert(0, (scopevar, new TypeValue { Name = scope.Name }));
                     fb.LexicalScope.Add(scope.Name, scopevar);
                 }
                 return scope;
