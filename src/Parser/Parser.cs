@@ -1034,7 +1034,7 @@ public partial class Parser
             case -91:
                 {
                     Debug.WriteLine("typev : '[' typeor ']'");
-                    var yy_value = new EnumNode(((ListNode<ITypeNode>)GetValueFromLast(2))).R(GetValueFromLast(3));
+                    var yy_value = new EnumNode { Types = ((ListNode<ITypeNode>)GetValueFromLast(2)).R(GetValueFromLast(3)).List };
                     return DoAction(Symbols.typev, yy_value, 3);
                 }
 

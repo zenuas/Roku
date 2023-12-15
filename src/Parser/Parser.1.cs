@@ -146,7 +146,7 @@ public partial class Parser
     public static EnumNode CreateNullable(ITypeNode type) =>
         type is EnumNode e
         ? e.Return(x => x.Types.Add(new TypeNode() { Name = "Null" }.R(type)))
-        : new EnumNode(CreateListNode(type, new TypeNode() { Name = "Null" }.R(type)));
+        : new EnumNode { Types = CreateListNode(type, new TypeNode() { Name = "Null" }.R(type)).List };
 
     public void SyntaxError(IToken<INode> t) => SyntaxError(t.Value, "syntax error");
 

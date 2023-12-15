@@ -178,7 +178,7 @@ typev  : nsvar
        | STRUCT var '(' args ')' {$$ = CreateTypeStructNode($2, $4);}
        | '[' type   ']'          {$$ = new TypeArrayNode($2).R($1);}
        | '[' type2n ']'          {$$ = new TypeTupleNode($2).R($1);}
-       | '[' typeor ']'          {$$ = new EnumNode($2).R($1);}
+       | '[' typeor ']'          {$$ = new EnumNode { Types = $2.R($1).List };}
        | '{' types  '}'          {$$ = CreateTypeFunctionNode($2);}
        | '{' types ARROW type'}' {$$ = CreateTypeFunctionNode($2, $4);}
 nsvar  : varx                    {$$ = new TypeNode { Name = $1.Name }.R($1);}
