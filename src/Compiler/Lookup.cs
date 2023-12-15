@@ -226,7 +226,7 @@ public static class Lookup
         }
         else if (body is ExternFunction xf)
         {
-            return xf.Function.GetParameters().Select(x => new TypeInfoValue(x.ParameterType));
+            return xf.Function.GetParameters().Select(x => new TypeInfoValue { Type = x.ParameterType });
         }
         else if (body is FunctionTypeBody)
         {

@@ -2,10 +2,10 @@
 
 namespace Roku.Declare;
 
-public class TypeInfoValue(Type type) : ITypeDefinition
+public class TypeInfoValue : ITypeDefinition
 {
     public string Name => ToString();
-    public Type Type { get; } = type;
+    public required Type Type { get; init; }
 
     public override string ToString() => Type.Name;
 }
