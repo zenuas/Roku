@@ -29,7 +29,7 @@ public partial class Parser
 
     public static LetPropertyNode CreateLetNode(IEvaluableNode left, VariableNode right, IEvaluableNode e) => new LetPropertyNode { Reciever = left, Name = right, Expression = e }.R(right);
 
-    public static LetTypeNode CreateLetNode(VariableNode v, ITypeNode t) => new LetTypeNode(v, t).R(v);
+    public static LetTypeNode CreateLetNode(VariableNode v, ITypeNode t) => new LetTypeNode { Var = v, Type = t }.R(v);
 
     public static LetTupleAssignmentNode CreateLetTupleNode(ListNode<ITupleBind> v, IEvaluableNode e) => new LetTupleAssignmentNode { Expression = e }.Return(x => x.Assignment.AddRange(v.List)).R(v);
 
