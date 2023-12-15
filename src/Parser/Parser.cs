@@ -978,7 +978,7 @@ public partial class Parser
             case -83:
                 {
                     Debug.WriteLine("decla : var ':' type");
-                    var yy_value = new DeclareNode(((VariableNode)GetValueFromLast(3)), ((ITypeNode)GetValueFromLast(1))).R(((VariableNode)GetValueFromLast(3)));
+                    var yy_value = new DeclareNode { Name = ((VariableNode)GetValueFromLast(3)), Type = ((ITypeNode)GetValueFromLast(1)) }.R(((VariableNode)GetValueFromLast(3)));
                     return DoAction(Symbols.decla, yy_value, 3);
                 }
 

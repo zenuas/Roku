@@ -88,7 +88,7 @@ public partial class Parser
             ListNode<ITypeNode> args,
             ITypeNode? ret,
             ListNode<SpecializationNode> where
-        ) => CreateFunctionNode(name, new ListNode<DeclareNode>().Return(x => x.List.AddRange(args.List.Select((y, i) => new DeclareNode(CreateVariableNode($"arg{i}"), y)))), ret, where);
+        ) => CreateFunctionNode(name, new ListNode<DeclareNode>().Return(x => x.List.AddRange(args.List.Select((y, i) => new DeclareNode { Name = CreateVariableNode($"arg{i}"), Type = y }))), ret, where);
 
     public static LambdaExpressionNode CreateLambdaFunction(LambdaExpressionNode lambda, ListNode<IDeclareNode> args, ITypeNode? ret, bool isimplicit)
     {

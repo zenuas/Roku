@@ -170,7 +170,7 @@ args   : void                    {$$ = CreateListNode<DeclareNode>();}
        | argn extra
 argn   : decla                   {$$ = CreateListNode($1);}
        | argn ',' decla          {$$ = $1.Return(x => x.List.Add($3));}
-decla  : var ':' type            {$$ = new DeclareNode($1, $3).R($1);}
+decla  : var ':' type            {$$ = new DeclareNode { Name = $1, Type = $3 }.R($1);}
 type   : typev
        | typev '?'               {$$ = CreateNullable($1);}
 typev  : nsvar
