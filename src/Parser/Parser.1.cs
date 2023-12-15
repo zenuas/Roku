@@ -17,7 +17,7 @@ public partial class Parser
 
     public static FunctionCallNode CreateFunctionCallNode(TokenNode token, params IEvaluableNode[] args) => new FunctionCallNode { Expression = CreateVariableNode(token) }.Return(x => x.Arguments.AddRange(args)).R(token);
 
-    public static PropertyNode CreatePropertyNode(IEvaluableNode left, VariableNode right) => new PropertyNode(left, right);
+    public static PropertyNode CreatePropertyNode(IEvaluableNode left, VariableNode right) => new PropertyNode { Left = left, Right = right };
 
     public static FunctionCallNode CreateFunctionCallNode(IEvaluableNode expr, params IEvaluableNode[] args) => new FunctionCallNode { Expression = expr }.Return(x => x.Arguments.AddRange(args)).R(expr);
 
