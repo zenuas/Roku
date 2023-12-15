@@ -1132,7 +1132,7 @@ public partial class Parser
             case -105:
                 {
                     Debug.WriteLine("lambda : var ARROW lambda_func");
-                    var yy_value = CreateLambdaFunction(((LambdaExpressionNode)GetValueFromLast(1)), CreateListNode<IDeclareNode>(new ImplicitDeclareNode(((VariableNode)GetValueFromLast(3)))), null, true);
+                    var yy_value = CreateLambdaFunction(((LambdaExpressionNode)GetValueFromLast(1)), CreateListNode<IDeclareNode>(new ImplicitDeclareNode { Name = ((VariableNode)GetValueFromLast(3)) }), null, true);
                     return DoAction(Symbols.lambda, yy_value, 3);
                 }
 
@@ -1181,7 +1181,7 @@ public partial class Parser
             case -112:
                 {
                     Debug.WriteLine("lambda_arg : var");
-                    var yy_value = new ImplicitDeclareNode(((VariableNode)GetValueFromLast(1)));
+                    var yy_value = new ImplicitDeclareNode { Name = ((VariableNode)GetValueFromLast(1)) };
                     return DoAction(Symbols.lambda_arg, yy_value, 1);
                 }
 
