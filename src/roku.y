@@ -176,7 +176,7 @@ type   : typev
 typev  : nsvar
        | nsvar LT typen extra GT {$$ = CreateSpecialization($1, $3);}
        | STRUCT var '(' args ')' {$$ = CreateTypeStructNode($2, $4);}
-       | '[' type   ']'          {$$ = new TypeArrayNode($2).R($1);}
+       | '[' type   ']'          {$$ = new TypeArrayNode { Item = $2 }.R($1);}
        | '[' type2n ']'          {$$ = new TypeTupleNode($2).R($1);}
        | '[' typeor ']'          {$$ = new EnumNode { Types = $2.R($1).List };}
        | '{' types  '}'          {$$ = CreateTypeFunctionNode($2);}

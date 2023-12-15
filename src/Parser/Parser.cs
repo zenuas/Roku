@@ -1020,7 +1020,7 @@ public partial class Parser
             case -89:
                 {
                     Debug.WriteLine("typev : '[' type ']'");
-                    var yy_value = new TypeArrayNode(((ITypeNode)GetValueFromLast(2))).R(GetValueFromLast(3));
+                    var yy_value = new TypeArrayNode { Item = ((ITypeNode)GetValueFromLast(2)) }.R(GetValueFromLast(3));
                     return DoAction(Symbols.typev, yy_value, 3);
                 }
 
