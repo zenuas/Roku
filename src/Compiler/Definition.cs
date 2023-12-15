@@ -145,7 +145,7 @@ public static partial class Definition
 
     public static TypeSpecialization CreateTypeSpecialization(ILexicalScope scope, SpecializationNode gen)
     {
-        var g = new TypeSpecialization(NormalizationExpression(scope, gen.Expression));
+        var g = new TypeSpecialization { Type = NormalizationExpression(scope, gen.Expression) };
         gen.Generics.Select(x => x switch
         {
             TypeNode t => CreateType(scope, t),
@@ -158,7 +158,7 @@ public static partial class Definition
     public static TypeSpecialization CreateTupleSpecialization(ILexicalScope scope, TypeTupleNode tuple)
     {
         _ = TupleBodyDefinition(Lookup.GetRootNamespace(scope.Namespace), tuple.Types.Count);
-        var g = new TypeSpecialization(new VariableValue() { Name = GetName(tuple) });
+        var g = new TypeSpecialization { Type = new VariableValue() { Name = GetName(tuple) } };
         tuple.Types.Select(x => x switch
         {
             TypeNode t => CreateType(scope, t),

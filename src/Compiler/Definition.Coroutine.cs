@@ -101,7 +101,7 @@ public static partial class Definition
         var _self = new VariableValue() { Name = "$self" };
         next_body.Arguments.Add((_self, co_struct_typename));
         next_body.LexicalScope["$self"] = _self;
-        var tuple2sp = new TypeSpecialization(new VariableValue() { Name = GetTupleName(2) });
+        var tuple2sp = new TypeSpecialization { Type = new VariableValue() { Name = GetTupleName(2) } };
         tuple2sp.Generics.Add(list_a);
         tuple2sp.Generics.Add(co_struct_typename);
         next_body.Return = tuple2sp;

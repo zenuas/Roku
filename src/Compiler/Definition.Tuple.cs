@@ -12,8 +12,8 @@ public static partial class Definition
     {
         var name = GetTupleName(count);
         var fbody = MakeFunction(root, name);
-        var fret = new TypeSpecialization(new VariableValue() { Name = name });
-        var fcall = new TypeSpecialization(new VariableValue() { Name = name });
+        var fret = new TypeSpecialization { Type = new VariableValue() { Name = name } };
+        var fcall = new TypeSpecialization { Type = new VariableValue() { Name = name } };
         var self = new VariableValue() { Name = "$self" };
         fbody.LexicalScope.Add(self.Name, self);
         fbody.Body.Add(new Call(new FunctionCallValue { Function = fcall }) { Return = self });
