@@ -56,7 +56,7 @@ public static partial class Definition
                     var scopevar = new VariableValue() { Name = varname };
                     current.LexicalScope.Add(scopevar.Name, scopevar);
                     CapturedVariableToProperty(current, captured, scopevar, v.Name);
-                    current.Body.Insert(0, new Call(new(new VariableValue() { Name = name })) { Return = scopevar });
+                    current.Body.Insert(0, new Call(new() { Function = new VariableValue() { Name = name } }) { Return = scopevar });
 
                     scope.SpecializationMapper[[]] = [];
                     return scope;

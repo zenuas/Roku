@@ -67,10 +67,10 @@ public static partial class Definition
                 else
                 {
                     var call =
-                        x.Expression is PropertyNode prop ? new FunctionCallValue(new VariableValue() { Name = prop.Right.Name }) { FirstLookup = NormalizationExpression(scope, prop.Left, true) }
-                        : x.Expression is SpecializationNode gen ? new FunctionCallValue(CreateTypeSpecialization(scope, gen))
-                        : x.Expression is VariableNode va && FindCurrentScopeValueOrNull(scope, va.Name) is { } v ? new FunctionCallValue(v)
-                        : new FunctionCallValue(new VariableValue() { Name = GetName(x.Expression) });
+                        x.Expression is PropertyNode prop ? new FunctionCallValue { Function = new VariableValue() { Name = prop.Right.Name }, FirstLookup = NormalizationExpression(scope, prop.Left, true) }
+                        : x.Expression is SpecializationNode gen ? new FunctionCallValue { Function = CreateTypeSpecialization(scope, gen) }
+                        : x.Expression is VariableNode va && FindCurrentScopeValueOrNull(scope, va.Name) is { } v ? new FunctionCallValue { Function = v }
+                        : new FunctionCallValue { Function = new VariableValue() { Name = GetName(x.Expression) } };
 
                     x.Arguments.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
                     return call;
@@ -91,7 +91,7 @@ public static partial class Definition
             case TupleNode x:
                 {
                     var f = TupleBodyDefinition(Lookup.GetRootNamespace(scope.Namespace), x.Values.Count);
-                    var call = new FunctionCallValue(new VariableValue() { Name = f.Name });
+                    var call = new FunctionCallValue { Function = new VariableValue() { Name = f.Name } };
                     x.Values.Each(x => call.Arguments.Add(NormalizationExpression(scope, x, true)));
                     if (!evaluate_as_expression) return call;
                     var v = CreateTemporaryVariable(scope);
@@ -184,7 +184,7 @@ public static partial class Definition
             var ctor = MakeFunction(top, st.StructName.Name);
             var self = new VariableValue() { Name = "$self" };
             ctor.LexicalScope.Add(self.Name, self);
-            ctor.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = name })) { Return = self });
+            ctor.Body.Add(new Call(new FunctionCallValue { Function = new VariableValue { Name = name } }) { Return = self });
             top.Functions.Add(new EmbeddedFunction(name, name) { OpCode = (_, args) => $"newobj instance void {CodeGenerator.EscapeILName(name)}::.ctor()" });
             args.Each((x, i) =>
             {
@@ -198,7 +198,7 @@ public static partial class Definition
                 ctor.LexicalScope.Add(farg_var.Name, farg_var);
                 ctor.Body.Add(new BindCode { Return = new PropertyValue(self, farg_var.Name), Value = farg_var });
             });
-            ctor.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(self))));
+            ctor.Body.Add(new Call(new FunctionCallValue { Function = new VariableValue { Name = "return" } }.Return(x => x.Arguments.Add(self))));
             ctor.Return = new TypeValue() { Name = name };
             body.SpecializationMapper[[]] = [];
         }

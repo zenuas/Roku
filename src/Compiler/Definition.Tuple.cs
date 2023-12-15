@@ -16,7 +16,7 @@ public static partial class Definition
         var fcall = new TypeSpecialization(new VariableValue() { Name = name });
         var self = new VariableValue() { Name = "$self" };
         fbody.LexicalScope.Add(self.Name, self);
-        fbody.Body.Add(new Call(new FunctionCallValue(fcall)) { Return = self });
+        fbody.Body.Add(new Call(new FunctionCallValue { Function = fcall }) { Return = self });
 
         Enumerable.Range(0, count).Each(i =>
         {
@@ -29,7 +29,7 @@ public static partial class Definition
             fret.Generics.Add(gp);
             fcall.Generics.Add(gp);
         });
-        fbody.Body.Add(new Call(new FunctionCallValue(new VariableValue() { Name = "return" }).Return(x => x.Arguments.Add(self))));
+        fbody.Body.Add(new Call(new FunctionCallValue { Function = new VariableValue() { Name = "return" } }.Return(x => x.Arguments.Add(self))));
         fbody.Return = fret;
         return fbody;
     }

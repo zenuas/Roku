@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Roku.Declare;
 
-public class FunctionCallValue(IEvaluable f) : IEvaluable
+public class FunctionCallValue : IEvaluable
 {
-    public IEvaluable Function { get; set; } = f;
+    public required IEvaluable Function { get; set; }
     public IEvaluable? FirstLookup { get; set; }
     public bool ReceiverToArgumentsInserted { get; set; } = false;
     public List<IEvaluable> Arguments { get; } = [];
