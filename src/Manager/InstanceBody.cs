@@ -5,13 +5,11 @@ using System.Collections.Generic;
 
 namespace Roku.Manager;
 
-#pragma warning disable CS8618
-public class InstanceBody(IManaged ns) : INamespace, ILexicalScope
-#pragma warning restore CS8618
+public class InstanceBody : INamespace, ILexicalScope
 {
-    public IManaged Namespace { get; } = ns;
-    public ITypeDefinition Type { get; set; }
-    public TypeSpecialization Specialization { get; set; }
+    public required IManaged Namespace { get; init; }
+    public ITypeDefinition Type { get; set; } = default!;
+    public TypeSpecialization Specialization { get; set; } = default!;
     public List<IFunctionName> Functions { get; } = [];
     public List<IStructBody> Structs { get; } = [];
     public List<ClassBody> Classes { get; } = [];
