@@ -108,9 +108,7 @@ public static partial class Definition
                 return;
 
             case IfCastCode ifcast:
-#pragma warning disable CS0612
                 ifcast.ConditionReplace(IfCapturedVariableToProperty(original, ifcast.Condition, scopevar, name)!);
-#pragma warning restore CS0612
                 return;
 
             case Call call:

@@ -53,7 +53,7 @@ public static partial class Definition
         }
         else if (if_ is IfCastNode ifc)
         {
-            var ifcast = new IfCastCode(new VariableValue { Name = ifc.Name.Name }, CreateType(inner_scope, ifc.Declare), NormalizationExpression(inner_scope, ifc.Condition, true), next_label);
+            var ifcast = new IfCastCode { Name = new VariableValue { Name = ifc.Name.Name }, Type = CreateType(inner_scope, ifc.Declare), Condition = NormalizationExpression(inner_scope, ifc.Condition, true), Else = next_label };
             inner_scope.Body.Add(ifcast);
             inner_scope.LexicalScope.Add(ifc.Name.Name, ifcast.Name);
         }
