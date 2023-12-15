@@ -232,7 +232,7 @@ public static partial class Definition
     public static IEvaluable CreateTemporaryVariable(ILexicalScope scope)
     {
         var max = ++scope.MaxTemporaryValue;
-        var v = new TemporaryValue($"$${max}", max, scope);
+        var v = new TemporaryValue { Name = $"$${max}", Index = max, Scope = scope };
         scope.LexicalScope.Add(v.Name, v);
         return v;
     }

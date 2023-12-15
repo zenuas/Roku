@@ -2,11 +2,11 @@
 
 namespace Roku.Declare;
 
-public class TemporaryValue(string name, int index, ILexicalScope scope) : IEvaluable
+public class TemporaryValue : IEvaluable
 {
-    public string Name { get; } = name;
-    public int Index { get; } = index;
-    public ILexicalScope Scope { get; } = scope;
+    public required string Name { get; init; }
+    public required int Index { get; init; }
+    public required ILexicalScope Scope { get; init; }
 
     public override string ToString() => Name;
 }
