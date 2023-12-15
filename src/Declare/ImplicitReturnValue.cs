@@ -2,7 +2,7 @@
 
 public class ImplicitReturnValue : IEvaluable
 {
-    public string Name { get; } = "_";
+    public string Name { get; init; } = "_";
 
     public override string ToString() => Name;
 }

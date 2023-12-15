@@ -7,7 +7,7 @@ namespace Roku.IntermediateCode;
 
 public class ILWriter(string path) : IDisposable
 {
-    public TextWriter BaseStream { get; } = path == "-" ? Console.Out : new StreamWriter(path);
+    public TextWriter BaseStream { get; init; } = path == "-" ? Console.Out : new StreamWriter(path);
     public int Indent { get; set; } = 0;
     public bool IsLineHead { get; protected set; } = true;
 

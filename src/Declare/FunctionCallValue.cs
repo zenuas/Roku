@@ -9,7 +9,7 @@ public class FunctionCallValue : IEvaluable
     public required IEvaluable Function { get; set; }
     public IEvaluable? FirstLookup { get; set; }
     public bool ReceiverToArgumentsInserted { get; set; } = false;
-    public List<IEvaluable> Arguments { get; } = [];
+    public List<IEvaluable> Arguments { get; init; } = [];
 
     public override string ToString() => $"{(FirstLookup is null ? "" : FirstLookup.ToString() + ".")}{Function}({Arguments.Select(x => x.ToString()!).Join(", ")})";
 }

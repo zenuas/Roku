@@ -8,12 +8,12 @@ namespace Roku.Manager;
 
 public class EmbeddedFunction(string name) : IFunctionName, IFunctionReturn, ISpecialization
 {
-    public string Name { get; } = name;
+    public string Name { get; init; } = name;
     public ITypeDefinition? Return { get; set; } = null;
-    public List<ITypeDefinition> Arguments { get; } = [];
+    public List<ITypeDefinition> Arguments { get; init; } = [];
     public Func<FunctionMapper, string[], string> OpCode { get; set; } = (_, _) => "";
-    public List<TypeGenericsParameter> Generics { get; } = [];
-    public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; } = [];
+    public List<TypeGenericsParameter> Generics { get; init; } = [];
+    public Dictionary<GenericsMapper, TypeMapper> SpecializationMapper { get; init; } = [];
 
     public EmbeddedFunction(string name, string? ret, params string[] args) : this(name, ret, args.Select(x => new TypeValue { Name = x }).ToArray())
     {

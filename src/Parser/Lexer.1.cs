@@ -11,8 +11,8 @@ public partial class Lexer : ILexer<INode>
 {
     public required SourceCodeReader BaseReader { get; init; }
     public required Parser Parser { get; init; }
-    public List<IToken<INode>> Store { get; } = [];
-    public Stack<int> Indents { get; } = new();
+    public List<IToken<INode>> Store { get; init; } = [];
+    public Stack<int> Indents { get; init; } = new();
     public static Dictionary<string, Symbols> ReservedString2 { get; } = new()
         {
             { "var", Symbols.LET },

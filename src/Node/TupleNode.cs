@@ -11,5 +11,5 @@ public class TupleNode : INode, IEvaluableNode
     public int Indent { get; set; }
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
-    public List<IEvaluableNode> Values { get; } = [];
+    public List<IEvaluableNode> Values { get; init; } = [];
 }

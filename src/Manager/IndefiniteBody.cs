@@ -2,5 +2,5 @@
 
 public class IndefiniteBody : IStructBody
 {
-    public string Name { get; } = "_";
+    public string Name { get; init; } = "_";
 }

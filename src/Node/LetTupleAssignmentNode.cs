@@ -11,6 +11,6 @@ public class LetTupleAssignmentNode : INode, IStatementNode
     public int Indent { get; set; }
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
-    public List<ITupleBind> Assignment { get; } = [];
+    public List<ITupleBind> Assignment { get; init; } = [];
     public required IEvaluableNode Expression { get; init; }
 }

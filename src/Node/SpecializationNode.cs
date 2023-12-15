@@ -14,6 +14,6 @@ public class SpecializationNode : INode, ITypeNode
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
     public required IEvaluableNode Expression { get; init; }
-    public List<ITypeNode> Generics { get; } = [];
+    public List<ITypeNode> Generics { get; init; } = [];
     public string Name => NodeIterator.PropertyToList(Expression).Select(x => x is VariableNode v ? v.Name : x is TypeNode t ? t.Name : throw new()).Join(".");
 }

@@ -12,5 +12,5 @@ public class FunctionCallNode : INode, IEvaluableNode, IStatementNode
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
     public required IEvaluableNode Expression { get; init; }
-    public List<IEvaluableNode> Arguments { get; } = [];
+    public List<IEvaluableNode> Arguments { get; init; } = [];
 }

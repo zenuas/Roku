@@ -14,6 +14,6 @@ public class IfArrayCastNode : INode, IStatementNode, IIfNode
     public required ListNode<VariableNode> ArrayPattern { get; init; }
     public required IEvaluableNode Condition { get; init; }
     public required IScopeNode Then { get; init; }
-    public List<IIfNode> ElseIf { get; } = [];
+    public List<IIfNode> ElseIf { get; init; } = [];
     public IScopeNode? Else { get; set; } = null;
 }

@@ -7,7 +7,7 @@ namespace Roku.Parser;
 
 public partial class Parser
 {
-    public Stack<IScopeNode> Scopes { get; } = new Stack<IScopeNode>();
+    public Stack<IScopeNode> Scopes { get; init; } = new Stack<IScopeNode>();
 
     public static ListNode<T> CreateListNode<T>(params T[] expr) where T : INode => new ListNode<T>().Return(x => x.List.AddRange(expr));
 

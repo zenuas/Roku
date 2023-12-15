@@ -12,5 +12,5 @@ public class ListNode<T> : INode, IEvaluableNode
     public int Indent { get; set; }
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
-    public List<T> List { get; } = [];
+    public List<T> List { get; init; } = [];
 }

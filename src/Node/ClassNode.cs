@@ -12,6 +12,6 @@ public class ClassNode : INode
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
     public VariableNode Name { get; set; } = new();
-    public List<ITypeNode> Generics { get; } = [];
-    public List<FunctionNode> Functions { get; } = [];
+    public List<ITypeNode> Generics { get; init; } = [];
+    public List<FunctionNode> Functions { get; init; } = [];
 }

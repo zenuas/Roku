@@ -11,9 +11,9 @@ public class BlockNode : INode, IScopeNode
     public int Indent { get; set; }
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
-    public List<IStatementNode> Statements { get; } = [];
-    public List<FunctionNode> Functions { get; } = [];
-    public List<StructNode> Structs { get; } = [];
-    public List<ClassNode> Classes { get; } = [];
+    public List<IStatementNode> Statements { get; init; } = [];
+    public List<FunctionNode> Functions { get; init; } = [];
+    public List<StructNode> Structs { get; init; } = [];
+    public List<ClassNode> Classes { get; init; } = [];
     public List<InstanceNode> Instances => throw new NotImplementedException();
 }

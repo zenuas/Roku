@@ -2,5 +2,5 @@
 
 public class TypeImplicit : ITypeDefinition
 {
-    public string Name { get; } = "";
+    public string Name { get; init; } = "";
 }

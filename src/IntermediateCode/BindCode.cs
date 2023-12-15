@@ -5,7 +5,7 @@ namespace Roku.IntermediateCode;
 
 public class BindCode : IOperand, IReturnBind
 {
-    public Operator Operator { get; } = Operator.Bind;
+    public Operator Operator { get; init; } = Operator.Bind;
     public IEvaluable? Return { get; set; }
     public IEvaluable? Value { get => Value_; init => Value_ = value; }
 

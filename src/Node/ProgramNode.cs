@@ -11,11 +11,11 @@ public class ProgramNode : INode, IScopeNode
     public int Indent { get; set; }
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
-    public List<VariableNode> Uses { get; } = [];
+    public List<VariableNode> Uses { get; init; } = [];
     public string FileName { get; init; } = "";
-    public List<IStatementNode> Statements { get; } = [];
-    public List<FunctionNode> Functions { get; } = [];
-    public List<StructNode> Structs { get; } = [];
-    public List<ClassNode> Classes { get; } = [];
-    public List<InstanceNode> Instances { get; } = [];
+    public List<IStatementNode> Statements { get; init; } = [];
+    public List<FunctionNode> Functions { get; init; } = [];
+    public List<StructNode> Structs { get; init; } = [];
+    public List<ClassNode> Classes { get; init; } = [];
+    public List<InstanceNode> Instances { get; init; } = [];
 }

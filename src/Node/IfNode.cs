@@ -13,6 +13,6 @@ public class IfNode : INode, IStatementNode, IIfNode
     public int? LineColumn { get; set; }
     public required IEvaluableNode Condition { get; init; }
     public required IScopeNode Then { get; init; }
-    public List<IIfNode> ElseIf { get; } = [];
+    public List<IIfNode> ElseIf { get; init; } = [];
     public IScopeNode? Else { get; set; } = null;
 }
