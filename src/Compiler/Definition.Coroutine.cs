@@ -20,7 +20,7 @@ public static partial class Definition
                 var local: CoLocal$0 # local value exist
         */
         var list_a = body.Constraints.First(x => x.Class.Name == "List" && x.Generics.Count == 2 && x.Generics[0] == body.Return).Generics[1];
-        var co_struct = new StructBody(ns, $"Co${src.CoroutineUniqueCount}");
+        var co_struct = new StructBody { Namespace = ns, Name = $"Co${src.CoroutineUniqueCount}" };
         var co_struct_typename = new TypeValue { Name = co_struct.Name };
         var state = new VariableValue { Name = "state" };
         var value = new VariableValue { Name = "value" };
@@ -42,7 +42,7 @@ public static partial class Definition
         ns.Functions.Add(new EmbeddedFunction(co_struct.Name, co_struct.Name) { OpCode = (_, args) => $"newobj instance void {co_struct.Name}::.ctor()" });
 
         var local_value_exist = !body.LexicalScope.Where(x => x.Value is VariableValue).IsEmpty();
-        var co_local = new StructBody(ns, $"CoLocal${src.CoroutineUniqueCount++}") { Type = StructBodyTypes.CoroutineLocal };
+        var co_local = new StructBody { Namespace = ns, Name = $"CoLocal${src.CoroutineUniqueCount++}", Type = StructBodyTypes.CoroutineLocal };
         var co_local_typename = new TypeValue { Name = co_local.Name };
         if (local_value_exist)
         {

@@ -178,7 +178,7 @@ public static partial class Definition
         {
             var args = st.Arguments.Select(x => (x.Name.Name, Type: CreateType(scope, x.Type)));
 
-            var body = new StructBody(top, name);
+            var body = new StructBody { Namespace = top, Name = name };
             top.Structs.Add(body);
 
             var ctor = MakeFunction(top, st.StructName.Name);

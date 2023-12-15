@@ -11,7 +11,7 @@ public static partial class Definition
 
     public static StructBody TypeBodyDefinition(SourceCodeBody src, StructNode sn)
     {
-        var body = new StructBody(src, sn.Name.Name);
+        var body = new StructBody { Namespace = src, Name = sn.Name.Name };
         sn.Generics.Each(x => body.Generics.Add(new TypeGenericsParameter() { Name = x.Name }));
         FunctionBodyDefinition(body, sn.Statements);
         sn.Statements.Each(let =>

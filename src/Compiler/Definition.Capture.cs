@@ -48,7 +48,7 @@ public static partial class Definition
                 }
                 else
                 {
-                    var scope = new StructBody(src, name) { Type = StructBodyTypes.Capture };
+                    var scope = new StructBody { Namespace = src, Name = name, Type = StructBodyTypes.Capture };
                     src.Structs.Add(scope);
                     scope.LexicalScope.Add(v.Name, typename);
                     scope.Members.Add(v.Name, typename);

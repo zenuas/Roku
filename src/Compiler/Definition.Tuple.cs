@@ -48,7 +48,7 @@ public static partial class Definition
     public static StructBody TupleStructDefinition(RootNamespace root, int count)
     {
         var name = GetTupleName(count);
-        var body = new StructBody(root, name);
+        var body = new StructBody { Namespace = root, Name = name };
         Lists.RangeTo(1, count).Each(i =>
         {
             var gp = new TypeGenericsParameter() { Name = $"a{i}" };
