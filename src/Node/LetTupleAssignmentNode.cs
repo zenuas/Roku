@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Roku.Node;
 
-public class LetTupleAssignmentNode(IEvaluableNode e) : INode, IStatementNode
+public class LetTupleAssignmentNode : INode, IStatementNode
 {
     public Symbols Symbol { get; init; }
     INode IToken<INode>.Value { get => this; init => throw new NotImplementedException(); }
@@ -12,5 +12,5 @@ public class LetTupleAssignmentNode(IEvaluableNode e) : INode, IStatementNode
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
     public List<ITupleBind> Assignment { get; } = [];
-    public IEvaluableNode Expression { get; } = e;
+    public required IEvaluableNode Expression { get; init; }
 }

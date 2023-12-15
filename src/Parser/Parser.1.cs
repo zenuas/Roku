@@ -31,7 +31,7 @@ public partial class Parser
 
     public static LetTypeNode CreateLetNode(VariableNode v, ITypeNode t) => new LetTypeNode(v, t).R(v);
 
-    public static LetTupleAssignmentNode CreateLetTupleNode(ListNode<ITupleBind> v, IEvaluableNode e) => new LetTupleAssignmentNode(e).Return(x => x.Assignment.AddRange(v.List)).R(v);
+    public static LetTupleAssignmentNode CreateLetTupleNode(ListNode<ITupleBind> v, IEvaluableNode e) => new LetTupleAssignmentNode { Expression = e }.Return(x => x.Assignment.AddRange(v.List)).R(v);
 
     public static TupleNode CreateTupleNode(ListNode<IEvaluableNode> v) => new TupleNode().Return(x => x.Values.AddRange(v.List));
 
