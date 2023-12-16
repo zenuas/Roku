@@ -1,10 +1,10 @@
 ﻿using Extensions;
-using NUnit.Framework;
 using Roku.Compiler;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Xunit;
 
 namespace Roku.Tests;
 
@@ -12,8 +12,7 @@ public class FrontEndTest
 {
     public static string SourceDir = Path.Combine("..", "..", "..", "..", "test-rk");
 
-    [SetUp]
-    public void Setup()
+    public FrontEndTest()
     {
         Trace.Listeners.Clear();
         _ = Trace.Listeners.Add(new NoFailListener());
@@ -69,7 +68,7 @@ public class FrontEndTest
         return (src, filename, il, "");
     }
 
-    [Test]
+    [Fact]
     public void CompileTest()
     {
         var compile_result = Directory.GetFiles(SourceDir, "*.rk")

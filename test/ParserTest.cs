@@ -1,126 +1,126 @@
 ﻿using Extensions;
-using NUnit.Framework;
 using Roku.Node;
+using Xunit;
 
 namespace Roku.Tests;
 
 public class ParserTest
 {
-    [Test]
+    [Fact]
     public void BlankTest()
     {
         var p = Parse("");
-        Assert.AreEqual(p.Statements.Count, 0);
+        Assert.Equal(p.Statements.Count, 0);
     }
 
-    [Test]
+    [Fact]
     public void LetTest()
     {
         var p = Parse("var a = 123_456");
-        Assert.AreEqual(p.Statements.Count, 1);
-        Assert.IsInstanceOf<LetNode>(p.Statements[0]);
+        Assert.Equal(p.Statements.Count, 1);
+        _ = Assert.IsType<LetNode>(p.Statements[0]);
 
         var let = p.Statements[0].Cast<LetNode>();
-        Assert.AreEqual(let.Var.Name, "a");
+        Assert.Equal(let.Var.Name, "a");
 
-        Assert.IsInstanceOf<NumericNode>(let.Expression);
+        _ = Assert.IsType<NumericNode>(let.Expression);
         var num = let.Expression.Cast<NumericNode>();
-        Assert.AreEqual(num.Format, "123_456");
-        Assert.AreEqual(num.Value, 123456);
+        Assert.Equal(num.Format, "123_456");
+        Assert.Equal(num.Value, 123456u);
     }
 
-    [Test]
+    [Fact]
     public void FloatTest()
     {
         var p = Parse("var a = 123.456");
-        Assert.AreEqual(p.Statements.Count, 1);
-        Assert.IsInstanceOf<LetNode>(p.Statements[0]);
+        Assert.Equal(p.Statements.Count, 1);
+        _ = Assert.IsType<LetNode>(p.Statements[0]);
 
         var let = p.Statements[0].Cast<LetNode>();
-        Assert.AreEqual(let.Var.Name, "a");
+        Assert.Equal(let.Var.Name, "a");
 
-        Assert.IsInstanceOf<FloatingNumericNode>(let.Expression);
+        _ = Assert.IsType<FloatingNumericNode>(let.Expression);
         var num = let.Expression.Cast<FloatingNumericNode>();
-        Assert.AreEqual(num.Format, "123.456");
-        Assert.AreEqual(num.Value, 123.456);
+        Assert.Equal(num.Format, "123.456");
+        Assert.Equal(num.Value, 123.456);
     }
 
-    [Test]
+    [Fact]
     public void ExpressionTest()
     {
         var p = Parse("var a = 1 + 2 - 3");
-        Assert.AreEqual(p.Statements.Count, 1);
-        Assert.IsInstanceOf<LetNode>(p.Statements[0]);
+        Assert.Equal(p.Statements.Count, 1);
+        _ = Assert.IsType<LetNode>(p.Statements[0]);
 
         var let = p.Statements[0].Cast<LetNode>();
-        Assert.AreEqual(let.Var.Name, "a");
+        Assert.Equal(let.Var.Name, "a");
 
-        Assert.IsInstanceOf<FunctionCallNode>(let.Expression);
+        _ = Assert.IsType<FunctionCallNode>(let.Expression);
         var minus = let.Expression.Cast<FunctionCallNode>();
-        Assert.IsInstanceOf<FunctionCallNode>(minus.Arguments[0]);
+        _ = Assert.IsType<FunctionCallNode>(minus.Arguments[0]);
         var plus = minus.Arguments[0].Cast<FunctionCallNode>();
 
-        Assert.IsInstanceOf<VariableNode>(plus.Expression);
-        Assert.IsInstanceOf<VariableNode>(minus.Expression);
-        Assert.IsInstanceOf<NumericNode>(plus.Arguments[0]);
-        Assert.IsInstanceOf<NumericNode>(plus.Arguments[1]);
-        Assert.IsInstanceOf<NumericNode>(minus.Arguments[1]);
+        _ = Assert.IsType<VariableNode>(plus.Expression);
+        _ = Assert.IsType<VariableNode>(minus.Expression);
+        _ = Assert.IsType<NumericNode>(plus.Arguments[0]);
+        _ = Assert.IsType<NumericNode>(plus.Arguments[1]);
+        _ = Assert.IsType<NumericNode>(minus.Arguments[1]);
 
-        Assert.AreEqual(plus.Expression.Cast<VariableNode>().Name, "+");
-        Assert.AreEqual(minus.Expression.Cast<VariableNode>().Name, "-");
-        Assert.AreEqual(plus.Arguments[0].Cast<NumericNode>().Value, 1);
-        Assert.AreEqual(plus.Arguments[1].Cast<NumericNode>().Value, 2);
-        Assert.AreEqual(minus.Arguments[1].Cast<NumericNode>().Value, 3);
+        Assert.Equal(plus.Expression.Cast<VariableNode>().Name, "+");
+        Assert.Equal(minus.Expression.Cast<VariableNode>().Name, "-");
+        Assert.Equal(plus.Arguments[0].Cast<NumericNode>().Value, 1u);
+        Assert.Equal(plus.Arguments[1].Cast<NumericNode>().Value, 2u);
+        Assert.Equal(minus.Arguments[1].Cast<NumericNode>().Value, 3u);
     }
 
-    [Test]
+    [Fact]
     public void CallTest()
     {
         var p = Parse("print(\"hello world\")");
-        Assert.AreEqual(p.Statements.Count, 1);
-        Assert.IsInstanceOf<FunctionCallNode>(p.Statements[0]);
+        Assert.Equal(p.Statements.Count, 1);
+        _ = Assert.IsType<FunctionCallNode>(p.Statements[0]);
 
         var call = p.Statements[0].Cast<FunctionCallNode>();
-        Assert.IsInstanceOf<VariableNode>(call.Expression);
+        _ = Assert.IsType<VariableNode>(call.Expression);
         var f = call.Expression.Cast<VariableNode>();
-        Assert.AreEqual(f.Name, "print");
+        Assert.Equal(f.Name, "print");
 
-        Assert.AreEqual(call.Arguments.Count, 1);
-        Assert.IsInstanceOf<StringNode>(call.Arguments[0]);
+        Assert.Equal(call.Arguments.Count, 1);
+        _ = Assert.IsType<StringNode>(call.Arguments[0]);
         var str = call.Arguments[0].Cast<StringNode>();
-        Assert.AreEqual(str.Value, "hello world");
+        Assert.Equal(str.Value, "hello world");
     }
 
-    [Test]
+    [Fact]
     public void FunctionTest()
     {
         var p = Parse(@"
 sub fn(s: String, n: Int)
     var x = 12
 ");
-        Assert.AreEqual(p.Statements.Count, 0);
-        Assert.AreEqual(p.Functions.Count, 1);
+        Assert.Equal(p.Statements.Count, 0);
+        Assert.Equal(p.Functions.Count, 1);
 
         var fn = p.Functions[0];
-        Assert.AreEqual(fn.Name.Name, "fn");
-        Assert.AreEqual(fn.Arguments.Count, 2);
-        Assert.AreEqual(fn.Arguments[0].Name.Name, "s");
-        Assert.AreEqual(fn.Arguments[0].Type.Name, "String");
-        Assert.AreEqual(fn.Arguments[1].Name.Name, "n");
-        Assert.AreEqual(fn.Arguments[1].Type.Name, "Int");
+        Assert.Equal(fn.Name.Name, "fn");
+        Assert.Equal(fn.Arguments.Count, 2);
+        Assert.Equal(fn.Arguments[0].Name.Name, "s");
+        Assert.Equal(fn.Arguments[0].Type.Name, "String");
+        Assert.Equal(fn.Arguments[1].Name.Name, "n");
+        Assert.Equal(fn.Arguments[1].Type.Name, "Int");
 
-        Assert.AreEqual(fn.Statements.Count, 1);
-        Assert.IsInstanceOf<LetNode>(fn.Statements[0]);
+        Assert.Equal(fn.Statements.Count, 1);
+        _ = Assert.IsType<LetNode>(fn.Statements[0]);
         var let = fn.Statements[0].Cast<LetNode>();
-        Assert.AreEqual(let.Var.Name, "x");
-        Assert.IsInstanceOf<NumericNode>(let.Expression);
+        Assert.Equal(let.Var.Name, "x");
+        _ = Assert.IsType<NumericNode>(let.Expression);
 
         var num = let.Expression.Cast<NumericNode>();
-        Assert.AreEqual(num.Format, "12");
-        Assert.AreEqual(num.Value, 12);
+        Assert.Equal(num.Format, "12");
+        Assert.Equal(num.Value, 12u);
     }
 
-    [Test]
+    [Fact]
     public void ContinueEolTest()
     {
         var p = Parse(@"
@@ -130,48 +130,48 @@ sub fn(
     )
     var x = 12
 ");
-        Assert.AreEqual(p.Statements.Count, 0);
-        Assert.AreEqual(p.Functions.Count, 1);
+        Assert.Equal(p.Statements.Count, 0);
+        Assert.Equal(p.Functions.Count, 1);
 
         var fn = p.Functions[0];
-        Assert.AreEqual(fn.Name.Name, "fn");
-        Assert.AreEqual(fn.Arguments.Count, 2);
-        Assert.AreEqual(fn.Arguments[0].Name.Name, "s");
-        Assert.AreEqual(fn.Arguments[0].Type.Name, "String");
-        Assert.AreEqual(fn.Arguments[1].Name.Name, "n");
-        Assert.AreEqual(fn.Arguments[1].Type.Name, "Int");
+        Assert.Equal(fn.Name.Name, "fn");
+        Assert.Equal(fn.Arguments.Count, 2);
+        Assert.Equal(fn.Arguments[0].Name.Name, "s");
+        Assert.Equal(fn.Arguments[0].Type.Name, "String");
+        Assert.Equal(fn.Arguments[1].Name.Name, "n");
+        Assert.Equal(fn.Arguments[1].Type.Name, "Int");
 
-        Assert.AreEqual(fn.Statements.Count, 1);
-        Assert.IsInstanceOf<LetNode>(fn.Statements[0]);
+        Assert.Equal(fn.Statements.Count, 1);
+        _ = Assert.IsType<LetNode>(fn.Statements[0]);
         var let = fn.Statements[0].Cast<LetNode>();
-        Assert.AreEqual(let.Var.Name, "x");
-        Assert.IsInstanceOf<NumericNode>(let.Expression);
+        Assert.Equal(let.Var.Name, "x");
+        _ = Assert.IsType<NumericNode>(let.Expression);
 
         var num = let.Expression.Cast<NumericNode>();
-        Assert.AreEqual(num.Format, "12");
-        Assert.AreEqual(num.Value, 12);
+        Assert.Equal(num.Format, "12");
+        Assert.Equal(num.Value, 12u);
     }
 
-    [Test]
+    [Fact]
     public void TypeParameterTest()
     {
         var p = Parse("var e = ListIndex<a>()");
-        Assert.AreEqual(p.Statements.Count, 1);
-        Assert.IsInstanceOf<LetNode>(p.Statements[0]);
+        Assert.Equal(p.Statements.Count, 1);
+        _ = Assert.IsType<LetNode>(p.Statements[0]);
         var let = p.Statements[0].Cast<LetNode>();
-        Assert.AreEqual(let.Var.Name, "e");
-        Assert.IsInstanceOf<FunctionCallNode>(let.Expression);
+        Assert.Equal(let.Var.Name, "e");
+        _ = Assert.IsType<FunctionCallNode>(let.Expression);
 
         var fcall = let.Expression.Cast<FunctionCallNode>();
-        Assert.AreEqual(fcall.Arguments.Count, 0);
-        Assert.IsInstanceOf<SpecializationNode>(fcall.Expression);
+        Assert.Equal(fcall.Arguments.Count, 0);
+        _ = Assert.IsType<SpecializationNode>(fcall.Expression);
         var sp = fcall.Expression.Cast<SpecializationNode>();
-        Assert.AreEqual(sp.Name, "ListIndex");
-        Assert.AreEqual(sp.Generics.Count, 1);
-        Assert.IsInstanceOf<TypeNode>(sp.Generics[0]);
+        Assert.Equal(sp.Name, "ListIndex");
+        Assert.Equal(sp.Generics.Count, 1);
+        _ = Assert.IsType<TypeNode>(sp.Generics[0]);
 
         var type = sp.Generics[0].Cast<TypeNode>();
-        Assert.AreEqual(type.Name, "a");
+        Assert.Equal(type.Name, "a");
     }
 
     public static ProgramNode Parse(string s)
