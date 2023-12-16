@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Roku", "src\Roku.csproj", "{F30B9752-B0FB-4550-8FB5-B2B649BF26AE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Roku.Tests", "test\Roku.Tests.csproj", "{B490A0DF-C7BF-4BD4-846A-23C33F2E5E24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Roku.Test", "test\Roku.Test.csproj", "{B490A0DF-C7BF-4BD4-846A-23C33F2E5E24}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Roku.TestCompile", "test-compile\Roku.TestCompile.csproj", "{47B6E4A7-76F0-40C6-BC2F-5243CFDB32C1}"
 EndProject

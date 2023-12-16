@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\src\Roku.csproj" />
-    <ProjectReference Include="..\test\Roku.Tests.csproj" />
+    <ProjectReference Include="..\test\Roku.Test.csproj" />
   </ItemGroup>
 
 </Project>
