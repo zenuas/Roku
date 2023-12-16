@@ -35,13 +35,7 @@ public partial class Parser
 
     public static TupleNode CreateTupleNode(ListNode<IEvaluableNode> v) => new TupleNode().Return(x => x.Values.AddRange(v.List));
 
-    public static ClassNode CreateClassNode(VariableNode v, ListNode<ITypeNode> gen, ListNode<FunctionNode> condn)
-    {
-        var class_ = new ClassNode() { Name = v }.R(v);
-        class_.Generics.AddRange(gen.List);
-        class_.Functions.AddRange(condn.List);
-        return class_;
-    }
+    public static ClassNode CreateClassNode(VariableNode v, ListNode<ITypeNode> gen, ListNode<FunctionNode> condn) => new ClassNode() { Name = v, Generics = gen.List, Functions = condn.List }.R(v);
 
     public static InstanceNode CreateInstanceNode(
             SpecializationNode spec,
@@ -52,14 +46,7 @@ public partial class Parser
             VariableNode name,
             ListNode<IDeclareNode> args,
             LambdaExpressionNode stmt
-        )
-    {
-        var m = new InstanceMapNode().R(name);
-        m.Name = name;
-        m.Arguments.AddRange(args.List);
-        m.Statements.AddRange(stmt.Statements);
-        return m;
-    }
+        ) => new InstanceMapNode { Name = name, Arguments = args.List, Statements = stmt.Statements }.R(name);
 
     public static FunctionNode CreateFunctionNode(
             FunctionNode fn,
@@ -118,30 +105,16 @@ public partial class Parser
 
     public static ListNode<VariableNode> ToArrayPattern(ListNode<IEvaluableNode> list) => list.List.All(x => x is VariableNode) ? CreateListNode(list.List.OfType<VariableNode>().ToArray()) : throw new SyntaxErrorException("not array-pattern");
 
-    public static ITypeNode ExpressionToType(IEvaluableNode expr)
+    public static ITypeNode ExpressionToType(IEvaluableNode expr) => expr switch
     {
-        return expr switch
-        {
-            VariableNode v => new TypeNode { Name = v.Name },
-            ITypeNode t => t,
-            _ => throw new SyntaxErrorException("not type"),
-        };
-    }
+        VariableNode v => new TypeNode { Name = v.Name },
+        ITypeNode t => t,
+        _ => throw new SyntaxErrorException("not type"),
+    };
 
-    public static SpecializationNode CreateSpecialization(IEvaluableNode expr, IEvaluableNode t1, params ITypeNode[] ts)
-    {
-        var g = new SpecializationNode { Expression = expr };
-        g.Generics.Add(ExpressionToType(t1));
-        g.Generics.AddRange(ts);
-        return g;
-    }
+    public static SpecializationNode CreateSpecialization(IEvaluableNode expr, IEvaluableNode t1, params ITypeNode[] ts) => new SpecializationNode { Expression = expr, Generics = [ExpressionToType(t1), .. ts] };
 
-    public static SpecializationNode CreateSpecialization(IEvaluableNode expr, ListNode<ITypeNode> ts)
-    {
-        var g = new SpecializationNode { Expression = expr };
-        g.Generics.AddRange(ts.List);
-        return g;
-    }
+    public static SpecializationNode CreateSpecialization(IEvaluableNode expr, ListNode<ITypeNode> ts) => new SpecializationNode { Expression = expr, Generics = ts.List };
 
     public static EnumNode CreateNullable(ITypeNode type) =>
         type is EnumNode e
