@@ -9,7 +9,7 @@ namespace Roku.Parser;
 
 public partial class Parser
 {
-    public List<(int Index, INode Value)> TokenStack { get; } = [];
+    public List<(int Index, INode Value)> TokenStack { get; init; } = [];
     public static int[,] Tables { get; } = new [,]
         {
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, 0, 0, 350, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},

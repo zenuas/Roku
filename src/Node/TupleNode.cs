@@ -7,7 +7,7 @@ namespace Roku.Node;
 public class TupleNode : INode, IEvaluableNode
 {
     public Symbols Symbol { get; init; }
-    INode IToken<INode>.Value { get => this; init => throw new NotImplementedException(); }
+    INode IToken<INode>.Value { get => this; }
     public int Indent { get; set; }
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
