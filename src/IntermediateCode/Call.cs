@@ -8,5 +8,5 @@ public class Call : IOperand, IReturnBind
     public IEvaluable? Return { get; set; }
     public required FunctionCallValue Function { get; init; }
 
-    public override string ToString() => $"{(Return is null ? "" : Return.ToString() + " = ")}{Function}";
+    public override string ToString() => $"{(Return is null ? "" : $"{Return} = ")}{Function}";
 }
