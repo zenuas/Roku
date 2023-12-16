@@ -5,5 +5,5 @@ namespace Roku.Manager;
 
 public class TypeMapper : Dictionary<IEvaluable, VariableDetail>
 {
-    public VariableValue CastBoxCondition = new VariableValue { Name = "$cast_box" };
+    public VariableValue CastBoxCondition = new() { Name = "$cast_box" };
 }

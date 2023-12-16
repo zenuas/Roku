@@ -13,11 +13,11 @@ public partial class Parser
 
     public static VariableNode CreateVariableNode(TokenNode t) => CreateVariableNode(t.Name).R(t);
 
-    public static VariableNode CreateVariableNode(string s) => new VariableNode { Name = s };
+    public static VariableNode CreateVariableNode(string s) => new() { Name = s };
 
     public static FunctionCallNode CreateFunctionCallNode(TokenNode token, params IEvaluableNode[] args) => new FunctionCallNode { Expression = CreateVariableNode(token) }.Return(x => x.Arguments.AddRange(args)).R(token);
 
-    public static PropertyNode CreatePropertyNode(IEvaluableNode left, VariableNode right) => new PropertyNode { Left = left, Right = right };
+    public static PropertyNode CreatePropertyNode(IEvaluableNode left, VariableNode right) => new() { Left = left, Right = right };
 
     public static FunctionCallNode CreateFunctionCallNode(IEvaluableNode expr, params IEvaluableNode[] args) => new FunctionCallNode { Expression = expr }.Return(x => x.Arguments.AddRange(args)).R(expr);
 
@@ -112,9 +112,9 @@ public partial class Parser
         _ => throw new SyntaxErrorException("not type"),
     };
 
-    public static SpecializationNode CreateSpecialization(IEvaluableNode expr, IEvaluableNode t1, params ITypeNode[] ts) => new SpecializationNode { Expression = expr, Generics = [ExpressionToType(t1), .. ts] };
+    public static SpecializationNode CreateSpecialization(IEvaluableNode expr, IEvaluableNode t1, params ITypeNode[] ts) => new() { Expression = expr, Generics = [ExpressionToType(t1), .. ts] };
 
-    public static SpecializationNode CreateSpecialization(IEvaluableNode expr, ListNode<ITypeNode> ts) => new SpecializationNode { Expression = expr, Generics = ts.List };
+    public static SpecializationNode CreateSpecialization(IEvaluableNode expr, ListNode<ITypeNode> ts) => new() { Expression = expr, Generics = ts.List };
 
     public static EnumNode CreateNullable(ITypeNode type) =>
         type is EnumNode e

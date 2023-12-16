@@ -141,7 +141,7 @@ public class LexerTest
         Assert.Equal(ts6[5].Cast<NumericNode>().Format, "2");
     }
 
-    public static Lexer Read(string s) => new Lexer() { BaseReader = new SourceCodeReader { BaseReader = new StringReader(s) }, Parser = new Parser.Parser() };
+    public static Lexer Read(string s) => new() { BaseReader = new SourceCodeReader { BaseReader = new StringReader(s) }, Parser = new Parser.Parser() };
 
     public static List<IToken<INode>> Tokens(string s)
     {

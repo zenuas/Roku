@@ -21,7 +21,7 @@ public static partial class Typing
         }
     }
 
-    public static VariableDetail CreateVariableDetail(string name, IStructBody? b, VariableType type, int index = 0) => new VariableDetail { Name = name, Struct = b, Type = type, Index = index };
+    public static VariableDetail CreateVariableDetail(string name, IStructBody? b, VariableType type, int index = 0) => new() { Name = name, Struct = b, Type = type, Index = index };
 
     public static bool IsDecideType(IStructBody body)
     {
