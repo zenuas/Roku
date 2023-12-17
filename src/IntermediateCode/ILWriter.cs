@@ -35,5 +35,5 @@ public class ILWriter : IDisposable
         return true;
     }
 
-    public void Dispose() => BaseStream.Dispose();
+    public void Dispose() => BaseStream.Flush();
 }

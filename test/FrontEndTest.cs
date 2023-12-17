@@ -33,7 +33,7 @@ public class FrontEndTest
     public static (string Path, string TestName, string ILName, string ErrorMessage, string ILText) Compile(string src, string il)
     {
         using var mem = new MemoryStream();
-        using var writer = new StreamWriter(mem, leaveOpen: true);
+        using var writer = new StreamWriter(mem);
         return Compile(src, writer, mem, il);
     }
 
@@ -87,5 +87,56 @@ public class FrontEndTest
 
         var failed = compile_result.Where(x => !x.Completed || x.Result.ErrorMessage != "").ToList();
         if (failed.Count > 0) Assert.Fail(failed.Select(x => $"{x.Result.TestName}: {x.Result.ErrorMessage}").Join("\n"));
+    }
+
+    [Fact]
+    public void Compile2TimeTest()
+    {
+        using var mem = new MemoryStream();
+        using var writer = new StreamWriter(mem);
+        FrontEnd.Compile(FrontEnd.Parse(new StringReader("print(1)")), writer, "a.il", ["System.Runtime"]);
+        FrontEnd.Compile(FrontEnd.Parse(new StringReader("print(2)")), writer, "b.il", ["System.Runtime"]);
+
+        _ = mem.Seek(0, SeekOrigin.Begin);
+        var il_src = Encoding.UTF8.GetString(mem.ReadAllBytes().ToArray()).Trim();
+        Assert.Equal(il_src,
+@".assembly extern System.Console { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
+.assembly extern System.Runtime { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
+.assembly a {}
+
+.class interface public abstract '#RTTI'
+{
+    .method public hidebysig newslot abstract virtual instance int32 '#GetTypeNo'() {}
+    .method public hidebysig newslot abstract virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'() {}
+}
+
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 1
+    
+    ldc.i4.1
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}
+.assembly extern System.Console { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
+.assembly extern System.Runtime { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
+.assembly b {}
+
+.class interface public abstract '#RTTI'
+{
+    .method public hidebysig newslot abstract virtual instance int32 '#GetTypeNo'() {}
+    .method public hidebysig newslot abstract virtual instance class [System.Runtime]System.Type[] '#GetTypeGenerics'() {}
+}
+
+.method public static void main()
+{
+    .entrypoint
+    .maxstack 1
+    
+    ldc.i4.2
+    call void class [System.Console]System.Console::WriteLine(int32)
+    ret
+}");
     }
 }
