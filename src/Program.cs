@@ -12,7 +12,7 @@ public class Program
         var xs = CommandLine.Run(opt, args);
         if (xs.Length == 0)
         {
-            Compiler.FrontEnd.Compile(Compiler.FrontEnd.Parse(Console.In), opt.Output, [.. opt.Libraries]);
+            Compiler.FrontEnd.Compile(Console.In, opt.Output, [.. opt.Libraries]);
         }
         else
         {

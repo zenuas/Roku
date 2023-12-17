@@ -15,12 +15,17 @@ public static class FrontEnd
     public static void Compile(string input, string output, string[] asms)
     {
         using var source = new StreamReader(input);
-        var node = Parse(source);
-        source.Dispose();
-        Compile(node, output, asms);
+        Compile(source, output, asms);
     }
 
-    public static void Compile(ProgramNode node, string output, string[] asms)
+    public static void Compile(TextReader reader, string output, string[] asms)
+    {
+        var node = Parse(reader);
+        using var writer = output == "-" ? Console.Out : new StreamWriter(output);
+        Compile(node, writer, output, asms);
+    }
+
+    public static void Compile(ProgramNode node, TextWriter writer, string output, string[] asms)
     {
         var root = new RootNamespace();
         root.Assemblies.AddRange(asms.Select(Assembly.Load));
@@ -60,7 +65,7 @@ public static class FrontEnd
             src.Uses.Add(Definition.LoadProgram(root, Parse(sys)));
         }
         Typing.TypeInference(root, src);
-        CodeGenerator.Emit(root, src, output);
+        CodeGenerator.Emit(root, src, writer, output);
     }
 
     public static ProgramNode Parse(TextReader input)

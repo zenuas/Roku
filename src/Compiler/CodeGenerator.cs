@@ -2,6 +2,7 @@
 using Roku.IntermediateCode;
 using Roku.Manager;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -9,7 +10,7 @@ namespace Roku.Compiler;
 
 public static partial class CodeGenerator
 {
-    public static void Emit(RootNamespace root, SourceCodeBody body, string path)
+    public static void Emit(RootNamespace root, SourceCodeBody body, TextWriter writer, string output)
     {
         var pgms = Lookup.AllPrograms(body);
         var nss = Lookup.AllNamespaces(body);
@@ -33,9 +34,9 @@ public static partial class CodeGenerator
             extern_asms = extern_asms.Concat(Assembly.Load("mscorlib"));
         }
 
-        using var il = new ILWriter(path);
+        using var il = new ILWriter { BaseStream = writer };
         AssemblyExternEmit(il, extern_asms);
-        AssemblyNameEmit(il, path);
+        AssemblyNameEmit(il, output);
 
         RuntimeEmit(il);
         InstanceEmit(instances);

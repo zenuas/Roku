@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace Roku.IntermediateCode;
 
-public class ILWriter(string path) : IDisposable
+public class ILWriter : IDisposable
 {
-    public TextWriter BaseStream { get; init; } = path == "-" ? Console.Out : new StreamWriter(path);
+    public required TextWriter BaseStream { get; init; }
     public int Indent { get; set; } = 0;
     public bool IsLineHead { get; protected set; } = true;
 

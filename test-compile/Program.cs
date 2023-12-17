@@ -25,11 +25,8 @@ public class Program
         if (opt.Force) _ = Directory.CreateDirectory(opt.Output);
 
         var compile_result = Directory.GetFiles(".", "*.rk")
-            .Select(x => (RkName: x, ILName: Path.Combine(opt.Force ? opt.Output : "", $"{Path.GetFileNameWithoutExtension(x)}.il")))
-            .MapParallelAllWithTimeout(
-                x => FrontEndTest.Compile(x.RkName, x.ILName),
-                1000 * 10,
-                x => new(x.RkName, Path.GetFileName(x.RkName), x.ILName, "timeout"))
+            .Select(x => (RkName: x, ILName: Path.Combine(opt.Output, $"{Path.GetFileNameWithoutExtension(x)}.il")))
+            .MapParallelAllWithTimeout(x => FrontEndTest.Compile(x.RkName, x.ILName), 1000 * 10, x => new(x.RkName, Path.GetFileName(x.RkName), x.ILName, "timeout", ""))
             .ToList();
 
         var sjis = System.Text.Encoding.GetEncoding(932);
@@ -45,7 +42,7 @@ public class Program
             if (opt.Force || !result.Completed || result.Result.ErrorMessage != "")
             {
                 _ = Directory.CreateDirectory(opt.Output);
-                if (!opt.Force) File.Move(result.Result.ILName, Path.Combine(opt.Output, $"{Path.GetFileNameWithoutExtension(result.Result.Path)}.il"));
+                if (!opt.Force) File.WriteAllText(result.Result.ILName, result.Result.ILText);
 
                 var in_p = lines.Where(x => x.StartsWith("#<=")).Select(x => x[3..] + "\r\n").Join();
                 var out_p = lines.Where(x => x.StartsWith("#=>")).Select(x => x[3..] + "\r\n").Join();
@@ -70,10 +67,6 @@ public class Program
                         Console.ForegroundColor = prev_color;
                     }
                 }
-            }
-            else
-            {
-                if (!opt.Force) File.Delete(result.Result.ILName);
             }
         }
     }
