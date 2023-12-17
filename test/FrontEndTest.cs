@@ -56,8 +56,7 @@ public class FrontEndTest
             _ = mem.Seek(0, SeekOrigin.Begin);
             var il_src = Encoding.UTF8.GetString(mem.ReadAllBytes().ToArray()).Trim();
 
-            if (valid.Text.Trim() != il_src) return (src, filename, il, "il make a difference", il_src);
-            return (src, filename, il, "", il_src);
+            return (src, filename, il, valid.Text.Trim() == il_src ? "" : "il make a difference", il_src);
         }
         catch (Exception ex)
         {
