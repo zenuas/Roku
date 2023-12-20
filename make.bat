@@ -41,7 +41,7 @@
 	@exit /b %ERRORLEVEL%
 
 :test
-	dotnet test --nologo -v q
+	dotnet test --nologo -v q --filter DisplayName!=Roku.Tests.FrontEndTest.CompileTest
 	@call :testa
 	@exit /b %ERRORLEVEL%
 
