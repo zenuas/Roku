@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Extensions;
+namespace Mina.Extensions;
 
 public static class Lists
 {

@@ -1,6 +1,6 @@
 
 %{
-using Extensions;
+using Mina.Extensions;
 using Roku.Node;
 %}
 

@@ -1,41 +1,38 @@
-﻿using Extensions;
+﻿using Mina.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Command;
+namespace Mina.Command;
 
 public static class CommandLine
 {
-    public static IEnumerable<(Attribute Attribute, MethodInfo Method)> GetCommands<T>()
+    public static IEnumerable<(A Attribute, MethodInfo Method)> GetCommands<T, A>() where A : Attribute
     {
         foreach (var m in typeof(T).GetMethods(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
         {
-            foreach (var attr in m.GetCustomAttributes(true))
+            foreach (var attr in m.GetCustomAttributes<A>(true))
             {
-                if (attr is CommandOptionAttribute o) yield return (o, m);
-                else if (attr is CommandHelpAttribute h) yield return (h, m);
+                yield return (attr, m);
             }
         }
 
         foreach (var m in typeof(T).GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.SetProperty))
         {
             var setter = m.GetSetMethod(true)!;
-            foreach (var attr in m.GetCustomAttributes(true))
+            foreach (var attr in m.GetCustomAttributes<A>(true))
             {
-                if (attr is CommandOptionAttribute o) yield return (o, setter);
-                else if (attr is CommandHelpAttribute h) yield return (h, setter);
+                yield return (attr, setter);
             }
         }
     }
 
     public static string[] Parse<T>(T receiver, params string[] args)
     {
-        var map = GetCommands<T>()
-            .Where(x => x.Attribute is CommandOptionAttribute)
-            .ToDictionary(x => x.Attribute.Cast<CommandOptionAttribute>().Command);
+        var map = GetCommands<T, CommandOptionAttribute>()
+            .ToDictionary(x => x.Attribute.Command);
 
         var xargs = new List<string>();
         MethodInfo? method = null;
@@ -79,7 +76,7 @@ public static class CommandLine
         return (receiver, Run(receiver, args));
     }
 
-    public static string[] Run<T>(T receiver, params string[] args) => Parse<T>(receiver, args);
+    public static string[] Run<T>(T receiver, params string[] args) => Parse(receiver, args);
 
     public static object Convert(Type t, string s)
     {

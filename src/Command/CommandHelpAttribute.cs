@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Command;
+namespace Mina.Command;
 
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method)]
-public class CommandHelpAttribute : Attribute
+public class CommandHelpAttribute(string s) : Attribute
 {
-    public required string Message { get; init; }
+    public string Message { get; init; } = s;
 }

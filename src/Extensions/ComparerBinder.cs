@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Extensions;
+namespace Mina.Extensions;
 
 public class ComparerBinder<T> : IComparer<T>
 {

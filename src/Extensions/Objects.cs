@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 
-namespace Extensions;
+namespace Mina.Extensions;
 
 public static class Objects
 {

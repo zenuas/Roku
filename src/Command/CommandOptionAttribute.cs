@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Command;
+namespace Mina.Command;
 
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = true)]
 public class CommandOptionAttribute : Attribute

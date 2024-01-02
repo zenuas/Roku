@@ -3,7 +3,7 @@ using System.Numerics;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Extensions;
+namespace Mina.Extensions;
 
 public static class Expressions
 {
