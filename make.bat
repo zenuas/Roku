@@ -65,7 +65,9 @@
 	@exit /b %ERRORLEVEL%
 
 :parserd
-	dotnet run --project ..\Yanp\src -- src\roku.y -o src\Parser -t ..\Yanp\template.cs -l 0 -v
+	git submodule init
+	git submodule update --remote
+	dotnet run --project parser\src -- src\roku.y -o src\Parser -t parser\template.cs -l 0 -v
 	find /n "/reduce" < src\Parser\verbose.v.txt
 	@exit /b %ERRORLEVEL%
 
