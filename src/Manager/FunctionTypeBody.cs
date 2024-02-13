@@ -1,4 +1,4 @@
-﻿using Mina.Extensions;
+﻿using Mina.Extension;
 using System.Collections.Generic;
 using System.Linq;
 

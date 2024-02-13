@@ -13,6 +13,7 @@
     <PackageReference Include="Microsoft.NETCore.ILAsm" Version="8.0.0" />
     <PackageReference Include="Microsoft.NETCore.ILDAsm" Version="8.0.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
+    <PackageReference Include="Zenu.Mina" Version="2024.2.13-build-2051" />
   </ItemGroup>
 
   <ItemGroup>

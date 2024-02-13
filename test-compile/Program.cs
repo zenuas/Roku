@@ -1,5 +1,5 @@
 ﻿using Mina.Command;
-using Mina.Extensions;
+using Mina.Extension;
 using Roku.Tests;
 using System;
 using System.IO;
