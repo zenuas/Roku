@@ -24,8 +24,9 @@ public class FrontEndTest
         var start = lines.FindFirstIndex(x => start_line(x));
         if (start < 0) return (false, "not found start_line");
         var end = lines.Skip(start + 1).FindFirstIndex(x => end_line(x));
-        if (end < 0) return (false, "not found start_line - end_line");
-        return (true, lines[(start + 1)..(start + end + 1)].Join("\r\n"));
+        return end < 0
+            ? (false, "not found start_line - end_line")
+            : (true, lines[(start + 1)..(start + end + 1)].Join("\r\n"));
     }
 
     public static (bool Found, string Text) GetLineContent(string[] lines, string start_line, string end_line) => GetLineContent(lines, x => x.StartsWith(start_line), x => x.StartsWith(end_line));
@@ -48,24 +49,22 @@ public class FrontEndTest
         {
             FrontEnd.Compile(FrontEnd.Parse(new StringReader(txt)), writer, il, ["System.Runtime"]);
 
-            var valid = GetLineContent(lines, "###start", "###end");
-            if (!valid.Found)
+            var (found, text) = GetLineContent(lines, "###start", "###end");
+            if (!found)
             {
                 return (src, filename, il, "test code not found ###start - ###end", "");
             }
             _ = mem.Seek(0, SeekOrigin.Begin);
             var il_src = Encoding.UTF8.GetString(mem.EnumerableReadBytes().ToArray()).Trim();
 
-            return (src, filename, il, valid.Text.Trim() == il_src ? "" : "il make a difference", il_src);
+            return (src, filename, il, text.Trim() == il_src ? "" : "il make a difference", il_src);
         }
         catch (Exception ex)
         {
-            var error = GetLineContent(lines, "###error", "###end");
-            if (!error.Found || error.Text.Trim() != ex.Message)
-            {
-                return (src, filename, il, ex.Message, "");
-            }
-            return (src, filename, il, "", $@"
+            var (found, text) = GetLineContent(lines, "###error", "###end");
+            return !found || text.Trim() != ex.Message
+                ? (src, filename, il, ex.Message, "")
+                : (src, filename, il, "", $@"
 .assembly {filename} {{}}
 .method public static void main()
 {{
