@@ -54,7 +54,7 @@ public class FrontEndTest
                 return (src, filename, il, "test code not found ###start - ###end", "");
             }
             _ = mem.Seek(0, SeekOrigin.Begin);
-            var il_src = Encoding.UTF8.GetString(mem.ReadAllBytes().ToArray()).Trim();
+            var il_src = Encoding.UTF8.GetString(mem.EnumerableReadBytes().ToArray()).Trim();
 
             return (src, filename, il, valid.Text.Trim() == il_src ? "" : "il make a difference", il_src);
         }
@@ -97,7 +97,7 @@ public class FrontEndTest
         FrontEnd.Compile(FrontEnd.Parse(new StringReader("print(2)")), writer, "b.il", ["System.Runtime"]);
 
         _ = mem.Seek(0, SeekOrigin.Begin);
-        var il_src = Encoding.UTF8.GetString(mem.ReadAllBytes().ToArray()).Trim();
+        var il_src = Encoding.UTF8.GetString(mem.EnumerableReadBytes().ToArray()).Trim();
         Assert.Equal(il_src,
 @".assembly extern System.Console { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
 .assembly extern System.Runtime { .publickeytoken = (B0 3F 5F 7F 11 D5 0A 3A) }
