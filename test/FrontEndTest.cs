@@ -43,7 +43,6 @@ public class FrontEndTest
         var filename = Path.GetFileName(src);
         var txt = File.ReadAllText(src);
         var lines = txt.SplitLine();
-        var testname = Path.GetFileNameWithoutExtension(src);
 
         try
         {
