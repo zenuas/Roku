@@ -154,9 +154,7 @@ public partial class Lexer : ILexer<INode>
         if (eof is { }) return [eof];
 
         var comment = ReadSkipComment(reader, indent, true);
-        if (comment is { }) return [comment];
-
-        return ReadTokens(reader, indent);
+        return comment is { } ? [comment] : ReadTokens(reader, indent);
     }
 
     public static List<IToken<INode>> ReadTokens(SourceCodeReader reader, int indent)
@@ -361,14 +359,9 @@ public partial class Lexer : ILexer<INode>
     public static IToken<INode> ReadNumberOrFloat(SourceCodeReader reader, string prefix = "")
     {
         var (value, format) = ReadNumberText(reader, prefix, IsFloatingNumber);
-        if (value.FindFirstIndex(c => c == '.') >= 0)
-        {
-            return new FloatingNumericNode { Value = Convert.ToDouble(value), Format = format };
-        }
-        else
-        {
-            return new NumericNode { Value = Convert.ToUInt32(value, 10), Format = format };
-        }
+        return value.FindFirstIndex(c => c == '.') >= 0
+            ? new FloatingNumericNode { Value = Convert.ToDouble(value), Format = format }
+            : new NumericNode { Value = Convert.ToUInt32(value, 10), Format = format };
     }
 
     public static NumericNode ReadDecimal(SourceCodeReader reader) => ReadNumber(reader, 10, "", IsNumber);
