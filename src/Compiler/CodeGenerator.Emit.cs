@@ -19,9 +19,7 @@ public static partial class CodeGenerator
     public static void StructsToFunctionList(IEnumerable<StructBody> structs, List<(string, FunctionSpecialization)> fss)
     {
         var cache = new HashSet<string>();
-        structs.Each(body =>
-        {
-            body.SpecializationMapper.Each(sp =>
+        structs.Each(body => body.SpecializationMapper.Each(sp =>
             {
                 var g = sp.Key;
                 var mapper = sp.Value;
@@ -31,8 +29,8 @@ public static partial class CodeGenerator
                 _ = cache.Add(name);
 
                 body.Body.OfType<Call>().Each(x => CallToAddEmitFunctionList(mapper, x, fss));
-            });
-        });
+            })
+        );
     }
 
     public static void FunctionsToFunctionList(List<(string Name, FunctionSpecialization Function)> fss)
@@ -88,9 +86,5 @@ public static partial class CodeGenerator
 
     public static void CallToAddEmitFunctionList(FunctionMapper fm, AnonymousFunctionBody anon, List<(string, FunctionSpecialization)> fss) => AppendFunctionSpecialization(fss, new() { Body = anon, GenericsMapper = Lookup.TypeMapperToGenericsMapper(fm.TypeMapper) });
 
-    public static bool EqualsFunctionCaller(FunctionSpecialization left, IFunctionName right, GenericsMapper right_g)
-    {
-        if (left.Body != right) return false;
-        return left.GenericsMapper.Keys.All(x => left.GenericsMapper[x] == right_g[x]);
-    }
+    public static bool EqualsFunctionCaller(FunctionSpecialization left, IFunctionName right, GenericsMapper right_g) => left.Body == right && left.GenericsMapper.Keys.All(x => left.GenericsMapper[x] == right_g[x]);
 }

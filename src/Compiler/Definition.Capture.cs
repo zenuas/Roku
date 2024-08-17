@@ -85,10 +85,7 @@ public static partial class Definition
         });
     }
 
-    public static void CapturedVariableToProperty(ILexicalScope scope, IEvaluable original, IEvaluable scopevar, string name)
-    {
-        scope.Body.ForEach(x => CapturedVariableToPropertyOperand(scope, x, original, scopevar, name));
-    }
+    public static void CapturedVariableToProperty(ILexicalScope scope, IEvaluable original, IEvaluable scopevar, string name) => scope.Body.ForEach(x => CapturedVariableToPropertyOperand(scope, x, original, scopevar, name));
 
     public static void CapturedVariableToPropertyOperand(ILexicalScope scope, IOperand ope, IEvaluable original, IEvaluable scopevar, string name)
     {
@@ -122,9 +119,5 @@ public static partial class Definition
         throw new();
     }
 
-    public static IEvaluable? IfCapturedVariableToProperty(IEvaluable original, IEvaluable? v, IEvaluable scopevar, string name)
-    {
-        if (v is { } p && p == original) return new PropertyValue { Left = scopevar, Right = name };
-        return v;
-    }
+    public static IEvaluable? IfCapturedVariableToProperty(IEvaluable original, IEvaluable? v, IEvaluable scopevar, string name) => v is { } p && p == original ? new PropertyValue { Left = scopevar, Right = name } : v;
 }

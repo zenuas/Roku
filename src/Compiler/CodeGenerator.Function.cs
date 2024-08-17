@@ -39,9 +39,7 @@ public static partial class CodeGenerator
         if (appended.HasValue) return (true, appended.Value.Name);
 
         var sameinst = fss.FindFirstOrNullValue(x => x.Function.Body == body);
-        if (sameinst.HasValue) return (false, sameinst.Value.Name);
-
-        return (false, "");
+        return (false, sameinst?.Name ?? "");
     }
 
     public static bool EqualsGenericsMapper(GenericsMapper g1, GenericsMapper g2) => g1.SequenceEqual(g2);
