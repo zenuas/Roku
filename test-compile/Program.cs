@@ -1,6 +1,6 @@
 ﻿using Mina.Command;
 using Mina.Extension;
-using Roku.Tests;
+using Roku.Test;
 using System;
 using System.IO;
 using System.Linq;

@@ -2,7 +2,7 @@
 using Roku.Node;
 using Xunit;
 
-namespace Roku.Tests;
+namespace Roku.Test;
 
 public class ParserTest
 {

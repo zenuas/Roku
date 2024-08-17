@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using Xunit;
 
-namespace Roku.Tests;
+namespace Roku.Test;
 
 public class FrontEndTest
 {
@@ -50,10 +50,8 @@ public class FrontEndTest
             FrontEnd.Compile(FrontEnd.Parse(new StringReader(txt)), writer, il, ["System.Runtime"]);
 
             var (found, text) = GetLineContent(lines, "###start", "###end");
-            if (!found)
-            {
-                return (src, filename, il, "test code not found ###start - ###end", "");
-            }
+            if (!found) return (src, filename, il, "test code not found ###start - ###end", "");
+
             _ = mem.Seek(0, SeekOrigin.Begin);
             var il_src = Encoding.UTF8.GetString(mem.EnumerableReadBytes().ToArray()).Trim();
 

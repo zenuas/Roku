@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using Xunit;
 
-namespace Roku.Tests;
+namespace Roku.Test;
 
 public class LexerTest
 {

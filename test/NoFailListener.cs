@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Roku.Tests;
+namespace Roku.Test;
 
 public class NoFailListener : DefaultTraceListener
 {
