@@ -70,8 +70,9 @@ public static partial class CodeGenerator
         }
         else
         {
-            if (args.Length == 0) return "class [mscorlib]System.Action";
-            return $"class [mscorlib]System.Action`{args.Length}<{args.Select(x => GetStructName(x)).Join(", ")}>";
+            return args.Length == 0
+                ? "class [mscorlib]System.Action"
+                : $"class [mscorlib]System.Action`{args.Length}<{args.Select(x => GetStructName(x)).Join(", ")}>";
         }
     }
 
