@@ -121,7 +121,7 @@ public partial class Parser
         ? e.Return(x => x.Types.Add(new TypeNode() { Name = "Null" }.R(type)))
         : new EnumNode { Types = CreateListNode(type, new TypeNode() { Name = "Null" }.R(type)).List };
 
-    public void SyntaxError(IToken<INode> t) => SyntaxError(t.Value, "syntax error");
+    public static void SyntaxError(IToken<INode> t) => SyntaxError(t.Value, "syntax error");
 
     public static void SyntaxError(INode node, string message) => throw new SyntaxErrorException(message) { LineNumber = node.LineNumber, LineColumn = node.LineColumn };
 }
