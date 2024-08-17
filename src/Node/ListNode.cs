@@ -7,7 +7,7 @@ public class ListNode<T> : INode, IEvaluableNode
     where T : INode
 {
     public Symbols Symbol { get; init; }
-    INode IToken<INode>.Value { get => this; }
+    INode IToken<INode>.Value => this;
     public int Indent { get; set; }
     public int? LineNumber { get; set; }
     public int? LineColumn { get; set; }
