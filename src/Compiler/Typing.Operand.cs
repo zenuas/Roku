@@ -216,7 +216,7 @@ public static partial class Typing
                 if (x.Members.TryGetValue(property, out var value))
                 {
                     var m = g is null ? x.SpecializationMapper.First().Value : Lookup.GetGenericsTypeMapperOrNull(x.SpecializationMapper, g)!.Value.TypeMapper;
-                    if (m.ContainsKey(value)) return m[value].Struct;
+                    if (m.TryGetValue(value, out var p)) return p.Struct;
                 }
                 break;
 
