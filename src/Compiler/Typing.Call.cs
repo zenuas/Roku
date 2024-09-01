@@ -186,13 +186,13 @@ public static partial class Typing
         if (e is TypeSpecialization g)
         {
             if (g.Type is PropertyValue prop) return GetStructNames(m, prop.Left).Concat(prop.Right);
-            return new string[] { g.Type.ToString()! };
+            return [g.Type.ToString()!];
         }
         if (m.TryGetValue(e, out var value) && value.Struct is NamespaceBody ns) return GetNamespaceNames(ns);
         throw new();
     }
 
-    public static IEnumerable<string> GetNamespaceNames(NamespaceBody ns) => ns.Parent is { } p ? GetNamespaceNames(p).Concat(ns.Name) : new string[] { ns.Name };
+    public static IEnumerable<string> GetNamespaceNames(NamespaceBody ns) => ns.Parent is { } p ? GetNamespaceNames(p).Concat(ns.Name) : [ns.Name];
 
     public static void Feedback(IStructBody? left, IStructBody? right)
     {

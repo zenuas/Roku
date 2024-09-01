@@ -63,7 +63,7 @@ public static class Lookup
 
     public static IEnumerable<EmbeddedFunction> AllEmbeddedFunctions(List<IManaged> srcs) => srcs.Select(AllFunctions<EmbeddedFunction>).Flatten();
 
-    public static IEnumerable<T> AllFunctions<T>(IManaged src) where T : IFunctionName => src is INamespace ns ? ns.Functions.OfType<T>() : new List<T>();
+    public static IEnumerable<T> AllFunctions<T>(IManaged src) where T : IFunctionName => src is INamespace ns ? ns.Functions.OfType<T>() : [];
 
     public static IEnumerable<InstanceBody> AllInstanceBodies(List<SourceCodeBody> srcs) => srcs.Select(AllInstanceBodies).Flatten();
 
@@ -179,7 +179,7 @@ public static class Lookup
     public static List<IStructBody?> GetArgumentsType(IManaged ns, IFunctionName body, GenericsMapper gens) => FunctionToArgumentsType(body).Select(x => GetStructType(ns, x, gens)).ToList();
 
     public static string[] GetTypeNames(IEvaluable e) =>
-        e is TypeValue tv ? tv.Namespace.Concat(tv.Name).ToArray()
+        e is TypeValue tv ? [.. tv.Namespace, tv.Name]
         : e is VariableValue v ? new string[] { v.Name }
         : throw new();
 
@@ -529,7 +529,7 @@ public static class Lookup
 
     public static IStructBody LoadStruct(IManaged ns, string[] name) => FindStructOrNull(ns, name, []) ?? throw new();
 
-    public static IStructBody LoadStruct(IManaged ns, string name) => LoadStruct(ns, new string[] { name });
+    public static IStructBody LoadStruct(IManaged ns, string name) => LoadStruct(ns, [name]);
 
     public static IEnumerable<LabelCode> AllLabels(List<IOperand> ops) => ops.OfType<LabelCode>().Distinct();
 

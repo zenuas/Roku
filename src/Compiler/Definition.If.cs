@@ -73,7 +73,7 @@ public static partial class Definition
                                 var $0 = isnull(cond)
                                 if $0 else goto next
                         */
-                        inner_scope.Body.AddRange(new IOperand[] { new IfCode { Condition = _v0, Else = next_label } });
+                        inner_scope.Body.Add(new IfCode { Condition = _v0, Else = next_label });
                     }
                     break;
 
@@ -96,7 +96,7 @@ public static partial class Definition
                         var _v4 = CreateTemporaryVariable(inner_scope);
                         var y = new VariableValue { Name = ifa.ArrayPattern.List[0].Name };
                         inner_scope.LexicalScope.Add(y.Name, y);
-                        inner_scope.Body.AddRange(new IOperand[] {
+                        inner_scope.Body.AddRange([
                                 new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "!" } }.Return(x => x.Arguments.Add(_v0)), Return = _v1 },
                                 new IfCode { Condition = _v1, Else = next_label },
                                 new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "next" } }.Return(x => x.Arguments.Add(cond)), Return = _v2 },
@@ -104,7 +104,7 @@ public static partial class Definition
                                 new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "isnull" } }.Return(x => x.Arguments.Add(_v3)), Return = _v4 },
                                 new IfCode { Condition = _v4, Else = next_label },
                                 new BindCode { Return = y, Value = new PropertyValue{ Left = _v2, Right = "1" } },
-                            });
+                            ]);
                     }
                     break;
 
@@ -131,10 +131,10 @@ public static partial class Definition
 
                         */
                         var _v1 = CreateTemporaryVariable(inner_scope);
-                        inner_scope.Body.AddRange(new IOperand[] {
+                        inner_scope.Body.AddRange([
                                 new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "!" } }.Return(x => x.Arguments.Add(_v0)), Return = _v1 },
                                 new IfCode { Condition = _v1, Else = next_label },
-                            });
+                            ]);
                         var prev_cond = cond;
                         for (var index = 0; index < ifa.ArrayPattern.List.Count - 2; index++)
                         {
@@ -144,14 +144,14 @@ public static partial class Definition
                             var _v4_x_index_add_3 = CreateTemporaryVariable(inner_scope);
                             var y = new VariableValue { Name = ifa.ArrayPattern.List[index].Name };
                             inner_scope.LexicalScope.Add(y.Name, y);
-                            inner_scope.Body.AddRange(new IOperand[] {
+                            inner_scope.Body.AddRange([
                                     new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "next" } }.Return(x => x.Arguments.Add(prev_cond)), Return = _v4_x_index_add_0 },
                                     new BindCode { Return = y, Value = new PropertyValue{ Left = _v4_x_index_add_0, Right = "1" } },
                                     new BindCode { Return = _v4_x_index_add_1, Value = new PropertyValue{ Left = _v4_x_index_add_0, Right = "2" } },
                                     new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "isnull" } }.Return(x => x.Arguments.Add(_v4_x_index_add_1)), Return = _v4_x_index_add_2 },
                                     new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "!" } }.Return(x => x.Arguments.Add(_v4_x_index_add_2)), Return = _v4_x_index_add_3 },
                                     new IfCode { Condition = _v4_x_index_add_3, Else = next_label },
-                                });
+                                ]);
                             prev_cond = _v4_x_index_add_1;
                         }
                         var _v4_x_last_add_0 = CreateTemporaryVariable(inner_scope);
@@ -159,11 +159,11 @@ public static partial class Definition
                         var ys = new VariableValue { Name = ifa.ArrayPattern.List[^1].Name };
                         inner_scope.LexicalScope.Add(yn.Name, yn);
                         inner_scope.LexicalScope.Add(ys.Name, ys);
-                        inner_scope.Body.AddRange(new IOperand[] {
+                        inner_scope.Body.AddRange([
                                 new Call { Function = new FunctionCallValue{ Function = new VariableValue { Name = "next" } }.Return(x => x.Arguments.Add(prev_cond)), Return = _v4_x_last_add_0 },
                                 new BindCode { Return = yn, Value = new PropertyValue { Left = _v4_x_last_add_0, Right = "1" } },
                                 new BindCode { Return = ys, Value = new PropertyValue { Left = _v4_x_last_add_0, Right = "2" } },
-                            });
+                            ]);
                     }
                     break;
             }

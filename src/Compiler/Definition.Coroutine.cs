@@ -134,7 +134,7 @@ public static partial class Definition
             new BindCode { Return = _next_or_null, Value = new PropertyValue { Left = _self, Right = "next" } },
             new IfCastCode { Name = _next, Type = co_struct_typename, Condition = _next_or_null, Else = labels_cond[0] },
             new BindCode { Return = _value, Value = new PropertyValue { Left = _self, Right = "value" } },
-            new Call { Function = new FunctionCallValue { Function = tuple2 }.Return(x => x.Arguments.AddRange(new IEvaluable[] { _value, _next })), Return = _ret },
+            new Call { Function = new FunctionCallValue { Function = tuple2 }.Return(x => x.Arguments.AddRange([_value, _next])), Return = _ret },
             new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "return" } }.Return(x => x.Arguments.Add(_ret)) },
             labels_cond[0],
             new BindCode { Return = _state, Value = new PropertyValue { Left = _self, Right = "state" } },
@@ -145,14 +145,14 @@ public static partial class Definition
             next_body.Body.Add(new BindCode { Return = _local, Value = new PropertyValue { Left = _self, Right = "local" } });
         }
         next_body.Body.AddRange(Lists.Sequence(1).Take(yield_count).Select(n => new IOperand[] {
-                new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "==" } }.Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, new NumericValue() { Value = (uint)n } })), Return = _cond },
+                new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "==" } }.Return(x => x.Arguments.AddRange([_state, new NumericValue() { Value = (uint)n }])), Return = _cond },
                 new IfCode { Condition = _cond, Else = labels_cond[n] },
                 new GotoCode { Label = labels_jump[n - 1] },
                 labels_cond[n],
             }).Flatten());
         next_body.Body.AddRange([
             new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "-" } }.Return(x => x.Arguments.Add(new NumericValue() { Value = 1 })), Return = _m1 },
-            new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "==" } }.Return(x => x.Arguments.AddRange(new IEvaluable[] { _state, _m1 })), Return = _cond },
+            new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "==" } }.Return(x => x.Arguments.AddRange([_state, _m1])), Return = _cond },
             new IfCode { Condition = _cond, Else = labels_cond[^1] },
             new GotoCode { Label = labels_jump[^1] },
             labels_cond[^1],
@@ -187,7 +187,7 @@ public static partial class Definition
             }
             yield_block.AddRange([
                 new BindCode { Return = new PropertyValue { Left = _self, Right = "next" }, Value = _next },
-                new Call { Function = new FunctionCallValue { Function = tuple2 }.Return(x => x.Arguments.AddRange(new IEvaluable[] { yield_line.Function.Arguments[0], _next })), Return = _ret },
+                new Call { Function = new FunctionCallValue { Function = tuple2 }.Return(x => x.Arguments.AddRange([yield_line.Function.Arguments[0], _next])), Return = _ret },
                 new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "return" } }.Return(x => x.Arguments.Add(_ret)) },
                 labels_jump[i - 1],
             ]);
@@ -199,7 +199,7 @@ public static partial class Definition
             labels_jump[^1],
             new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "-" } }.Return(x => x.Arguments.Add(new NumericValue() { Value = 1 })), Return = _m1 },
             new BindCode { Return = new PropertyValue { Left = _self, Right = "state" }, Value = _m1 },
-            new Call { Function = new FunctionCallValue { Function = tuple2 }.Return(x => x.Arguments.AddRange(new IEvaluable[] { new NullValue(), _self })), Return = _ret },
+            new Call { Function = new FunctionCallValue { Function = tuple2 }.Return(x => x.Arguments.AddRange([new NullValue(), _self])), Return = _ret },
             new Call { Function = new FunctionCallValue { Function = new VariableValue { Name = "return" } }.Return(x => x.Arguments.Add(_ret)) },
         ]);
 
