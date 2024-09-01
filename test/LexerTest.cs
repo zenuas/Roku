@@ -49,6 +49,7 @@ public class LexerTest
             }).All(x => x.First.Symbol == x.Second));
         Assert.Equal(ts1[1].Cast<TokenNode>().Name, "a");
         Assert.Equal(ts1[3].Cast<NumericNode>().Format, "123_456");
+        Assert.Equal(ts1[3].Cast<NumericNode>().Value, 123_456u);
 
         var ts2 = Tokens("b = \"abc123\"");
         Assert.Equal(ts2.Count, 5);
