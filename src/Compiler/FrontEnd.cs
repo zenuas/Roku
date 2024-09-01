@@ -102,7 +102,7 @@ public static class FrontEnd
     public static EmbeddedFunction CreateEmbeddedFunction(string name, string? ret, params string[] args)
     {
         var ef = new EmbeddedFunction(name);
-        Func<string, ITypeDefinition> create_type = (x) =>
+        ITypeDefinition create_type(string x)
         {
             if (char.IsLower(x.First()))
             {
@@ -113,9 +113,9 @@ public static class FrontEnd
                 return g;
             }
             return new TypeValue { Name = x };
-        };
+        }
 
-        args.Each(x => ef.Arguments.Add(create_type(x)));
+        args.Select(create_type).Each(ef.Arguments.Add);
         if (ret is { } r) ef.Return = create_type(r);
         return ef;
     }
